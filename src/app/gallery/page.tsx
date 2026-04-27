@@ -1,22 +1,19 @@
-import styles from "../shared/pageShell.module.css";
+import { ui } from "../shared/ui";
 
 export default function GalleryPage() {
-  return (
-    <main className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.h1}>Gallery</h1>
-        <p className={styles.lead}>
-          Photos will be added after each night (post-event update).
-        </p>
-      </header>
+    return (
+        <main className={ui.page}>
+            <header className={ui.header}>
+                <h1 className={ui.h1}>Gallery</h1>
+                <p className={ui.lead}>
+                    Photos will be added after each night (post-event update).
+                </p>
+            </header>
 
-      <section className={styles.card}>
-        <div className={styles.cardTitle}>Coming soon</div>
-        <p className={styles.muted}>
-          We’ll organize photos by day: Monday → Sunday.
-        </p>
-      </section>
-    </main>
-  );
+            <section className={ui.card}>
+                <div className={ui.cardTitle}>Coming soon</div>
+                <p className={ui.muted}>We’ll organize photos by day: Monday → Sunday.</p>
+            </section>
+        </main>
+    );
 }
-

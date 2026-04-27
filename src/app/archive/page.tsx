@@ -1,30 +1,32 @@
-import styles from "../shared/pageShell.module.css";
+import { ui } from "../shared/ui";
 
 export default function ArchivePage() {
-  return (
-    <main className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.h1}>Archive</h1>
-        <p className={styles.lead}>
-          Redemption Week pages can stay online after the event for easy reference.
-        </p>
-      </header>
+    return (
+        <main className={ui.page}>
+            <header className={ui.header}>
+                <h1 className={ui.h1}>Archive</h1>
+                <p className={ui.lead}>
+                    Redemption Week pages can stay online after the event for easy
+                    reference.
+                </p>
+            </header>
 
-      <section className={styles.card}>
-        <div className={styles.cardTitle}>What stays</div>
-        <ul className={styles.list}>
-          <li>
-            <span className={styles.tag}>Programme</span> Keep the schedule and key highlights.
-          </li>
-          <li>
-            <span className={styles.tag}>Gallery</span> Photos by day.
-          </li>
-          <li>
-            <span className={styles.tag}>Merch</span> Optional: hide ordering after cutoff.
-          </li>
-        </ul>
-      </section>
-    </main>
-  );
+            <section className={ui.card}>
+                <div className={ui.cardTitle}>What stays</div>
+                <ul className={ui.list}>
+                    <li>
+                        <span className={ui.tag}>Programme</span> Keep the schedule and
+                        key highlights.
+                    </li>
+                    <li>
+                        <span className={ui.tag}>Gallery</span> Photos by day.
+                    </li>
+                    <li>
+                        <span className={ui.tag}>Merch</span> Optional: hide ordering
+                        after cutoff.
+                    </li>
+                </ul>
+            </section>
+        </main>
+    );
 }
-

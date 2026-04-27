@@ -7,6 +7,5 @@
  * - update order status to confirmed
  */
 export async function POST() {
-  return Response.json({ ok: true });
+    return Response.json({ ok: true });
 }
-

@@ -1,20 +1,23 @@
-import styles from "./siteFooter.module.css";
-
 export function SiteFooter() {
-  return (
-    <footer className={styles.footer}>
-      <div className={styles.inner}>
-        <div className={styles.left}>
-          <div className={styles.brand}>Redemption Week</div>
-          <div className={styles.muted}>Built by RCF FUTA ICT.</div>
-        </div>
+    return (
+        <footer className="mt-auto border-t border-slate-200 bg-white">
+            <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4">
+                <div>
+                    <div className="font-extrabold">Redemption Week</div>
+                    <div className="mt-1 text-sm font-medium text-slate-500">
+                        Built by RCF FUTA ICT.
+                    </div>
+                </div>
 
-        <div className={styles.right}>
-          <span className={styles.pill}>Light mode</span>
-          <span className={styles.pill}>rw.rcffuta.com</span>
-        </div>
-      </div>
-    </footer>
-  );
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                    <span className="inline-flex items-center rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-500">
+                        Light mode
+                    </span>
+                    <span className="inline-flex items-center rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-500">
+                        rw.rcffuta.com
+                    </span>
+                </div>
+            </div>
+        </footer>
+    );
 }
-
