@@ -84,13 +84,13 @@ export function PublicFooter() {
     return (
         <footer className="bg-rw-ink text-white">
             {/* ── Top brand band ─────────────────────────────────────────────── */}
-            <div className="border-b border-white/8">
-                <div className="section-container py-12 lg:py-14 flex flex-wrap items-center justify-between gap-8">
+            <div className="border-b border-white/8 py-6 lg:py-3">
+                <div className="section-container py-10 lg:py-14 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-8 text-center lg:text-left">
                     {/* Identity */}
-                    <Identity dark />
+                    <Identity dark className="justify-center lg:justify-start" />
 
                     {/* Organisation logos */}
-                    <div className="flex items-center gap-8 sm:gap-12">
+                    <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 lg:gap-12 opacity-40">
                         {[
                             {
                                 src: "/images/logos/rcf-futa.jpeg",
@@ -109,8 +109,7 @@ export function PublicFooter() {
                                 key={logo.alt}
                                 src={logo.src}
                                 alt={logo.alt}
-                                // fill
-                                className="h-12 w-auto object-contain opacity-40 hover:opacity-80 transition-opacity duration-300"
+                                className="h-10 sm:h-12 w-auto object-contain hover:opacity-100 transition-opacity duration-300 filter grayscale brightness-200 lg:grayscale-0 lg:brightness-100"
                             />
                         ))}
                     </div>
@@ -118,14 +117,14 @@ export function PublicFooter() {
             </div>
 
             {/* ── Main footer columns ────────────────────────────────────────── */}
-            <div className="section-container py-24 lg:py-28">
-                <div className="grid gap-16 xl:gap-20 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
+            <div className="section-container py-6 lg:py-28">
+                <div className="grid gap-12 lg:gap-16 xl:gap-20 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] py-6 lg:py-3">
                     {/* Col 1 — About */}
-                    <div>
+                    <div className="text-center sm:text-left">
                         <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/30 mb-6">
                             About
                         </p>
-                        <p className="text-sm text-white/60 leading-relaxed max-w-[38ch]">
+                        <p className="text-sm text-white/60 leading-relaxed max-w-[38ch] mx-auto sm:mx-0">
                             The Redeemed Christian Fellowship, Federal University of
                             Technology, Akure (RCFFUTA) is one of the leading fellowships
                             in the FUTA environs. Standing strong in faith, values, and
@@ -136,11 +135,11 @@ export function PublicFooter() {
                         </p>
 
                         {/* Fellowship facts */}
-                        <div className="mt-10 grid grid-cols-2 gap-5">
+                        <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-5">
                             {FELLOWSHIP_FACTS.map((f) => (
                                 <div
                                     key={f.label}
-                                    className="border border-white/8 rounded-xl p-4"
+                                    className="border border-white/8 rounded-xl p-4 transition-colors hover:bg-white/5"
                                 >
                                     <p className="font-display font-bold text-2xl text-rw-crimson">
                                         {f.value}
@@ -153,7 +152,7 @@ export function PublicFooter() {
                         </div>
 
                         {/* Social links */}
-                        <div className="mt-10 flex items-center gap-4">
+                        <div className="mt-10 flex items-center justify-center sm:justify-start gap-4">
                             {SOCIAL_LINKS.map((s) => (
                                 <a
                                     key={s.label}
@@ -168,11 +167,11 @@ export function PublicFooter() {
                     </div>
 
                     {/* Col 2 — Programme */}
-                    <div>
+                    <div className="text-center sm:text-left">
                         <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/30 mb-6">
                             Programme
                         </p>
-                        <ul className="flex flex-col gap-1">
+                        <ul className="flex flex-col gap-1 max-w-[280px] mx-auto sm:mx-0">
                             {PROGRAMME.map((n, i) => (
                                 <li
                                     key={n.day}
@@ -195,7 +194,7 @@ export function PublicFooter() {
                     </div>
 
                     {/* Col 3 — Navigate */}
-                    <div>
+                    <div className="text-center sm:text-left">
                         <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/30 mb-6">
                             Navigate
                         </p>
@@ -204,7 +203,7 @@ export function PublicFooter() {
                                 <li key={l.href}>
                                     <Link
                                         href={l.href}
-                                        className="group flex items-center gap-3 text-sm text-white/50 hover:text-white transition-colors duration-200"
+                                        className="group flex items-center justify-center sm:justify-start gap-3 text-sm text-white/50 hover:text-white transition-colors duration-200"
                                     >
                                         <span className="h-px w-3 bg-rw-crimson/40 group-hover:w-5 group-hover:bg-rw-crimson transition-all duration-300" />
                                         {l.label}
@@ -215,11 +214,11 @@ export function PublicFooter() {
                     </div>
 
                     {/* Col 4 — Sponsorship */}
-                    <div>
+                    <div className="text-center sm:text-left">
                         <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/30 mb-6">
                             Sponsorship
                         </p>
-                        <p className="text-sm text-white/50 leading-relaxed mb-8">
+                        <p className="text-sm text-white/50 leading-relaxed mb-8 mx-auto sm:mx-0">
                             Partner with 38 years of impact. Reach 900+ students and
                             alumni across a full week of events.
                         </p>
@@ -276,17 +275,17 @@ export function PublicFooter() {
             </div>
 
             {/* ── Bottom bar ─────────────────────────────────────────────────── */}
-            <div className="border-t border-white/5">
-                <div className="section-container py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="border-t border-white/5 py-6 lg:py-3">
+                <div className="section-container py-8 flex flex-col lg:flex-row items-center justify-between gap-6 text-center lg:text-left">
                     <span className="text-xs text-white/20">
                         &copy; 2026 Redeemed Christian Fellowship, FUTA Chapter · All
                         rights reserved
                     </span>
-                    <div className="flex items-center gap-5">
+                    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                         <span className="text-xs text-white/20">
                             Powered by the RCF FUTA ICT Unit
                         </span>
-                        <span className="h-3 w-px bg-white/10" />
+                        <span className="hidden sm:block h-3 w-px bg-white/10" />
                         <a
                             href="https://rcffuta.com"
                             target="_blank"
