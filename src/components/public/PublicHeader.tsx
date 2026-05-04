@@ -7,7 +7,7 @@ import { useCart } from "@/components/public/CartContext";
 
 const NAV = [
     { href: "/",        label: "Home" },
-    { href: "/shop",    label: "Merch" },
+    { href: "/shop",    label: "Shop" },
     { href: "/fulfil",  label: "Pay Order" },
 ];
 
@@ -17,33 +17,48 @@ export function PublicHeader() {
     const [open, setOpen] = useState(false);
 
     return (
-        <header className="sticky top-0 z-50 bg-rw-bg/95 backdrop-blur-sm border-b border-[var(--rw-border)]">
-            <div className="section-container flex h-14 items-center justify-between gap-6">
-                {/* Wordmark */}
-                <Link href="/" id="site-logo" className="flex items-center gap-2.5 shrink-0">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-rw-crimson">
-                        <svg className="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                            <path d="M12 2C9 7 6 9 6 13a6 6 0 0 0 12 0c0-4-3-6-6-11zm0 16a4 4 0 0 1-4-4c0-2.5 1.8-4.2 4-7.1C14.2 9.8 16 11.5 16 14a4 4 0 0 1-4 4z" />
-                        </svg>
-                    </span>
-                    <span className="font-display font-bold text-rw-ink text-[15px] leading-tight">
-                        Redemption Week <span className="text-rw-crimson">&apos;26</span>
-                    </span>
+        <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[var(--rw-border)]">
+            <div className="section-container flex h-16 items-center justify-between gap-4">
+                {/* Logo area — multiple logos */}
+                <Link href="/" id="site-logo" className="flex items-center gap-3 shrink-0">
+                    {/* RCF FUTA logo placeholder */}
+                    <img
+                        src="https://placehold.co/40x40?text=RCF"
+                        alt="RCF FUTA Logo"
+                        className="h-9 w-9 rounded-lg object-cover"
+                    />
+                    {/* 38th Anniversary logo placeholder */}
+                    <img
+                        src="https://placehold.co/40x40?text=38th"
+                        alt="38th Anniversary Logo"
+                        className="h-9 w-9 rounded-lg object-cover"
+                    />
+                    <div className="hidden sm:block leading-tight">
+                        <p className="font-display font-bold text-rw-ink text-[15px]">
+                            Redemption Week <span className="text-rw-crimson">&apos;26</span>
+                        </p>
+                        <p className="text-[10px] text-rw-muted font-medium tracking-wide">
+                            38th Anniversary · RCF FUTA
+                        </p>
+                    </div>
                 </Link>
 
                 {/* Desktop nav */}
-                <nav className="hidden md:flex items-center gap-0.5" aria-label="Primary">
+                <nav className="hidden md:flex items-center gap-1" aria-label="Primary">
                     {NAV.map((l) => (
                         <Link
                             key={l.href}
                             href={l.href}
-                            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                            className={`relative rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                                 pathname === l.href
                                     ? "text-rw-crimson font-semibold"
-                                    : "text-rw-text-2 hover:text-rw-ink"
+                                    : "text-rw-text-2 hover:text-rw-ink hover:bg-rw-bg-alt"
                             }`}
                         >
                             {l.label}
+                            {pathname === l.href && (
+                                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-5 bg-rw-crimson rounded-full" />
+                            )}
                         </Link>
                     ))}
                 </nav>
@@ -54,13 +69,13 @@ export function PublicHeader() {
                         id="cart-button"
                         onClick={openCart}
                         aria-label={`Cart — ${itemCount} item${itemCount !== 1 ? "s" : ""}`}
-                        className="relative rounded-lg p-2 text-rw-text-2 hover:text-rw-ink hover:bg-rw-bg-alt transition-colors"
+                        className="relative rounded-lg p-2.5 text-rw-text-2 hover:text-rw-ink hover:bg-rw-bg-alt transition-colors"
                     >
                         <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" aria-hidden>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                         </svg>
                         {itemCount > 0 && (
-                            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-rw-crimson text-[10px] font-bold text-white leading-none">
+                            <span className="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-rw-crimson text-[10px] font-bold text-white leading-none">
                                 {itemCount > 9 ? "9+" : itemCount}
                             </span>
                         )}
@@ -69,7 +84,7 @@ export function PublicHeader() {
                     <Link
                         href="/shop"
                         id="header-shop-cta"
-                        className="hidden sm:inline-flex h-8 items-center rounded-lg bg-rw-crimson px-4 text-[13px] font-semibold text-white hover:bg-rw-crimson-dk transition-colors"
+                        className="hidden sm:inline-flex h-9 items-center rounded-lg bg-rw-crimson px-5 text-[13px] font-semibold text-white hover:bg-rw-crimson-dk transition-all hover:shadow-md"
                     >
                         Shop Merch
                     </Link>
@@ -89,14 +104,14 @@ export function PublicHeader() {
             </div>
 
             {open && (
-                <div className="md:hidden border-t border-[var(--rw-border)] bg-rw-bg px-4 py-3 animate-fade-in-down">
+                <div className="md:hidden border-t border-[var(--rw-border)] bg-white px-5 py-4 animate-fade-in-down">
                     {NAV.map((l) => (
                         <Link
                             key={l.href}
                             href={l.href}
                             onClick={() => setOpen(false)}
-                            className={`block rounded-md px-3 py-2.5 text-sm font-medium ${
-                                pathname === l.href ? "text-rw-crimson" : "text-rw-text-2 hover:text-rw-ink"
+                            className={`block rounded-lg px-3 py-3 text-sm font-medium ${
+                                pathname === l.href ? "text-rw-crimson bg-rw-bg-alt" : "text-rw-text-2 hover:text-rw-ink"
                             }`}
                         >
                             {l.label}
@@ -105,7 +120,7 @@ export function PublicHeader() {
                     <Link
                         href="/shop"
                         onClick={() => setOpen(false)}
-                        className="mt-2 block rounded-lg bg-rw-crimson px-4 py-2.5 text-center text-sm font-semibold text-white"
+                        className="mt-3 block rounded-xl bg-rw-crimson px-4 py-3 text-center text-sm font-semibold text-white"
                     >
                         Shop Merch
                     </Link>

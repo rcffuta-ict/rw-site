@@ -16,29 +16,27 @@ export function AdminSidebar() {
     const pathname = usePathname();
 
     return (
-        <aside className="hidden md:flex flex-col w-56 shrink-0 border-r border-[var(--rw-border)] bg-rw-bg-alt min-h-screen sticky top-0">
-            <div className="flex items-center gap-2 px-4 py-4 border-b border-[var(--rw-border)]">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-rw-crimson">
-                    <svg className="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9 7 6 9 6 13a6 6 0 0 0 12 0c0-4-3-6-6-11z" /></svg>
+        <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-[var(--rw-border)] bg-white min-h-screen sticky top-0">
+            <div className="flex items-center gap-3 px-5 py-5 border-b border-[var(--rw-border)]">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-rw-crimson">
+                    <svg className="h-4.5 w-4.5 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9 7 6 9 6 13a6 6 0 0 0 12 0c0-4-3-6-6-11z" /></svg>
                 </span>
                 <div className="leading-tight">
-                    <p className="text-[13px] font-bold text-rw-ink">RW&apos;26 Admin</p>
-                    <p className="text-[10px] text-rw-muted">RCF FUTA</p>
+                    <p className="text-sm font-bold text-rw-ink">RW&apos;26 Admin</p>
+                    <p className="text-[10px] text-rw-muted font-medium">RCF FUTA · CRM</p>
                 </div>
             </div>
 
-            <nav className="flex-1 px-2 py-3 flex flex-col gap-0.5">
+            <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
                 {NAV.map(({ href, label, icon }) => {
                     const active = href === "/admin" ? pathname === href : pathname.startsWith(href);
                     return (
-                        <Link
-                            key={href}
-                            href={href}
-                            className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                                active ? "bg-rw-crimson/10 text-rw-crimson font-semibold" : "text-rw-text-2 hover:text-rw-ink hover:bg-white"
+                        <Link key={href} href={href}
+                            className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
+                                active ? "bg-rw-crimson/8 text-rw-crimson font-semibold" : "text-rw-text-2 hover:text-rw-ink hover:bg-rw-bg-alt"
                             }`}
                         >
-                            <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" aria-hidden>
+                            <svg className="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" aria-hidden>
                                 <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
                             </svg>
                             {label}
@@ -47,8 +45,11 @@ export function AdminSidebar() {
                 })}
             </nav>
 
-            <div className="border-t border-[var(--rw-border)] px-4 py-3">
-                <Link href="/" className="text-xs text-rw-muted hover:text-rw-ink transition-colors">← Public site</Link>
+            <div className="border-t border-[var(--rw-border)] px-5 py-4">
+                <Link href="/" className="flex items-center gap-2 text-xs text-rw-muted hover:text-rw-ink transition-colors">
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+                    Public site
+                </Link>
             </div>
         </aside>
     );

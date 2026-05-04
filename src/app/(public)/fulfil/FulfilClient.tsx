@@ -8,7 +8,6 @@ import type { Order } from "@/lib/data/types";
 
 const PAYMENT_CONFIG = { bank: "First Bank", accountName: "RCF FUTA", accountNumber: "3012345678", minPercent: 50 };
 
-// Mock extraction result for demo
 const MOCK_EXTRACTION = {
     senderName: "Adewale Ogundimu",
     amount: null as number | null,
@@ -26,17 +25,26 @@ function ProgressBar({ paid, total }: { paid: number; total: number }) {
                 <span className="font-medium text-rw-ink">Payment Progress</span>
                 <span className="font-bold text-rw-crimson">{pct}%</span>
             </div>
-            <div className="h-2.5 w-full rounded-full bg-gray-100 border border-[var(--rw-border)]">
-                <div
-                    className="h-full rounded-full bg-rw-crimson transition-all duration-500"
-                    style={{ width: `${pct}%` }}
-                />
+            <div className="progress-bar-track">
+                <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
             </div>
-            <div className="flex justify-between text-xs text-rw-muted mt-1.5">
+            <div className="flex justify-between text-xs text-rw-muted mt-2">
                 <span>₦{paid.toLocaleString()} paid</span>
                 <span>₦{(total - paid).toLocaleString()} remaining</span>
             </div>
         </div>
+    );
+}
+
+function RadioCard({ selected, onClick, title, desc }: { selected: boolean; onClick: () => void; title: string; desc: string }) {
+    return (
+        <button type="button" onClick={onClick} className={`radio-card text-left w-full ${selected ? "selected" : ""}`}>
+            <span className="radio-dot" />
+            <div>
+                <p className="font-semibold text-sm text-rw-ink">{title}</p>
+                <p className="text-xs text-rw-muted mt-0.5">{desc}</p>
+            </div>
+        </button>
     );
 }
 
@@ -45,24 +53,26 @@ function FulfilContent() {
     const [refInput, setRefInput] = useState(params.get("ref") ?? "");
     const [order, setOrder] = useState<Order | null>(null);
     const [notFound, setNotFound] = useState(false);
-    const [amount, setAmount] = useState("");
+
+    // Payment form state
+    const [paymentType, setPaymentType] = useState<"full" | "partial" | null>(null);
+    const [partialPercent, setPartialPercent] = useState(50);
     const [file, setFile] = useState<File | null>(null);
     const [stage, setStage] = useState<"idle" | "analysing" | "preview" | "done">("idle");
     const [extraction, setExtraction] = useState<typeof MOCK_EXTRACTION | null>(null);
     const [accurate, setAccurate] = useState<boolean | null>(null);
     const [submitting, setSubmitting] = useState(false);
 
-    const minAmount = order ? Math.ceil(order.totalAmount * PAYMENT_CONFIG.minPercent / 100) : 0;
+    const remaining = order ? order.totalAmount - order.amountPaid : 0;
+    const payAmount = paymentType === "full" ? remaining : Math.ceil(remaining * partialPercent / 100);
 
     function lookup(ref: string) {
         setNotFound(false);
-        // Check demo orders first (localStorage)
         try {
             const stored = JSON.parse(localStorage.getItem("rw_demo_orders") ?? "[]") as Order[];
             const local = stored.find((o: Order) => o.orderRef.toUpperCase() === ref.toUpperCase());
             if (local) { setOrder(local); return; }
         } catch {}
-        // Fall back to seeded demo data
         const found = getDemoOrder(ref);
         if (found) { setOrder(found); } else { setNotFound(true); }
     }
@@ -75,8 +85,8 @@ function FulfilContent() {
     async function handleUpload() {
         if (!file) return;
         setStage("analysing");
-        await new Promise(r => setTimeout(r, 1800)); // mock delay
-        setExtraction({ ...MOCK_EXTRACTION, amount: Number(amount) || null });
+        await new Promise(r => setTimeout(r, 1800));
+        setExtraction({ ...MOCK_EXTRACTION, amount: payAmount || null });
         setStage("preview");
     }
 
@@ -88,245 +98,289 @@ function FulfilContent() {
         setStage("done");
     }
 
-    const amountNum = Number(amount.replace(/,/g, ""));
-    const amountValid = order && amountNum >= minAmount && amountNum <= (order.totalAmount - order.amountPaid);
+    function resetUpload() {
+        setFile(null);
+        setStage("idle");
+        setExtraction(null);
+        setAccurate(null);
+    }
 
     return (
-        <div className="section-container py-12 max-w-2xl">
-            <div className="mb-8">
-                <p className="eyebrow mb-2">Order Payment</p>
-                <h1 className="section-heading text-3xl text-rw-ink">Fulfil an Order</h1>
-                <p className="mt-2 text-sm text-rw-muted">You can pay for someone else&apos;s order — just enter their order reference.</p>
-            </div>
-
-            {/* Ref lookup */}
-            {!order && (
-                <div className="rw-card p-6">
-                    <label htmlFor="order-ref-input" className="block text-sm font-semibold text-rw-ink mb-2">Order Reference</label>
-                    <div className="flex gap-2">
-                        <input
-                            id="order-ref-input"
-                            value={refInput}
-                            onChange={e => setRefInput(e.target.value.toUpperCase())}
-                            placeholder="e.g. FF3A9C"
-                            maxLength={6}
-                            className="flex-1 h-11 rounded-xl border border-[var(--rw-border-mid)] px-4 font-mono text-sm text-rw-ink bg-rw-surface focus:outline-none focus:ring-2 focus:ring-rw-crimson/30 focus:border-rw-crimson uppercase tracking-widest"
-                        />
-                        <Button variant="primary" onClick={() => lookup(refInput)} disabled={refInput.length < 4} id="lookup-order-btn">
-                            Look up
-                        </Button>
-                    </div>
-                    {notFound && <p className="mt-2 text-sm text-red-500">Order not found. Check the reference and try again.</p>}
+        <div className="section-container py-12 lg:py-16">
+            <div className="max-w-3xl mx-auto">
+                <div className="mb-8">
+                    <p className="eyebrow mb-2">Order Payment</p>
+                    <h1 className="section-heading text-3xl lg:text-4xl">Fulfil an Order</h1>
+                    <p className="mt-2 text-rw-muted">You can pay for someone else&apos;s order — just enter their order reference.</p>
                 </div>
-            )}
 
-            {/* Order loaded */}
-            {order && stage !== "done" && (
-                <div className="flex flex-col gap-5">
-                    {/* Order summary */}
-                    <div className="rw-card p-5">
-                        <div className="flex items-center justify-between mb-4">
-                            <div>
-                                <p className="text-xs text-rw-muted font-semibold uppercase tracking-wider">Order</p>
-                                <p className="font-mono font-bold text-2xl text-rw-crimson tracking-wider">{order.orderRef}</p>
-                            </div>
-                            <span className={`badge-${order.status} inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wide`}>
-                                {order.status.replace("_", " ")}
-                            </span>
-                        </div>
-                        <p className="text-sm font-semibold text-rw-ink mb-3">{order.customerName}</p>
-                        <ul className="flex flex-col gap-2 mb-4">
-                            {order.items.map(i => (
-                                <li key={i.id} className="flex justify-between text-sm">
-                                    <span className="text-rw-text-2">{i.productName} <span className="text-rw-muted text-xs">· {i.variantLabel} × {i.quantity}</span></span>
-                                    <span className="font-semibold text-rw-ink">₦{(i.unitPrice * i.quantity).toLocaleString()}</span>
-                                </li>
-                            ))}
-                        </ul>
-                        <ProgressBar paid={order.amountPaid} total={order.totalAmount} />
-                    </div>
-
-                    {/* Bank details */}
-                    <div className="rw-card p-5">
-                        <p className="text-sm font-semibold text-rw-ink mb-3">Transfer to</p>
-                        <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                            <dt className="text-rw-muted">Bank</dt>
-                            <dd className="font-semibold text-rw-ink">{PAYMENT_CONFIG.bank}</dd>
-                            <dt className="text-rw-muted">Account name</dt>
-                            <dd className="font-semibold text-rw-ink">{PAYMENT_CONFIG.accountName}</dd>
-                            <dt className="text-rw-muted">Account number</dt>
-                            <dd className="flex items-center gap-2">
-                                <span className="font-mono font-bold text-rw-ink tracking-widest">{PAYMENT_CONFIG.accountNumber}</span>
-                                <button
-                                    onClick={() => navigator.clipboard.writeText(PAYMENT_CONFIG.accountNumber)}
-                                    className="text-xs text-rw-crimson hover:underline"
-                                    aria-label="Copy account number"
-                                >Copy</button>
-                            </dd>
-                        </dl>
-                        <p className="mt-3 text-xs text-rw-muted border-t border-[var(--rw-border)] pt-3">
-                            Minimum payment: ₦{minAmount.toLocaleString()} ({PAYMENT_CONFIG.minPercent}% of total)
-                        </p>
-                    </div>
-
-                    {/* Payment form */}
-                    {stage === "idle" && (
-                        <div className="rw-card p-5 flex flex-col gap-4">
-                            <h2 className="font-display font-bold text-rw-ink">Submit payment</h2>
-
-                            <div>
-                                <label htmlFor="payment-amount" className="block text-sm font-medium text-rw-ink mb-1.5">
-                                    Amount you&apos;re paying (₦)
-                                </label>
-                                <input
-                                    id="payment-amount"
-                                    type="number"
-                                    min={minAmount}
-                                    value={amount}
-                                    onChange={e => setAmount(e.target.value)}
-                                    placeholder={`Min ₦${minAmount.toLocaleString()}`}
-                                    className="w-full h-11 rounded-xl border border-[var(--rw-border-mid)] px-4 text-sm bg-rw-surface text-rw-ink focus:outline-none focus:ring-2 focus:ring-rw-crimson/30 focus:border-rw-crimson"
-                                />
-                                {amount && !amountValid && (
-                                    <p className="mt-1 text-xs text-red-500">
-                                        Minimum amount is ₦{minAmount.toLocaleString()} ({PAYMENT_CONFIG.minPercent}%)
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* Upload */}
-                            <div>
-                                <label htmlFor="receipt-upload" className="block text-sm font-medium text-rw-ink mb-1.5">Receipt</label>
-                                <label
-                                    htmlFor="receipt-upload"
-                                    className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--rw-border-mid)] bg-rw-bg-alt p-8 cursor-pointer hover:border-rw-crimson/40 transition-colors"
-                                >
-                                    {file ? (
-                                        <p className="text-sm font-medium text-rw-ink">{file.name}</p>
-                                    ) : (
-                                        <>
-                                            <svg className="h-8 w-8 text-rw-muted" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" /></svg>
-                                            <p className="text-sm text-rw-muted">Drop your receipt here, or <span className="text-rw-crimson font-medium">browse</span></p>
-                                            <p className="text-xs text-rw-muted">JPG, PNG, PDF — max 6 MB</p>
-                                        </>
-                                    )}
-                                    <input id="receipt-upload" type="file" accept="image/*,application/pdf" className="sr-only" onChange={e => setFile(e.target.files?.[0] ?? null)} />
-                                </label>
-                            </div>
-
-                            <Button variant="primary" size="lg" onClick={handleUpload} disabled={!file || !amountValid} id="submit-receipt-btn">
-                                Submit Receipt
+                {/* Ref lookup */}
+                {!order && (
+                    <div className="rw-card p-6 sm:p-8">
+                        <label htmlFor="order-ref-input" className="block text-sm font-semibold text-rw-ink mb-3">Order Reference</label>
+                        <div className="flex gap-3">
+                            <input id="order-ref-input" value={refInput}
+                                onChange={e => setRefInput(e.target.value.toUpperCase())}
+                                placeholder="e.g. FF3A9C" maxLength={6}
+                                className="rw-input flex-1 font-mono uppercase tracking-widest"
+                            />
+                            <Button variant="primary" onClick={() => lookup(refInput)} disabled={refInput.length < 4} id="lookup-order-btn">
+                                Look up
                             </Button>
                         </div>
-                    )}
+                        {notFound && <p className="mt-3 text-sm text-red-500">Order not found. Check the reference and try again.</p>}
+                    </div>
+                )}
 
-                    {/* Analysing */}
-                    {stage === "analysing" && (
-                        <div className="rw-card p-8 text-center flex flex-col items-center gap-3">
-                            <span className="h-8 w-8 rounded-full border-2 border-rw-crimson border-t-transparent animate-spin" />
-                            <p className="font-medium text-rw-ink">Analysing receipt…</p>
-                            <p className="text-xs text-rw-muted">Extracting payment details</p>
-                        </div>
-                    )}
-
-                    {/* Preview extraction */}
-                    {stage === "preview" && extraction && (
-                        <div className="rw-card p-5 flex flex-col gap-4 animate-fade-in-up">
-                            <div className="flex items-center justify-between">
-                                <h2 className="font-display font-bold text-rw-ink">Receipt analysis</h2>
-                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold border ${
-                                    extraction.confidence === "high" ? "bg-green-50 text-green-700 border-green-200"
-                                    : extraction.confidence === "medium" ? "bg-amber-50 text-amber-700 border-amber-200"
-                                    : "bg-red-50 text-red-700 border-red-200"
-                                }`}>
-                                    {extraction.confidence} confidence
+                {/* Order loaded */}
+                {order && stage !== "done" && (
+                    <div className="flex flex-col gap-6">
+                        {/* Order summary with item previews */}
+                        <div className="rw-card p-6 sm:p-8">
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <p className="text-xs text-rw-muted font-semibold uppercase tracking-wider">Order</p>
+                                    <p className="font-mono font-bold text-3xl text-rw-crimson tracking-wider">{order.orderRef}</p>
+                                </div>
+                                <span className={`badge-${order.status} inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide`}>
+                                    {order.status.replace("_", " ")}
                                 </span>
                             </div>
+                            <p className="text-sm font-semibold text-rw-ink mb-4">{order.customerName}</p>
 
-                            <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm border border-[var(--rw-border)] rounded-xl p-4 bg-rw-bg-alt">
-                                {[
-                                    ["Sender", extraction.senderName ?? "—"],
-                                    ["Amount", extraction.amount ? `₦${extraction.amount.toLocaleString()}` : "—"],
-                                    ["Date", extraction.date ?? "—"],
-                                    ["Time", extraction.time ?? "—"],
-                                    ["Bank", extraction.bank ?? "—"],
-                                ].map(([k, v]) => (
-                                    <div key={k}>
-                                        <dt className="text-rw-muted text-xs">{k}</dt>
-                                        <dd className="font-semibold text-rw-ink">{v}</dd>
+                            {/* Item previews */}
+                            <div className="flex flex-col gap-3 mb-6">
+                                {order.items.map(i => (
+                                    <div key={i.id} className="flex items-center gap-3 p-3 rounded-xl bg-rw-bg-alt">
+                                        <img src={`https://placehold.co/56x56?text=${encodeURIComponent(i.productName.slice(0,6))}`} alt={i.productName} className="h-14 w-14 rounded-lg object-cover shrink-0" />
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-sm text-rw-ink truncate">{i.productName}</p>
+                                            <p className="text-xs text-rw-muted">{i.variantLabel} × {i.quantity}</p>
+                                        </div>
+                                        <span className="font-semibold text-sm text-rw-ink shrink-0">₦{(i.unitPrice * i.quantity).toLocaleString()}</span>
                                     </div>
                                 ))}
-                            </dl>
-
-                            <div className="border border-[var(--rw-border)] rounded-xl p-4">
-                                <p className="text-sm font-semibold text-rw-ink mb-3">Is this information accurate?</p>
-                                <div className="flex flex-col gap-2">
-                                    {[
-                                        { val: true,  label: "Yes, this looks correct" },
-                                        { val: false, label: "No, something looks wrong — please review manually" },
-                                    ].map(opt => (
-                                        <label key={String(opt.val)} className="flex items-start gap-3 cursor-pointer">
-                                            <input
-                                                type="radio"
-                                                name="accuracy"
-                                                checked={accurate === opt.val}
-                                                onChange={() => setAccurate(opt.val)}
-                                                className="mt-0.5 accent-rw-crimson"
-                                            />
-                                            <span className="text-sm text-rw-ink">{opt.label}</span>
-                                        </label>
-                                    ))}
-                                </div>
                             </div>
 
-                            <Button
-                                variant="primary" size="lg"
-                                onClick={handleConfirm}
-                                disabled={accurate === null || submitting}
-                                loading={submitting}
-                                id="confirm-receipt-btn"
-                            >
-                                Confirm Submission
-                            </Button>
+                            <ProgressBar paid={order.amountPaid} total={order.totalAmount} />
                         </div>
-                    )}
 
-                    {/* Payment history */}
-                    {order.payments.length > 0 && stage !== "preview" && stage !== "analysing" && (
-                        <div className="rw-card p-5">
-                            <p className="text-sm font-semibold text-rw-ink mb-3">Previous payments</p>
-                            <ul className="flex flex-col gap-2">
-                                {order.payments.map(p => (
-                                    <li key={p.id} className="flex items-center justify-between text-sm border-b border-[var(--rw-border)] pb-2 last:border-0 last:pb-0">
-                                        <div>
-                                            <span className="font-semibold text-rw-ink">₦{p.amountClaimed.toLocaleString()}</span>
-                                            <span className="text-rw-muted ml-2">— {new Date(p.createdAt).toLocaleDateString("en-NG")}</span>
+                        {/* Bank details */}
+                        <div className="rw-card p-6 sm:p-8">
+                            <p className="font-semibold text-rw-ink mb-4">Transfer to</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div className="p-4 rounded-xl bg-rw-bg-alt">
+                                    <p className="text-xs text-rw-muted mb-1">Bank</p>
+                                    <p className="font-semibold text-rw-ink">{PAYMENT_CONFIG.bank}</p>
+                                </div>
+                                <div className="p-4 rounded-xl bg-rw-bg-alt">
+                                    <p className="text-xs text-rw-muted mb-1">Account Name</p>
+                                    <p className="font-semibold text-rw-ink">{PAYMENT_CONFIG.accountName}</p>
+                                </div>
+                                <div className="p-4 rounded-xl bg-rw-bg-alt">
+                                    <p className="text-xs text-rw-muted mb-1">Account Number</p>
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-mono font-bold text-rw-ink tracking-widest">{PAYMENT_CONFIG.accountNumber}</span>
+                                        <button onClick={() => navigator.clipboard.writeText(PAYMENT_CONFIG.accountNumber)} className="text-xs text-rw-crimson hover:underline">Copy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Payment form */}
+                        {stage === "idle" && (
+                            <div className="rw-card p-6 sm:p-8 flex flex-col gap-6">
+                                <h2 className="font-display font-bold text-lg text-rw-ink">Submit payment</h2>
+
+                                {/* Payment type selection */}
+                                <div>
+                                    <p className="text-sm font-semibold text-rw-ink mb-3">How are you paying?</p>
+                                    <div className="flex flex-col gap-3">
+                                        <RadioCard
+                                            selected={paymentType === "full"}
+                                            onClick={() => setPaymentType("full")}
+                                            title="Pay in full"
+                                            desc={`Pay the entire remaining balance of ₦${remaining.toLocaleString()}`}
+                                        />
+                                        <RadioCard
+                                            selected={paymentType === "partial"}
+                                            onClick={() => setPaymentType("partial")}
+                                            title="Pay in part"
+                                            desc={`Pay a portion (minimum ${PAYMENT_CONFIG.minPercent}% of remaining)`}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Partial percentage picker */}
+                                {paymentType === "partial" && (
+                                    <div className="p-5 rounded-xl bg-rw-bg-alt border border-[var(--rw-border)]">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <p className="text-sm font-medium text-rw-ink">Payment percentage</p>
+                                            <span className="font-mono font-bold text-rw-crimson text-lg">{partialPercent}%</span>
                                         </div>
-                                        <span className={`badge-${p.status} inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold`}>
-                                            {p.status}
-                                        </span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-                </div>
-            )}
+                                        <input
+                                            type="range"
+                                            min={PAYMENT_CONFIG.minPercent}
+                                            max={100}
+                                            value={partialPercent}
+                                            onChange={e => setPartialPercent(Number(e.target.value))}
+                                            className="w-full accent-rw-crimson h-2 rounded-full cursor-pointer"
+                                        />
+                                        <div className="flex justify-between text-xs text-rw-muted mt-2">
+                                            <span>{PAYMENT_CONFIG.minPercent}% min</span>
+                                            <span>100%</span>
+                                        </div>
+                                        <p className="mt-3 text-sm font-semibold text-rw-ink">
+                                            Amount: <span className="text-rw-crimson">₦{payAmount.toLocaleString()}</span>
+                                        </p>
+                                    </div>
+                                )}
 
-            {/* Done */}
-            {stage === "done" && (
-                <div className="rw-card p-8 text-center flex flex-col items-center gap-4 animate-fade-in-up">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-50 border border-green-200">
-                        <svg className="h-7 w-7 text-green-600" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                                {/* Upload receipt */}
+                                {paymentType && (
+                                    <div>
+                                        <p className="text-sm font-semibold text-rw-ink mb-3">
+                                            Upload receipt for ₦{payAmount.toLocaleString()}
+                                        </p>
+                                        <label htmlFor="receipt-upload"
+                                            className="flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-[var(--rw-border-mid)] bg-rw-bg-alt p-10 cursor-pointer hover:border-rw-crimson/40 transition-colors"
+                                        >
+                                            {file ? (
+                                                <div className="text-center">
+                                                    <svg className="h-8 w-8 text-green-500 mx-auto mb-2" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                                                    <p className="text-sm font-medium text-rw-ink">{file.name}</p>
+                                                    <p className="text-xs text-rw-muted mt-1">Click to change</p>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <svg className="h-10 w-10 text-rw-muted" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" /></svg>
+                                                    <div className="text-center">
+                                                        <p className="text-sm font-medium text-rw-ink">Drop your receipt here</p>
+                                                        <p className="text-xs text-rw-muted mt-1">or <span className="text-rw-crimson font-semibold">browse files</span></p>
+                                                    </div>
+                                                    <p className="text-xs text-rw-muted">JPG, PNG, PDF — max 6 MB</p>
+                                                </>
+                                            )}
+                                            <input id="receipt-upload" type="file" accept="image/*,application/pdf" className="sr-only" onChange={e => setFile(e.target.files?.[0] ?? null)} />
+                                        </label>
+                                    </div>
+                                )}
+
+                                {paymentType && (
+                                    <Button variant="primary" size="lg" onClick={handleUpload} disabled={!file} id="submit-receipt-btn" className="w-full">
+                                        Submit Receipt
+                                    </Button>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Analysing */}
+                        {stage === "analysing" && (
+                            <div className="rw-card p-10 text-center flex flex-col items-center gap-4">
+                                <span className="h-10 w-10 rounded-full border-3 border-rw-crimson border-t-transparent animate-spin" />
+                                <p className="font-semibold text-rw-ink text-lg">Analysing receipt…</p>
+                                <p className="text-sm text-rw-muted">Extracting payment details from your receipt</p>
+                            </div>
+                        )}
+
+                        {/* Preview extraction */}
+                        {stage === "preview" && extraction && (
+                            <div className="rw-card p-6 sm:p-8 flex flex-col gap-6 animate-fade-in-up">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="font-display font-bold text-lg text-rw-ink">Receipt Analysis</h2>
+                                    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold border ${
+                                        extraction.confidence === "high" ? "bg-green-50 text-green-700 border-green-200"
+                                        : extraction.confidence === "medium" ? "bg-amber-50 text-amber-700 border-amber-200"
+                                        : "bg-red-50 text-red-700 border-red-200"
+                                    }`}>
+                                        {extraction.confidence} confidence
+                                    </span>
+                                </div>
+
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    {[
+                                        ["Sender", extraction.senderName ?? "—"],
+                                        ["Amount", extraction.amount ? `₦${extraction.amount.toLocaleString()}` : "—"],
+                                        ["Date", extraction.date ?? "—"],
+                                        ["Time", extraction.time ?? "—"],
+                                        ["Bank", extraction.bank ?? "—"],
+                                    ].map(([k, v]) => (
+                                        <div key={k} className="p-3 rounded-xl bg-rw-bg-alt">
+                                            <p className="text-xs text-rw-muted mb-1">{k}</p>
+                                            <p className="font-semibold text-sm text-rw-ink">{v}</p>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Accuracy check — custom radio cards */}
+                                <div>
+                                    <p className="text-sm font-semibold text-rw-ink mb-3">Is this information accurate?</p>
+                                    <div className="flex flex-col gap-3">
+                                        <RadioCard
+                                            selected={accurate === true}
+                                            onClick={() => setAccurate(true)}
+                                            title="Yes, this looks correct"
+                                            desc="The extracted details match my payment"
+                                        />
+                                        <RadioCard
+                                            selected={accurate === false}
+                                            onClick={() => setAccurate(false)}
+                                            title="No, something looks wrong"
+                                            desc="The admin will still review the payment proof manually"
+                                        />
+                                    </div>
+                                </div>
+
+                                {accurate === false && (
+                                    <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
+                                        <p className="text-sm text-amber-800 mb-3">You can upload a better receipt, or proceed anyway — the admin will review manually.</p>
+                                        <Button variant="outlined" size="sm" onClick={resetUpload}>Upload a different receipt</Button>
+                                    </div>
+                                )}
+
+                                <Button variant="primary" size="lg" onClick={handleConfirm} disabled={accurate === null || submitting} loading={submitting} id="confirm-receipt-btn" className="w-full">
+                                    Confirm Submission
+                                </Button>
+                            </div>
+                        )}
+
+                        {/* Payment history */}
+                        {order.payments.length > 0 && stage !== "preview" && stage !== "analysing" && (
+                            <div className="rw-card p-6">
+                                <p className="font-semibold text-rw-ink mb-4">Previous payments</p>
+                                <ul className="flex flex-col gap-3">
+                                    {order.payments.map(p => (
+                                        <li key={p.id} className="flex items-center justify-between p-3 rounded-xl bg-rw-bg-alt">
+                                            <div>
+                                                <span className="font-semibold text-sm text-rw-ink">₦{p.amountClaimed.toLocaleString()}</span>
+                                                <span className="text-xs text-rw-muted ml-2">— {new Date(p.createdAt).toLocaleDateString("en-NG")}</span>
+                                            </div>
+                                            <span className={`badge-${p.status} inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold`}>
+                                                {p.status}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                     </div>
-                    <div>
-                        <h2 className="font-display font-bold text-xl text-rw-ink">Receipt submitted</h2>
-                        <p className="mt-2 text-sm text-rw-muted max-w-[36ch] mx-auto">
-                            Your payment is being reviewed. We&apos;ll notify {order?.customerEmail} once it&apos;s confirmed.
-                        </p>
+                )}
+
+                {/* Done */}
+                {stage === "done" && (
+                    <div className="rw-card p-10 text-center flex flex-col items-center gap-5 animate-fade-in-up">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-50 border-2 border-green-200">
+                            <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                        </div>
+                        <div>
+                            <h2 className="font-display font-bold text-2xl text-rw-ink">Receipt submitted</h2>
+                            <p className="mt-2 text-rw-muted max-w-[36ch] mx-auto">
+                                Your payment is being reviewed. We&apos;ll notify {order?.customerEmail} once it&apos;s confirmed.
+                            </p>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }

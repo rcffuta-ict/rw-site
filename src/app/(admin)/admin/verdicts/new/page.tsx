@@ -6,9 +6,9 @@ import Link from "next/link";
 import { DEMO_ORDERS } from "@/lib/data/orders";
 
 const VERDICT_TYPES = [
-    { id: "withdrawal", label: "Withdrawal Permit", description: "Issued to customers to collect their items from the point of distribution." },
-    { id: "production", label: "Production Manifest", description: "Sent to the production / printing team with complete item list and quantities." },
-    { id: "combined",   label: "Combined",           description: "A single document combining both Withdrawal Permit and Production Manifest." },
+    { id: "withdrawal", label: "Withdrawal Permit",    description: "Issued to customers to collect their items from the point of distribution." },
+    { id: "production", label: "Production Manifest",  description: "Sent to the production / printing team with complete item list and quantities." },
+    { id: "combined",   label: "Combined",             description: "A single document combining both Withdrawal Permit and Production Manifest." },
 ] as const;
 
 type VerdictType = typeof VERDICT_TYPES[number]["id"];
@@ -27,8 +27,7 @@ export default function NewVerdictPage() {
     function toggle(ref: string) {
         setSelected(prev => {
             const next = new Set(prev);
-            if (next.has(ref)) next.delete(ref);
-            else next.add(ref);
+            if (next.has(ref)) next.delete(ref); else next.add(ref);
             return next;
         });
     }
@@ -44,12 +43,10 @@ export default function NewVerdictPage() {
 
     if (done) {
         return (
-            <div className="flex flex-col items-center justify-center py-24 gap-6 text-center">
-                <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-green-50 border border-green-200">
-                    <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                </span>
+            <div className="flex flex-col items-center justify-center py-24 gap-6 text-center animate-fade-in-up">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-50 border-2 border-green-200">
+                    <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </div>
                 <div>
                     <h2 className="section-heading text-2xl text-rw-ink">Verdict Generated!</h2>
                     <p className="mt-2 text-rw-muted text-sm">
@@ -57,18 +54,8 @@ export default function NewVerdictPage() {
                     </p>
                 </div>
                 <div className="flex gap-3">
-                    <button
-                        onClick={() => alert("PDF download — stub in demo build")}
-                        className="rounded-xl bg-fire-gradient px-5 py-2.5 text-sm font-bold text-white hover:opacity-90 transition-opacity"
-                    >
-                        Download PDF
-                    </button>
-                    <Link
-                        href="/admin/verdicts"
-                        className="rounded-xl border border-[var(--rw-border-mid)] px-5 py-2.5 text-sm font-semibold text-rw-text-2 hover:bg-rw-bg-alt transition-colors"
-                    >
-                        Back to Verdicts
-                    </Link>
+                    <button onClick={() => alert("PDF download — stub in demo build")} className="btn-primary !h-10 !px-5 text-sm">Download PDF</button>
+                    <Link href="/admin/verdicts" className="btn-secondary !h-10 !px-5 text-sm">Back to Verdicts</Link>
                 </div>
             </div>
         );
@@ -76,29 +63,27 @@ export default function NewVerdictPage() {
 
     return (
         <div className="flex flex-col gap-8 max-w-2xl">
-            <div className="flex items-center gap-3">
-                <Link href="/admin/verdicts" className="text-rw-muted hover:text-rw-ink transition-colors">
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </Link>
-                <div>
-                    <h1 className="section-heading text-2xl text-rw-ink">Generate Verdict</h1>
-                    <p className="text-sm text-rw-muted mt-0.5">Select type and confirmed orders to include</p>
-                </div>
+            {/* Breadcrumb */}
+            <nav className="flex items-center gap-2 text-sm text-rw-muted">
+                <Link href="/admin/verdicts" className="hover:text-rw-crimson transition-colors">Verdicts</Link>
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                <span className="font-medium text-rw-ink">Generate</span>
+            </nav>
+
+            <div>
+                <h1 className="section-heading text-2xl lg:text-3xl">Generate Verdict</h1>
+                <p className="text-sm text-rw-muted mt-1">Select type and confirmed orders to include</p>
             </div>
 
             {/* Step 1 — Type */}
             <section className="flex flex-col gap-4">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-rw-text-2">Step 1 — Verdict Type</h2>
+                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-rw-muted">Step 1 — Verdict Type</p>
                 <div className="grid gap-3 sm:grid-cols-3">
                     {VERDICT_TYPES.map(t => (
-                        <button
-                            key={t.id}
-                            onClick={() => setType(t.id)}
-                            className={`rw-card p-4 text-left transition-all ${type === t.id ? "border-rw-crimson ring-2 ring-rw-crimson/15" : "hover:border-rw-crimson/30"}`}
+                        <button key={t.id} onClick={() => setType(t.id)}
+                            className={`radio-card text-left !p-5 flex-col !items-start !gap-2 ${type === t.id ? "selected" : ""}`}
                         >
-                            <p className={`font-semibold text-sm mb-1 ${type === t.id ? "text-rw-crimson" : "text-rw-ink"}`}>{t.label}</p>
+                            <p className={`font-semibold text-sm ${type === t.id ? "text-rw-crimson" : "text-rw-ink"}`}>{t.label}</p>
                             <p className="text-xs text-rw-muted leading-relaxed">{t.description}</p>
                         </button>
                     ))}
@@ -108,40 +93,32 @@ export default function NewVerdictPage() {
             {/* Step 2 — Orders */}
             <section className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-rw-text-2">Step 2 — Select Orders</h2>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-rw-muted">Step 2 — Select Orders</p>
                     <div className="flex gap-3 text-xs font-semibold">
                         <button onClick={selectAll} className="text-rw-crimson hover:underline">Select all</button>
-                        <button onClick={clearAll}  className="text-rw-muted hover:text-rw-ink">Clear</button>
+                        <button onClick={clearAll} className="text-rw-muted hover:text-rw-ink">Clear</button>
                     </div>
                 </div>
 
                 {confirmedOrders.length === 0 ? (
-                    <div className="rw-card py-10 text-center text-rw-muted text-sm">
+                    <div className="rw-card py-12 text-center text-rw-muted text-sm">
                         No confirmed orders available.<br />
                         <Link href="/admin/orders" className="text-rw-crimson font-semibold hover:underline">Go to Orders</Link>
                     </div>
                 ) : (
                     <div className="flex flex-col gap-2">
                         {confirmedOrders.map(o => (
-                            <label
-                                key={o.id}
+                            <label key={o.id}
                                 className={`rw-card flex items-center gap-4 p-4 cursor-pointer transition-all ${selected.has(o.orderRef) ? "border-rw-crimson bg-rw-crimson/3" : "hover:border-rw-crimson/25"}`}
                             >
-                                <input
-                                    type="checkbox"
-                                    checked={selected.has(o.orderRef)}
-                                    onChange={() => toggle(o.orderRef)}
-                                    className="h-4 w-4 rounded accent-rw-crimson"
-                                />
+                                <input type="checkbox" checked={selected.has(o.orderRef)} onChange={() => toggle(o.orderRef)} className="h-4 w-4 rounded accent-rw-crimson" />
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2">
                                         <span className="font-mono font-bold text-sm text-rw-crimson">{o.orderRef}</span>
                                         <span className="text-xs text-rw-muted">·</span>
                                         <span className="text-sm text-rw-ink font-medium truncate">{o.customerName}</span>
                                     </div>
-                                    <p className="text-xs text-rw-muted mt-0.5">
-                                        {o.items.length} item{o.items.length !== 1 ? "s" : ""} · ₦{o.totalAmount.toLocaleString()} · {o.status}
-                                    </p>
+                                    <p className="text-xs text-rw-muted mt-0.5">{o.items.length} item{o.items.length !== 1 ? "s" : ""} · ₦{o.totalAmount.toLocaleString()} · {o.status}</p>
                                 </div>
                             </label>
                         ))}
@@ -151,22 +128,12 @@ export default function NewVerdictPage() {
 
             {/* Generate button */}
             <div className="flex items-center gap-4">
-                <button
-                    onClick={handleGenerate}
-                    disabled={selected.size === 0 || generating}
-                    className="rounded-xl bg-fire-gradient px-6 py-3 text-sm font-bold text-white shadow-md hover:opacity-90 disabled:opacity-50 transition-all flex items-center gap-2"
+                <button onClick={handleGenerate} disabled={selected.size === 0 || generating}
+                    className="btn-primary !h-12 !px-6 text-sm flex items-center gap-2 disabled:opacity-50"
                 >
                     {generating ? (
-                        <>
-                            <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                            </svg>
-                            Generating…
-                        </>
-                    ) : (
-                        <>Generate Verdict</>
-                    )}
+                        <><span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" /> Generating…</>
+                    ) : "Generate Verdict"}
                 </button>
                 {selected.size > 0 && !generating && (
                     <span className="text-sm text-rw-muted">{selected.size} order{selected.size !== 1 ? "s" : ""} selected</span>
