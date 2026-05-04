@@ -5,7 +5,7 @@ import type { Product } from "@/lib/data/types";
 import { COLOR_HEX } from "@/lib/data/products";
 import { ProductDrawer } from "@/components/public/ProductDrawer";
 import { useCart } from "@/components/public/CartContext";
-import { ph } from "@/lib/utils";
+import { productImageUrl } from "@/lib/utils";
 import { CartSidebar } from "@/components/public/CartSidebar";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -13,34 +13,27 @@ import { CartSidebar } from "@/components/public/CartSidebar";
 type Category = "all" | "tshirt" | "hoodie" | "accessory";
 
 const CATEGORY_LABELS: Record<Category, string> = {
-    all:       "All Items",
-    tshirt:    "T-Shirts",
-    hoodie:    "Hoodies",
+    all: "All Items",
+    tshirt: "T-Shirts",
+    hoodie: "Hoodies",
     accessory: "Accessories",
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const COLOR_SWATCH_BG: Record<string, string> = {
-    Black:      "1a1a1a",
-    White:      "f5f5f0",
-    Burgundy:   "7a0c31",
-    "Wine Red": "940011",
-    Navy:       "0a1628",
-};
-
-function productImageUrl(name: string, color: string | null) {
-    const bg    = color && COLOR_SWATCH_BG[color] ? COLOR_SWATCH_BG[color] : "f3f4f6";
-    const fg    = color ? "e0e0e0" : "9ca3af";
-    const label = `${name}${color ? `\n${color}` : ""}`;
-    return ph(480, 640, label, bg, fg);
-}
-
 // ─── ProductCard ──────────────────────────────────────────────────────────────
 
 function ProductCard({ product, onOpen }: { product: Product; onOpen: () => void }) {
-    const colors = [...new Set(product.variants.filter(v => v.color).map(v => v.color!))];
-    const sizes  = [...new Set(product.variants.filter(v => v.size && v.size !== "One Size").map(v => v.size!))];
+    const colors = [
+        ...new Set(product.variants.filter((v) => v.color).map((v) => v.color!)),
+    ];
+    const sizes = [
+        ...new Set(
+            product.variants
+                .filter((v) => v.size && v.size !== "One Size")
+                .map((v) => v.size!)
+        ),
+    ];
 
     const [hoveredColor, setHoveredColor] = useState<string | null>(null);
     const displayColor = hoveredColor ?? colors[0] ?? null;
@@ -48,7 +41,10 @@ function ProductCard({ product, onOpen }: { product: Product; onOpen: () => void
     return (
         <article className="rw-card group flex flex-col overflow-hidden hover:-translate-y-1.5">
             {/* Image */}
-            <div className="relative overflow-hidden bg-rw-bg-alt" style={{ aspectRatio: "3/4" }}>
+            <div
+                className="relative overflow-hidden bg-rw-bg-alt"
+                style={{ aspectRatio: "3/4" }}
+            >
                 <img
                     src={productImageUrl(product.name, displayColor, 360, 480)}
                     alt={`${product.name}${displayColor ? ` — ${displayColor}` : ""}`}
@@ -70,13 +66,17 @@ function ProductCard({ product, onOpen }: { product: Product; onOpen: () => void
                 {/* Colour swatches (hover to preview) */}
                 {colors.length > 0 && (
                     <div className="absolute top-3 left-3 flex gap-1.5">
-                        {colors.slice(0, 5).map(c => (
+                        {colors.slice(0, 5).map((c) => (
                             <button
                                 key={c}
                                 title={c}
                                 onMouseEnter={() => setHoveredColor(c)}
                                 onMouseLeave={() => setHoveredColor(null)}
-                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setHoveredColor(c); }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setHoveredColor(c);
+                                }}
                                 className={`h-5 w-5 rounded-full border-2 shadow-sm transition-all ${hoveredColor === c ? "border-white scale-125" : "border-white/60"}`}
                                 style={{ background: COLOR_HEX[c] ?? "#888" }}
                             />
@@ -130,15 +130,18 @@ export function ShopClient({ products }: { products: Product[] }) {
     const [selected, setSelected] = useState<Product | null>(null);
     const { isOpen, closeCart } = useCart();
 
-    const filtered = category === "all"
-        ? products
-        : products.filter(p => p.category === category);
+    const filtered =
+        category === "all" ? products : products.filter((p) => p.category === category);
 
     return (
-        <>
+        <div className="mb-20">
             {/* Category tabs */}
-            <div className="flex flex-wrap gap-2 mb-10" role="tablist" aria-label="Product categories">
-                {(Object.keys(CATEGORY_LABELS) as Category[]).map(c => (
+            <div
+                className="flex flex-wrap gap-2 mb-10"
+                role="tablist"
+                aria-label="Product categories"
+            >
+                {(Object.keys(CATEGORY_LABELS) as Category[]).map((c) => (
                     <button
                         key={c}
                         role="tab"
@@ -158,7 +161,7 @@ export function ShopClient({ products }: { products: Product[] }) {
 
             {/* Product grid */}
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {filtered.map(p => (
+                {filtered.map((p) => (
                     <ProductCard key={p.id} product={p} onOpen={() => setSelected(p)} />
                 ))}
             </div>
@@ -169,8 +172,10 @@ export function ShopClient({ products }: { products: Product[] }) {
                 </div>
             )}
 
-            {selected && <ProductDrawer product={selected} onClose={() => setSelected(null)} />}
-            {isOpen    && <CartSidebar onClose={closeCart} />}
-        </>
+            {selected && (
+                <ProductDrawer product={selected} onClose={() => setSelected(null)} />
+            )}
+            {isOpen && <CartSidebar onClose={closeCart} />}
+        </div>
     );
 }
