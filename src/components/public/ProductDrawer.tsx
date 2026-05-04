@@ -5,6 +5,7 @@ import type { Product, ProductVariant } from "@/lib/data/types";
 import { COLOR_HEX, buildVariantLabel, getEffectivePrice } from "@/lib/data/products";
 import { useCart } from "@/components/public/CartContext";
 import { Button } from "@/components/ui/Button";
+import { ph } from "@/lib/utils";
 
 // Map each colour to a distinctive placeholder palette
 const COLOR_SWATCH_BG: Record<string, { bg: string; fg: string }> = {
@@ -15,14 +16,14 @@ const COLOR_SWATCH_BG: Record<string, { bg: string; fg: string }> = {
     Navy: { bg: "0a1628", fg: "b0c4de" },
 };
 
-function productImageUrl(name: string, color: string | null, w: number, h: number) {
+function productImageUrl(name: string, color: string | null) {
     // @ts-expect-error coming from a literaly object
     const { bg, fg } = (color && COLOR_SWATCH_BG[color]) ?? {
         bg: "f3f4f6",
         fg: "9ca3af",
     };
-    const label = encodeURIComponent(`${name}${color ? `\n${color}` : ""}\n${w}×${h}`);
-    return `https://placehold.co/${w}x${h}/${bg}/${fg}?text=${label}`;
+    const label = `${name}${color ? `\n${color}` : ""}`;
+    return ph(512, 384, label, bg, fg);
 }
 
 const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL", "One Size"];
@@ -144,7 +145,7 @@ export function ProductDrawer({
                     <div className="relative bg-rw-bg-alt" style={{ aspectRatio: "4/3" }}>
                         <img
                             key={selectedColor ?? "default"}
-                            src={productImageUrl(product.name, selectedColor, 512, 384)}
+                            src={productImageUrl(product.name, selectedColor)}
                             alt={`${product.name}${selectedColor ? ` — ${selectedColor}` : ""}`}
                             className="w-full h-full object-cover animate-fade-in"
                         />

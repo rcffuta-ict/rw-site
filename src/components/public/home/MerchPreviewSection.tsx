@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DEMO_PRODUCTS, COLOR_HEX } from "@/lib/data/products";
+import { ph } from "@/lib/utils";
 
 export function MerchPreviewSection() {
     return (
@@ -28,7 +29,7 @@ export function MerchPreviewSection() {
                             >
                                 <div className="relative overflow-hidden bg-rw-bg-alt">
                                     <img
-                                        src={`https://placehold.co/400x480/f3f4f6/9ca3af?text=${encodeURIComponent(p.name)}%0A400×480`}
+                                        src={ph(400, 480, p.name)}
                                         alt={p.name}
                                         className="w-full object-cover group-hover:scale-105 transition-transform duration-500"
                                         style={{ aspectRatio: "5/6" }}

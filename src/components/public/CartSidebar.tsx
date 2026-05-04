@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from "@/components/public/CartContext";
+import { ph } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 
@@ -34,7 +35,7 @@ export function CartSidebar({ onClose }: { onClose: () => void }) {
                             {items.map((item) => (
                                 <li key={item.variantId} className="flex gap-4 p-5">
                                     <div className="h-20 w-20 rounded-xl overflow-hidden shrink-0 bg-rw-bg-alt">
-                                        <img src={`https://placehold.co/80x80?text=${encodeURIComponent(item.productName.slice(0,8))}`} alt={item.productName} className="h-full w-full object-cover" />
+                                        <img src={ph(80, 80, item.productName.slice(0,8))} alt={item.productName} className="h-full w-full object-cover" />
                                     </div>
                                     <div className="flex flex-1 flex-col gap-1.5 min-w-0">
                                         <p className="font-semibold text-sm text-rw-ink truncate">{item.productName}</p>

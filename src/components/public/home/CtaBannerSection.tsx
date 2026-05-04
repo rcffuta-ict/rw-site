@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ph } from "@/lib/data/home";
+import { ph } from "@/lib/utils";
 
 export function CtaBannerSection() {
     return (

@@ -1,5 +1,6 @@
 import { DEMO_PRODUCTS, COLOR_HEX } from "@/lib/data/products";
 import Link from "next/link";
+import { ph } from "@/lib/utils";
 import type { Metadata } from "next";
 import { AddProductButton, UpdateAvailabilityButton } from "./components";
 
@@ -28,8 +29,8 @@ const COLOR_SWATCH_BG: Record<string, string> = {
 function productImageUrl(name: string, color: string | null) {
     const bg    = color && COLOR_SWATCH_BG[color] ? COLOR_SWATCH_BG[color] : "f3f4f6";
     const fg    = color ? "e0e0e0" : "9ca3af";
-    const label = encodeURIComponent(`${name}${color ? `\n${color}` : ""}\n480×640`);
-    return `https://placehold.co/480x640/${bg}/${fg}?text=${label}`;
+    const label = `${name}${color ? `\n${color}` : ""}`;
+    return ph(480, 640, label, bg, fg);
 }
 
 export default function ProductsPage() {

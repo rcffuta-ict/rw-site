@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { ph } from "@/lib/utils";
+import Image from "next/image";
+import { Identity } from "../ui/Identity";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -13,11 +16,11 @@ const PROGRAMME = [
 ];
 
 const QUICK_LINKS = [
-    { href: "/",        label: "Home" },
-    { href: "/shop",    label: "Shop Merch" },
-    { href: "/fulfil",  label: "Pay an Order" },
-    { href: "/checkout",label: "Checkout" },
-    { href: "/admin",   label: "Admin Dashboard" },
+    { href: "/", label: "Home" },
+    { href: "/shop", label: "Shop Merch" },
+    { href: "/fulfil", label: "Pay an Order" },
+    { href: "/checkout", label: "Checkout" },
+    { href: "/admin", label: "Admin Dashboard" },
 ];
 
 const SOCIAL_LINKS = [
@@ -31,20 +34,38 @@ const SOCIAL_LINKS = [
         ),
     },
     {
-        label: "X / Twitter",
+        label: "Facebook",
         href: "#",
         icon: (
             <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                <path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z" />
             </svg>
         ),
     },
     {
-        label: "WhatsApp",
+        label: "Threads",
         href: "#",
         icon: (
             <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                <path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.964-.065-1.19.408-2.285 1.33-3.082.88-.76 2.119-1.207 3.583-1.291a13.853 13.853 0 0 1 3.02.142c-.126-.742-.375-1.332-.75-1.757-.513-.586-1.308-.883-2.359-.89h-.029c-.844 0-1.992.232-2.721 1.32L7.734 7.847c.98-1.454 2.568-2.256 4.478-2.256h.044c3.194.02 5.097 1.975 5.287 5.388.108.046.216.094.321.142 1.49.7 2.58 1.761 3.154 3.07.797 1.82.871 4.79-1.548 7.158-1.85 1.81-4.094 2.628-7.277 2.65Zm1.003-11.69c-.242 0-.487.007-.739.021-1.836.103-2.98.946-2.916 2.143.067 1.256 1.452 1.839 2.784 1.767 1.224-.065 2.818-.543 3.086-3.71a10.5 10.5 0 0 0-2.215-.221z" />
+            </svg>
+        ),
+    },
+    {
+        label: "Telegram",
+        href: "#",
+        icon: (
+            <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+            </svg>
+        ),
+    },
+    {
+        label: "YouTube",
+        href: "#",
+        icon: (
+            <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
             </svg>
         ),
     },
@@ -62,40 +83,34 @@ const FELLOWSHIP_FACTS = [
 export function PublicFooter() {
     return (
         <footer className="bg-rw-ink text-white">
-
             {/* ── Top brand band ─────────────────────────────────────────────── */}
             <div className="border-b border-white/8">
-                <div className="section-container py-10 flex flex-wrap items-center justify-between gap-6">
+                <div className="section-container py-12 lg:py-14 flex flex-wrap items-center justify-between gap-8">
                     {/* Identity */}
-                    <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-2xl bg-rw-crimson/20 border border-rw-crimson/30 flex items-center justify-center shrink-0">
-                            <img
-                                src="https://placehold.co/48x48/1a1a1a/c41230?text=R"
-                                alt="RCF FUTA"
-                                className="h-8 w-8 object-contain"
-                            />
-                        </div>
-                        <div>
-                            <p className="font-display font-bold text-lg text-white leading-tight">
-                                Redemption Week <span className="text-rw-crimson">&apos;26</span>
-                            </p>
-                            <p className="text-xs text-white/40 font-medium tracking-wide mt-0.5">
-                                38th Anniversary · RCF FUTA · rw.rcffuta.com
-                            </p>
-                        </div>
-                    </div>
+                    <Identity dark />
 
                     {/* Organisation logos */}
-                    <div className="flex items-center gap-6 sm:gap-10">
+                    <div className="flex items-center gap-8 sm:gap-12">
                         {[
-                            { src: "https://placehold.co/120x48/1a1a1a/555555?text=RCFFUTA", alt: "RCF FUTA" },
-                            { src: "https://placehold.co/120x48/1a1a1a/555555?text=CRM", alt: "Christ the Redeemers' Ministries" },
-                        ].map(logo => (
+                            {
+                                src: "/images/logos/rcf-futa.jpeg",
+                                alt: "RCF FUTA",
+                            },
+                            {
+                                src: "/images/logos/crm.png",
+                                alt: "Christ the Redeemers' Ministries",
+                            },
+                            {
+                                src: "/images/logos/rccg.png",
+                                alt: "Redeemed Christian Church of God",
+                            },
+                        ].map((logo) => (
                             <img
                                 key={logo.alt}
                                 src={logo.src}
                                 alt={logo.alt}
-                                className="h-10 w-auto object-contain opacity-40 hover:opacity-80 transition-opacity duration-300"
+                                // fill
+                                className="h-12 w-auto object-contain opacity-40 hover:opacity-80 transition-opacity duration-300"
                             />
                         ))}
                     </div>
@@ -103,39 +118,48 @@ export function PublicFooter() {
             </div>
 
             {/* ── Main footer columns ────────────────────────────────────────── */}
-            <div className="section-container py-20">
-                <div className="grid gap-14 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
-
+            <div className="section-container py-24 lg:py-28">
+                <div className="grid gap-16 xl:gap-20 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
                     {/* Col 1 — About */}
                     <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/30 mb-5">About</p>
-                        <p className="text-sm text-white/60 leading-relaxed max-w-[38ch]">
-                            The Redeemed Christian Fellowship, Federal University of Technology,
-                            Akure (RCFFUTA) is one of the leading fellowships in the FUTA environs.
-                            Standing strong in faith, values, and purpose since 1983.
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/30 mb-6">
+                            About
                         </p>
-                        <p className="mt-4 text-sm text-white/30 italic">
+                        <p className="text-sm text-white/60 leading-relaxed max-w-[38ch]">
+                            The Redeemed Christian Fellowship, Federal University of
+                            Technology, Akure (RCFFUTA) is one of the leading fellowships
+                            in the FUTA environs. Standing strong in faith, values, and
+                            purpose since 1983.
+                        </p>
+                        <p className="mt-5 text-sm text-white/30 italic">
                             &ldquo;A place where good things never cease.&rdquo;
                         </p>
 
                         {/* Fellowship facts */}
-                        <div className="mt-8 grid grid-cols-2 gap-4">
-                            {FELLOWSHIP_FACTS.map(f => (
-                                <div key={f.label} className="border border-white/8 rounded-xl p-3">
-                                    <p className="font-display font-bold text-xl text-rw-crimson">{f.value}</p>
-                                    <p className="text-[11px] text-white/40 font-medium mt-0.5">{f.label}</p>
+                        <div className="mt-10 grid grid-cols-2 gap-5">
+                            {FELLOWSHIP_FACTS.map((f) => (
+                                <div
+                                    key={f.label}
+                                    className="border border-white/8 rounded-xl p-4"
+                                >
+                                    <p className="font-display font-bold text-2xl text-rw-crimson">
+                                        {f.value}
+                                    </p>
+                                    <p className="text-[11px] text-white/40 font-medium mt-1">
+                                        {f.label}
+                                    </p>
                                 </div>
                             ))}
                         </div>
 
                         {/* Social links */}
-                        <div className="mt-8 flex items-center gap-3">
-                            {SOCIAL_LINKS.map(s => (
+                        <div className="mt-10 flex items-center gap-4">
+                            {SOCIAL_LINKS.map((s) => (
                                 <a
                                     key={s.label}
                                     href={s.href}
                                     aria-label={s.label}
-                                    className="h-10 w-10 rounded-xl border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white/30 hover:bg-white/5 transition-all duration-200"
+                                    className="h-11 w-11 rounded-xl border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white/30 hover:bg-white/5 transition-all duration-200"
                                 >
                                     {s.icon}
                                 </a>
@@ -145,11 +169,16 @@ export function PublicFooter() {
 
                     {/* Col 2 — Programme */}
                     <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/30 mb-5">Programme</p>
-                        <ul className="flex flex-col gap-0">
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/30 mb-6">
+                            Programme
+                        </p>
+                        <ul className="flex flex-col gap-1">
                             {PROGRAMME.map((n, i) => (
-                                <li key={n.day} className="flex items-start gap-3 py-3 border-b border-white/5 last:border-0">
-                                    <div className="flex flex-col items-center gap-0.5 shrink-0 w-8 mt-0.5">
+                                <li
+                                    key={n.day}
+                                    className="flex items-start gap-4 py-3 border-b border-white/5 last:border-0"
+                                >
+                                    <div className="flex flex-col items-center gap-1 shrink-0 w-8 mt-0.5">
                                         <span className="font-display font-bold text-[11px] text-rw-crimson">
                                             {String(i + 1).padStart(2, "0")}
                                         </span>
@@ -157,7 +186,9 @@ export function PublicFooter() {
                                             {n.day}
                                         </span>
                                     </div>
-                                    <span className="text-sm text-white/60 leading-tight">{n.label}</span>
+                                    <span className="text-sm text-white/60 leading-tight">
+                                        {n.label}
+                                    </span>
                                 </li>
                             ))}
                         </ul>
@@ -165,13 +196,15 @@ export function PublicFooter() {
 
                     {/* Col 3 — Navigate */}
                     <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/30 mb-5">Navigate</p>
-                        <ul className="flex flex-col gap-3">
-                            {QUICK_LINKS.map(l => (
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/30 mb-6">
+                            Navigate
+                        </p>
+                        <ul className="flex flex-col gap-4">
+                            {QUICK_LINKS.map((l) => (
                                 <li key={l.href}>
                                     <Link
                                         href={l.href}
-                                        className="group flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors duration-200"
+                                        className="group flex items-center gap-3 text-sm text-white/50 hover:text-white transition-colors duration-200"
                                     >
                                         <span className="h-px w-3 bg-rw-crimson/40 group-hover:w-5 group-hover:bg-rw-crimson transition-all duration-300" />
                                         {l.label}
@@ -183,66 +216,83 @@ export function PublicFooter() {
 
                     {/* Col 4 — Sponsorship */}
                     <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/30 mb-5">Sponsorship</p>
-                        <p className="text-sm text-white/50 leading-relaxed mb-6">
-                            Partner with 38 years of impact. Reach 900+ students and alumni across a full week of events.
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/30 mb-6">
+                            Sponsorship
+                        </p>
+                        <p className="text-sm text-white/50 leading-relaxed mb-8">
+                            Partner with 38 years of impact. Reach 900+ students and
+                            alumni across a full week of events.
                         </p>
 
                         {/* Tier pills */}
-                        <div className="flex flex-col gap-2 mb-7">
+                        <div className="flex flex-col gap-3 mb-9">
                             {[
                                 { tier: "Diamond", amount: "₦1,000,000" },
-                                { tier: "Gold",    amount: "₦750,000" },
-                                { tier: "Silver",  amount: "₦500,000" },
-                                { tier: "Bronze",  amount: "₦250,000" },
-                            ].map(s => (
-                                <div key={s.tier} className="flex items-center justify-between py-2 border-b border-white/5 text-xs">
-                                    <span className="text-white/40 font-medium">{s.tier}</span>
-                                    <span className="text-white/70 font-semibold tabular-nums">{s.amount}</span>
+                                { tier: "Gold", amount: "₦750,000" },
+                                { tier: "Silver", amount: "₦500,000" },
+                                { tier: "Bronze", amount: "₦250,000" },
+                            ].map((s) => (
+                                <div
+                                    key={s.tier}
+                                    className="flex items-center justify-between py-2 border-b border-white/5 text-xs"
+                                >
+                                    <span className="text-white/40 font-medium">
+                                        {s.tier}
+                                    </span>
+                                    <span className="text-white/70 font-semibold tabular-nums">
+                                        {s.amount}
+                                    </span>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="flex flex-col gap-3">
-                            <p className="text-[11px] text-white/30 font-bold uppercase tracking-wider">Contact</p>
-                            <a href="mailto:tobi4saviour2@gmail.com" className="text-sm text-rw-crimson hover:text-white transition-colors block">
+                        <div className="flex flex-col gap-4">
+                            <p className="text-[11px] text-white/30 font-bold uppercase tracking-wider">
+                                Contact
+                            </p>
+                            <a
+                                href="mailto:tobi4saviour2@gmail.com"
+                                className="text-sm text-rw-crimson hover:text-white transition-colors block"
+                            >
                                 tobi4saviour2@gmail.com
                             </a>
-                            <a href="mailto:ayobamioluwaseyi118@gmail.com" className="text-sm text-rw-crimson hover:text-white transition-colors block">
+                            <a
+                                href="mailto:ayobamioluwaseyi118@gmail.com"
+                                className="text-sm text-rw-crimson hover:text-white transition-colors block"
+                            >
                                 ayobamioluwaseyi118@gmail.com
                             </a>
-                            <div className="flex flex-col gap-1 mt-1">
-                                <span className="text-xs text-white/30">09031676421 · Aiyejagbara Tobi</span>
-                                <span className="text-xs text-white/30">09069948890 · Olatona Ayobami</span>
+                            <div className="flex flex-col gap-2 mt-2">
+                                <span className="text-xs text-white/30">
+                                    09031676421 · Aiyejagbara Tobi
+                                </span>
+                                <span className="text-xs text-white/30">
+                                    09069948890 · Olatona Ayobami
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* ── Conclusion quote band ──────────────────────────────────────── */}
-            <div className="border-t border-white/5 bg-white/[0.02]">
-                <div className="section-container py-10">
-                    <p className="text-sm text-white/35 text-center leading-relaxed max-w-[64ch] mx-auto">
-                        &ldquo;Just like birthdays and anniversaries, Redemption Week comes once every year and is
-                        the most anticipated event every member looks forward to. Join us in weaving together the
-                        story of 38 years of God&apos;s faithfulness.&rdquo;
-                    </p>
-                </div>
-            </div>
-
             {/* ── Bottom bar ─────────────────────────────────────────────────── */}
             <div className="border-t border-white/5">
-                <div className="section-container py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="section-container py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <span className="text-xs text-white/20">
-                        &copy; 2026 Redeemed Christian Fellowship, FUTA · All rights reserved
+                        &copy; 2026 Redeemed Christian Fellowship, FUTA Chapter · All
+                        rights reserved
                     </span>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-5">
                         <span className="text-xs text-white/20">
-                            Built by the RCF FUTA ICT Unit
+                            Powered by the RCF FUTA ICT Unit
                         </span>
                         <span className="h-3 w-px bg-white/10" />
-                        <a href="https://rcffuta.com" target="_blank" rel="noreferrer" className="text-xs text-white/20 hover:text-white/50 transition-colors">
+                        <a
+                            href="https://rcffuta.com"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-xs text-white/20 hover:text-white/50 transition-colors"
+                        >
                             rcffuta.com
                         </a>
                     </div>

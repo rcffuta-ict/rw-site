@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ph } from "@/lib/utils";
 import { getProductById, COLOR_HEX } from "@/lib/data/products";
 import { notFound } from "next/navigation";
 import type { ProductVariant } from "@/lib/data/types";
@@ -34,8 +35,8 @@ function productImageUrl(name: string, color: string | null) {
         bg: "f3f4f6",
         fg: "9ca3af",
     };
-    const label = encodeURIComponent(`${name}${color ? `\n${color}` : ""}\n480×640`);
-    return `https://placehold.co/480x640/${bg}/${fg}?text=${label}`;
+    const label = `${name}${color ? `\n${color}` : ""}`;
+    return ph(480, 640, label, bg, fg);
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────────

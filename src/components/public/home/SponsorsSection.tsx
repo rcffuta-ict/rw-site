@@ -1,3 +1,5 @@
+import { ph } from "@/lib/utils";
+
 const SPONSORS = [
     { tier: "Diamond", amount: "₦1,000,000", perks: ["All-week logo placement", "Daily exhibition booth", "20s video ad daily", "Vocal mentions nightly"] },
     { tier: "Gold",    amount: "₦750,000",   perks: ["All-week logo placement", "Booth × 4 days", "Video ads × 4 days"] },
@@ -46,7 +48,7 @@ export function SponsorsSection() {
                         {Array.from({ length: 6 }, (_, i) => (
                             <div key={i} className="rw-card h-20 rounded-xl flex items-center justify-center">
                                 <img
-                                    src={`https://placehold.co/120x50/f9fafb/cccccc?text=Partner+${i + 1}%0A120×50`}
+                                    src={ph(120, 50, `Partner ${i + 1}`, "f9fafb", "cccccc")}
                                     alt={`Partner ${i + 1}`}
                                     className="h-8 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity"
                                 />

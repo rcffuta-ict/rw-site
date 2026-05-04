@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/public/CartContext";
 import { Button } from "@/components/ui/Button";
+import { ph } from "@/lib/utils";
 
 type Step = 1 | 2 | 3;
 
@@ -48,7 +49,7 @@ function OrderSummaryPanel({ items, total }: { items: ReturnType<typeof useCart>
                 {items.map(i => (
                     <li key={i.variantId} className="flex gap-3">
                         <div className="h-16 w-16 rounded-xl overflow-hidden shrink-0 bg-rw-bg-alt">
-                            <img src={`https://placehold.co/64x64?text=${encodeURIComponent(i.productName.slice(0,6))}`} alt={i.productName} className="h-full w-full object-cover" />
+                            <img src={ph(64, 64, i.productName.slice(0,6))} alt={i.productName} className="h-full w-full object-cover" />
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className="font-semibold text-sm text-rw-ink truncate">{i.productName}</p>

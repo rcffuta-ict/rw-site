@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ph } from "@/lib/utils";
 
 interface Night {
     day: string;
@@ -19,10 +20,6 @@ const COLOR_BY_NIGHT: Record<number, { bg: string; fg: string }> = {
     6: { bg: "f0f9f9", fg: "2e6a6a" },
 };
 
-function ph(w: number, h: number, label: string, bg: string, fg: string) {
-    return `https://placehold.co/${w}x${h}/${bg}/${fg}?text=${encodeURIComponent(label)}`;
-}
-
 export function SevenNightsSection({ nights }: { nights: Night[] }) {
     const [active, setActive] = useState(0);
 
@@ -30,15 +27,18 @@ export function SevenNightsSection({ nights }: { nights: Night[] }) {
     const palette = COLOR_BY_NIGHT[active] ?? { bg: "f3f4f6", fg: "9ca3af" };
 
     return (
-        <section className="section-container section-py-lg">
+        <section className="section-container section-py">
             {/* Header */}
             <div className="mb-16 max-w-2xl">
                 <p className="eyebrow mb-4">The Programme</p>
                 <h2 className="section-heading text-4xl sm:text-5xl lg:text-6xl">
-                    Seven Nights<br />of Faith
+                    Seven Nights
+                    <br />
+                    of Faith
                 </h2>
                 <p className="mt-5 text-rw-text-2 text-lg leading-relaxed max-w-[48ch]">
-                    Each night is hosted by a different unit — a week-long tapestry of Word, Prayer, Drama, Music, and Legacy.
+                    Each night is hosted by a different unit — a week-long tapestry of
+                    Word, Prayer, Drama, Music, and Legacy.
                 </p>
             </div>
 
@@ -50,14 +50,18 @@ export function SevenNightsSection({ nights }: { nights: Night[] }) {
                             key={n.day}
                             onClick={() => setActive(i)}
                             className={`group flex items-start gap-6 py-7 text-left w-full transition-all duration-300 ${
-                                active === i ? "opacity-100" : "opacity-40 hover:opacity-75"
+                                active === i
+                                    ? "opacity-100"
+                                    : "opacity-40 hover:opacity-75"
                             }`}
                         >
                             {/* Number + day */}
                             <div className="shrink-0 flex flex-col items-center gap-1 w-10 pt-0.5">
                                 <span
                                     className={`font-display font-bold text-2xl leading-none transition-colors duration-300 ${
-                                        active === i ? "text-rw-crimson" : "text-rw-muted/50"
+                                        active === i
+                                            ? "text-rw-crimson"
+                                            : "text-rw-muted/50"
                                     }`}
                                 >
                                     {String(i + 1).padStart(2, "0")}
@@ -72,7 +76,9 @@ export function SevenNightsSection({ nights }: { nights: Night[] }) {
                                 <div className="flex items-center gap-3 flex-wrap">
                                     <h3
                                         className={`font-display font-bold text-xl leading-tight transition-colors duration-300 ${
-                                            active === i ? "text-rw-ink" : "text-rw-text-2"
+                                            active === i
+                                                ? "text-rw-ink"
+                                                : "text-rw-text-2"
                                         }`}
                                     >
                                         {n.name}
@@ -84,7 +90,9 @@ export function SevenNightsSection({ nights }: { nights: Night[] }) {
 
                                 <div
                                     className={`overflow-hidden transition-all duration-500 ${
-                                        active === i ? "max-h-24 mt-2.5 opacity-100" : "max-h-0 opacity-0"
+                                        active === i
+                                            ? "max-h-24 mt-2.5 opacity-100"
+                                            : "max-h-0 opacity-0"
                                     }`}
                                 >
                                     <p className="text-sm text-rw-text-2 leading-relaxed max-w-[52ch]">
@@ -109,10 +117,19 @@ export function SevenNightsSection({ nights }: { nights: Night[] }) {
 
                 {/* RIGHT: Sticky image */}
                 <div className="hidden lg:block lg:sticky lg:top-28">
-                    <div className="relative rounded-3xl overflow-hidden" style={{ aspectRatio: "3/4" }}>
+                    <div
+                        className="relative rounded-3xl overflow-hidden"
+                        style={{ aspectRatio: "3/4" }}
+                    >
                         <img
                             key={active}
-                            src={ph(440, 587, `Night ${String(active + 1).padStart(2, "0")}\n${night.name}\n440×587`, palette.bg, palette.fg)}
+                            src={ph(
+                                440,
+                                587,
+                                `Night ${String(active + 1).padStart(2, "0")}\n${night.name}\n440×587`,
+                                palette.bg,
+                                palette.fg
+                            )}
                             alt={night.name}
                             className="w-full h-full object-cover animate-fade-in"
                         />
@@ -124,7 +141,9 @@ export function SevenNightsSection({ nights }: { nights: Night[] }) {
                             <p className="font-display font-bold text-white text-2xl leading-tight">
                                 {night.name}
                             </p>
-                            <p className="text-white/60 text-sm mt-1 font-medium">{night.unit}</p>
+                            <p className="text-white/60 text-sm mt-1 font-medium">
+                                {night.unit}
+                            </p>
                         </div>
 
                         {/* Progress dots */}
@@ -153,7 +172,9 @@ export function SevenNightsSection({ nights }: { nights: Night[] }) {
                             ← Prev
                         </button>
                         <button
-                            onClick={() => setActive((a) => Math.min(nights.length - 1, a + 1))}
+                            onClick={() =>
+                                setActive((a) => Math.min(nights.length - 1, a + 1))
+                            }
                             disabled={active === nights.length - 1}
                             className="flex-1 h-10 rounded-xl border border-[var(--rw-border)] text-sm font-semibold text-rw-text-2 hover:border-rw-ink hover:text-rw-ink transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                         >
@@ -173,7 +194,13 @@ export function SevenNightsSection({ nights }: { nights: Night[] }) {
                             className="shrink-0 w-64 rounded-2xl overflow-hidden border border-[var(--rw-border)] bg-white shadow-sm"
                         >
                             <img
-                                src={ph(256, 192, `Night ${String(i + 1).padStart(2, "0")}\n${n.name}\n256×192`, pal.bg, pal.fg)}
+                                src={ph(
+                                    256,
+                                    192,
+                                    `Night ${String(i + 1).padStart(2, "0")}\n${n.name}\n256×192`,
+                                    pal.bg,
+                                    pal.fg
+                                )}
                                 alt={n.name}
                                 className="w-full h-40 object-cover"
                             />
@@ -186,7 +213,9 @@ export function SevenNightsSection({ nights }: { nights: Night[] }) {
                                         {n.day}
                                     </span>
                                 </div>
-                                <h3 className="font-display font-bold text-rw-ink text-sm">{n.name}</h3>
+                                <h3 className="font-display font-bold text-rw-ink text-sm">
+                                    {n.name}
+                                </h3>
                                 <p className="text-xs text-rw-muted mt-1.5 leading-relaxed line-clamp-2">
                                     {n.desc}
                                 </p>

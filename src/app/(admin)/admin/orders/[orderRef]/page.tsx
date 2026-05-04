@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getDemoOrder } from "@/lib/data/orders";
+import { ph } from "@/lib/utils";
 import { PaymentReviewCard } from "@/components/admin/PaymentReviewCard";
 import { OrderStatusBadge } from "@/components/ui/Badge";
 
@@ -71,7 +72,7 @@ export default async function AdminOrderDetailPage({ params }: Props) {
                             {order.items.map((i) => (
                                 <div key={i.id} className="flex items-center gap-4 px-6 py-4">
                                     <div className="h-14 w-14 rounded-xl bg-rw-bg-alt overflow-hidden shrink-0">
-                                        <img src={`https://placehold.co/56x56?text=${encodeURIComponent(i.productName.slice(0,6))}`} alt={i.productName} className="h-full w-full object-cover" />
+                                        <img src={ph(56, 56, i.productName.slice(0,6))} alt={i.productName} className="h-full w-full object-cover" />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="font-semibold text-rw-ink text-sm">{i.productName}</p>

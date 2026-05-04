@@ -1,4 +1,4 @@
-import { ph } from "@/lib/data/home";
+import { ph } from "@/lib/utils";
 
 const AIMS = [
     { n: "01", title: "Spiritual Growth",       desc: "Word, Prayer, Drama, and Worship — hearts stirred, lives transformed, faith deepened." },

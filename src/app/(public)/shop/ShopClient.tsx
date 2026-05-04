@@ -5,6 +5,7 @@ import type { Product } from "@/lib/data/types";
 import { COLOR_HEX } from "@/lib/data/products";
 import { ProductDrawer } from "@/components/public/ProductDrawer";
 import { useCart } from "@/components/public/CartContext";
+import { ph } from "@/lib/utils";
 import { CartSidebar } from "@/components/public/CartSidebar";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -28,11 +29,11 @@ const COLOR_SWATCH_BG: Record<string, string> = {
     Navy:       "0a1628",
 };
 
-function productImageUrl(name: string, color: string | null, w: number, h: number) {
+function productImageUrl(name: string, color: string | null) {
     const bg    = color && COLOR_SWATCH_BG[color] ? COLOR_SWATCH_BG[color] : "f3f4f6";
     const fg    = color ? "e0e0e0" : "9ca3af";
-    const label = encodeURIComponent(`${name}${color ? `\n${color}` : ""}\n${w}×${h}`);
-    return `https://placehold.co/${w}x${h}/${bg}/${fg}?text=${label}`;
+    const label = `${name}${color ? `\n${color}` : ""}`;
+    return ph(480, 640, label, bg, fg);
 }
 
 // ─── ProductCard ──────────────────────────────────────────────────────────────

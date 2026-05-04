@@ -1,3 +1,5 @@
+import { ph } from "@/lib/utils";
+
 export function GallerySection() {
     return (
         <section className="section-py">
@@ -31,7 +33,7 @@ export function GallerySection() {
                     ].map(({ w, h, span }, i) => (
                         <div key={i} className={`${span} overflow-hidden rounded-2xl bg-rw-bg-alt hover-lift`}>
                             <img
-                                src={`https://placehold.co/${w}x${h}/ebebeb/aaaaaa?text=RW+Archive+${i + 1}%0A${w}×${h}`}
+                                src={ph(w, h, `RW Archive ${i + 1}`, "ebebeb", "aaaaaa")}
                                 alt={`Archive photo ${i + 1}`}
                                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                             />

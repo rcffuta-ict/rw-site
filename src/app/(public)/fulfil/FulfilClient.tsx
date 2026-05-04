@@ -3,7 +3,8 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
-import { getDemoOrder } from "@/lib/data/orders";
+import { getDemoOrder, createDemoPayment } from "@/lib/data/orders";
+import { ph } from "@/lib/utils";
 import type { Order } from "@/lib/data/types";
 
 const PAYMENT_CONFIG = { bank: "First Bank", accountName: "RCF FUTA", accountNumber: "3012345678", minPercent: 50 };
@@ -152,7 +153,7 @@ function FulfilContent() {
                             <div className="flex flex-col gap-3 mb-6">
                                 {order.items.map(i => (
                                     <div key={i.id} className="flex items-center gap-3 p-3 rounded-xl bg-rw-bg-alt">
-                                        <img src={`https://placehold.co/56x56?text=${encodeURIComponent(i.productName.slice(0,6))}`} alt={i.productName} className="h-14 w-14 rounded-lg object-cover shrink-0" />
+                                        <img src={ph(56, 56, i.productName.slice(0,6))} alt={i.productName} className="h-14 w-14 rounded-lg object-cover shrink-0" />
                                         <div className="flex-1 min-w-0">
                                             <p className="font-semibold text-sm text-rw-ink truncate">{i.productName}</p>
                                             <p className="text-xs text-rw-muted">{i.variantLabel} × {i.quantity}</p>

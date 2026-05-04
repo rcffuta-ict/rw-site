@@ -1,4 +1,5 @@
 import { DEMO_PRODUCTS } from "@/lib/data/products";
+import { ph } from "@/lib/utils";
 import { ShopClient } from "./ShopClient";
 
 export const metadata = {
@@ -11,7 +12,7 @@ export default function ShopPage() {
         <div className="section-container py-12 lg:py-16">
             {/* Page header with banner */}
             <div className="relative rounded-2xl overflow-hidden mb-10">
-                <img src="https://placehold.co/1400x300?text=Shop+Banner" alt="Shop banner" className="w-full h-48 sm:h-56 object-cover" />
+                <img src={ph(1400, 300, "Shop Banner")} alt="Shop banner" className="w-full h-48 sm:h-56 object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-r from-rw-ink/80 to-rw-ink/40" />
                 <div className="absolute inset-0 flex flex-col justify-center px-8 sm:px-12">
                     <p className="eyebrow mb-2 !text-rw-orange">Official Merchandise</p>
