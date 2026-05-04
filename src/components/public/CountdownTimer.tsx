@@ -2,7 +2,12 @@
 
 import { useEffect, useState, useRef } from "react";
 
-interface TimeLeft { days: number; hours: number; minutes: number; seconds: number; }
+interface TimeLeft {
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+}
 
 function calc(target: string): TimeLeft {
     const diff = new Date(target).getTime() - Date.now();
@@ -15,85 +20,117 @@ function calc(target: string): TimeLeft {
     };
 }
 
-function Digit({ value, label, animate }: { value: number; label: string; animate: boolean }) {
+function DigitBlock({
+    value,
+    label,
+    flipping,
+}: {
+    value: number;
+    label: string;
+    flipping: boolean;
+}) {
+    const display = String(value).padStart(2, "0");
+
     return (
-        <div className="flex flex-col items-center gap-2">
-            <div className={`
-                flex h-[72px] w-[72px] sm:h-[88px] sm:w-[88px] items-center justify-center
-                rounded-2xl bg-white border border-[var(--rw-border)]
-                shadow-sm relative overflow-hidden
-                ${animate ? "animate-count-tick" : ""}
-            `}>
-                <span className="font-mono font-bold text-2xl sm:text-3xl text-rw-ink tabular-nums relative z-10">
-                    {String(value).padStart(2, "0")}
-                </span>
-                {/* Subtle gradient accent at bottom */}
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-crimson-gradient opacity-60" />
+        <div className="flex flex-col items-center gap-3">
+            {/* Card */}
+            <div className="relative">
+                {/* Background card */}
+                <div className="relative flex items-center justify-center rounded-2xl bg-white border border-[var(--rw-border)] shadow-sm overflow-hidden"
+                    style={{ width: "clamp(72px, 11vw, 100px)", height: "clamp(80px, 12vw, 108px)" }}
+                >
+                    {/* Crimson bottom accent line */}
+                    <div className="absolute bottom-0 left-4 right-4 h-[2px] rounded-full bg-gradient-to-r from-transparent via-rw-crimson to-transparent" />
+
+                    {/* Top subtle gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-rw-bg-alt/60 to-transparent pointer-events-none" />
+
+                    {/* Number */}
+                    <span
+                        className={`font-mono font-bold tabular-nums text-rw-ink z-10 select-none transition-all duration-150 ${
+                            flipping ? "scale-95 opacity-60" : "scale-100 opacity-100"
+                        }`}
+                        style={{ fontSize: "clamp(2rem, 5vw, 3rem)", letterSpacing: "-0.04em" }}
+                    >
+                        {display}
+                    </span>
+                </div>
+
+                {/* Floating label */}
             </div>
-            <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.15em] text-rw-muted">{label}</span>
+
+            {/* Label */}
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-rw-muted">
+                {label}
+            </span>
         </div>
     );
 }
 
 function Separator() {
     return (
-        <div className="flex flex-col items-center gap-2 pb-6">
-            <span className="flex flex-col gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson/40" />
-                <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson/40" />
-            </span>
+        <div className="flex flex-col items-center gap-1.5 pb-9 self-center">
+            <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson/25" />
+            <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson/25" />
         </div>
     );
 }
 
 export function CountdownTimer({ targetDate }: { targetDate: string }) {
-    const [t, setT] = useState<TimeLeft>(calc(targetDate));
+    const [t, setT]           = useState<TimeLeft>(calc(targetDate));
     const [mounted, setMounted] = useState(false);
-    const [tick, setTick] = useState(false);
-    const prevSeconds = useRef(t.seconds);
+    const [flipping, setFlipping] = useState(false);
+    const prevSec = useRef(t.seconds);
 
     useEffect(() => {
         setMounted(true);
         const id = setInterval(() => {
-            const newT = calc(targetDate);
-            if (newT.seconds !== prevSeconds.current) {
-                setTick(true);
-                setTimeout(() => setTick(false), 300);
-                prevSeconds.current = newT.seconds;
+            const next = calc(targetDate);
+            if (next.seconds !== prevSec.current) {
+                setFlipping(true);
+                setTimeout(() => setFlipping(false), 160);
+                prevSec.current = next.seconds;
             }
-            setT(newT);
+            setT(next);
         }, 1000);
         return () => clearInterval(id);
     }, [targetDate]);
 
-    if (!mounted) return (
-        <div className="flex items-start gap-3 sm:gap-4">
-            {["Days","Hours","Mins","Secs"].map((l, i) => (
-                <div key={l} className="flex items-start gap-3 sm:gap-4">
-                    <Digit value={0} label={l} animate={false} />
-                    {i < 3 && <Separator />}
-                </div>
-            ))}
-        </div>
-    );
+    const isOver = !mounted || (t.days === 0 && t.hours === 0 && t.minutes === 0 && t.seconds === 0);
 
-    const over = t.days === 0 && t.hours === 0 && t.minutes === 0 && t.seconds === 0;
-    if (over) return (
-        <div className="inline-flex items-center gap-2 rounded-2xl bg-rw-crimson/10 border border-rw-crimson/20 px-6 py-3">
-            <span className="h-2.5 w-2.5 rounded-full bg-rw-crimson animate-pulse-soft" />
-            <span className="font-display font-bold text-rw-crimson text-lg">Redemption Week is here!</span>
-        </div>
-    );
+    if (!mounted) {
+        return (
+            <div className="flex items-center gap-3 sm:gap-4">
+                {(["Days", "Hours", "Mins", "Secs"] as const).map((l, i) => (
+                    <div key={l} className="flex items-center gap-3 sm:gap-4">
+                        <DigitBlock value={0} label={l} flipping={false} />
+                        {i < 3 && <Separator />}
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
+    if (isOver) {
+        return (
+            <div className="inline-flex items-center gap-3 rounded-2xl border border-rw-crimson/20 bg-rw-crimson/5 px-7 py-4">
+                <span className="h-2.5 w-2.5 rounded-full bg-rw-crimson animate-pulse-soft" />
+                <span className="font-display font-bold text-rw-crimson text-xl">
+                    Redemption Week is live!
+                </span>
+            </div>
+        );
+    }
 
     return (
-        <div className="flex items-start gap-3 sm:gap-4">
-            <Digit value={t.days}    label="Days"  animate={false} />
+        <div className="flex items-center gap-3 sm:gap-4">
+            <DigitBlock value={t.days}    label="Days"  flipping={false} />
             <Separator />
-            <Digit value={t.hours}   label="Hours" animate={false} />
+            <DigitBlock value={t.hours}   label="Hours" flipping={false} />
             <Separator />
-            <Digit value={t.minutes} label="Mins"  animate={false} />
+            <DigitBlock value={t.minutes} label="Mins"  flipping={false} />
             <Separator />
-            <Digit value={t.seconds} label="Secs"  animate={tick} />
+            <DigitBlock value={t.seconds} label="Secs"  flipping={flipping} />
         </div>
     );
 }
