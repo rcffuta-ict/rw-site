@@ -26,19 +26,20 @@ export async function GET(req: Request) {
     ].join(",");
 
     const rows = orders.map((o) => {
-        const lines = o.lines
-            .map((l) => `${l.merchItemName} (${l.size}) x${l.qty}`)
+        const items = o.items
+            .map((l) => `${l.productName} (${l.variantLabel}) x${l.quantity}`)
             .join("; ");
+        const receipt = o.payments?.[0]?.receiptUrl ?? "";
         return [
             csvEscape(o.id),
             csvEscape(o.createdAt),
             csvEscape(o.status),
             csvEscape(o.customerName),
-            csvEscape(o.phone),
-            csvEscape(o.email ?? ""),
-            String(o.totalNgn),
-            csvEscape(lines),
-            csvEscape(o.receipt?.filename ?? ""),
+            csvEscape(o.customerPhone),
+            csvEscape(o.customerEmail ?? ""),
+            String(o.totalAmount),
+            csvEscape(items),
+            csvEscape(receipt),
         ].join(",");
     });
 

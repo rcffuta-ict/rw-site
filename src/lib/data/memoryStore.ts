@@ -1,4 +1,4 @@
-import type { MerchItem, Order, OrderLineInput, OrderStatus } from "./types";
+import type { MerchItem, Order, OrderItem, OrderLineInput, OrderStatus } from "./types";
 
 const merch: MerchItem[] = [
     {
@@ -46,36 +46,42 @@ export const MemoryStore = {
 
     createOrder(input: {
         customerName: string;
-        phone: string;
-        email?: string;
+        customerPhone: string;
+        customerEmail?: string;
         lines: OrderLineInput[];
     }): Order {
-        const expanded = input.lines
+        const expanded: OrderItem[] = input.lines
             .map((l) => {
                 const item = merch.find((m) => m.id === l.merchItemId && m.active);
                 if (!item) return null;
                 if (!item.sizes.includes(l.size)) return null;
                 if (!Number.isFinite(l.qty) || l.qty <= 0) return null;
                 return {
-                    merchItemId: item.id,
-                    merchItemName: item.name,
-                    size: l.size,
-                    qty: l.qty,
-                    unitPriceNgn: item.basePriceNgn,
+                    id: id("item"),
+                    variantId: `${item.id}_${l.size}`,
+                    productName: item.name,
+                    variantLabel: l.size,
+                    quantity: l.qty,
+                    unitPrice: item.basePriceNgn,
                 };
             })
-            .filter(Boolean) as Order["lines"];
+            .filter((i): i is OrderItem => i !== null);
 
-        const totalNgn = expanded.reduce((sum, l) => sum + l.qty * l.unitPriceNgn, 0);
+        const totalAmount = expanded.reduce((sum, l) => sum + l.quantity * l.unitPrice, 0);
         const order: Order = {
             id: id("ord"),
+            orderRef: Math.random().toString(36).substring(2, 8).toUpperCase(),
             createdAt: new Date().toISOString(),
-            status: "pending_payment",
+            updatedAt: new Date().toISOString(),
+            status: "pending",
             customerName: input.customerName,
-            phone: input.phone,
-            email: input.email,
-            lines: expanded,
-            totalNgn,
+            customerPhone: input.customerPhone,
+            customerEmail: input.customerEmail ?? "",
+            customerNote: null,
+            items: expanded,
+            totalAmount,
+            amountPaid: 0,
+            payments: [],
         };
         orders.unshift(order);
         return order;
@@ -86,21 +92,42 @@ export const MemoryStore = {
     },
 
     getOrder(orderId: string): Order | undefined {
-        return orders.find((o) => o.id === orderId);
+        return orders.find((o) => o.id === orderId || o.orderRef === orderId);
     },
 
     setStatus(orderId: string, status: OrderStatus): Order | undefined {
         const o = orders.find((x) => x.id === orderId);
         if (!o) return undefined;
         o.status = status;
+        o.updatedAt = new Date().toISOString();
         return o;
     },
 
     attachReceipt(orderId: string, filename: string): Order | undefined {
         const o = orders.find((x) => x.id === orderId);
         if (!o) return undefined;
-        o.receipt = { filename, uploadedAt: new Date().toISOString() };
-        if (o.status === "pending_payment") o.status = "receipt_submitted";
+        // In the new system, receipts are part of payments. 
+        // We'll create a mock payment record.
+        const paymentId = id("pay");
+        o.payments.push({
+            id: paymentId,
+            orderId: o.id,
+            amountClaimed: 0, // Unknown from just a receipt attachment in this legacy helper
+            percentOfTotal: 0,
+            receiptUrl: filename,
+            extractedSenderName: null,
+            extractedAmount: null,
+            extractedDate: null,
+            extractedTime: null,
+            extractedBank: null,
+            extractionConfidence: null,
+            amountMatch: null,
+            userConfirmedAccuracy: null,
+            status: "pending",
+            reviewNote: null,
+            createdAt: new Date().toISOString(),
+        });
+        o.updatedAt = new Date().toISOString();
         return o;
     },
 };

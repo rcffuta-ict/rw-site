@@ -22,11 +22,14 @@ export async function POST(req: Request) {
     const orderId = typeof body.orderId === "string" ? body.orderId : "";
     const status = typeof body.status === "string" ? body.status : "";
     const allowed: OrderStatus[] = [
-        "pending_payment",
-        "receipt_submitted",
+        "pending",
+        "partially_paid",
+        "paid",
         "confirmed",
-        "rejected",
-        "fulfilled",
+        "in_production",
+        "delivered",
+        "flagged",
+        "cancelled",
     ];
     if (!orderId) return badRequest("Missing orderId.");
     if (!allowed.includes(status as OrderStatus)) return badRequest("Invalid status.");

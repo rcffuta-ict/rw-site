@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
     if (parsed.length === 0) return badRequest("Please select at least one item.");
 
-    const order = MemoryStore.createOrder({ customerName, phone, email, lines: parsed });
+    const order = MemoryStore.createOrder({ customerName, customerPhone: phone, email, lines: parsed });
     Audit.record({ type: "order_created", orderId: order.id });
 
     return Response.json({ order });
