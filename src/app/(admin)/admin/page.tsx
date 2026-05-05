@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { DEMO_ORDERS, getDemoStats } from "@/lib/data/orders";
 import { OrderStatusBadge } from "@/components/ui/Badge";
-import { StatsCard } from "@/components/admin/StatsCard";
+import { StatsCard } from "@/components/ui/cards/StatsCard";
 
 export const metadata = { title: "Admin Dashboard — RW'26" };
 

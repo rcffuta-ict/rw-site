@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { Product, ProductVariant } from "@/lib/data/types";
 import { COLOR_HEX, buildVariantLabel, getEffectivePrice } from "@/lib/data/products";
 import { useCart } from "@/components/public/CartContext";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/forms/Button";
 import { ph } from "@/lib/utils/functions";
 
 // Map each colour to a distinctive placeholder palette

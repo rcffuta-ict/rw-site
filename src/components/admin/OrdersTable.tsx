@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { Order } from "@/lib/data/types";
 import { OrderStatusBadge } from "@/components/ui/Badge";
-import { Card } from "@/components/ui/Card";
+import { Card } from "@/components/ui/cards/Card";
 
 interface OrdersTableProps {
     orders: Order[];

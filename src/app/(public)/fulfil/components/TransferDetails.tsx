@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/forms/Button";
 import { PAYMENT_CONFIG } from "./constants";
 
 export function TransferDetails() {

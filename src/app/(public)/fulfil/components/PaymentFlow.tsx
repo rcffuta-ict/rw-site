@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/forms/Button";
 import type { Order } from "@/lib/data/types";
 import { PAYMENT_CONFIG, MOCK_EXTRACTION } from "./constants";
 

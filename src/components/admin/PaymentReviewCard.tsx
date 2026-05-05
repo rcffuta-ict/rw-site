@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { Payment } from "@/lib/data/types";
 import { PaymentStatusBadge } from "../ui/Badge";
-import { Card } from "../ui/Card";
-import { Button } from "../ui/Button";
+import { Card } from "../ui/cards/Card";
+import { Button } from "../ui/forms/Button";
 
 interface PaymentReviewCardProps {
     payment: Payment;

@@ -25,7 +25,7 @@ const sizes: Record<Size, string> = {
     lg: "h-11 px-6 text-sm",
 };
 
-export function Button({ variant = "primary", size = "md", loading = false, className = "", children, disabled, ...props }: ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+export function Button({ variant = "primary", size = "md", loading = false, className = "", children, disabled, ...props }: ButtonProps) {
     return (
         <button className={`${base} ${variants[variant]} ${sizes[size]} ${className}`} disabled={disabled || loading} {...props}>
             {loading && <span className="h-4 w-4 rounded-full border-2 border-current border-t-transparent animate-spin" />}

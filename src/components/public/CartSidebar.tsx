@@ -3,7 +3,7 @@
 import { useCart } from "@/components/public/CartContext";
 import { ph } from "@/lib/utils/functions";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/forms/Button";
 
 export function CartSidebar({ onClose }: { onClose: () => void }) {
     const { items, removeItem, updateQuantity, total, itemCount } = useCart();

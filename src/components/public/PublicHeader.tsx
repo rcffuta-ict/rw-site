@@ -74,11 +74,14 @@ export function PublicHeader() {
                     </button>
 
                     <Link
-                        href="/shop"
-                        id="header-shop-cta"
-                        className="hidden sm:inline-flex h-9 items-center rounded-lg bg-rw-crimson px-5 text-[13px] font-semibold text-white hover:bg-rw-crimson-dk transition-all hover:shadow-md"
+                        href="/orders"
+                        id="header-orders-cta"
+                        className="hidden sm:inline-flex h-9 items-center gap-1.5 rounded-lg border border-[var(--rw-border)] bg-white px-4 text-[13px] font-semibold text-rw-ink hover:border-rw-crimson hover:text-rw-crimson transition-all"
                     >
-                        Shop Merch
+                        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
+                        </svg>
+                        My Orders
                     </Link>
 
                     {/* Mobile toggle */}
@@ -137,11 +140,11 @@ export function PublicHeader() {
                         </Link>
                     ))}
                     <Link
-                        href="/shop"
+                        href="/orders"
                         onClick={() => setOpen(false)}
-                        className="mt-3 block rounded-xl bg-rw-crimson px-4 py-3 text-center text-sm font-semibold text-white"
+                        className="mt-3 block rounded-xl border border-[var(--rw-border)] px-4 py-3 text-center text-sm font-semibold text-rw-ink hover:border-rw-crimson hover:text-rw-crimson transition-all"
                     >
-                        Shop Merch
+                        My Orders
                     </Link>
                 </div>
             )}

@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/public/CartContext";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/forms/Button";
+import { Input } from "@/components/ui/forms/Input";
+import { Textarea } from "@/components/ui/forms/Textarea";
 import { ph } from "@/lib/utils/functions";
 
 type Step = 1 | 2 | 3;
@@ -244,50 +246,42 @@ export function CheckoutClient() {
 
             {step !== 3 ? (
                 <div className="grid lg:grid-cols-[1fr_380px] gap-8 items-start">
-                    {/* Left — form area */}
                     <div>
                         {step === 1 && (
                             <div className="rw-card p-6 sm:p-8 flex flex-col gap-5">
                                 <h2 className="font-display font-bold text-lg text-rw-ink">
                                     Your details
                                 </h2>
-                                {field(
-                                    "name",
-                                    "Full name",
-                                    "text",
-                                    "e.g. Adewale Ogundimu"
-                                )}
-                                {field(
-                                    "email",
-                                    "Email address",
-                                    "email",
-                                    "you@example.com"
-                                )}
-                                {field("phone", "Phone number", "tel", "080...")}
-                                <div>
-                                    <label
-                                        htmlFor="note"
-                                        className="block text-sm font-medium text-rw-ink mb-2"
-                                    >
-                                        Note{" "}
-                                        <span className="font-normal text-rw-muted">
-                                            (optional)
-                                        </span>
-                                    </label>
-                                    <textarea
-                                        id="note"
-                                        rows={2}
-                                        value={form.note}
-                                        onChange={(e) =>
-                                            setForm((f) => ({
-                                                ...f,
-                                                note: e.target.value,
-                                            }))
-                                        }
-                                        placeholder="e.g. Hold for Sunday pickup"
-                                        className="rw-textarea"
-                                    />
-                                </div>
+                                <Input
+                                    label="Full name"
+                                    value={form.name}
+                                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                    error={errors.name}
+                                    placeholder="e.g. Adewale Ogundimu"
+                                />
+                                <Input
+                                    label="Email address"
+                                    type="email"
+                                    value={form.email}
+                                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                                    error={errors.email}
+                                    placeholder="you@example.com"
+                                />
+                                <Input
+                                    label="Phone number"
+                                    type="tel"
+                                    value={form.phone}
+                                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                                    error={errors.phone}
+                                    placeholder="080..."
+                                />
+                                <Textarea
+                                    label="Note (optional)"
+                                    value={form.note}
+                                    onChange={(e) => setForm({ ...form, note: e.target.value })}
+                                    placeholder="e.g. Hold for Sunday pickup"
+                                    rows={2}
+                                />
                                 <Button
                                     variant="primary"
                                     size="lg"
