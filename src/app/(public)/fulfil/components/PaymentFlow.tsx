@@ -55,7 +55,7 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
     const percentChoices = [
         PAYMENT_CONFIG.minPercent,
         PAYMENT_CONFIG.minPercent + Math.floor((100 - PAYMENT_CONFIG.minPercent) / 2),
-        100
+        100,
     ];
 
     function updateStage(newStage: typeof stage) {
@@ -98,7 +98,11 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                         strokeWidth={3}
                         viewBox="0 0 24 24"
                     >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="m4.5 12.75 6 6 9-13.5"
+                        />
                     </svg>
                 </div>
                 <div>
@@ -106,14 +110,15 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                         Payment Submitted!
                     </h2>
                     <p className="mt-3 text-rw-text-2 text-lg max-w-[36ch] mx-auto leading-relaxed">
-                        Thank you. Your receipt is under review. An email confirmation will be sent to <span className="font-semibold text-rw-ink">{order.customerEmail}</span> once approved.
+                        Thank you. Your receipt is under review. An email confirmation
+                        will be sent to{" "}
+                        <span className="font-semibold text-rw-ink">
+                            {order.customerEmail}
+                        </span>{" "}
+                        once approved.
                     </p>
                 </div>
-                <Button 
-                    variant="secondary" 
-                    className="mt-4" 
-                    onClick={onResetOrder}
-                >
+                <Button variant="outlined" className="mt-4" onClick={onResetOrder}>
                     Pay another order
                 </Button>
             </div>
@@ -126,8 +131,12 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
             <div className="rw-card p-8 flex flex-col gap-8 animate-fade-in-up shadow-rw-shadow-md border-t-[3px] border-t-rw-crimson">
                 <div className="flex items-center justify-between pb-5 border-b border-[var(--rw-border)]">
                     <div>
-                        <h2 className="font-display font-bold text-2xl text-rw-ink">Extraction Result</h2>
-                        <p className="text-sm text-rw-muted mt-1">Please verify the details below</p>
+                        <h2 className="font-display font-bold text-2xl text-rw-ink">
+                            Extraction Result
+                        </h2>
+                        <p className="text-sm text-rw-muted mt-1">
+                            Please verify the details below
+                        </p>
                     </div>
                     <span
                         className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold border ${
@@ -156,11 +165,17 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                         ["Time of Tx", extraction.time ?? "—"],
                         ["Bank Name", extraction.bank ?? "—"],
                     ].map(([k, v]) => (
-                        <div key={k} className="p-4 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)]">
+                        <div
+                            key={k}
+                            className="p-4 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)]"
+                        >
                             <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">
                                 {k}
                             </p>
-                            <p className="font-bold text-base text-rw-ink truncate" title={v as string}>
+                            <p
+                                className="font-bold text-base text-rw-ink truncate"
+                                title={v as string}
+                            >
                                 {v}
                             </p>
                         </div>
@@ -186,14 +201,15 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                             desc="Admin will review manually"
                         />
                     </div>
-                    
+
                     {accurate === false && (
                         <div className="mt-5 p-4 rounded-xl bg-amber-50 border border-amber-200 animate-fade-in-down">
                             <p className="text-sm text-amber-800 font-medium mb-3">
-                                We'll flag this for manual review. You can also try uploading a clearer image.
+                                We&rsquo;ll flag this for manual review. You can also try
+                                uploading a clearer image.
                             </p>
                             <Button
-                                variant="secondary"
+                                variant="outlined"
                                 size="sm"
                                 onClick={resetUpload}
                                 className="bg-white border-amber-200 text-amber-900 hover:bg-amber-100"
@@ -226,14 +242,28 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                 <div className="relative">
                     <span className="h-20 w-20 rounded-full border-4 border-rw-bg-alt border-t-rw-crimson animate-spin absolute inset-0" />
                     <div className="h-20 w-20 flex items-center justify-center">
-                        <svg className="h-8 w-8 text-rw-crimson animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        <svg
+                            className="h-8 w-8 text-rw-crimson animate-pulse"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
                         </svg>
                     </div>
                 </div>
                 <div>
-                    <h3 className="font-display font-bold text-2xl text-rw-ink">Analysing Document</h3>
-                    <p className="text-rw-muted mt-2 text-lg">Extracting payment data using AI...</p>
+                    <h3 className="font-display font-bold text-2xl text-rw-ink">
+                        Analysing Document
+                    </h3>
+                    <p className="text-rw-muted mt-2 text-lg">
+                        Extracting payment data using AI...
+                    </p>
                 </div>
             </div>
         );
@@ -246,7 +276,9 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                 <h2 className="font-display font-bold text-2xl text-rw-ink mb-2">
                     Submit Receipt
                 </h2>
-                <p className="text-rw-muted text-sm">Upload your proof of payment once the transfer is successful.</p>
+                <p className="text-rw-muted text-sm">
+                    Upload your proof of payment once the transfer is successful.
+                </p>
             </div>
 
             {/* Payment type selection */}
@@ -278,7 +310,7 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                             Select Percentage
                         </p>
                     </div>
-                    
+
                     <div className="flex gap-3 mt-2">
                         {percentChoices.map((percent) => (
                             <button
@@ -286,8 +318,8 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                                 type="button"
                                 onClick={() => setPartialPercent(percent)}
                                 className={`flex-1 py-3 rounded-xl font-bold transition-all ${
-                                    partialPercent === percent 
-                                        ? "bg-rw-ink text-white shadow-md scale-105" 
+                                    partialPercent === percent
+                                        ? "bg-rw-ink text-white shadow-md scale-105"
                                         : "bg-white text-rw-text-2 border border-[var(--rw-border-mid)] hover:border-rw-crimson hover:text-rw-crimson"
                                 }`}
                             >
@@ -297,7 +329,9 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                     </div>
 
                     <div className="mt-6 pt-5 border-t border-[var(--rw-border)] flex items-end justify-between">
-                        <span className="text-sm font-medium text-rw-text-2">Amount to pay:</span>
+                        <span className="text-sm font-medium text-rw-text-2">
+                            Amount to pay:
+                        </span>
                         <span className="font-bold text-3xl text-rw-crimson">
                             ₦{payAmount.toLocaleString()}
                         </span>
@@ -318,23 +352,51 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                         {file ? (
                             <div className="text-center">
                                 <div className="h-16 w-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                                    <svg className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    <svg
+                                        className="h-8 w-8"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth={2.5}
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                        />
                                     </svg>
                                 </div>
-                                <p className="text-base font-bold text-rw-ink">{file.name}</p>
-                                <p className="text-sm font-medium text-rw-crimson mt-2">Click to replace file</p>
+                                <p className="text-base font-bold text-rw-ink">
+                                    {file.name}
+                                </p>
+                                <p className="text-sm font-medium text-rw-crimson mt-2">
+                                    Click to replace file
+                                </p>
                             </div>
                         ) : (
                             <>
                                 <div className="h-16 w-16 bg-white border border-[var(--rw-border)] text-rw-muted rounded-2xl flex items-center justify-center shadow-sm group-hover:text-rw-crimson group-hover:border-rw-crimson/30 group-hover:-translate-y-2 transition-all">
-                                    <svg className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                                    <svg
+                                        className="h-8 w-8"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth={1.5}
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+                                        />
                                     </svg>
                                 </div>
                                 <div className="text-center">
-                                    <p className="text-base font-semibold text-rw-ink">Click to upload receipt</p>
-                                    <p className="text-sm text-rw-muted mt-1">or drag and drop it here</p>
+                                    <p className="text-base font-semibold text-rw-ink">
+                                        Click to upload receipt
+                                    </p>
+                                    <p className="text-sm text-rw-muted mt-1">
+                                        or drag and drop it here
+                                    </p>
                                 </div>
                                 <p className="text-xs font-medium px-3 py-1 bg-white rounded-md text-rw-muted border border-[var(--rw-border)]">
                                     JPG, PNG, PDF (Max 6MB)
