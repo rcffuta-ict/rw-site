@@ -17,7 +17,43 @@ const TYPE_COLORS: Record<string, string> = {
     Combined:              "bg-rw-crimson/10 text-rw-crimson border-rw-crimson/20",
 };
 
+import { AdminStats, AdminStatItem } from "@/components/admin/AdminStats";
+
 export default function VerdictsClient() {
+    const stats = React.useMemo(() => {
+        const total = MOCK_VERDICTS.length;
+        const manifests = MOCK_VERDICTS.filter(v => v.type === "Production Manifest").length;
+        const permits = MOCK_VERDICTS.filter(v => v.type === "Withdrawal Permit").length;
+        const units = MOCK_VERDICTS.reduce((s, v) => s + v.customerCount, 0);
+
+        const items: AdminStatItem[] = [
+            {
+                label: "Total Verdicts",
+                value: total,
+                icon: <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+            },
+            {
+                label: "Manifests",
+                value: manifests,
+                sub: "Production batches",
+                icon: <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" /></svg>
+            },
+            {
+                label: "Permits",
+                value: permits,
+                sub: "Withdrawal authorizations",
+                icon: <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.333 9-6.03 9-11.623 0-1.3-.21-2.55-.598-3.712A11.99 11.99 0 0112 2.714z" /></svg>
+            },
+            {
+                label: "Total Units",
+                value: units,
+                sub: "Consolidated items",
+                icon: <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0Zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0Z" /></svg>
+            }
+        ];
+        return items;
+    }, []);
+
     return (
         <div className="flex flex-col gap-10 animate-fade-in">
             <AdminBreadcrumb items={[{ label: "Verdicts" }]} />
@@ -32,6 +68,8 @@ export default function VerdictsClient() {
                     Generate New Verdict
                 </Link>
             </div>
+
+            <AdminStats stats={stats} />
 
             {/* Info banner */}
             <div className="rw-card p-6 flex items-start gap-4 border-blue-200 bg-blue-50/50 shadow-sm">

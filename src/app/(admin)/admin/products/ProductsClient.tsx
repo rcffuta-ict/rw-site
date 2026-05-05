@@ -37,6 +37,8 @@ function productImageUrl(name: string, color: string | null) {
 
 const CATEGORIES = ["all", "tshirt", "hoodie", "accessory"] as const;
 
+import { AdminStats, AdminStatItem } from "@/components/admin/AdminStats";
+
 export default function ProductsClient() {
     const [searchQuery, setSearchQuery] = useState("");
     const [categoryFilter, setCategoryFilter] = useState<typeof CATEGORIES[number]>("all");
@@ -51,7 +53,39 @@ export default function ProductsClient() {
         });
     }, [searchQuery, categoryFilter]);
 
-    const totalVariants = filteredProducts.reduce((s, p) => s + p.variants.length, 0);
+    const stats = useMemo(() => {
+        const total = DEMO_PRODUCTS.length;
+        const variants = DEMO_PRODUCTS.reduce((s, p) => s + p.variants.length, 0);
+        const active = DEMO_PRODUCTS.filter(p => p.isAvailable).length;
+        const hidden = total - active;
+
+        const items: AdminStatItem[] = [
+            {
+                label: "Total Products",
+                value: total,
+                icon: <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
+            },
+            {
+                label: "Total Variants",
+                value: variants,
+                sub: "Across all colors/sizes",
+                icon: <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235.083.487.122.75.122h10.5c.263 0 .515-.039.75-.122m-12 0a3.75 3.75 0 00-3.75 3.75v1.5a3.75 3.75 0 003.75 3.75m12-9a3.75 3.75 0 013.75 3.75v1.5a3.75 3.75 0 01-3.75 3.75m-12 0c.235.083.487.122.75.122h10.5c.263 0 .515-.039.75-.122m-12 0V19.5a2.25 2.25 0 002.25 2.25h7.5a2.25 2.25 0 002.25-2.25v-4.122" /></svg>
+            },
+            {
+                label: "Active",
+                value: active,
+                sub: "Visible to customers",
+                icon: <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.644C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+            },
+            {
+                label: "Hidden",
+                value: hidden,
+                sub: "Drafts / Archive",
+                icon: <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.822 7.822L21 21m-2.278-2.278L15.07 15.07m-4.41-4.41L9 9m1.727-2.113a3.374 3.374 0 004.41 4.41" /></svg>
+            }
+        ];
+        return items;
+    }, []);
 
     return (
         <div className="flex flex-col gap-10 animate-fade-in">
@@ -61,17 +95,12 @@ export default function ProductsClient() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-[var(--rw-border)] pb-10">
                 <div className="flex flex-col gap-2">
                     <h1 className="font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl text-rw-ink tracking-tight">Products</h1>
-                    <div className="flex items-center gap-3 text-sm text-rw-muted font-medium">
-                        <span className="flex items-center gap-1.5">
-                            <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson" />
-                            {filteredProducts.length} Products
-                        </span>
-                        <span className="h-1 w-1 rounded-full bg-rw-muted/30" />
-                        <span>{totalVariants} Variants</span>
-                    </div>
+                    <p className="text-sm text-rw-muted font-medium italic">Inventory management — Redemption Week &apos;26</p>
                 </div>
                 <AddProductButton />
             </div>
+
+            <AdminStats stats={stats} />
 
             {/* Filter & Search */}
             <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-end justify-between">

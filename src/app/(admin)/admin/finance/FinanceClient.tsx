@@ -9,6 +9,7 @@ import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { BankDistribution } from "@/components/admin/finance/BankDistribution";
 import { ExportCsvButton } from "./component";
 import { Order } from "@/lib/data/types";
+import { AdminStats } from "@/components/admin/AdminStats";
 
 function fmt(n: number) { return `₦${n.toLocaleString()}`; }
 
@@ -39,17 +40,14 @@ export default function FinanceClient() {
                 <ExportCsvButton />
             </div>
 
-            {/* Summary cards */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {summaryCards.map((c) => (
-                    <div key={c.label} className={`rw-card p-6 ${c.bg} ${c.border} relative overflow-hidden group hover:scale-[1.02] transition-all`}>
-                        <svg className="absolute top-4 right-4 h-8 w-8 opacity-10 group-hover:scale-125 transition-transform" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d={c.icon} /></svg>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-rw-muted">{c.label}</p>
-                        <p className={`mt-2 font-display font-bold text-3xl ${c.color}`}>{c.value}</p>
-                        <p className="mt-1 text-[10px] font-bold text-rw-muted uppercase tracking-tight">{c.sub}</p>
-                    </div>
-                ))}
-            </div>
+            <AdminStats 
+                stats={summaryCards.map(c => ({
+                    label: c.label,
+                    value: c.value,
+                    sub: c.sub,
+                    icon: <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d={c.icon} /></svg>
+                }))} 
+            />
 
             {/* Financial Analysis Section */}
             <div className="grid lg:grid-cols-3 gap-8">
