@@ -90,11 +90,8 @@ export default function FinanceClient() {
 
                 {activeTab === "records" && (
                     <FinanceRecords 
-                        orders={DEMO_ORDERS}
+                        allPayments={allPayments}
                         fmt={fmt}
-                        totalOrdered={totalOrdered}
-                        collected={collected}
-                        outstanding={outstanding}
                     />
                 )}
             </div>

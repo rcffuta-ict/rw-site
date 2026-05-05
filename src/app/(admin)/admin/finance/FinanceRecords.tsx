@@ -1,75 +1,85 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import Link from "next/link";
 import { AdminTable } from "@/components/admin/AdminTable";
-import { OrderStatusBadge } from "@/components/ui/Badge";
-import { Order } from "@/lib/data/types";
 
 interface FinanceRecordsProps {
-    orders: Order[];
+    allPayments: any[];
     fmt: (n: number) => string;
-    totalOrdered: number;
-    collected: number;
-    outstanding: number;
 }
 
-export function FinanceRecords({ orders, fmt, totalOrdered, collected, outstanding }: FinanceRecordsProps) {
+export function FinanceRecords({ allPayments, fmt }: FinanceRecordsProps) {
+    // Only show payments that have been judged (not pending)
+    const judgedPayments = useMemo(() => 
+        allPayments.filter(p => p.status !== "pending"),
+    [allPayments]);
+
     return (
         <div className="flex flex-col gap-5 animate-fade-in-up">
             <div className="flex items-center gap-2">
                 <span className="h-1 w-6 bg-rw-crimson rounded-full" />
-                <h2 className="font-display font-bold text-xl text-rw-ink uppercase tracking-tight">Order Financials</h2>
+                <h2 className="font-display font-bold text-xl text-rw-ink uppercase tracking-tight">Audit Trail: Judged Payments</h2>
             </div>
-            <AdminTable<Order>
-                data={orders}
-                keyExtractor={(o) => o.id}
+            
+            <AdminTable<any>
+                data={judgedPayments}
+                keyExtractor={(p) => p.id}
+                emptyMessage="No payments have been processed yet."
                 columns={[
                     {
-                        label: "Ref",
+                        label: "Order",
                         key: "orderRef",
-                        render: (o) => <Link href={`/admin/orders/${o.orderRef}`} className="font-mono font-bold text-rw-crimson hover:text-rw-crimson-dk transition-colors border-b border-rw-crimson/20">{o.orderRef}</Link>
+                        render: (p) => <Link href={`/admin/orders/${p.order.orderRef}`} className="font-mono font-bold text-rw-crimson border-b border-rw-crimson/20">{p.order.orderRef}</Link>
                     },
                     {
-                        label: "Customer",
+                        label: "Payer/Claimant",
                         key: "customerName",
-                        className: "hidden sm:table-cell",
-                        render: (o) => <span className="font-bold text-rw-ink">{o.customerName}</span>
+                        render: (p) => (
+                            <div className="flex flex-col">
+                                <span className="font-bold text-rw-ink">{p.customerName}</span>
+                                <span className="text-[10px] text-rw-muted font-bold uppercase tracking-tighter">{p.extractedBank || "Unknown Bank"}</span>
+                            </div>
+                        )
                     },
                     {
-                        label: "Total",
-                        key: "totalAmount",
+                        label: "Value",
+                        key: "amountClaimed",
                         align: "right",
-                        render: (o) => <span className="font-display font-bold text-rw-ink">{fmt(o.totalAmount)}</span>
+                        render: (p) => <span className="font-display font-black text-rw-ink">{fmt(p.amountClaimed)}</span>
                     },
                     {
-                        label: "Paid",
-                        key: "amountPaid",
-                        align: "right",
-                        render: (o) => <span className="font-display font-bold text-green-700">{fmt(o.amountPaid)}</span>
-                    },
-                    {
-                        label: "Balance",
-                        key: "balance",
-                        align: "right",
-                        className: "hidden md:table-cell",
-                        render: (o) => <span className="font-display font-bold text-rw-crimson">{fmt(o.totalAmount - o.amountPaid)}</span>
+                        label: "Moderator",
+                        key: "moderator",
+                        render: (p) => (
+                            <div className="flex items-center gap-2">
+                                <div className="h-6 w-6 rounded-full bg-rw-bg-alt flex items-center justify-center text-[10px] font-black text-rw-muted border border-[var(--rw-border)]">
+                                    {p.moderatorName?.charAt(0) || "S"}
+                                </div>
+                                <span className="text-xs font-bold text-rw-ink">{p.moderatorName || "System Auto"}</span>
+                            </div>
+                        )
                     },
                     {
                         label: "Status",
                         key: "status",
-                        render: (o) => <OrderStatusBadge status={o.status} />
+                        render: (p) => (
+                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
+                                p.status === "approved" 
+                                    ? "bg-green-50 text-green-700 border-green-200" 
+                                    : "bg-rw-crimson/10 text-rw-crimson border-rw-crimson/25"
+                            }`}>
+                                {p.status}
+                            </span>
+                        )
+                    },
+                    {
+                        label: "Date Processed",
+                        key: "date",
+                        className: "hidden md:table-cell text-right",
+                        render: (p) => <span className="text-[10px] font-bold text-rw-muted">{p.date || "Today"}</span>
                     }
                 ]}
-                footer={
-                    <div className="grid grid-cols-2 sm:grid-cols-6 gap-4 font-display font-black text-rw-ink text-base sm:text-lg">
-                        <div className="hidden sm:block sm:col-span-2">TOTALS</div>
-                        <div className="text-right">{fmt(totalOrdered)}</div>
-                        <div className="text-right text-green-700">{fmt(collected)}</div>
-                        <div className="text-right text-rw-crimson hidden md:block">{fmt(outstanding)}</div>
-                        <div className="hidden sm:block" />
-                    </div>
-                }
             />
         </div>
     );
