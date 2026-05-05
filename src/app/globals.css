@@ -841,3 +841,13 @@ a {
     border-color: #c41230;
     box-shadow: 0 0 0 3px rgba(196, 18, 48, 0.1);
 }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: shake 0.2s ease-in-out 0s 2;
+}

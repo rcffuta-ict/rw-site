@@ -1,6 +1,6 @@
 "use client";
 
-import { useCart } from "./CartContext";
+import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 
 export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {

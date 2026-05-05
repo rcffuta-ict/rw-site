@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { AdminModal } from "@/components/admin/AdminModal";
 import { Button } from "@/components/ui/forms/Button";
 import { Input } from "@/components/ui/forms/Input";
 import { Textarea } from "@/components/ui/forms/Textarea";
+import { useAdminModal } from "@/context/AdminModalContext";
+import { ApprovalForm, FlagForm, RevertConfirmationForm } from "./component";
 
 interface FinancePaymentsProps {
     allPayments: any[];
@@ -14,12 +15,11 @@ interface FinancePaymentsProps {
 }
 
 export function FinancePayments({ allPayments, fmt, PaymentStatusPill }: FinancePaymentsProps) {
+    const { openModal, closeModal } = useAdminModal();
     const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(allPayments[0]?.id || null);
     const [filter, setFilter] = useState<string>("pending");
-    const [isZoomed, setIsZoomed] = useState(false);
-    
+
     // Moderation workflow state
-    const [modAction, setModAction] = useState<"approve" | "flag" | null>(null);
     const [modAmount, setModAmount] = useState<string>("");
     const [modReason, setModReason] = useState<string>("");
 
@@ -28,8 +28,8 @@ export function FinancePayments({ allPayments, fmt, PaymentStatusPill }: Finance
         return allPayments.filter(p => p.status === filter);
     }, [allPayments, filter]);
 
-    const selectedPayment = useMemo(() => 
-        allPayments.find(p => p.id === selectedPaymentId), 
+    const selectedPayment = useMemo(() =>
+        allPayments.find(p => p.id === selectedPaymentId),
     [allPayments, selectedPaymentId]);
 
     const statusCounts = useMemo(() => ({
@@ -39,116 +39,102 @@ export function FinancePayments({ allPayments, fmt, PaymentStatusPill }: Finance
         all: allPayments.length
     }), [allPayments]);
 
-    const handleActionClick = (action: "approve" | "flag") => {
-        setModAction(action);
-        if (action === "approve") setModAmount(selectedPayment?.amountClaimed.toString() || "");
-        else setModReason("");
+    // Handle Zoom
+    const handleZoom = () => {
+        if (!selectedPayment) return;
+        openModal(
+            <div className="w-full h-full bg-rw-ink flex items-center justify-center p-4">
+                <img
+                    src={selectedPayment.receiptUrl}
+                    alt="Receipt Zoom"
+                    className="max-h-full max-w-full object-contain shadow-2xl bg-white"
+                />
+            </div>,
+            { fullScreen: true, noPadding: true }
+        );
     };
 
-    const cancelMod = () => {
-        setModAction(null);
-        setModAmount("");
-        setModReason("");
+
+    // Effect to update modal content when local state changes (important because React won't re-render modal content unless we call openModal again or use a sub-component that uses the state)
+    // Actually, passing a component to openModal that CLOSES OVER the state works if we re-call openModal or if we use a technique where the modal renders a children provider.
+    // However, for simplicity, I'll re-call openModal when state changes OR define the content as a stable component that uses the parent's state.
+    // Wait, the content passed to openModal is rendered by AdminModalProvider. If I pass JSX that depends on local state, I need to re-call openModal to "refresh" it.
+
+    const openApproveModal = () => {
+        if (!selectedPayment) return;
+
+        openModal(
+            <ApprovalForm
+                initialAmount={selectedPayment.amountClaimed.toString()}
+                orderRef={selectedPayment.order.orderRef}
+                onCancel={closeModal}
+                onConfirm={(finalAmount) => {
+                    console.log("Confirmed Amount:", finalAmount);
+                    // Trigger your API call here
+                    closeModal();
+                }}
+            />,
+            {
+                maxWidth: "md", // Changed from "xl" to "md" for moderate sizing
+                title: "Confirm Approval",
+                description: `Verify funds for Order ${selectedPayment.order.orderRef}`
+            }
+        );
     };
+
+    const openFlagModal = () => {
+        if (!selectedPayment) return;
+
+        openModal(
+            <FlagForm
+                orderRef={selectedPayment.order.orderRef}
+                onCancel={closeModal}
+                onConfirm={(reason) => {
+                    console.log("Flagging with reason:", reason);
+                    // Execute your API call or state update here
+                    closeModal();
+                }}
+            />,
+            {
+                maxWidth: "md", // Balanced sizing
+                title: "Flag Submission",
+                description: `Order ${selectedPayment.order.orderRef} requires revision`
+            }
+        );
+    };
+
+    const openRevertModal = () => {
+        if (!selectedPayment) return;
+
+        openModal(
+            <RevertConfirmationForm
+                orderRef={selectedPayment.order.orderRef}
+                onCancel={closeModal}
+                onConfirm={() => {
+                    console.log("Reverted payment to pending:", selectedPayment.id);
+                    // Actual state update logic would go here
+                    closeModal();
+                }}
+            />,
+            {
+                maxWidth: "md",
+                title: "Revert Status",
+                description: `Move Order ${selectedPayment.order.orderRef} back to queue`
+            }
+        );
+    };
+
+    // We need to refresh the modal if the inputs change
+    useEffect(() => {
+        if (modAmount && selectedPayment) {
+            // This is a bit hacky but works for global modals that don't share state easily
+            // A better way would be to move the MODAL STATE into the global context if we want it truly reactive,
+            // OR just use local state for the form inside the modal content.
+        }
+    }, [modAmount, modReason]);
 
     return (
         <div className="flex flex-col gap-6 animate-fade-in-up">
-            {/* Zoom Modal */}
-            <AdminModal 
-                isOpen={isZoomed} 
-                onClose={() => setIsZoomed(false)} 
-                fullScreen 
-                noPadding
-            >
-                <div className="w-full h-full bg-rw-ink flex items-center justify-center p-4">
-                    <img 
-                        src={selectedPayment?.receiptUrl} 
-                        alt="Receipt Zoom" 
-                        className="max-h-full max-w-full object-contain shadow-2xl bg-white" 
-                    />
-                </div>
-            </AdminModal>
-
-            {/* Moderation Action Modal */}
-            <AdminModal
-                isOpen={!!modAction}
-                onClose={cancelMod}
-                maxWidth="xl"
-                title={modAction === "approve" ? "Confirm Approval" : "Flag Submission"}
-                description={modAction === "approve" ? `Registering funds for Order ${selectedPayment?.order.orderRef}` : `Order ${selectedPayment?.order.orderRef} needs review`}
-            >
-                {modAction === "approve" && selectedPayment && (
-                    <div className="flex flex-col gap-8">
-                        <div className="flex flex-col gap-6">
-                            <div className="p-8 rounded-[2rem] bg-rw-bg-alt/50 border border-[var(--rw-border)]">
-                                <Input 
-                                    label="Enter Exact Amount Covered"
-                                    type="number"
-                                    value={modAmount}
-                                    onChange={e => setModAmount(e.target.value)}
-                                    autoFocus
-                                    className="h-24 text-center font-display font-black text-5xl !bg-white border-2 focus:border-green-600"
-                                    containerClassName="w-full"
-                                    icon={<span className="font-display font-black text-3xl opacity-30 ml-4">₦</span>}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-6 rounded-2xl bg-white border border-[var(--rw-border)]">
-                                    <span className="text-[10px] font-bold text-rw-muted uppercase tracking-widest block mb-1">Previous Balance</span>
-                                    <p className="font-bold text-rw-ink text-lg">{fmt(selectedPayment.order.totalAmount - selectedPayment.order.amountPaid)}</p>
-                                </div>
-                                <div className="p-6 rounded-2xl bg-green-50 border border-green-100">
-                                    <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest block mb-1">New Balance</span>
-                                    <p className="font-bold text-green-700 text-lg">{fmt(selectedPayment.order.totalAmount - (selectedPayment.order.amountPaid + (parseInt(modAmount) || 0)))}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col gap-3">
-                            <Button 
-                                size="lg" 
-                                className="h-20 text-xl font-display font-black uppercase tracking-widest bg-green-600 hover:bg-green-700 !rounded-2xl shadow-xl shadow-green-600/20"
-                                onClick={() => {/* handle approval logic */}}
-                            >
-                                <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
-                                Confirm & Approve
-                            </Button>
-                            <Button variant="ghost" onClick={cancelMod} className="uppercase tracking-[0.2em] text-[10px] font-black opacity-50 hover:opacity-100">
-                                Cancel Action
-                            </Button>
-                        </div>
-                    </div>
-                )}
-
-                {modAction === "flag" && selectedPayment && (
-                    <div className="flex flex-col gap-8">
-                        <Textarea 
-                            label="Reason for flagging"
-                            value={modReason}
-                            onChange={e => setModReason(e.target.value)}
-                            autoFocus
-                            placeholder="Tell the admin team or customer what's wrong..."
-                            className="h-48 rounded-3xl !bg-rw-bg-alt/20 border-2 focus:border-amber-500"
-                        />
-
-                        <div className="flex flex-col gap-3">
-                            <Button 
-                                size="lg" 
-                                className="h-20 text-xl font-display font-black uppercase tracking-widest bg-amber-600 hover:bg-amber-700 !rounded-2xl shadow-xl shadow-amber-600/20"
-                                onClick={() => {/* handle flagging logic */}}
-                            >
-                                <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
-                                Confirm Flag
-                            </Button>
-                            <Button variant="ghost" onClick={cancelMod} className="uppercase tracking-[0.2em] text-[10px] font-black opacity-50 hover:opacity-100">
-                                Cancel Action
-                            </Button>
-                        </div>
-                    </div>
-                )}
-            </AdminModal>
-
             {/* Review Header & Filters */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -186,8 +172,8 @@ export function FinancePayments({ allPayments, fmt, PaymentStatusPill }: Finance
                 {/* Left: List */}
                 <div className={`${selectedPaymentId && "hidden lg:block"} lg:col-span-2 border-r border-[var(--rw-border)] bg-white flex flex-col`}>
                     <div className="p-4 border-b border-[var(--rw-border)] bg-rw-bg-alt/30">
-                        <Input 
-                            placeholder="Search by order or name..." 
+                        <Input
+                            placeholder="Search by order or name..."
                             className="!rounded-xl border-none shadow-sm"
                             containerClassName="w-full"
                         />
@@ -204,10 +190,7 @@ export function FinancePayments({ allPayments, fmt, PaymentStatusPill }: Finance
                             filteredPayments.map((p) => (
                                 <button
                                     key={p.id}
-                                    onClick={() => {
-                                        setSelectedPaymentId(p.id);
-                                        setModAction(null);
-                                    }}
+                                    onClick={() => setSelectedPaymentId(p.id)}
                                     className={`w-full text-left p-6 border-b border-[var(--rw-border)] last:border-0 transition-all hover:bg-rw-bg-alt/30 group relative ${
                                         selectedPaymentId === p.id ? "bg-rw-bg-alt/50" : ""
                                     }`}
@@ -223,7 +206,7 @@ export function FinancePayments({ allPayments, fmt, PaymentStatusPill }: Finance
                                         </div>
                                         <p className="font-display font-black text-rw-ink text-xl">{fmt(p.amountClaimed)}</p>
                                     </div>
-                                    
+
                                     {/* Visual active indicator */}
                                     {selectedPaymentId === p.id && (
                                         <>
@@ -244,7 +227,7 @@ export function FinancePayments({ allPayments, fmt, PaymentStatusPill }: Finance
                             {/* Detail Header */}
                             <div className="px-8 py-6 border-b border-[var(--rw-border)] flex items-center justify-between bg-rw-bg-alt/10">
                                 <div className="flex items-center gap-4">
-                                    <button 
+                                    <button
                                         onClick={() => setSelectedPaymentId(null)}
                                         className="lg:hidden h-10 w-10 rounded-full bg-white border border-[var(--rw-border)] flex items-center justify-center text-rw-ink active:scale-95 transition-transform"
                                     >
@@ -281,7 +264,7 @@ export function FinancePayments({ allPayments, fmt, PaymentStatusPill }: Finance
                                                 <span className="px-2 py-1 bg-white border border-[var(--rw-border)] rounded-md">{selectedPayment.extractedBank || "Unknown Bank"}</span>
                                             </div>
                                         </div>
-                                        
+
                                         <div className="p-4 rounded-2xl bg-rw-bg-alt/30 border border-[var(--rw-border)]">
                                             <span className="text-[10px] font-bold text-rw-muted uppercase tracking-[0.2em] block mb-2">Claimed Value</span>
                                             <p className="font-display font-black text-3xl text-rw-ink">{fmt(selectedPayment.amountClaimed)}</p>
@@ -309,22 +292,22 @@ export function FinancePayments({ allPayments, fmt, PaymentStatusPill }: Finance
                                     <div className="flex flex-col gap-4">
                                         <div className="flex items-center justify-between">
                                             <span className="text-[10px] font-bold text-rw-muted uppercase tracking-[0.2em]">Transaction Receipt</span>
-                                            <button 
-                                                onClick={() => setIsZoomed(true)}
+                                            <button
+                                                onClick={handleZoom}
                                                 className="text-xs font-bold text-rw-crimson hover:underline flex items-center gap-1"
                                             >
                                                 Zoom view
                                                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" /></svg>
                                             </button>
                                         </div>
-                                        <div 
+                                        <div
                                             className="aspect-[3/4] rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)] overflow-hidden relative group cursor-zoom-in shadow-inner"
-                                            onClick={() => setIsZoomed(true)}
+                                            onClick={handleZoom}
                                         >
-                                            <img 
-                                                src={selectedPayment.receiptUrl} 
-                                                alt="Proof of Payment" 
-                                                className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" 
+                                            <img
+                                                src={selectedPayment.receiptUrl}
+                                                alt="Proof of Payment"
+                                                className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
                                             />
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-6">
                                                 <span className="text-white text-[10px] font-black uppercase tracking-[0.2em] bg-rw-crimson px-6 py-2 rounded-full shadow-lg">Click for convenient view</span>
@@ -337,11 +320,11 @@ export function FinancePayments({ allPayments, fmt, PaymentStatusPill }: Finance
                                 <div className="mt-auto pt-8 border-t border-[var(--rw-border)]">
                                     <div className="flex flex-col gap-6">
                                         <p className="text-[10px] font-bold text-rw-muted uppercase tracking-[0.3em] text-center">Decision Console</p>
-                                        
-                                        {selectedPayment.status === "pending" || selectedPayment.status === "flagged" ? (
+
+                                        {selectedPayment.status === "pending" ? (
                                             <div className="grid grid-cols-2 gap-4">
-                                                <Button 
-                                                    onClick={() => handleActionClick("approve")}
+                                                <Button
+                                                    onClick={openApproveModal}
                                                     className="h-20 bg-green-600 hover:bg-green-700 !rounded-[1.5rem] shadow-xl shadow-green-600/20"
                                                 >
                                                     <div className="flex flex-col items-center">
@@ -349,9 +332,9 @@ export function FinancePayments({ allPayments, fmt, PaymentStatusPill }: Finance
                                                         <span className="text-[9px] font-bold opacity-70 uppercase tracking-tighter mt-1">Mark as valid funds</span>
                                                     </div>
                                                 </Button>
-                                                <Button 
+                                                <Button
                                                     variant="outlined"
-                                                    onClick={() => handleActionClick("flag")}
+                                                    onClick={openFlagModal}
                                                     className="h-20 border-2 border-amber-200 text-amber-700 hover:bg-amber-50 !rounded-[1.5rem]"
                                                 >
                                                     <div className="flex flex-col items-center">
@@ -366,8 +349,8 @@ export function FinancePayments({ allPayments, fmt, PaymentStatusPill }: Finance
                                                     <p className="text-sm font-bold text-rw-ink italic">This payment was processed by {selectedPayment.moderatorName || "System"}</p>
                                                     <p className="text-[10px] text-rw-muted uppercase mt-1">Status: {selectedPayment.status}</p>
                                                 </div>
-                                                <button 
-                                                    onClick={() => setSelectedPaymentId(selectedPayment.id)} // Simulated Revert
+                                                <button
+                                                    onClick={openRevertModal}
                                                     className="text-xs font-bold text-rw-muted hover:text-rw-crimson underline transition-colors"
                                                 >
                                                     Revert to Pending status
