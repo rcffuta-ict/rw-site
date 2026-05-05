@@ -538,94 +538,174 @@ export function CheckoutClient() {
             ) : (
                 /* Step 3 — Confirmed */
                 orderRef && (
-                    <div className="max-w-3xl mx-auto flex flex-col gap-8 animate-fade-in-up py-10">
-                        <div className="rw-card p-12 text-center flex flex-col items-center gap-8 border-rw-gold/20 shadow-2xl shadow-rw-gold/5 relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-1.5 bg-rw-gold" />
+                    <div className="max-w-3xl mx-auto flex flex-col gap-10 animate-fade-in-up py-8 lg:py-12">
+                        {/* The Cinematic Ticket Card */}
+                        <div className="relative group">
+                            {/* Decorative background glow */}
+                            <div className="absolute -inset-2 bg-rw-crimson/5 blur-2xl rounded-[3rem] transition-opacity group-hover:opacity-100 opacity-50" />
 
-                            <div className="flex h-24 w-24 items-center justify-center rounded-[2.5rem] bg-rw-gold/10 border-2 border-rw-gold/20 shadow-inner">
-                                <svg
-                                    className="h-12 w-12 text-rw-gold"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={2.5}
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="m4.5 12.75 6 6 9-13.5"
-                                    />
-                                </svg>
-                            </div>
+                            <div className="relative rw-card overflow-hidden border-rw-crimson/10 shadow-2xl bg-white flex flex-col md:flex-row min-h-[500px]">
+                                {/* Left Section — Confirmation & Summary */}
+                                <div className="flex-1 p-8 lg:p-12 flex flex-col gap-8 border-b md:border-b-0 md:border-r border-dashed border-[var(--rw-border-mid)] relative">
+                                    {/* Success Badge */}
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-12 w-12 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center text-green-600 shadow-sm">
+                                            <svg
+                                                className="h-6 w-6"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                strokeWidth={2.5}
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M5 13l4 4L19 7"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p className="eyebrow !text-[9px] !text-green-600">
+                                                Order Confirmed
+                                            </p>
+                                            <h2 className="font-display font-black text-2xl text-rw-ink leading-tight">
+                                                Great Choice!
+                                            </h2>
+                                        </div>
+                                    </div>
 
-                            <div className="flex flex-col gap-2">
-                                <p className="eyebrow">Order Successful</p>
-                                <h2 className="font-display font-black text-4xl lg:text-5xl text-rw-ink tracking-tight">
-                                    Thank You!
-                                </h2>
-                                <p className="mt-2 text-rw-text-2 font-medium max-w-md mx-auto">
-                                    Your order has been recorded. Please save your
-                                    reference code below for payment and pickup.
-                                </p>
-                            </div>
+                                    {/* Order Brief */}
+                                    <div className="flex flex-col gap-4">
+                                        <p className="text-xs font-black text-rw-muted uppercase tracking-[0.2em] mb-1">
+                                            Order Summary
+                                        </p>
+                                        <div className="space-y-3">
+                                            {items.slice(0, 3).map((i) => (
+                                                <div
+                                                    key={i.variantId}
+                                                    className="flex justify-between items-center text-sm"
+                                                >
+                                                    <span className="text-rw-ink font-bold truncate max-w-[200px]">
+                                                        {i.productName}
+                                                    </span>
+                                                    <span className="text-rw-muted font-medium">
+                                                        ×{i.quantity}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                            {items.length > 3 && (
+                                                <p className="text-[10px] text-rw-crimson font-bold uppercase">
+                                                    And {items.length - 3} more items...
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="mt-4 pt-4 border-t border-[var(--rw-border)] flex justify-between items-baseline">
+                                            <span className="text-xs font-black text-rw-ink uppercase tracking-widest">
+                                                Total Amount
+                                            </span>
+                                            <span className="text-2xl font-display font-black text-rw-crimson">
+                                                ₦{total.toLocaleString()}
+                                            </span>
+                                        </div>
+                                    </div>
 
-                            <div className="w-full rounded-[2rem] border-2 border-rw-crimson/10 bg-rw-bg-warm/50 px-10 py-12 text-center relative group">
-                                <div className="absolute top-4 left-4">
-                                    <span className="text-[10px] font-black text-rw-muted uppercase tracking-[0.2em]">
-                                        Reference Code
-                                    </span>
+                                    {/* Instructions */}
+                                    <div className="mt-auto bg-rw-bg-warm/50 p-5 rounded-2xl border border-rw-crimson/5">
+                                        <p className="text-xs text-rw-text-2 leading-relaxed font-medium">
+                                            This reference code is your digital receipt.
+                                            Share it with friends if they&lsquo;re paying
+                                            for you, or use it yourself at pickup.
+                                        </p>
+                                    </div>
+
+                                    {/* Ticket Notch Decorations */}
+                                    <div className="hidden md:block absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-rw-bg border-r border-[var(--rw-border-mid)] shadow-[inset_-8px_0_12px_rgba(0,0,0,0.03)]" />
                                 </div>
-                                <p className="font-mono text-6xl lg:text-7xl font-black text-rw-crimson tracking-[0.15em] select-all">
-                                    {orderRef}
-                                </p>
-                                <p className="mt-6 text-xs text-rw-muted font-bold uppercase tracking-widest">
-                                    Click to copy or screenshot this screen
-                                </p>
-                            </div>
 
-                            <div className="flex flex-col sm:flex-row gap-4 w-full justify-center pt-4">
-                                <Button
-                                    variant="outlined"
-                                    size="lg"
-                                    onClick={copyRef}
-                                    className="h-14 px-10 font-bold border-rw-border-strong hover:border-rw-crimson"
-                                    id="copy-order-ref"
-                                >
-                                    {copied
-                                        ? "Copied to Clipboard!"
-                                        : "Copy Reference Code"}
-                                </Button>
-                                <Link
-                                    href={`/fulfil?ref=${orderRef}`}
-                                    id="go-to-fulfil"
-                                    className="flex-1 max-w-xs"
-                                >
-                                    <Button
-                                        variant="primary"
-                                        size="lg"
-                                        className="h-14 w-full shadow-xl shadow-rw-crimson/20"
+                                {/* Right Section — The Voucher */}
+                                <div className="w-full md:w-[320px] bg-rw-bg-alt/40 p-8 lg:p-12 flex flex-col items-center justify-center gap-8 relative overflow-hidden">
+                                    {/* Branding accent */}
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-rw-crimson/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
+
+                                    <div className="text-center relative z-10">
+                                        <p className="text-[10px] font-black text-rw-muted uppercase tracking-[0.3em] mb-4">
+                                            Reference Code
+                                        </p>
+                                        <div className="bg-white p-6 rounded-[2rem] shadow-xl shadow-rw-ink/5 border-2 border-rw-crimson/10 group-hover:border-rw-crimson/30 transition-colors">
+                                            <p className="font-mono text-5xl font-black text-rw-crimson tracking-[0.1em] select-all">
+                                                {orderRef}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col gap-3 w-full relative z-10">
+                                        <Button
+                                            variant="primary"
+                                            size="lg"
+                                            onClick={copyRef}
+                                            className="w-full h-14 font-black tracking-wider uppercase text-xs shadow-lg shadow-rw-crimson/20"
+                                        >
+                                            {copied
+                                                ? "Reference Copied!"
+                                                : "Copy Reference"}
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            size="lg"
+                                            onClick={() => {
+                                                const url = `${window.location.origin}/fulfil?ref=${orderRef}`;
+                                                navigator.clipboard.writeText(
+                                                    `Hi! Could you help me pay for my Redemption Week merch? Ref: ${orderRef}. Pay here: ${url}`
+                                                );
+                                                setCopied(true);
+                                                setTimeout(() => setCopied(false), 2000);
+                                            }}
+                                            className="w-full h-14 font-bold text-xs bg-white border-[var(--rw-border-strong)] hover:border-rw-crimson"
+                                        >
+                                            {copied
+                                                ? "Share Text Copied!"
+                                                : "Share Payment Link"}
+                                        </Button>
+                                    </div>
+
+                                    <Link
+                                        href={`/fulfil?ref=${orderRef}`}
+                                        className="text-xs font-black text-rw-crimson hover:underline uppercase tracking-widest mt-2 relative z-10"
                                     >
-                                        Pay Now →
-                                    </Button>
-                                </Link>
+                                        Pay for it yourself →
+                                    </Link>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-4 text-center">
-                            <p className="text-rw-muted font-medium">
-                                Need to pay later? You can always find your order at{" "}
+                        <div className="flex flex-col gap-6 text-center">
+                            <p className="text-rw-muted font-medium text-sm">
+                                Lost your code? Find it anytime in{" "}
                                 <Link
                                     href="/orders"
-                                    className="text-rw-crimson font-bold hover:underline"
+                                    className="text-rw-crimson font-black hover:underline"
                                 >
                                     My Orders
                                 </Link>
                             </p>
                             <Link
                                 href="/"
-                                className="text-sm font-bold text-rw-muted hover:text-rw-ink transition-colors"
+                                className="inline-flex items-center justify-center gap-2 text-sm font-bold text-rw-ink hover:text-rw-crimson transition-colors group"
                             >
-                                ← Return to Homepage
+                                <svg
+                                    className="h-4 w-4 transition-transform group-hover:-translate-x-1"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    strokeWidth={2.5}
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                                    />
+                                </svg>
+                                Return to Storefront
                             </Link>
                         </div>
                     </div>
