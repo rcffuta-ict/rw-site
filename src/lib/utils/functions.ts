@@ -22,3 +22,5 @@ export function productImageUrl(
     const label = `${name}${color ? `\n${color}` : ""}`;
     return ph(width, height, label, bg, fg);
 }
+
+export function fmtNaira(n: number) { return `₦${Math.round(n).toLocaleString()}`; }

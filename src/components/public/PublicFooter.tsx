@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { ph } from "@/lib/utils/functions";
-import Image from "next/image";
 import { Identity } from "../ui/Identity";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -263,7 +261,7 @@ export function PublicFooter() {
                             </a>
                             <div className="flex flex-col gap-2 mt-2">
                                 <span className="text-xs text-white/30">
-                                    09031676421 · Aiyejagbara Tobi
+                                    09031676421 · Aiyejagbara Oluwatobi
                                 </span>
                                 <span className="text-xs text-white/30">
                                     09069948890 · Olatona Ayobami

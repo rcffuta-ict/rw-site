@@ -1,53 +1,7 @@
 "use client";
 import { ph } from "@/lib/utils/functions";
 import { Button } from "@/components/ui/forms/Button";
-
-const SPONSORS = [
-    {
-        tier: "Diamond",
-        amount: "₦1,000,000",
-        perks: [
-            "All-week logo placement",
-            "Daily exhibition booth",
-            "20s video and image ad daily",
-            "Vocal mentions nightly",
-        ],
-        highlight: true,
-    },
-    {
-        tier: "Gold",
-        amount: "₦750,000",
-        perks: ["All-week logo placement", "Booth × 4 days", "Video and image ads × 4 days"],
-        highlight: false,
-    },
-    {
-        tier: "Silver",
-        amount: "₦500,000",
-        perks: ["All-week logo placement", "Booth × 3 days", "Video and image ad × 3 days"],
-        highlight: false,
-    },
-    {
-        tier: "Bronze",
-        amount: "₦250,000",
-        perks: ["All-week logo placement", "Booth × 2 days", "Image ads daily"],
-        highlight: false,
-    },
-];
-
-const CONTACTS = [
-    {
-        name: "Aiyejagbara Oluwatobi",
-        phone: "09031676421",
-        email: "tobi4saviour2@gmail.com",
-        title: "Finance Lead",
-    },
-    {
-        name: "Olatona Ayobami",
-        phone: "09069948890",
-        email: "ayobamioluwaseyi118@gmail.com",
-        title: "Committe Chairperson",
-    },
-];
+import { CONTACTS, SPONSORS } from "@/lib/data/info";
 
 export function SponsorsSection() {
     const handleDownload = () => {
@@ -99,8 +53,7 @@ export function SponsorsSection() {
                     {SPONSORS.map((s) => (
                         <div
                             key={s.tier}
-                            className={`rw-card group p-8 flex flex-col gap-6 transition-all duration-500 hover:-translate-y-2 ${
-                                s.highlight
+                            className={`rw-card group p-8 flex flex-col gap-6 transition-all duration-500 hover:-translate-y-2 ${s.highlight
                                     ? "ring-2 ring-rw-crimson border-transparent bg-gradient-to-b from-rw-crimson/[0.03] to-white shadow-xl"
                                     : "hover:border-rw-crimson/30 hover:shadow-lg"
                             }`}
