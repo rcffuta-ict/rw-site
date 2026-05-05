@@ -1,6 +1,6 @@
 "use client";
 
-import { useCart } from "@/components/public/CartContext";
+import { useCart } from "@/context/CartContext";
 import { ph } from "@/lib/utils/functions";
 import Link from "next/link";
 import { Button } from "@/components/ui/forms/Button";

@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ph } from "@/lib/utils/functions";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { useCart } from "@/components/public/CartContext";
 import { Identity } from "../ui/Identity";
+import { useCart } from "@/context/CartContext";
 
 const NAV = [
     { href: "/", label: "Home" },

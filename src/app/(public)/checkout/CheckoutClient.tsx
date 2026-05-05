@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useCart } from "@/components/public/CartContext";
+import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/forms/Button";
 import { Input } from "@/components/ui/forms/Input";
 import { Textarea } from "@/components/ui/forms/Textarea";

@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { Product } from "@/lib/data/types";
 import { COLOR_HEX } from "@/lib/data/products";
 import { ProductDrawer } from "@/components/public/ProductDrawer";
-import { useCart } from "@/components/public/CartContext";
+import { useCart } from "@/context/CartContext";
 import { productImageUrl } from "@/lib/utils/functions";
 import { CartSidebar } from "@/components/public/CartSidebar";
 
