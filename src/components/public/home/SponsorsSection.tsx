@@ -1,5 +1,5 @@
 "use client";
-import { ph } from "@/lib/utils";
+import { ph } from "@/lib/utils/functions";
 import { Button } from "@/components/ui/Button";
 
 const SPONSORS = [

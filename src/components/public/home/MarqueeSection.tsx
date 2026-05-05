@@ -1,4 +1,4 @@
-import { ph } from "@/lib/utils";
+import { ph } from "@/lib/utils/functions";
 
 export function MarqueeSection() {
     return (

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { env } from "@/lib/env";
 import { CountdownTimer } from "@/components/public/CountdownTimer";
-import { ph } from "@/lib/utils";
+import { ph } from "@/lib/utils/functions";
 
 export function HeroSection() {
     return (

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ph } from "@/lib/utils";
+import { ph } from "@/lib/utils/functions";
 import { getProductById, COLOR_HEX } from "@/lib/data/products";
 import { notFound } from "next/navigation";
 import type { ProductVariant } from "@/lib/data/types";

@@ -1,4 +1,4 @@
-import { ph } from "@/lib/utils";
+import { ph } from "@/lib/utils/functions";
 import type { Order } from "@/lib/data/types";
 
 function ProgressBar({ paid, total }: { paid: number; total: number }) {
@@ -24,23 +24,31 @@ export function OrderSummary({ order }: { order: Order }) {
     return (
         <div className="rw-card overflow-hidden border-t-[3px] border-t-rw-crimson shadow-rw-shadow-md">
             <div className="bg-gradient-to-r from-rw-crimson/5 to-transparent px-6 py-5 border-b border-rw-crimson/10 flex items-center justify-between">
-                <h2 className="font-display font-bold text-lg text-rw-ink">Order Summary</h2>
+                <h2 className="font-display font-bold text-lg text-rw-ink">
+                    Order Summary
+                </h2>
                 <span
                     className={`badge-${order.status} inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide`}
                 >
                     {order.status.replace("_", " ")}
                 </span>
             </div>
-            
+
             <div className="p-6">
                 <div className="mb-6">
-                    <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">Customer</p>
-                    <p className="font-semibold text-rw-ink text-lg">{order.customerName}</p>
+                    <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">
+                        Customer
+                    </p>
+                    <p className="font-semibold text-rw-ink text-lg">
+                        {order.customerName}
+                    </p>
                 </div>
 
                 {/* Item previews */}
                 <div className="flex flex-col gap-3 mb-8">
-                    <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">Items ({order.items.length})</p>
+                    <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">
+                        Items ({order.items.length})
+                    </p>
                     {order.items.map((i) => (
                         <div
                             key={i.id}
@@ -63,16 +71,15 @@ export function OrderSummary({ order }: { order: Order }) {
                                 <p className="font-bold text-sm text-rw-ink">
                                     ₦{(i.unitPrice * i.quantity).toLocaleString()}
                                 </p>
-                                <p className="text-xs text-rw-muted mt-0.5">Qty: {i.quantity}</p>
+                                <p className="text-xs text-rw-muted mt-0.5">
+                                    Qty: {i.quantity}
+                                </p>
                             </div>
                         </div>
                     ))}
                 </div>
 
-                <ProgressBar
-                    paid={order.amountPaid}
-                    total={order.totalAmount}
-                />
+                <ProgressBar paid={order.amountPaid} total={order.totalAmount} />
             </div>
         </div>
     );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ph } from "@/lib/utils";
+import { ph } from "@/lib/utils/functions";
 
 interface Night {
     day: string;

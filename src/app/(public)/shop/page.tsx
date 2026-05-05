@@ -1,5 +1,5 @@
 import { DEMO_PRODUCTS } from "@/lib/data/products";
-import { ph } from "@/lib/utils";
+import { ph } from "@/lib/utils/functions";
 import { ShopClient } from "./ShopClient";
 
 export const metadata = {

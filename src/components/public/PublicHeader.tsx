@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ph } from "@/lib/utils";
+import { ph } from "@/lib/utils/functions";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "@/components/public/CartContext";

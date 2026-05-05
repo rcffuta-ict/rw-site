@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { DEMO_PRODUCTS, COLOR_HEX } from "@/lib/data/products";
-import { ph } from "@/lib/utils";
+import { ph } from "@/lib/utils/functions";
 
 export function MerchPreviewSection() {
     return (
