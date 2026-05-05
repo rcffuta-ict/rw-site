@@ -71,9 +71,6 @@ export default function AdminLoginPage() {
                         </button>
                     </form>
 
-                    <p className="mt-8 text-center text-xs text-rw-muted">
-                        Demo build — credentials: admin@rcffuta.com / rw26admin
-                    </p>
                 </div>
 
                 <p className="mt-8 text-center text-xs text-rw-muted">

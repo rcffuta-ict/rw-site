@@ -65,20 +65,30 @@ a {
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
+    height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #f9fafb;
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #d1d5db;
-    border-radius: 3px;
+    background: #e5e7eb;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #9ca3af;
+    background: #d1d5db;
+    background-clip: padding-box;
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #e5e7eb transparent;
 }
 
 /* ─── Focus ──────────────────────────────────────────────────────────────────── */

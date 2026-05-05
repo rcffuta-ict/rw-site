@@ -12,19 +12,28 @@ const NAV = [
     { href: "/admin/settings", label: "Settings",   icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" },
 ];
 
-export function AdminSidebar() {
+export function AdminSidebar({ isMobileOpen, onClose }: { isMobileOpen?: boolean; onClose?: () => void }) {
     const pathname = usePathname();
 
     return (
-        <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-[var(--rw-border)] bg-white min-h-screen sticky top-0">
-            <div className="flex items-center gap-3 px-5 py-5 border-b border-[var(--rw-border)]">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-rw-crimson">
-                    <svg className="h-4.5 w-4.5 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9 7 6 9 6 13a6 6 0 0 0 12 0c0-4-3-6-6-11z" /></svg>
-                </span>
-                <div className="leading-tight">
-                    <p className="text-sm font-bold text-rw-ink">RW&apos;26 Admin</p>
-                    <p className="text-[10px] text-rw-muted font-medium">RCF FUTA · CRM</p>
+        <aside className={`flex flex-col w-64 shrink-0 border-r border-[var(--rw-border)] bg-white h-full relative z-20 transition-transform duration-300 ${
+            isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}>
+            <div className="flex items-center justify-between px-5 py-5 border-b border-[var(--rw-border)]">
+                <div className="flex items-center gap-3">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-rw-crimson">
+                        <svg className="h-4.5 w-4.5 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9 7 6 9 6 13a6 6 0 0 0 12 0c0-4-3-6-6-11z" /></svg>
+                    </span>
+                    <div className="leading-tight">
+                        <p className="text-sm font-bold text-rw-ink">RW&apos;26 Admin</p>
+                        <p className="text-[10px] text-rw-muted font-medium">RCF FUTA · CRM</p>
+                    </div>
                 </div>
+                {onClose && (
+                    <button onClick={onClose} className="md:hidden h-8 w-8 flex items-center justify-center rounded-lg bg-rw-bg-alt text-rw-muted">
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                    </button>
+                )}
             </div>
 
             <nav className="flex-1 px-3 py-4 flex flex-col gap-1">

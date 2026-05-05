@@ -3,15 +3,18 @@ import { DEMO_ORDERS, getDemoStats } from "@/lib/data/orders";
 import { OrderStatusBadge } from "@/components/ui/Badge";
 import { StatsCard } from "@/components/ui/cards/StatsCard";
 
+import { RevenueBreakdown } from "@/components/admin/finance/RevenueBreakdown";
+
 export const metadata = { title: "Admin Dashboard — RW'26" };
 
 function fmt(n: number) { return `₦${n.toLocaleString()}`; }
 
 export default function AdminDashboard() {
     const stats = getDemoStats();
-    const totalRevenue = DEMO_ORDERS.reduce((s, o) => s + o.totalAmount, 0);
-    const collected = DEMO_ORDERS.reduce((s, o) => s + o.amountPaid, 0);
-    const collectionRate = totalRevenue > 0 ? Math.round((collected / totalRevenue) * 100) : 0;
+    const totalPossibleRevenue = DEMO_ORDERS.reduce((s, o) => s + o.totalAmount, 0);
+    const actualCollected = DEMO_ORDERS.reduce((s, o) => s + o.amountPaid, 0);
+    const collectionRate = totalPossibleRevenue > 0 ? Math.round((actualCollected / totalPossibleRevenue) * 100) : 0;
+    const outstandingBalance = totalPossibleRevenue - actualCollected;
 
     // Status distribution for chart
     const statusCounts: Record<string, number> = {};
@@ -40,9 +43,16 @@ export default function AdminDashboard() {
                     icon={<svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" /></svg>}
                 />
                 <StatsCard
-                    label="Revenue Collected"
-                    value={fmt(collected)}
-                    sub={`${collectionRate}% of ${fmt(totalRevenue)}`}
+                    label="Collection Rate"
+                    value={`${collectionRate}%`}
+                    sub={`${fmt(actualCollected)} of ${fmt(totalPossibleRevenue)}`}
+                    trend={{ value: 5, isUp: true }}
+                    icon={<svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>}
+                />
+                <StatsCard
+                    label="Outstanding"
+                    value={fmt(outstandingBalance)}
+                    sub="Remaining to be collected"
                     icon={<svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>}
                 />
                 <StatsCard
@@ -59,45 +69,29 @@ export default function AdminDashboard() {
                 />
             </div>
 
-            {/* Charts row */}
-            <div className="grid sm:grid-cols-2 gap-6">
-                {/* Revenue chart placeholder */}
-                <div className="rw-card p-6">
+            {/* Financial Analysis row */}
+            <div className="grid lg:grid-cols-3 gap-6">
+                {/* Revenue trend */}
+                <div className="rw-card p-6 lg:col-span-2">
                     <div className="flex items-center justify-between mb-6">
                         <div>
-                            <p className="text-xs font-bold text-rw-muted uppercase tracking-wider">Revenue Trend</p>
-                            <p className="font-display font-bold text-2xl text-rw-ink mt-1">{fmt(collected)}</p>
+                            <p className="text-xs font-bold text-rw-muted uppercase tracking-wider">Revenue Trend (Weekly)</p>
+                            <p className="font-display font-bold text-2xl text-rw-ink mt-1">{fmt(actualCollected)}</p>
                         </div>
                         <span className="text-xs font-bold px-2 py-1 rounded-lg bg-green-50 text-green-600">+{collectionRate}%</span>
                     </div>
-                    <div className="chart-placeholder h-40 flex items-end justify-around px-4 pb-4 gap-2">
+                    <div className="chart-placeholder h-48 flex items-end justify-around px-4 pb-4 gap-2">
                         {[35, 55, 45, 70, 60, 85, 75].map((h, i) => (
-                            <div key={i} className="flex-1 rounded-t-md relative z-10" style={{ height: `${h}%`, background: i === 6 ? '#c41230' : '#e5e7eb' }} />
+                            <div key={i} className="flex-1 rounded-t-lg relative z-10 transition-all hover:opacity-80" style={{ height: `${h}%`, background: i === 6 ? '#c41230' : '#e5e7eb' }} />
                         ))}
                     </div>
-                    <div className="flex justify-between text-[10px] text-rw-muted mt-2 px-4">
+                    <div className="flex justify-between text-[10px] text-rw-muted mt-2 px-4 font-bold uppercase tracking-widest">
                         {["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d => <span key={d}>{d}</span>)}
                     </div>
                 </div>
 
-                {/* Order status distribution */}
-                <div className="rw-card p-6">
-                    <p className="text-xs font-bold text-rw-muted uppercase tracking-wider mb-6">Order Status Distribution</p>
-                    <div className="flex flex-col gap-3">
-                        {Object.entries(statusCounts).map(([status, count]) => {
-                            const pct = Math.round((count / stats.total) * 100);
-                            return (
-                                <div key={status} className="flex items-center gap-3">
-                                    <span className="text-xs font-medium text-rw-text-2 w-24 capitalize">{status.replace("_", " ")}</span>
-                                    <div className="flex-1 h-3 rounded-full bg-rw-bg-alt overflow-hidden">
-                                        <div className="h-full rounded-full bg-rw-crimson/70 transition-all" style={{ width: `${pct}%` }} />
-                                    </div>
-                                    <span className="text-xs font-bold text-rw-ink w-8 text-right">{count}</span>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
+                {/* Revenue Breakdown */}
+                <RevenueBreakdown />
             </div>
 
             {/* Recent orders */}

@@ -2,6 +2,7 @@ import { DEMO_ORDERS } from "@/lib/data/orders";
 import { OrderStatusBadge } from "@/components/ui/Badge";
 import type { Metadata } from "next";
 import { ExportCsvButton } from "./component";
+import { BankDistribution } from "@/components/admin/finance/BankDistribution";
 
 export const metadata: Metadata = { title: "Finance — RW'26 Admin" };
 
@@ -44,19 +45,52 @@ export default function FinancePage() {
                 ))}
             </div>
 
-            {/* Revenue chart placeholder */}
-            <div className="rw-card p-6">
-                <div className="flex items-center justify-between mb-5">
-                    <p className="font-display font-bold text-rw-ink">Collection Progress</p>
-                    <span className="text-sm text-rw-muted">{Math.round(collected/totalOrdered*100)}% collected</span>
+            {/* Financial Analysis Section */}
+            <div className="grid lg:grid-cols-3 gap-6">
+                {/* Collection progress */}
+                <div className="rw-card p-6 lg:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <div className="flex items-center justify-between mb-5">
+                            <p className="font-display font-bold text-rw-ink">Collection Progress</p>
+                            <span className="text-sm font-bold text-rw-crimson">{Math.round(collected/totalOrdered*100)}% of goal</span>
+                        </div>
+                        <div className="progress-bar-track !h-6 rounded-xl bg-rw-bg-alt overflow-hidden border border-[var(--rw-border)]">
+                            <div className="progress-bar-fill !h-full rounded-l-lg bg-gradient-to-r from-rw-crimson to-rw-crimson-dk transition-all duration-1000 shadow-sm" style={{ width: `${Math.round(collected/totalOrdered*100)}%` }} />
+                        </div>
+                        <div className="flex justify-between text-xs font-bold text-rw-muted mt-4 uppercase tracking-wider">
+                            <div className="flex flex-col gap-1">
+                                <span>Collected</span>
+                                <span className="text-lg text-green-700">{fmt(collected)}</span>
+                            </div>
+                            <div className="flex flex-col gap-1 text-right">
+                                <span>Total Expected</span>
+                                <span className="text-lg text-rw-ink">{fmt(totalOrdered)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-[var(--rw-border)] pt-6">
+                        <div>
+                            <p className="text-[10px] font-bold text-rw-muted uppercase tracking-wider">Avg Order Value</p>
+                            <p className="text-lg font-bold text-rw-ink">{fmt(Math.round(totalOrdered / DEMO_ORDERS.length))}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-bold text-rw-muted uppercase tracking-wider">Payments Approved</p>
+                            <p className="text-lg font-bold text-rw-ink">{allPayments.filter(p => p.status === "approved").length}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-bold text-rw-muted uppercase tracking-wider">Pending Audit</p>
+                            <p className="text-lg font-bold text-amber-600">{allPayments.filter(p => p.status === "pending").length}</p>
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-bold text-rw-muted uppercase tracking-wider">Collection Gap</p>
+                            <p className="text-lg font-bold text-rw-crimson">{fmt(outstanding)}</p>
+                        </div>
+                    </div>
                 </div>
-                <div className="progress-bar-track !h-4">
-                    <div className="progress-bar-fill !h-4" style={{ width: `${Math.round(collected/totalOrdered*100)}%` }} />
-                </div>
-                <div className="flex justify-between text-xs text-rw-muted mt-3">
-                    <span>{fmt(collected)} collected</span>
-                    <span>{fmt(totalOrdered)} total</span>
-                </div>
+
+                {/* Bank Distribution */}
+                <BankDistribution />
             </div>
 
             {/* All payments table */}
