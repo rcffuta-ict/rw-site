@@ -564,49 +564,18 @@ export function CheckoutClient() {
                                                 />
                                             </svg>
                                         </div>
-                                        <div>
-                                            <p className="eyebrow !text-[9px] !text-green-600">
-                                                Order Confirmed
-                                            </p>
-                                            <h2 className="font-display font-black text-2xl text-rw-ink leading-tight">
-                                                Great Choice!
-                                            </h2>
-                                        </div>
                                     </div>
-
-                                    {/* Order Brief */}
-                                    <div className="flex flex-col gap-4">
-                                        <p className="text-xs font-black text-rw-muted uppercase tracking-[0.2em] mb-1">
-                                            Order Summary
+                                    <div className="flex flex-col gap-3">
+                                        <p className="eyebrow !text-rw-gold">
+                                            Order Successful
                                         </p>
-                                        <div className="space-y-3">
-                                            {items.slice(0, 3).map((i) => (
-                                                <div
-                                                    key={i.variantId}
-                                                    className="flex justify-between items-center text-sm"
-                                                >
-                                                    <span className="text-rw-ink font-bold truncate max-w-[200px]">
-                                                        {i.productName}
-                                                    </span>
-                                                    <span className="text-rw-muted font-medium">
-                                                        ×{i.quantity}
-                                                    </span>
-                                                </div>
-                                            ))}
-                                            {items.length > 3 && (
-                                                <p className="text-[10px] text-rw-crimson font-bold uppercase">
-                                                    And {items.length - 3} more items...
-                                                </p>
-                                            )}
-                                        </div>
-                                        <div className="mt-4 pt-4 border-t border-[var(--rw-border)] flex justify-between items-baseline">
-                                            <span className="text-xs font-black text-rw-ink uppercase tracking-widest">
-                                                Total Amount
-                                            </span>
-                                            <span className="text-2xl font-display font-black text-rw-crimson">
-                                                ₦{total.toLocaleString()}
-                                            </span>
-                                        </div>
+                                        <h2 className="font-display font-black text-4xl lg:text-5xl text-rw-ink tracking-tight">
+                                            Thank You!
+                                        </h2>
+                                        <p className="mt-2 text-rw-text-2 font-medium max-w-sm mx-auto leading-relaxed">
+                                            Your order is confirmed. Share the reference
+                                            code below to finalize payment or pickup.
+                                        </p>
                                     </div>
 
                                     {/* Instructions */}
