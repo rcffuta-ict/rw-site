@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/public/CartContext";
 import { Button } from "@/components/ui/forms/Button";
@@ -24,37 +24,55 @@ function generateRef(): string {
 function StepIndicator({ step }: { step: Step }) {
     const steps = ["Your Info", "Review", "Confirmed"];
     return (
-        <div className="flex items-center gap-0 mb-8">
+        <div className="flex items-center gap-0 mb-12">
             {steps.map((label, i) => {
                 const n = (i + 1) as Step;
                 const active = n === step;
                 const done = n < step;
                 return (
-                    <div key={label} className="flex items-center">
-                        <div className="flex items-center gap-2.5">
-                            <span
-                                className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold transition-all ${
+                    <React.Fragment key={label}>
+                        <div className="flex items-center gap-3">
+                            <div
+                                className={`flex h-10 w-10 items-center justify-center rounded-2xl text-sm font-black transition-all duration-300 ${
                                     done
-                                        ? "bg-rw-crimson text-white"
+                                        ? "bg-rw-crimson text-white shadow-lg shadow-rw-crimson/20"
                                         : active
-                                          ? "border-2 border-rw-crimson text-rw-crimson"
-                                          : "border-2 border-gray-200 text-gray-400"
+                                          ? "bg-rw-ink text-white shadow-xl scale-110"
+                                          : "bg-rw-bg-alt border border-[var(--rw-border-mid)] text-rw-muted"
                                 }`}
                             >
-                                {done ? "✓" : n}
-                            </span>
+                                {done ? (
+                                    <svg
+                                        className="h-5 w-5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        strokeWidth={3}
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M5 13l4 4L19 7"
+                                        />
+                                    </svg>
+                                ) : (
+                                    n
+                                )}
+                            </div>
                             <span
-                                className={`text-sm font-medium hidden sm:block ${active ? "text-rw-ink" : done ? "text-rw-ink" : "text-rw-muted"}`}
+                                className={`text-xs font-black uppercase tracking-widest hidden md:block ${active ? "text-rw-ink" : done ? "text-rw-crimson" : "text-rw-muted"}`}
                             >
                                 {label}
                             </span>
                         </div>
                         {i < steps.length - 1 && (
-                            <div
-                                className={`h-px w-10 sm:w-16 mx-3 ${done ? "bg-rw-crimson" : "bg-gray-200"}`}
-                            />
+                            <div className="flex-1 mx-4 max-w-[80px]">
+                                <div
+                                    className={`h-1 rounded-full transition-all duration-500 ${done ? "bg-rw-crimson" : "bg-rw-bg-alt border border-[var(--rw-border)]"}`}
+                                />
+                            </div>
                         )}
-                    </div>
+                    </React.Fragment>
                 );
             })}
         </div>
@@ -69,42 +87,66 @@ function OrderSummaryPanel({
     total: number;
 }) {
     return (
-        <div className="rw-card p-6 sticky top-24">
-            <h3 className="font-display font-bold text-rw-ink mb-5">Order Summary</h3>
-            <ul className="flex flex-col gap-4 mb-6">
-                {items.map((i) => (
-                    <li key={i.variantId} className="flex gap-3">
-                        <div className="h-16 w-16 rounded-xl overflow-hidden shrink-0 bg-rw-bg-alt">
-                            <img
-                                src={ph(64, 64, i.productName.slice(0, 6))}
-                                alt={i.productName}
-                                className="h-full w-full object-cover"
-                            />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-sm text-rw-ink truncate">
-                                {i.productName}
-                            </p>
-                            <p className="text-xs text-rw-muted truncate">
-                                {i.variantLabel}
-                            </p>
-                            <div className="flex justify-between mt-1">
-                                <span className="text-xs text-rw-muted">
-                                    Qty: {i.quantity}
-                                </span>
-                                <span className="text-sm font-semibold text-rw-ink">
-                                    ₦{(i.unitPrice * i.quantity).toLocaleString()}
-                                </span>
+        <div className="rw-card overflow-hidden shadow-2xl shadow-rw-ink/5 border-rw-crimson/5">
+            <div className="bg-rw-bg-warm/50 px-6 py-5 border-b border-[var(--rw-border)]">
+                <h3 className="font-display font-black text-rw-ink uppercase tracking-tight">
+                    Order Summary
+                </h3>
+            </div>
+            <div className="p-6">
+                <ul className="flex flex-col gap-5 mb-8 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
+                    {items.map((i) => (
+                        <li key={i.variantId} className="flex gap-4 group">
+                            <div className="h-16 w-16 rounded-xl overflow-hidden shrink-0 bg-rw-bg-alt border border-[var(--rw-border)] relative">
+                                <img
+                                    src={ph(80, 80, i.productName.slice(0, 6))}
+                                    alt={i.productName}
+                                    className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                                />
                             </div>
-                        </div>
-                    </li>
-                ))}
-            </ul>
-            <div className="border-t border-[var(--rw-border)] pt-4 flex justify-between items-center">
-                <span className="font-medium text-rw-text-2">Total</span>
-                <span className="font-display font-bold text-2xl text-rw-crimson">
-                    ₦{total.toLocaleString()}
-                </span>
+                            <div className="flex-1 min-w-0">
+                                <p className="font-bold text-sm text-rw-ink leading-tight truncate">
+                                    {i.productName}
+                                </p>
+                                <p className="text-[10px] text-rw-muted font-bold uppercase tracking-wide mt-0.5 truncate">
+                                    {i.variantLabel}
+                                </p>
+                                <div className="flex justify-between items-center mt-2">
+                                    <span className="text-[10px] font-bold text-rw-text-2 px-2 py-0.5 rounded bg-rw-bg-alt border border-[var(--rw-border)]">
+                                        Qty: {i.quantity}
+                                    </span>
+                                    <span className="text-sm font-bold text-rw-ink">
+                                        ₦{(i.unitPrice * i.quantity).toLocaleString()}
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+
+                <div className="space-y-3 pt-6 border-t border-[var(--rw-border)] border-dashed">
+                    <div className="flex justify-between text-sm">
+                        <span className="text-rw-muted font-medium">Subtotal</span>
+                        <span className="text-rw-ink font-bold">
+                            ₦{total.toLocaleString()}
+                        </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                        <span className="text-rw-muted font-medium">Processing Fee</span>
+                        <span className="text-rw-ink font-bold">₦0</span>
+                    </div>
+                    <div className="flex justify-between items-end pt-4">
+                        <span className="text-xs font-black text-rw-crimson uppercase tracking-widest">
+                            Total Amount
+                        </span>
+                        <span className="text-2xl font-display font-black text-rw-ink leading-none">
+                            ₦{total.toLocaleString()}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div className="px-6 py-4 bg-rw-ink text-white/60 text-[10px] font-bold uppercase tracking-widest text-center">
+                Secure Commerce Checkout
             </div>
         </div>
     );
@@ -206,7 +248,7 @@ export function CheckoutClient() {
 
     if (items.length === 0 && step !== 3) {
         return (
-            <div className="section-container py-20 text-center">
+            <div className="section-container py-20 text-center min-h-[25vh] md:min-h-[60vh] flex items-center justify-center">
                 <div className="max-w-md mx-auto">
                     <div className="flex h-20 w-20 items-center justify-center rounded-full bg-rw-bg-alt mx-auto mb-6">
                         <svg
@@ -238,167 +280,250 @@ export function CheckoutClient() {
     }
 
     return (
-        <div className="section-container py-12 lg:py-16">
-            <h1 className="section-heading text-3xl mb-2">Checkout</h1>
-            <p className="text-rw-muted mb-8">Complete your order in a few steps.</p>
+        <div className="section-container py-12 lg:py-20 animate-fade-in">
+            <div className="flex flex-col gap-2 mb-10">
+                <p className="eyebrow">Checkout Process</p>
+                <h1 className="section-heading text-4xl lg:text-5xl text-gradient-crimson">
+                    Finalize Order
+                </h1>
+                <div className="crimson-line mt-2" />
+            </div>
 
             <StepIndicator step={step} />
 
             {step !== 3 ? (
-                <div className="grid lg:grid-cols-[1fr_380px] gap-8 items-start">
-                    <div>
+                <div className="grid lg:grid-cols-[1fr_400px] gap-12 items-start">
+                    {/* Left — content area */}
+                    <div className="space-y-8">
                         {step === 1 && (
-                            <div className="rw-card p-6 sm:p-8 flex flex-col gap-5">
-                                <h2 className="font-display font-bold text-lg text-rw-ink">
-                                    Your details
-                                </h2>
-                                <Input
-                                    label="Full name"
-                                    value={form.name}
-                                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                                    error={errors.name}
-                                    placeholder="e.g. Adewale Ogundimu"
-                                />
-                                <Input
-                                    label="Email address"
-                                    type="email"
-                                    value={form.email}
-                                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                    error={errors.email}
-                                    placeholder="you@example.com"
-                                />
-                                <Input
-                                    label="Phone number"
-                                    type="tel"
-                                    value={form.phone}
-                                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                                    error={errors.phone}
-                                    placeholder="080..."
-                                />
+                            <div className="rw-card p-6 sm:p-10 flex flex-col gap-6 animate-fade-in-up">
+                                <div className="flex flex-col gap-1">
+                                    <h2 className="font-display font-extrabold text-2xl text-rw-ink">
+                                        Personal Information
+                                    </h2>
+                                    <p className="text-sm text-rw-muted font-medium">
+                                        We&#39;ll use these details to contact you about
+                                        your order.
+                                    </p>
+                                </div>
+
+                                <div className="grid sm:grid-cols-2 gap-6">
+                                    <Input
+                                        label="Full name"
+                                        value={form.name}
+                                        onChange={(e) =>
+                                            setForm({ ...form, name: e.target.value })
+                                        }
+                                        error={errors.name}
+                                        placeholder="e.g. Adewale Ogundimu"
+                                        containerClassName="sm:col-span-2"
+                                    />
+                                    <Input
+                                        label="Email address"
+                                        type="email"
+                                        value={form.email}
+                                        onChange={(e) =>
+                                            setForm({ ...form, email: e.target.value })
+                                        }
+                                        error={errors.email}
+                                        placeholder="you@example.com"
+                                    />
+                                    <Input
+                                        label="Phone number"
+                                        type="tel"
+                                        value={form.phone}
+                                        onChange={(e) =>
+                                            setForm({ ...form, phone: e.target.value })
+                                        }
+                                        error={errors.phone}
+                                        placeholder="080..."
+                                    />
+                                </div>
+
                                 <Textarea
-                                    label="Note (optional)"
+                                    label="Order Note (optional)"
                                     value={form.note}
-                                    onChange={(e) => setForm({ ...form, note: e.target.value })}
-                                    placeholder="e.g. Hold for Sunday pickup"
-                                    rows={2}
+                                    onChange={(e) =>
+                                        setForm({ ...form, note: e.target.value })
+                                    }
+                                    placeholder="e.g. Hold for Sunday pickup or specific size preferences"
+                                    rows={3}
                                 />
+
                                 <Button
                                     variant="primary"
                                     size="lg"
                                     onClick={() => {
                                         if (validate()) setStep(2);
                                     }}
-                                    className="mt-2"
+                                    className="mt-4 h-14 text-lg shadow-lg hover:shadow-rw-crimson/20"
                                 >
-                                    Review Order →
+                                    Proceed to Review →
                                 </Button>
                             </div>
                         )}
 
                         {step === 2 && (
-                            <div className="flex flex-col gap-5">
-                                <div className="rw-card p-6 sm:p-8">
-                                    <h2 className="font-display font-bold text-lg text-rw-ink mb-5">
-                                        Order Review
-                                    </h2>
-                                    <table className="w-full text-sm">
-                                        <thead>
-                                            <tr className="border-b border-[var(--rw-border)] text-rw-muted">
-                                                <th className="pb-3 text-left font-semibold">
-                                                    Item
-                                                </th>
-                                                <th className="pb-3 text-right font-semibold">
-                                                    Qty
-                                                </th>
-                                                <th className="pb-3 text-right font-semibold">
-                                                    Price
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {items.map((i) => (
-                                                <tr
-                                                    key={i.variantId}
-                                                    className="border-b border-[var(--rw-border)] last:border-0"
-                                                >
-                                                    <td className="py-4">
-                                                        <p className="font-semibold text-rw-ink">
-                                                            {i.productName}
-                                                        </p>
-                                                        <p className="text-xs text-rw-muted">
-                                                            {i.variantLabel}
-                                                        </p>
-                                                    </td>
-                                                    <td className="py-4 text-right text-rw-text-2">
-                                                        {i.quantity}
-                                                    </td>
-                                                    <td className="py-4 text-right font-semibold text-rw-ink">
-                                                        ₦
-                                                        {(
-                                                            i.unitPrice * i.quantity
-                                                        ).toLocaleString()}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <div className="rw-card p-5 flex flex-col sm:flex-row gap-4 justify-between items-start">
-                                    <div className="text-sm text-rw-text-2 space-y-1">
-                                        <p>
-                                            <span className="font-semibold text-rw-ink">
-                                                Name:
-                                            </span>{" "}
-                                            {form.name}
-                                        </p>
-                                        <p>
-                                            <span className="font-semibold text-rw-ink">
-                                                Email:
-                                            </span>{" "}
-                                            {form.email}
-                                        </p>
-                                        <p>
-                                            <span className="font-semibold text-rw-ink">
-                                                Phone:
-                                            </span>{" "}
-                                            {form.phone}
-                                        </p>
-                                        {form.note && (
-                                            <p>
-                                                <span className="font-semibold text-rw-ink">
-                                                    Note:
-                                                </span>{" "}
-                                                {form.note}
-                                            </p>
-                                        )}
+                            <div className="flex flex-col gap-8 animate-fade-in-up">
+                                {/* Items Review */}
+                                <div className="rw-card overflow-hidden border-rw-crimson/10 shadow-xl shadow-rw-ink/5">
+                                    <div className="px-8 py-5 border-b border-[var(--rw-border)] flex justify-between items-center bg-rw-bg-warm/50">
+                                        <h2 className="font-display font-extrabold text-xl text-rw-ink">
+                                            Order Contents
+                                        </h2>
+                                        <span className="tag-pill bg-rw-crimson/10 text-rw-crimson font-bold">
+                                            {items.length} Item
+                                            {items.length !== 1 ? "s" : ""}
+                                        </span>
                                     </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => setStep(1)}
-                                    >
-                                        Edit
-                                    </Button>
+                                    <div className="divide-y divide-[var(--rw-border)]">
+                                        {items.map((i) => (
+                                            <div
+                                                key={i.variantId}
+                                                className="p-6 sm:p-8 flex gap-6 sm:gap-8 items-center group"
+                                            >
+                                                <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl overflow-hidden shrink-0 border border-[var(--rw-border)] bg-rw-bg-alt relative">
+                                                    <img
+                                                        src={ph(
+                                                            140,
+                                                            140,
+                                                            i.productName.slice(0, 6)
+                                                        )}
+                                                        alt={i.productName}
+                                                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                    />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-display font-bold text-rw-ink text-lg sm:text-xl leading-tight">
+                                                        {i.productName}
+                                                    </p>
+                                                    <p className="text-sm text-rw-muted font-bold mt-1.5 uppercase tracking-wide">
+                                                        {i.variantLabel}
+                                                    </p>
+                                                    <div className="flex items-center gap-4 mt-4">
+                                                        <span className="text-xs font-extrabold px-3 py-1.5 rounded-full bg-rw-bg-alt text-rw-ink border border-[var(--rw-border-mid)] shadow-sm">
+                                                            Quantity: {i.quantity}
+                                                        </span>
+                                                        <span className="text-lg font-bold text-rw-crimson">
+                                                            ₦
+                                                            {(
+                                                                i.unitPrice * i.quantity
+                                                            ).toLocaleString()}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="bg-rw-ink p-8 flex justify-between items-center text-white">
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className="text-xs font-bold text-rw-muted uppercase tracking-widest">
+                                                Total Payable
+                                            </span>
+                                            <span className="text-2xl sm:text-3xl font-display font-black">
+                                                ₦{total.toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <div className="h-10 w-10 rounded-full border border-white/20 flex items-center justify-center">
+                                            <svg
+                                                className="h-5 w-5"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                strokeWidth={2.5}
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M5 13l4 4L19 7"
+                                                />
+                                            </svg>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div className="flex gap-3">
+                                {/* Customer Info */}
+                                <div className="rw-card overflow-hidden">
+                                    <div className="px-8 py-5 border-b border-[var(--rw-border)] flex justify-between items-center bg-rw-bg-alt/30">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-8 w-1.5 rounded-full bg-rw-gold" />
+                                            <h2 className="font-display font-extrabold text-xl text-rw-ink">
+                                                Verification Details
+                                            </h2>
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setStep(1)}
+                                            className="text-rw-crimson hover:bg-rw-crimson/5 font-black uppercase tracking-widest text-[10px]"
+                                        >
+                                            Change Information
+                                        </Button>
+                                    </div>
+                                    <div className="p-8 sm:p-10 bg-rw-bg-warm/20">
+                                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                                            <div className="flex flex-col gap-2">
+                                                <p className="eyebrow !text-[10px] !text-rw-muted">
+                                                    Full Name
+                                                </p>
+                                                <p className="font-bold text-rw-ink text-xl">
+                                                    {form.name}
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <p className="eyebrow !text-[10px] !text-rw-muted">
+                                                    Email Address
+                                                </p>
+                                                <p className="font-bold text-rw-ink text-xl break-all">
+                                                    {form.email}
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <p className="eyebrow !text-[10px] !text-rw-muted">
+                                                    Phone Number
+                                                </p>
+                                                <p className="font-bold text-rw-ink text-xl">
+                                                    {form.phone}
+                                                </p>
+                                            </div>
+                                            {form.note && (
+                                                <div className="sm:col-span-2 lg:col-span-3 flex flex-col gap-3 pt-6 border-t border-[var(--rw-border-mid)] border-dashed">
+                                                    <p className="eyebrow !text-[10px] !text-rw-muted">
+                                                        Order Instructions
+                                                    </p>
+                                                    <div className="relative">
+                                                        <div className="absolute -left-4 top-0 bottom-0 w-1 bg-rw-gold/30 rounded-full" />
+                                                        <p className="text-rw-text font-medium text-lg italic leading-relaxed pl-2">
+                                                            &ldquo;{form.note}&ldquo;
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Confirmation Buttons */}
+                                <div className="flex flex-col sm:flex-row gap-5">
                                     <Button
                                         variant="outlined"
                                         size="lg"
                                         onClick={() => setStep(1)}
+                                        className="sm:w-1/3 h-16 text-rw-muted border-[var(--rw-border-strong)]"
                                     >
-                                        Back
+                                        ← Return to Edit
                                     </Button>
                                     <Button
                                         variant="primary"
                                         size="lg"
                                         loading={submitting}
                                         onClick={handleSubmit}
-                                        className="flex-1"
+                                        className="flex-1 h-16 text-xl font-display font-black uppercase tracking-wider shadow-2xl hover:shadow-rw-crimson/30"
                                         id="confirm-order-btn"
                                     >
-                                        {submitting ? "Placing order…" : "Place Order"}
+                                        {submitting
+                                            ? "Processing Order..."
+                                            : "Confirm & Place Order"}
                                     </Button>
                                 </div>
                             </div>
@@ -406,21 +531,23 @@ export function CheckoutClient() {
                     </div>
 
                     {/* Right — order summary */}
-                    <div className="hidden lg:block">
+                    <div className="hidden lg:block sticky top-28">
                         <OrderSummaryPanel items={items} total={total} />
                     </div>
                 </div>
             ) : (
                 /* Step 3 — Confirmed */
                 orderRef && (
-                    <div className="max-w-lg mx-auto flex flex-col gap-6 animate-fade-in-up">
-                        <div className="rw-card p-10 text-center flex flex-col items-center gap-5">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-50 border-2 border-green-200">
+                    <div className="max-w-3xl mx-auto flex flex-col gap-8 animate-fade-in-up py-10">
+                        <div className="rw-card p-12 text-center flex flex-col items-center gap-8 border-rw-gold/20 shadow-2xl shadow-rw-gold/5 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-1.5 bg-rw-gold" />
+
+                            <div className="flex h-24 w-24 items-center justify-center rounded-[2.5rem] bg-rw-gold/10 border-2 border-rw-gold/20 shadow-inner">
                                 <svg
-                                    className="h-8 w-8 text-green-600"
+                                    className="h-12 w-12 text-rw-gold"
                                     fill="none"
                                     stroke="currentColor"
-                                    strokeWidth={2}
+                                    strokeWidth={2.5}
                                     viewBox="0 0 24 24"
                                 >
                                     <path
@@ -430,47 +557,77 @@ export function CheckoutClient() {
                                     />
                                 </svg>
                             </div>
-                            <div>
-                                <h2 className="font-display font-bold text-2xl text-rw-ink">
-                                    Order placed!
+
+                            <div className="flex flex-col gap-2">
+                                <p className="eyebrow">Order Successful</p>
+                                <h2 className="font-display font-black text-4xl lg:text-5xl text-rw-ink tracking-tight">
+                                    Thank You!
                                 </h2>
-                                <p className="mt-1 text-sm text-rw-muted">
-                                    Your order reference is:
+                                <p className="mt-2 text-rw-text-2 font-medium max-w-md mx-auto">
+                                    Your order has been recorded. Please save your
+                                    reference code below for payment and pickup.
                                 </p>
                             </div>
-                            <div className="w-full rounded-2xl border-2 border-rw-crimson/20 bg-rw-bg-alt px-8 py-6 text-center">
-                                <p className="font-mono text-5xl font-bold text-rw-ink tracking-[0.12em]">
+
+                            <div className="w-full rounded-[2rem] border-2 border-rw-crimson/10 bg-rw-bg-warm/50 px-10 py-12 text-center relative group">
+                                <div className="absolute top-4 left-4">
+                                    <span className="text-[10px] font-black text-rw-muted uppercase tracking-[0.2em]">
+                                        Reference Code
+                                    </span>
+                                </div>
+                                <p className="font-mono text-6xl lg:text-7xl font-black text-rw-crimson tracking-[0.15em] select-all">
                                     {orderRef}
                                 </p>
-                                <p className="mt-2 text-xs text-rw-muted">
-                                    Keep it safe — share it with whoever is paying.
+                                <p className="mt-6 text-xs text-rw-muted font-bold uppercase tracking-widest">
+                                    Click to copy or screenshot this screen
                                 </p>
                             </div>
-                            <div className="flex flex-wrap gap-3 justify-center">
+
+                            <div className="flex flex-col sm:flex-row gap-4 w-full justify-center pt-4">
                                 <Button
                                     variant="outlined"
-                                    size="md"
+                                    size="lg"
                                     onClick={copyRef}
+                                    className="h-14 px-10 font-bold border-rw-border-strong hover:border-rw-crimson"
                                     id="copy-order-ref"
                                 >
-                                    {copied ? "Copied!" : "Copy Ref"}
+                                    {copied
+                                        ? "Copied to Clipboard!"
+                                        : "Copy Reference Code"}
                                 </Button>
-                                <Link href={`/fulfil?ref=${orderRef}`} id="go-to-fulfil">
-                                    <Button variant="primary" size="md">
-                                        Go to Payment →
+                                <Link
+                                    href={`/fulfil?ref=${orderRef}`}
+                                    id="go-to-fulfil"
+                                    className="flex-1 max-w-xs"
+                                >
+                                    <Button
+                                        variant="primary"
+                                        size="lg"
+                                        className="h-14 w-full shadow-xl shadow-rw-crimson/20"
+                                    >
+                                        Pay Now →
                                     </Button>
                                 </Link>
                             </div>
                         </div>
-                        <p className="text-center text-xs text-rw-muted">
-                            You can also pay later at{" "}
+
+                        <div className="flex flex-col gap-4 text-center">
+                            <p className="text-rw-muted font-medium">
+                                Need to pay later? You can always find your order at{" "}
+                                <Link
+                                    href="/orders"
+                                    className="text-rw-crimson font-bold hover:underline"
+                                >
+                                    My Orders
+                                </Link>
+                            </p>
                             <Link
-                                href="/fulfil"
-                                className="text-rw-crimson hover:underline"
+                                href="/"
+                                className="text-sm font-bold text-rw-muted hover:text-rw-ink transition-colors"
                             >
-                                /fulfil
+                                ← Return to Homepage
                             </Link>
-                        </p>
+                        </div>
                     </div>
                 )
             )}

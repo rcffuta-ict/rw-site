@@ -5,5 +5,11 @@ export const metadata = {
 };
 
 export default function CheckoutPage() {
-    return <CheckoutClient />;
+    return (
+        <>
+            <CheckoutClient />
+            <br />
+            <br />
+        </>
+    );
 }
