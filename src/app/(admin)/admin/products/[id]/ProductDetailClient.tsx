@@ -7,6 +7,7 @@ import { getProductById, COLOR_HEX } from "@/lib/data/products";
 import { notFound } from "next/navigation";
 import type { ProductVariant } from "@/lib/data/types";
 import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
+import { AdminTable } from "@/components/admin/AdminTable";
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -42,7 +43,7 @@ function productImageUrl(name: string, color: string | null) {
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 
-export function ProductDetailClient({ productId }: { productId: string }) {
+export default function ProductDetailClient({ productId }: { productId: string }) {
     const product = getProductById(productId);
     if (!product) notFound();
 
@@ -230,15 +231,88 @@ export function ProductDetailClient({ productId }: { productId: string }) {
             </div>
 
             {/* Variant table */}
-            <div>
-                <div className="flex items-center justify-between mb-5">
-                    <p className="font-display font-bold text-lg text-rw-ink">Variants</p>
+            <div className="flex flex-col gap-5">
+                <div className="flex items-center justify-between">
+                    <h2 className="font-display font-bold text-lg text-rw-ink uppercase tracking-tight">Product Variants</h2>
                     <button
                         onClick={() => alert("Add variant — stub in demo build")}
-                        className="btn-secondary !h-9 !px-4 text-xs flex items-center gap-1.5"
+                        className="btn-secondary !h-10 !px-5 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2"
                     >
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                        Add Variant
+                    </button>
+                </div>
+
+                <AdminTable<ProductVariant>
+                    data={variants}
+                    keyExtractor={(v) => v.id}
+                    columns={[
+                        {
+                            label: "Colour",
+                            key: "color",
+                            render: (v: ProductVariant) => (
+                                <div className="flex items-center gap-3">
+                                    <span className="h-5 w-5 rounded-full border border-black/10 shrink-0" style={{ backgroundColor: COLOR_HEX[v.color ?? ""] ?? "#999" }} />
+                                    <span className="font-bold text-rw-ink">{v.color ?? "—"}</span>
+                                </div>
+                            )
+                        },
+                        {
+                            label: "Size",
+                            key: "size",
+                            render: (v: ProductVariant) => <span className="font-mono font-bold text-rw-muted">{v.size ?? "—"}</span>
+                        },
+                        {
+                            label: "Design",
+                            key: "design",
+                            className: "hidden sm:table-cell",
+                            render: (v: ProductVariant) => <span className="text-rw-text-2 font-medium">{v.design ?? "—"}</span>
+                        },
+                        {
+                            label: "Price",
+                            key: "priceOverride",
+                            align: "right",
+                            render: (v: ProductVariant) => (
+                                <span className={v.priceOverride ? "text-rw-crimson font-bold" : "text-rw-muted text-[10px] font-bold uppercase tracking-widest"}>
+                                    {v.priceOverride ? `₦${v.priceOverride.toLocaleString()}` : "Inherit Base"}
+                                </span>
+                            )
+                        },
+                        {
+                            label: "Available",
+                            key: "isAvailable",
+                            align: "center",
+                            render: (v: ProductVariant) => (
+                                <button
+                                    onClick={() => toggleVariant(v.id)}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${v.isAvailable ? "bg-green-500 shadow-[0_0_12px_rgba(34,197,94,0.3)]" : "bg-gray-200"}`}
+                                >
+                                    <span className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${v.isAvailable ? "translate-x-6" : "translate-x-1"}`} />
+                                </button>
+                            )
+                        },
+                        {
+                            label: "ID",
+                            key: "id",
+                            align: "right",
+                            className: "hidden md:table-cell",
+                            render: (v: ProductVariant) => <span className="text-[10px] font-mono text-rw-muted font-medium">{v.id}</span>
+                        }
+                    ]}
+                />
+            </div>
+
+            <div className="mt-5 flex items-center gap-3">
+                <button
+                    onClick={handleSave}
+                    className="btn-primary !h-10 !px-5 text-sm"
+                >
+                    Save Changes
+                </button>
+                {saved && (
+                    <span className="text-sm text-green-700 flex items-center gap-1.5 animate-fade-in">
                         <svg
-                            className="h-3.5 w-3.5"
+                            className="h-4 w-4"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth={2}
@@ -247,128 +321,12 @@ export function ProductDetailClient({ productId }: { productId: string }) {
                             <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                d="M12 4v16m8-8H4"
+                                d="m4.5 12.75 6 6 9-13.5"
                             />
                         </svg>
-                        Add Variant
-                    </button>
-                </div>
-
-                <div className="rw-card overflow-hidden">
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b border-[var(--rw-border)] bg-rw-bg-alt text-rw-muted">
-                                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider">
-                                    Colour
-                                </th>
-                                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider">
-                                    Size
-                                </th>
-                                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider hidden sm:table-cell">
-                                    Design
-                                </th>
-                                <th className="px-5 py-3.5 text-right text-xs font-semibold uppercase tracking-wider">
-                                    Price
-                                </th>
-                                <th className="px-5 py-3.5 text-center text-xs font-semibold uppercase tracking-wider">
-                                    Available
-                                </th>
-                                <th className="px-5 py-3.5 text-right text-xs font-semibold uppercase tracking-wider hidden md:table-cell">
-                                    ID
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {variants.map((v) => (
-                                <tr
-                                    key={v.id}
-                                    className={`border-b border-[var(--rw-border)] last:border-0 transition-colors ${
-                                        v.isAvailable
-                                            ? "hover:bg-rw-bg-alt/50"
-                                            : "bg-gray-50/50 opacity-50"
-                                    }`}
-                                >
-                                    <td className="px-5 py-4">
-                                        {v.color ? (
-                                            <div className="flex items-center gap-2">
-                                                <span
-                                                    className="h-5 w-5 rounded-full border border-black/10 shrink-0"
-                                                    style={{
-                                                        backgroundColor:
-                                                            COLOR_HEX[v.color] ?? "#999",
-                                                    }}
-                                                />
-                                                <span className="text-rw-ink font-medium">
-                                                    {v.color}
-                                                </span>
-                                            </div>
-                                        ) : (
-                                            <span className="text-rw-muted">—</span>
-                                        )}
-                                    </td>
-                                    <td className="px-5 py-4 text-rw-ink font-medium">
-                                        {v.size ?? "—"}
-                                    </td>
-                                    <td className="px-5 py-4 hidden sm:table-cell text-rw-text-2">
-                                        {v.design ?? "—"}
-                                    </td>
-                                    <td className="px-5 py-4 text-right font-semibold">
-                                        {v.priceOverride ? (
-                                            <span className="text-rw-crimson">
-                                                ₦{v.priceOverride.toLocaleString()}
-                                            </span>
-                                        ) : (
-                                            <span className="text-rw-muted text-xs">
-                                                base
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="px-5 py-4 text-center">
-                                        <button
-                                            onClick={() => toggleVariant(v.id)}
-                                            aria-label={`Toggle availability for ${v.id}`}
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${v.isAvailable ? "bg-green-500" : "bg-gray-200"}`}
-                                        >
-                                            <span
-                                                className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${v.isAvailable ? "translate-x-5.5" : "translate-x-0.5"}`}
-                                            />
-                                        </button>
-                                    </td>
-                                    <td className="px-5 py-4 text-right text-xs font-mono text-rw-muted hidden md:table-cell">
-                                        {v.id}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div className="mt-5 flex items-center gap-3">
-                    <button
-                        onClick={handleSave}
-                        className="btn-primary !h-10 !px-5 text-sm"
-                    >
-                        Save Changes
-                    </button>
-                    {saved && (
-                        <span className="text-sm text-green-700 flex items-center gap-1.5 animate-fade-in">
-                            <svg
-                                className="h-4 w-4"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="m4.5 12.75 6 6 9-13.5"
-                                />
-                            </svg>
-                            Saved — resets on refresh (demo)
-                        </span>
-                    )}
-                </div>
+                        Saved — resets on refresh (demo)
+                    </span>
+                )}
             </div>
         </div>
     );

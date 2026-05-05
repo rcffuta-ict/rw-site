@@ -1,22 +1,24 @@
 "use client";
 
+import Link from "next/link";
+
 export function AddProductButton() {
     return (
-        <button
-            onClick={() => alert("Add Product — stub in demo build")}
-            className="flex items-center gap-2 rounded-xl bg-fire-gradient px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:opacity-90 transition-opacity"
+        <Link
+            href="/admin/products/new"
+            className="flex items-center gap-2 rounded-xl bg-fire-gradient px-6 py-3 text-sm font-bold text-white shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200"
         >
             <svg
-                className="h-4 w-4"
+                className="h-4.5 w-4.5"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth={2}
+                strokeWidth={2.5}
                 viewBox="0 0 24 24"
             >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
-            Add Product
-        </button>
+            Add New Product
+        </Link>
     );
 }
 
@@ -24,7 +26,11 @@ export function UpdateAvailabilityButton({ isAvailable }: { isAvailable: boolean
     return (
         <button
             onClick={() => alert(`Toggle availability — stub in demo build`)}
-            className="rounded-xl border border-[var(--rw-border-mid)] px-3 py-2 text-sm font-semibold text-rw-muted hover:bg-rw-bg-alt transition-colors"
+            className={`rounded-xl border px-3 py-2 text-[11px] font-bold uppercase tracking-wider transition-all ${
+                isAvailable 
+                    ? "border-red-100 text-red-600 hover:bg-red-50" 
+                    : "border-green-100 text-green-600 hover:bg-green-50"
+            }`}
         >
             {isAvailable ? "Deactivate" : "Activate"}
         </button>

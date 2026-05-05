@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminNotification } from "./AdminNotification";
+import { MobileAdviceModal } from "./MobileAdviceModal";
 
 export function AdminLayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -29,6 +30,7 @@ export function AdminLayoutWrapper({ children }: { children: React.ReactNode }) 
     return (
         <div className="h-screen flex flex-col bg-rw-bg-alt relative overflow-hidden">
             <AdminNotification />
+            <MobileAdviceModal />
             
             {/* Mobile Header */}
             <header className="md:hidden h-14 shrink-0 bg-white border-b border-[var(--rw-border)] px-4 flex items-center justify-between z-30">
