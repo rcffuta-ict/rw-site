@@ -72,6 +72,8 @@ export interface Payment {
     userConfirmedAccuracy: boolean | null;
     status: PaymentStatus;
     reviewNote: string | null;
+    moderatorName?: string | null;
+    moderatorEmail?: string | null;
     createdAt: string;
 }
 
