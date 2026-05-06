@@ -33,7 +33,7 @@ export function ExportCsvButton() {
 
 type ModerationStatus = "idle" | "loading" | "success" | "error";
 
-const StatusView = ({ status, error }: { status: ModerationStatus, error?: string }) => {
+const StatusView = ({ status, error }: { status: ModerationStatus; error?: string }) => {
     if (status === "idle") return null;
 
     return (
@@ -47,8 +47,12 @@ const StatusView = ({ status, error }: { status: ModerationStatus, error?: strin
                         </div>
                     </div>
                     <div className="space-y-1">
-                        <p className="text-sm font-bold text-rw-ink uppercase tracking-[0.2em] animate-pulse">Syncing system</p>
-                        <p className="text-[10px] text-rw-muted font-bold uppercase tracking-widest opacity-60">Updating financial records...</p>
+                        <p className="text-sm font-bold text-rw-ink uppercase tracking-[0.2em] animate-pulse">
+                            Syncing system
+                        </p>
+                        <p className="text-[10px] text-rw-muted font-bold uppercase tracking-widest opacity-60">
+                            Updating financial records...
+                        </p>
                     </div>
                 </div>
             )}
@@ -56,11 +60,27 @@ const StatusView = ({ status, error }: { status: ModerationStatus, error?: strin
             {status === "success" && (
                 <div className="flex flex-col items-center gap-5 animate-scale-in">
                     <div className="h-24 w-24 bg-green-500 text-white rounded-full flex items-center justify-center shadow-2xl shadow-green-500/20">
-                        <svg className="h-12 w-12" fill="none" stroke="currentColor" strokeWidth={4} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                        <svg
+                            className="h-12 w-12"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={4}
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M4.5 12.75l6 6 9-13.5"
+                            />
+                        </svg>
                     </div>
                     <div className="space-y-1">
-                        <h4 className="font-display font-black text-2xl text-rw-ink uppercase tracking-tight">Success</h4>
-                        <p className="text-[10px] text-rw-muted font-bold uppercase tracking-[0.2em]">The transaction has been registered</p>
+                        <h4 className="font-display font-black text-2xl text-rw-ink uppercase tracking-tight">
+                            Success
+                        </h4>
+                        <p className="text-[10px] text-rw-muted font-bold uppercase tracking-[0.2em]">
+                            The transaction has been registered
+                        </p>
                     </div>
                 </div>
             )}
@@ -68,11 +88,27 @@ const StatusView = ({ status, error }: { status: ModerationStatus, error?: strin
             {status === "error" && (
                 <div className="flex flex-col items-center gap-5 animate-shake">
                     <div className="h-24 w-24 bg-rw-crimson text-white rounded-full flex items-center justify-center shadow-2xl shadow-rw-crimson/20">
-                        <svg className="h-12 w-12" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
+                        <svg
+                            className="h-12 w-12"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={3}
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+                            />
+                        </svg>
                     </div>
                     <div className="space-y-1">
-                        <h4 className="font-display font-black text-2xl text-rw-crimson uppercase tracking-tight">System Error</h4>
-                        <p className="text-[10px] text-rw-muted font-bold uppercase tracking-[0.2em]">{error || "Connection timed out"}</p>
+                        <h4 className="font-display font-black text-2xl text-rw-crimson uppercase tracking-tight">
+                            System Error
+                        </h4>
+                        <p className="text-[10px] text-rw-muted font-bold uppercase tracking-[0.2em]">
+                            {error || "Connection timed out"}
+                        </p>
                     </div>
                 </div>
             )}
@@ -84,19 +120,19 @@ export const ApprovalForm = ({
     initialAmount,
     orderRef,
     onConfirm,
-    onCancel
+    onCancel,
 }: {
-    initialAmount: string,
-    orderRef: string,
-    onConfirm: (amt: string) => void,
-    onCancel: () => void
+    initialAmount: string;
+    orderRef: string;
+    onConfirm: (amt: string) => void;
+    onCancel: () => void;
 }) => {
     const [amount, setAmount] = useState(initialAmount);
     const [status, setStatus] = useState<ModerationStatus>("idle");
 
     const handleConfirm = async () => {
         setStatus("loading");
-        
+
         // Realistic simulation delay
         setTimeout(() => {
             // 90% success rate for demo
@@ -113,7 +149,7 @@ export const ApprovalForm = ({
     return (
         <div className="flex flex-col gap-6 p-2 relative overflow-hidden min-h-[300px] justify-center">
             <StatusView status={status} />
-            
+
             <div className="flex flex-col gap-4">
                 <label className="text-[10px] font-bold text-rw-muted uppercase tracking-[0.2em] block text-center opacity-70">
                     Amount to Register (₦)
@@ -121,11 +157,13 @@ export const ApprovalForm = ({
 
                 <div className="relative group">
                     <div className="relative h-20 flex items-center justify-center bg-rw-bg-alt/30 rounded-2xl border-2 border-transparent focus-within:border-green-500/50 focus-within:bg-white transition-all shadow-inner">
-                        <span className="absolute left-6 font-bold text-2xl text-rw-muted opacity-30">₦</span>
+                        <span className="absolute left-6 font-bold text-2xl text-rw-muted opacity-30">
+                            ₦
+                        </span>
                         <input
                             type="number"
                             value={amount}
-                            onChange={e => setAmount(e.target.value)}
+                            onChange={(e) => setAmount(e.target.value)}
                             autoFocus
                             placeholder="0"
                             className="w-full h-full bg-transparent text-center font-display font-bold text-4xl text-rw-ink outline-none px-12"
@@ -159,18 +197,18 @@ export const ApprovalForm = ({
 export const FlagForm = ({
     orderRef,
     onConfirm,
-    onCancel
+    onCancel,
 }: {
-    orderRef: string,
-    onConfirm: (reason: string) => void,
-    onCancel: () => void
+    orderRef: string;
+    onConfirm: (reason: string) => void;
+    onCancel: () => void;
 }) => {
     const [reason, setReason] = useState("");
     const [status, setStatus] = useState<ModerationStatus>("idle");
 
     const handleConfirm = async () => {
         setStatus("loading");
-        
+
         setTimeout(() => {
             if (Math.random() > 0.1) {
                 setStatus("success");
@@ -192,7 +230,7 @@ export const FlagForm = ({
                 </label>
                 <textarea
                     value={reason}
-                    onChange={e => setReason(e.target.value)}
+                    onChange={(e) => setReason(e.target.value)}
                     autoFocus
                     placeholder="e.g., Receipt is blurry, or amount doesn't match bank statement..."
                     className="w-full h-32 p-4 rounded-xl bg-rw-bg-alt/30 border-2 border-transparent focus:border-amber-500/50 focus:bg-white transition-all outline-none text-sm text-rw-ink resize-none shadow-inner"
@@ -224,19 +262,20 @@ export const FlagForm = ({
 export const RevertConfirmationForm = ({
     orderRef,
     onConfirm,
-    onCancel
+    onCancel,
 }: {
-    orderRef: string,
-    onConfirm: () => void,
-    onCancel: () => void
+    orderRef: string;
+    onConfirm: () => void;
+    onCancel: () => void;
 }) => {
     const [status, setStatus] = useState<ModerationStatus>("idle");
 
     const handleConfirm = async () => {
         setStatus("loading");
-        
+
         setTimeout(() => {
-            if (Math.random() > 0.05) { // Higher success rate for reverting
+            if (Math.random() > 0.05) {
+                // Higher success rate for reverting
                 setStatus("success");
                 setTimeout(() => onConfirm(), 1800);
             } else {
@@ -252,12 +291,27 @@ export const RevertConfirmationForm = ({
 
             <div className="flex flex-col items-center gap-4">
                 <div className="h-16 w-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center">
-                    <svg className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+                    <svg
+                        className="h-8 w-8"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+                        />
+                    </svg>
                 </div>
                 <div>
-                    <h3 className="font-display font-black text-xl text-rw-ink uppercase tracking-tight">Revert to Pending?</h3>
+                    <h3 className="font-display font-black text-xl text-rw-ink uppercase tracking-tight">
+                        Revert to Pending?
+                    </h3>
                     <p className="text-sm text-rw-muted font-medium mt-2 max-w-[280px] mx-auto">
-                        This will remove the current validation status and place the submission back into the active review queue.
+                        This will remove the current validation status and place the
+                        submission back into the active review queue.
                     </p>
                 </div>
             </div>
