@@ -18,7 +18,6 @@ const QUICK_LINKS = [
     { href: "/shop", label: "Shop Merch" },
     { href: "/fulfil", label: "Pay an Order" },
     { href: "/checkout", label: "Checkout" },
-    { href: "/admin", label: "Admin Dashboard" },
 ];
 
 const SOCIAL_LINKS = [
