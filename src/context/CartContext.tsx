@@ -2,8 +2,16 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import type { CartItem } from "@/lib/data/types";
+import { createOrder, type OrderResult } from "@/lib/services/orders.service";
 
 const CART_KEY = "rw_cart";
+
+export interface CustomerInfo {
+    name: string;
+    email: string;
+    phone: string;
+    note?: string;
+}
 
 interface CartContextValue {
     items: CartItem[];
@@ -16,6 +24,11 @@ interface CartContextValue {
     isOpen: boolean;
     openCart: () => void;
     closeCart: () => void;
+    /** Submit the current cart as an order */
+    submitOrder: (customer: CustomerInfo) => Promise<OrderResult>;
+    isSubmitting: boolean;
+    submitError: string | null;
+    clearError: () => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -24,6 +37,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [items, setItems] = useState<CartItem[]>([]);
     const [hydrated, setHydrated] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
 
     // Hydrate from localStorage
     useEffect(() => {
@@ -73,6 +88,41 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         try { localStorage.removeItem(CART_KEY); } catch {}
     }, []);
 
+    const clearError = useCallback(() => setSubmitError(null), []);
+
+    const submitOrder = useCallback(async (customer: CustomerInfo): Promise<OrderResult> => {
+        setIsSubmitting(true);
+        setSubmitError(null);
+        try {
+            const result = await createOrder({
+                customerName: customer.name,
+                customerEmail: customer.email,
+                customerPhone: customer.phone,
+                customerNote: customer.note ?? null,
+                lines: items.map((i) => ({
+                    variantId: i.variantId,
+                    productId: i.productId,
+                    productName: i.productName,
+                    variantLabel: i.variantLabel,
+                    unitPrice: i.unitPrice,
+                    quantity: i.quantity,
+                })),
+            });
+            if (result.success) {
+                clearCart();
+            } else {
+                setSubmitError(result.error ?? "Something went wrong. Please try again.");
+            }
+            return result;
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : "Network error — please try again.";
+            setSubmitError(msg);
+            return { success: false, error: msg };
+        } finally {
+            setIsSubmitting(false);
+        }
+    }, [items, clearCart]);
+
     const total = items.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
     const itemCount = items.reduce((s, i) => s + i.quantity, 0);
 
@@ -89,6 +139,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 isOpen,
                 openCart: () => setIsOpen(true),
                 closeCart: () => setIsOpen(false),
+                submitOrder,
+                isSubmitting,
+                submitError,
+                clearError,
             }}
         >
             {children}
