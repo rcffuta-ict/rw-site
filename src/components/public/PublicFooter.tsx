@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Identity } from "../ui/Identity";
+import { LOGOS } from "@/lib/config";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -14,12 +15,12 @@ const PROGRAMME = [
 ];
 
 const QUICK_LINKS = [
-    { href: "/",        label: "Home" },
-    { href: "/shop",    label: "Shop Merch" },
-    { href: "/support", label: "Support Us" },
-    { href: "/fulfil",  label: "Pay an Order" },
-    { href: "/orders",  label: "My Orders" },
-    { href: "/admin",   label: "Admin Dashboard" },
+    { href: "/", label: "Home" },
+    { href: "/shop", label: "Shop Merch" },
+    { href: "/#support", label: "Support Us" },
+    { href: "/fulfil", label: "Pay an Order" },
+    { href: "/orders", label: "My Orders" },
+    { href: "/admin", label: "Admin Dashboard" },
 ];
 
 const SOCIAL_LINKS = [
@@ -92,16 +93,16 @@ export function PublicFooter() {
                     <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 lg:gap-12 opacity-40">
                         {[
                             {
-                                src: "/images/logos/rcf-futa.jpeg",
+                                src: LOGOS.rcfFutaLight,
                                 alt: "RCF FUTA",
                             },
                             {
-                                src: "/images/logos/crm.png",
+                                src: LOGOS.crm,
                                 alt: "Christ the Redeemers' Ministries",
                             },
                             {
-                                src: "/images/logos/rccg.png",
-                                alt: "Redeemed Christian Church of God",
+                                src: LOGOS.redemptionWeek,
+                                alt: "Redemption Week'26",
                             },
                         ].map((logo) => (
                             <img

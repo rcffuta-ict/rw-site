@@ -1,286 +1,242 @@
 "use client";
-import Link from "next/link";
+
+import { useState } from "react";
 import { ph } from "@/lib/utils/functions";
+import { TENURE, FELLOWSHIP, SUPPORT_ACCOUNT, PROSPECTUS_URL } from "@/lib/config";
+import { SPONSORS, CONTACTS } from "@/lib/data/info";
 import { Button } from "@/components/ui/forms/Button";
-import { CONTACTS, SPONSORS } from "@/lib/data/info";
+
+const TIER_STYLES: Record<string, { accent: string }> = {
+    Diamond: { accent: "#5b7fff" },
+    Gold:    { accent: "#FF6A00" },
+    Silver:  { accent: "#9a8085" },
+    Bronze:  { accent: "#cc6633" },
+};
+
+function CopyButton({ text }: { text: string }) {
+    const [copied, setCopied] = useState(false);
+    const copy = async () => {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+    return (
+        <button
+            onClick={copy}
+            className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg
+                       border border-[#e8d0d4] text-rw-text-2 hover:border-[#FF0015] hover:text-[#FF0015]
+                       transition-all duration-200 bg-white"
+        >
+            {copied ? (
+                <>
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                    Copied!
+                </>
+            ) : (
+                <>
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
+                    </svg>
+                    Copy
+                </>
+            )}
+        </button>
+    );
+}
 
 export function SponsorsSection() {
-    const handleDownload = () => {
-        // In a real scenario, this would link to a PDF file in the public folder
-        // e.g. window.open('/docs/sponsorship-prospectus.pdf', '_blank');
-        alert(
-            "The 2026 Sponsorship Prospectus is currently being finalized with the latest event schedule. \n\nIn the meantime, our committee leads (listed below) can send you the draft version immediately upon request."
-        );
+    const handleProspectus = () => {
+        if (PROSPECTUS_URL) {
+            window.open(PROSPECTUS_URL, "_blank");
+        } else {
+            alert(
+                "The 2026 Sponsorship Prospectus is being finalized.\n\nContact our committee leads listed below and they'll send it immediately."
+            );
+        }
     };
 
     return (
-        <section className="bg-white section-py-lg overflow-hidden">
+        <section id="support" className="bg-[#fdf8f8] section-py-lg overflow-hidden border-t border-[#e8d0d4] scroll-mt-16">
             <div className="section-container relative">
-                {/* Decorative background element */}
-                <div className="absolute -top-24 -right-24 w-96 h-96 bg-rw-crimson/5 rounded-full blur-3xl -z-10" />
-                <div className="absolute top-1/2 -left-24 w-64 h-64 bg-rw-gold/5 rounded-full blur-3xl -z-10" />
+                {/* Header */}
+                <div className="mb-16 text-center max-w-3xl mx-auto">
+                    <p className="eyebrow mb-4 !text-[#FF0015]">
+                        Support the Vision
+                    </p>
+                    <h2 className="section-heading text-4xl sm:text-5xl lg:text-6xl mb-6 text-[#1C0003]">
+                        Partner With Us
+                    </h2>
+                    <p className="text-[#5c4048] text-lg lg:text-xl leading-relaxed">
+                        Redemption Week {TENURE.shortYear} is a milestone celebration of faith, community, and legacy. 
+                        Whether you&apos;re an organization or an individual, your support makes it all possible.
+                    </p>
+                </div>
 
-                <div className="mb-16 text-center lg:text-left flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+                {/* Individual Support Box */}
+                <div className="max-w-4xl mx-auto mb-20">
+                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1C0003] to-[#3d0008] p-8 md:p-10 text-white shadow-xl">
+                        {/* Glows */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF0015]/15 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#FF6A00]/15 rounded-full blur-[60px] translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+
+                        <div className="relative z-10 flex flex-col md:flex-row gap-10 items-center justify-between">
+                            <div className="flex-1">
+                                <div className="inline-flex items-center gap-2 rounded-full bg-[#FF0015]/20 border border-[#FF0015]/30 text-white
+                                                px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] mb-5">
+                                    For Individuals
+                                </div>
+                                <h3 className="font-display font-bold text-3xl mb-3">
+                                    Give directly
+                                </h3>
+                                <p className="text-white/70 text-sm leading-relaxed mb-6 max-w-[40ch]">
+                                    Every gift goes directly toward logistics, outreach, and making this week transformative. 
+                                    (For merch orders, use the shop instead).
+                                </p>
+                                
+                                {/* Steps */}
+                                <div className="flex flex-col gap-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-[#FF6A00]">1</div>
+                                        <p className="text-sm font-medium text-white/90">Transfer your gift</p>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-[#FF6A00]">2</div>
+                                        <p className="text-sm font-medium text-white/90">Send receipt to our leads</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Account Details */}
+                            <div className="shrink-0 w-full md:w-[340px] bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#FF6A00] mb-5">
+                                    Support Account
+                                </p>
+                                <div className="space-y-4">
+                                    <div>
+                                        <p className="text-[10px] text-white/50 mb-1 uppercase tracking-wider font-bold">Bank</p>
+                                        <p className="font-bold text-white text-lg">{SUPPORT_ACCOUNT.bankName}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-white/50 mb-1 uppercase tracking-wider font-bold">Account Number</p>
+                                        <div className="flex items-center justify-between gap-3">
+                                            <p className="font-mono font-bold text-white text-2xl tracking-widest">
+                                                {SUPPORT_ACCOUNT.accountNumber}
+                                            </p>
+                                            <CopyButton text={SUPPORT_ACCOUNT.accountNumber} />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-white/50 mb-1 uppercase tracking-wider font-bold">Account Name</p>
+                                        <p className="font-bold text-white text-base">{SUPPORT_ACCOUNT.accountName}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Divider */}
+                <div className="flex items-center justify-center mb-16 opacity-50">
+                    <span className="h-px w-24 bg-gradient-to-r from-transparent to-[#d4a8b0]" />
+                    <span className="mx-4 text-xs font-bold uppercase tracking-widest text-[#9a8085]">Or Sponsor</span>
+                    <span className="h-px w-24 bg-gradient-to-l from-transparent to-[#d4a8b0]" />
+                </div>
+
+                {/* Organizations Header */}
+                <div className="mb-10 text-center lg:text-left flex flex-col lg:flex-row lg:items-end justify-between gap-8">
                     <div className="max-w-[600px]">
-                        <p className="eyebrow mb-4 !text-rw-crimson !font-bold">
-                            Partnership Opportunity
-                        </p>
-                        <h2 className="section-heading text-4xl sm:text-5xl lg:text-6xl mb-6">
-                            Support Us
-                        </h2>
-                        <p className="text-rw-text-2 text-lg lg:text-xl leading-relaxed">
-                            Partner with{" "}
-                            <span className="font-bold text-rw-ink">
-                                38 years of impact
-                            </span>
-                            . Connect your brand with 900+ active students and 9,000+
-                            alumni during our flagship week of events.
+                        <h3 className="font-display font-bold text-2xl sm:text-3xl mb-4 text-[#1C0003]">
+                            Corporate Sponsorship
+                        </h3>
+                        <p className="text-[#5c4048] text-base leading-relaxed">
+                            Connect your brand with {FELLOWSHIP.stats.members} active students and {FELLOWSHIP.stats.alumni} alumni. 
+                            Choose a tier that matches your impact goals.
                         </p>
                     </div>
-                    <div className="shrink-0 pb-2 flex flex-wrap gap-3">
+                    <div className="shrink-0 flex justify-center lg:justify-end">
                         <Button
                             variant="primary"
-                            size="lg"
-                            className="shadow-rw-shadow-crimson !px-8"
-                            onClick={handleDownload}
+                            className="!h-11 !px-7 shadow-[0_4px_16px_rgba(255,0,21,0.3)]"
+                            onClick={handleProspectus}
                         >
                             Download Prospectus
                         </Button>
-                        <Link
-                            href="/support#organisations"
-                            className="inline-flex items-center h-12 px-7 rounded-xl font-semibold text-sm
-                                       border-2 border-[#1C0003] text-[#1C0003] bg-white
-                                       hover:border-[#FF0015] hover:text-[#FF0015] transition-all"
-                        >
-                            View All Tiers →
-                        </Link>
                     </div>
                 </div>
 
                 {/* Tier cards */}
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-24">
-                    {SPONSORS.map((s) => (
-                        <div
-                            key={s.tier}
-                            className={`rw-card group p-8 flex flex-col gap-6 transition-all duration-500 hover:-translate-y-2 ${s.highlight
-                                    ? "ring-2 ring-rw-crimson border-transparent bg-gradient-to-b from-rw-crimson/[0.03] to-white shadow-xl"
-                                    : "hover:border-rw-crimson/30 hover:shadow-lg"
-                            }`}
-                        >
-                            <div className="relative">
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-20">
+                    {SPONSORS.map((s) => {
+                        const style = TIER_STYLES[s.tier] ?? { accent: "#9a8085" };
+                        return (
+                            <div
+                                key={s.tier}
+                                className={`group p-8 flex flex-col gap-6 transition-all duration-400 bg-white rounded-2xl border ${
+                                    s.highlight 
+                                        ? "ring-2 ring-[#FF0015] border-transparent shadow-[0_12px_40px_rgba(255,0,21,0.1)] -translate-y-1" 
+                                        : "border-[#e8d0d4] hover:border-[#d4a8b0] hover:shadow-md hover:-translate-y-1"
+                                }`}
+                            >
                                 {s.highlight && (
-                                    <span className="absolute -top-12 -right-4 bg-rw-crimson text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-md">
+                                    <span className="self-start text-[10px] font-bold uppercase tracking-widest
+                                                     bg-[#FF0015] text-white px-3 py-1 rounded-full">
                                         Most Impactful
                                     </span>
                                 )}
-                                <p
-                                    className={`eyebrow mb-2 ${s.highlight ? "!text-rw-crimson" : "text-rw-muted"}`}
+                                <div>
+                                    <p className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: style.accent }}>
+                                        {s.tier} Tier
+                                    </p>
+                                    <p className="font-display font-bold text-[#1C0003] text-3xl mt-1.5">
+                                        {s.amount}
+                                    </p>
+                                </div>
+                                <div className="h-px bg-[#fdf8f8]" />
+                                <ul className="flex flex-col gap-3 flex-1">
+                                    {s.perks.map((perk) => (
+                                        <li key={perk} className="flex items-start gap-2.5 text-sm text-[#5c4048]">
+                                            <div className="h-4 w-4 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                                                 style={{ background: `${style.accent}15` }}>
+                                                <svg className="h-2.5 w-2.5" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24" style={{ color: style.accent }}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                                </svg>
+                                            </div>
+                                            {perk}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <a
+                                    href={`mailto:${CONTACTS[0].email}?subject=Sponsorship Interest: ${s.tier} Tier — RW${TENURE.shortYear}`}
+                                    className="mt-2 flex h-11 items-center justify-center rounded-xl text-sm font-bold transition-all border"
+                                    style={{
+                                        background: s.highlight ? "#FF0015" : "transparent",
+                                        color: s.highlight ? "white" : style.accent,
+                                        borderColor: s.highlight ? "#FF0015" : `${style.accent}40`,
+                                    }}
                                 >
-                                    {s.tier} Tier
-                                </p>
-                                <p className="font-display font-bold text-rw-ink text-3xl group-hover:text-rw-crimson transition-colors">
-                                    {s.amount}
-                                </p>
+                                    Select {s.tier}
+                                </a>
                             </div>
-
-                            <div className="h-px w-full bg-rw-border" />
-
-                            <ul className="flex flex-col gap-3 flex-1">
-                                {s.perks.map((perk) => (
-                                    <li
-                                        key={perk}
-                                        className="flex items-start gap-3 text-[13px] text-rw-text-2 leading-tight"
-                                    >
-                                        <div className="h-5 w-5 rounded-full bg-rw-crimson/10 flex items-center justify-center shrink-0 mt-0.5">
-                                            <svg
-                                                className="h-3 w-3 text-rw-crimson"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth={3}
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    d="m4.5 12.75 6 6 9-13.5"
-                                                />
-                                            </svg>
-                                        </div>
-                                        {perk}
-                                    </li>
-                                ))}
-                            </ul>
-
-                            <Button
-                                variant={s.highlight ? "primary" : "outlined"}
-                                size="sm"
-                                className="w-full mt-4"
-                                onClick={() =>
-                                    (window.location.href = `mailto:tobi4saviour2@gmail.com?subject=Sponsorship Interest: ${s.tier} Tier`)
-                                }
-                            >
-                                Select Tier
-                            </Button>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
 
-                {/* Community Partners Grid with "Your Logo Here" */}
-                <div className="bg-rw-bg-alt rounded-[3rem] p-10 lg:p-16 border border-[var(--rw-border)]">
-                    <div className="flex flex-col lg:flex-row items-center justify-between gap-10 mb-12">
-                        <div className="text-center lg:text-left">
-                            <h3 className="font-display font-bold text-2xl lg:text-3xl text-rw-ink">
-                                Confirmed Partners
-                            </h3>
-                            <p className="text-rw-muted text-sm mt-2">
-                                Join these forward-thinking brands supporting the next
-                                generation.
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-rw-crimson">
-                            <span className="h-2 w-2 rounded-full bg-current animate-pulse" />
-                            4 Spots remaining for 2026
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                        {/* Current Partners (Simulated) */}
-                        {[1, 2].map((i) => (
-                            <div
-                                key={`partner-${i}`}
-                                className="h-24 bg-white rounded-2xl border border-[var(--rw-border)] flex items-center justify-center p-6 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all cursor-default shadow-sm hover:shadow-md"
-                            >
-                                <img
-                                    src={ph(120, 40, `Brand ${i}`, "ffffff", "111827")}
-                                    alt={`Partner ${i}`}
-                                    className="max-h-full max-w-full object-contain"
-                                />
-                            </div>
-                        ))}
-
-                        {/* Empty Slots */}
-                        {[1, 2, 3, 4].map((i) => (
-                            <div
-                                key={`slot-${i}`}
-                                className="h-24 rounded-2xl border-2 border-dashed border-rw-muted/20 bg-white/50 flex flex-col items-center justify-center gap-2 group cursor-pointer hover:border-rw-crimson/30 hover:bg-white transition-all"
-                            >
-                                <div className="h-8 w-8 rounded-full bg-rw-bg-alt border border-[var(--rw-border)] flex items-center justify-center text-rw-muted group-hover:bg-rw-crimson/10 group-hover:text-rw-crimson transition-colors">
-                                    <svg
-                                        className="h-4 w-4"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        strokeWidth={2.5}
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M12 4.5v15m7.5-7.5h-15"
-                                        />
-                                    </svg>
-                                </div>
-                                <span className="text-[10px] font-bold text-rw-muted uppercase tracking-wider group-hover:text-rw-crimson transition-colors">
-                                    Your Logo Here
-                                </span>
+                {/* Contact Section */}
+                <div className="max-w-3xl mx-auto text-center">
+                    <p className="text-sm font-bold text-[#9a8085] uppercase tracking-widest mb-6">Reach out directly</p>
+                    <div className="flex flex-wrap justify-center gap-4 sm:gap-8">
+                        {CONTACTS.map((c) => (
+                            <div key={c.name} className="bg-white border border-[#e8d0d4] rounded-2xl px-6 py-4 flex flex-col items-center shadow-sm">
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-[#FF0015] mb-1">{c.title}</p>
+                                <p className="font-display font-bold text-[#1C0003] text-base">{c.name}</p>
+                                <a href={`tel:${c.phone}`} className="text-sm text-[#5c4048] hover:text-[#1C0003] mt-2 transition-colors">{c.phone}</a>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Strategic Outreach Invitation */}
-                <div className="mt-16 lg:mt-24 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-                    <div className="order-2 lg:order-1">
-                        <div className="rw-card p-8 lg:p-10 border-l-4 border-l-rw-crimson shadow-rw-shadow-md">
-                            <h3 className="font-display font-bold text-2xl text-rw-ink mb-6">
-                                Why Partner With Us?
-                            </h3>
-                            <div className="space-y-6">
-                                {[
-                                    {
-                                        title: "Direct Audience Access",
-                                        desc: "Interact directly with 900+ high-achieving undergraduates through exhibition booths and workshops.",
-                                    },
-                                    {
-                                        title: "Digital Brand Immersion",
-                                        desc: "Get attributed across our website, social media, and event live streams reaching thousands of alumni.",
-                                    },
-                                    {
-                                        title: "Corporate Social Responsibility",
-                                        desc: "Support the holistic development of youth through spiritual and values-based leadership training.",
-                                    },
-                                ].map((item) => (
-                                    <div key={item.title} className="flex gap-4">
-                                        <div className="shrink-0 h-2 w-2 rounded-full bg-rw-crimson mt-2" />
-                                        <div>
-                                            <p className="font-bold text-rw-ink text-base">
-                                                {item.title}
-                                            </p>
-                                            <p className="text-sm text-rw-text-2 mt-1 leading-relaxed">
-                                                {item.desc}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="order-1 lg:order-2 space-y-8 text-center lg:text-left">
-                        <div>
-                            <h3 className="font-display font-bold text-3xl lg:text-4xl text-rw-ink mb-4">
-                                Let&apos;s Discuss Your Impact
-                            </h3>
-                            <p className="text-rw-text-2 text-lg leading-relaxed">
-                                Our sponsorship packages are flexible. Reach out to our
-                                planning committee leads to discuss how we can tailor our
-                                platforms to suit your brand objectives.
-                            </p>
-                        </div>
-
-                        <div className="grid sm:grid-cols-2 gap-6">
-                            {CONTACTS.map((c) => (
-                                <div
-                                    key={c.name}
-                                    className="p-6 rounded-[2rem] bg-rw-bg-warm border border-rw-crimson/10 hover:border-rw-crimson/30 transition-colors"
-                                >
-                                    <p className="text-[11px] font-bold uppercase tracking-widest text-rw-crimson mb-2">
-                                        {c.title}
-                                    </p>
-                                    <p className="font-display font-bold text-rw-ink text-lg">
-                                        {c.name}
-                                    </p>
-                                    <div className="mt-3 space-y-1">
-                                        <a
-                                            href={`tel:${c.phone}`}
-                                            className="block text-sm text-rw-text-2 hover:text-rw-white transition-colors"
-                                        >
-                                            {c.phone}
-                                        </a>
-                                        <a
-                                            href={`mailto:${c.email}`}
-                                            className="block text-sm text-rw-crimson hover:text-rw-white hover:bg-rw-crimson px-2 py-0.5 rounded-md -ml-2 inline-block transition-all"
-                                        >
-                                            {c.email}
-                                        </a>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="pt-4 flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
-                            <Button
-                                variant="primary"
-                                size="lg"
-                                className="w-full sm:w-auto shadow-rw-shadow-crimson"
-                            >
-                                Send a Message
-                            </Button>
-                            <p className="text-xs text-rw-muted font-medium">
-                                Average response time: &lt; 2 hours
-                            </p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
     );

@@ -1,4 +1,3 @@
-import { ph } from "@/lib/utils/functions";
 import { LOGOS, TENURE } from "@/lib/config";
 import Link from "next/link";
 
@@ -20,35 +19,24 @@ export function Identity({
     const isDark = mode === "dark" || dark === true;
     const isLarge = variant === "footer" || variant === "hero" || isDark;
 
-    const logoSize = variant === "hero" ? "h-16 w-16" : isLarge ? "h-12 w-12" : "h-9 w-9";
+    const isLink = variant === "nav" && !isDark;
+    const Wrapper = isLink ? Link : "div";
+    const wrapperProps = isLink ? { href: "/", id: "site-logo" } : {};
+
+    const gap = variant === "hero" ? "gap-5" : isLarge ? "gap-4" : "gap-3";
+
+    // Logo sizes
+    const rcfLogoH = variant === "hero" ? "h-14" : isLarge ? "h-11" : "h-9";
+    const rwLogoH = variant === "hero" ? "h-16" : isLarge ? "h-14" : "h-10";
+
+    // Use appropriate RCF logo variant based on bg
+    const rcfLogoSrc = isDark ? LOGOS.rcfFutaLight : LOGOS.rcfFuta;
+    const rwLogoSrc = LOGOS.redemptionWeek;
+
+    // Title sizes
     const titleSize =
         variant === "hero" ? "text-2xl" : isLarge ? "text-lg" : "text-[14px]";
     const subSize = variant === "hero" ? "text-sm" : isLarge ? "text-xs" : "text-[10px]";
-    const gap = variant === "hero" ? "gap-5" : isLarge ? "gap-4" : "gap-2.5 sm:gap-3";
-
-    const isLink = variant === "nav" && !isDark;
-    const Wrapper = isLink ? Link : "div";
-
-    const wrapperProps = isLink ? { href: "/", id: "site-logo" } : {};
-
-    // Build logo slots — RCF FUTA always shown; RW logo shown if provided else placeholder
-    const logos = [
-        {
-            src: LOGOS.rcfFuta,
-            alt: "RCF FUTA",
-            style: isDark ? "bg-white/5 border-white/10" : "bg-white border-[#e8d0d4]",
-        },
-        {
-            // Redemption Week event logo — placeholder until design team delivers it
-            src:
-                LOGOS.redemptionWeek ??
-                ph(120, 120, `RW${TENURE.shortYear}`, "FF0015", "ffffff"),
-            alt: `Redemption Week ${TENURE.shortYear} Logo`,
-            style: isDark
-                ? "bg-[#FF0015]/20 border-[#FF0015]/30"
-                : "bg-[#fff0f0] border-[#FF0015]/20",
-        },
-    ];
 
     return (
         // @ts-expect-error — dynamic wrapper
@@ -56,23 +44,32 @@ export function Identity({
             {...wrapperProps}
             className={`flex items-center ${gap} shrink-0 group ${className}`}
         >
-            {/* Logo row */}
-            <div className={`flex items-center ${isLarge ? "gap-2" : "gap-1.5"}`}>
-                {logos.map((logo, i) => (
-                    <div
-                        key={i}
-                        className={`${logoSize} rounded-2xl overflow-hidden ${logo.style} border
-                                    p-0.5 flex items-center justify-center shrink-0
-                                    group-hover:scale-105 transition-transform`}
-                        style={{ transitionDelay: `${i * 40}ms` }}
-                    >
-                        <img
-                            src={logo.src}
-                            alt={logo.alt}
-                            className="h-full w-full rounded-xl object-cover"
-                        />
-                    </div>
-                ))}
+            {/* Logo pair */}
+            <div className="flex items-center gap-2">
+                {/* RCF FUTA logo */}
+                <div
+                    className={`${rcfLogoH} aspect-square overflow-hidden flex items-center justify-center
+                                  group-hover:scale-105 transition-transform`}
+                >
+                    <img
+                        src={rcfLogoSrc}
+                        alt="RCF FUTA"
+                        className="h-full w-full object-contain"
+                    />
+                </div>
+
+                {/* RW 2026 logo — rendered on its natural white bg */}
+                <div
+                    className={`${rwLogoH} aspect-square rounded-xl overflow-hidden flex items-center justify-center p-1
+                                  group-hover:scale-105 transition-transform`}
+                    style={{ transitionDelay: "40ms" }}
+                >
+                    <img
+                        src={rwLogoSrc}
+                        alt={`Redemption Week ${TENURE.shortYear}`}
+                        className="h-full w-full object-contain"
+                    />
+                </div>
             </div>
 
             {/* Tagline */}

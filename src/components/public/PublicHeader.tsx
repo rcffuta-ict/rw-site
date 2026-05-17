@@ -11,7 +11,7 @@ const NAV = [
     { href: "/shop", label: "Shop" },
     { href: "/#programme", label: "Programme", anchor: true },
     { href: "/#venue", label: "Venue", anchor: true },
-    { href: "/support", label: "Support" },
+    { href: "/#support", label: "Support", anchor: true },
     { href: "/fulfil", label: "Pay Order" },
 ];
 
@@ -56,7 +56,7 @@ export function PublicHeader() {
                             className={`relative rounded-lg px-3.5 py-2 text-[13px] font-medium transition-colors ${
                                 isActive(l.href)
                                     ? "text-[#FF0015] font-semibold bg-[#FF0015]/5"
-                                    : l.href === "/support"
+                                    : l.href === "/#support"
                                       ? "text-[#FF0015]/80 hover:text-[#FF0015] hover:bg-[#FF0015]/5"
                                       : "text-[#5c4048] hover:text-[#1C0003] hover:bg-[#fdf8f8]"
                             }`}
@@ -181,7 +181,7 @@ export function PublicHeader() {
                                             transition-colors ${
                                                 isActive(l.href)
                                                     ? "text-[#FF0015] bg-[#fff0f0]"
-                                                    : l.href === "/support"
+                                                    : l.href === "/#support"
                                                       ? "text-[#FF0015]/80 hover:bg-[#fff0f0]"
                                                       : "text-[#5c4048] hover:text-[#1C0003] hover:bg-[#fdf8f8]"
                                             }`}

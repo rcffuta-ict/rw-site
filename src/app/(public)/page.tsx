@@ -20,16 +20,22 @@ export default function LandingPage() {
 
             <SevenNightsSection nights={NIGHTS} />
 
-            <div className="section-container"><div className="section-divider" /></div>
+            <div className="section-container">
+                <div className="section-divider" />
+            </div>
 
             <AboutSection />
             <MerchPreviewSection />
 
-            <div className="section-container"><div className="section-divider" /></div>
+            <div className="section-container">
+                <div className="section-divider" />
+            </div>
 
             <GallerySection />
 
-            <div className="section-container"><div className="section-divider" /></div>
+            <div className="section-container">
+                <div className="section-divider" />
+            </div>
 
             <VenueSection />
             <SponsorsSection />

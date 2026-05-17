@@ -5,26 +5,151 @@ import { ph } from "@/lib/utils/functions";
 
 // Varied grid layout — mix of wide + tall + square cells
 const GALLERY_ITEMS = [
-    { w: 900, h: 900,  label: "Worship Night",       bg: "1C0003", fg: "FF6A00", span: "col-span-2 row-span-2" },
-    { w: 600, h: 400,  label: "Opening Ceremony",    bg: "2d0008", fg: "ffaaaa", span: "col-span-2 row-span-1" },
-    { w: 400, h: 800,  label: "Drama Night",         bg: "3d1500", fg: "ff8844", span: "col-span-1 row-span-2" },
-    { w: 400, h: 400,  label: "Choir Concert",       bg: "002a15", fg: "66ffaa", span: "col-span-1 row-span-1" },
-    { w: 400, h: 400,  label: "Power Night",         bg: "15004a", fg: "aa66ff", span: "col-span-1 row-span-1" },
-    { w: 800, h: 400,  label: "Word Night",          bg: "001540", fg: "66aaff", span: "col-span-2 row-span-1" },
-    { w: 400, h: 400,  label: "Alumni Reunion",      bg: "2a1c00", fg: "ffcc44", span: "col-span-1 row-span-1" },
-    { w: 400, h: 800,  label: "Handing Over",        bg: "003322", fg: "aaffcc", span: "col-span-1 row-span-2" },
-    { w: 800, h: 800,  label: "Fellowship Moments",  bg: "200010", fg: "FF6A00", span: "col-span-2 row-span-2" },
-    { w: 400, h: 400,  label: "Campus Life",         bg: "0a1800", fg: "88ff88", span: "col-span-1 row-span-1" },
-    { w: 400, h: 400,  label: "Community",           bg: "1C0003", fg: "ffaaaa", span: "col-span-1 row-span-1" },
-    { w: 800, h: 400,  label: "Prayer Night",        bg: "0d0028", fg: "ccaaff", span: "col-span-2 row-span-1" },
-    { w: 400, h: 400,  label: "Praise & Worship",   bg: "300005", fg: "FF6A00", span: "col-span-1 row-span-1" },
-    { w: 400, h: 400,  label: "RIFE Night",          bg: "1a1800", fg: "ffff88", span: "col-span-1 row-span-1" },
-    { w: 800, h: 400,  label: "Southgate Auditorium",bg: "001820", fg: "44ddff", span: "col-span-2 row-span-1" },
-    { w: 400, h: 400,  label: "Drama Team",          bg: "380000", fg: "ffaaaa", span: "col-span-1 row-span-1" },
-    { w: 400, h: 400,  label: "Choir",               bg: "003010", fg: "aaffaa", span: "col-span-1 row-span-1" },
+    {
+        w: 900,
+        h: 900,
+        label: "Worship Night",
+        bg: "1C0003",
+        fg: "FF6A00",
+        span: "col-span-2 row-span-2",
+    },
+    {
+        w: 600,
+        h: 400,
+        label: "Opening Ceremony",
+        bg: "2d0008",
+        fg: "ffaaaa",
+        span: "col-span-2 row-span-1",
+    },
+    {
+        w: 400,
+        h: 800,
+        label: "Drama Night",
+        bg: "3d1500",
+        fg: "ff8844",
+        span: "col-span-1 row-span-2",
+    },
+    {
+        w: 400,
+        h: 400,
+        label: "Choir Concert",
+        bg: "002a15",
+        fg: "66ffaa",
+        span: "col-span-1 row-span-1",
+    },
+    {
+        w: 400,
+        h: 400,
+        label: "Power Night",
+        bg: "15004a",
+        fg: "aa66ff",
+        span: "col-span-1 row-span-1",
+    },
+    {
+        w: 800,
+        h: 400,
+        label: "Word Night",
+        bg: "001540",
+        fg: "66aaff",
+        span: "col-span-2 row-span-1",
+    },
+    {
+        w: 400,
+        h: 400,
+        label: "Alumni Reunion",
+        bg: "2a1c00",
+        fg: "ffcc44",
+        span: "col-span-1 row-span-1",
+    },
+    {
+        w: 400,
+        h: 800,
+        label: "Handing Over",
+        bg: "003322",
+        fg: "aaffcc",
+        span: "col-span-1 row-span-2",
+    },
+    {
+        w: 800,
+        h: 800,
+        label: "Fellowship Moments",
+        bg: "200010",
+        fg: "FF6A00",
+        span: "col-span-2 row-span-2",
+    },
+    {
+        w: 400,
+        h: 400,
+        label: "Campus Life",
+        bg: "0a1800",
+        fg: "88ff88",
+        span: "col-span-1 row-span-1",
+    },
+    {
+        w: 400,
+        h: 400,
+        label: "Community",
+        bg: "1C0003",
+        fg: "ffaaaa",
+        span: "col-span-1 row-span-1",
+    },
+    {
+        w: 800,
+        h: 400,
+        label: "Prayer Night",
+        bg: "0d0028",
+        fg: "ccaaff",
+        span: "col-span-2 row-span-1",
+    },
+    {
+        w: 400,
+        h: 400,
+        label: "Praise & Worship",
+        bg: "300005",
+        fg: "FF6A00",
+        span: "col-span-1 row-span-1",
+    },
+    {
+        w: 400,
+        h: 400,
+        label: "RIFE Night",
+        bg: "1a1800",
+        fg: "ffff88",
+        span: "col-span-1 row-span-1",
+    },
+    {
+        w: 800,
+        h: 400,
+        label: "Southgate Auditorium",
+        bg: "001820",
+        fg: "44ddff",
+        span: "col-span-2 row-span-1",
+    },
+    {
+        w: 400,
+        h: 400,
+        label: "Drama Team",
+        bg: "380000",
+        fg: "ffaaaa",
+        span: "col-span-1 row-span-1",
+    },
+    {
+        w: 400,
+        h: 400,
+        label: "Choir",
+        bg: "003010",
+        fg: "aaffaa",
+        span: "col-span-1 row-span-1",
+    },
 ];
 
-function GalleryItem({ item, index }: { item: typeof GALLERY_ITEMS[0]; index: number }) {
+function GalleryItem({
+    item,
+    index,
+}: {
+    item: (typeof GALLERY_ITEMS)[0];
+    index: number;
+}) {
     const ref = useRef<HTMLDivElement>(null);
     const [visible, setVisible] = useState(false);
 
@@ -32,7 +157,9 @@ function GalleryItem({ item, index }: { item: typeof GALLERY_ITEMS[0]; index: nu
         const el = ref.current;
         if (!el) return;
         const obs = new IntersectionObserver(
-            ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+            ([entry]) => {
+                if (entry.isIntersecting) setVisible(true);
+            },
             { threshold: 0.1 }
         );
         obs.observe(el);
@@ -54,8 +181,10 @@ function GalleryItem({ item, index }: { item: typeof GALLERY_ITEMS[0]; index: nu
             />
 
             {/* Gradient hover overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent
-                            opacity-0 group-hover:opacity-100 transition-opacity duration-400 flex items-end p-5">
+            <div
+                className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent
+                            opacity-0 group-hover:opacity-100 transition-opacity duration-400 flex items-end p-5"
+            >
                 <div>
                     <span className="text-white text-[11px] font-bold uppercase tracking-[0.2em] drop-shadow">
                         {item.label}
@@ -67,8 +196,18 @@ function GalleryItem({ item, index }: { item: typeof GALLERY_ITEMS[0]; index: nu
             {/* Subtle permanent corner indicator */}
             <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="h-5 w-5 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center">
-                    <svg className="h-2.5 w-2.5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 15.803 7.5 7.5 0 0 0 15.803 15.803Z" />
+                    <svg
+                        className="h-2.5 w-2.5 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 15.803 7.5 7.5 0 0 0 15.803 15.803Z"
+                        />
                     </svg>
                 </div>
             </div>
@@ -85,7 +224,10 @@ export function GallerySection() {
             const el = sectionRef.current;
             if (!el) return;
             const rect = el.getBoundingClientRect();
-            const pct = Math.max(0, Math.min(1, -rect.top / (rect.height - window.innerHeight)));
+            const pct = Math.max(
+                0,
+                Math.min(1, -rect.top / (rect.height - window.innerHeight))
+            );
             setScrollPct(pct);
         };
         window.addEventListener("scroll", handler, { passive: true });
@@ -110,18 +252,22 @@ export function GallerySection() {
                         <h2 className="section-heading text-4xl sm:text-5xl lg:text-6xl text-white">
                             Moments from
                             <br />
-                            <span style={{
-                                background: "linear-gradient(135deg, #FF6A00, #FF0015)",
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                                backgroundClip: "text",
-                            }}>
+                            <span
+                                style={{
+                                    background:
+                                        "linear-gradient(135deg, #FF6A00, #FF0015)",
+                                    WebkitBackgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                    backgroundClip: "text",
+                                }}
+                            >
                                 Previous Editions
                             </span>
                         </h2>
                     </div>
                     <p className="text-sm text-white/40 max-w-[220px] sm:text-right leading-relaxed">
-                        A visual journey through past editions — glory, power, and community.
+                        A visual journey through past editions — glory, power, and
+                        community.
                     </p>
                 </div>
             </div>
@@ -137,7 +283,8 @@ export function GallerySection() {
             <div className="section-container py-10 relative z-10">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <p className="text-xs text-white/25 font-medium text-center sm:text-left">
-                        Images courtesy of the RCF FUTA media team — updated as the event approaches.
+                        Images courtesy of the RCF FUTA media team — updated as the event
+                        approaches.
                     </p>
                     <div className="flex items-center gap-2 text-xs text-white/30 font-bold uppercase tracking-wider">
                         <span className="h-1.5 w-1.5 rounded-full bg-[#FF6A00] animate-pulse" />

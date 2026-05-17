@@ -58,15 +58,23 @@ export const FELLOWSHIP = {
 // ─── Logos ────────────────────────────────────────────────────────────────────
 // Replace placeholder paths with real asset paths when provided.
 export const LOGOS = {
-    /** RCFFUTA fellowship logo */
-    rcfFuta: "/images/logos/rcf-futa.jpeg",
-    /** Anniversary/Redemption Week event logo — replace when design team provides it */
-    redemptionWeek: null as string | null, // e.g. "/images/logos/rw26.png"
-    /** Tenure theme logo — replace when design team provides it */
-    tenureTheme: null as string | null, // e.g. "/images/logos/lords-witnesses.png"
+    /** RCFFUTA fellowship logo — dark mark, use on light backgrounds */
+    rcfFuta: "/images/logos/rcffuta-dark-on-white.png",
+    /** RCFFUTA full logo — dark version (for light bg) */
+    rcfFutaDark: "/images/logos/rcffuta-dark.png",
+    /** RCFFUTA full logo — light version (for dark bg) */
+    rcfFutaLight: "/images/logos/rcffuta-light.png",
+    /** Plain RCF badge mark */
+    rcf: "/images/logos/rcf.png",
+    /** Redemption Week 2026 event logo */
+    redemptionWeek: "/images/logos/rw-2026-logo.png",
+    /** 38th Anniversary logo */
+    anniversary: "/images/logos/rw-38th-logo.png",
+    /** Tenure torch/flame icon */
+    tenureIcon: "/images/logos/tenure-icon.png",
     /** Parent church logos */
     crm: "/images/logos/crm.png",
-    rccg: "/images/logos/rccg.png",
+    rccg: null as string | null, // replace with "/images/logos/rccg.png" if available
 } as const;
 
 // ─── Brand Colors (CSS reference) ─────────────────────────────────────────────
