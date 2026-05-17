@@ -548,7 +548,7 @@ a {
     gap: 0.5rem;
     height: 48px;
     padding: 0 2rem;
-    background: linear-gradient(135deg, #FF0015 0%, #cc0011 100%);
+    background: #FF0015;
     color: #fff;
     font-weight: 700;
     font-size: 0.9375rem;
@@ -556,13 +556,13 @@ a {
     transition: all 0.22s ease;
     cursor: pointer;
     border: none;
-    box-shadow: 0 2px 12px rgba(255, 0, 21, 0.3);
+    box-shadow: 0 2px 12px rgba(255, 0, 21, 0.28), 0 1px 3px rgba(255, 0, 21, 0.15);
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #cc0011 0%, #FF0015 100%);
+    background: #cc0011;
     transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(255, 0, 21, 0.35);
+    box-shadow: 0 6px 24px rgba(255, 0, 21, 0.38);
 }
 
 .btn-primary:active {
@@ -577,11 +577,11 @@ a {
     gap: 0.5rem;
     height: 48px;
     padding: 0 2rem;
-    background: transparent;
+    background: #ffffff;
     color: #1C0003;
     font-weight: 600;
     font-size: 0.9375rem;
-    border: 1.5px solid #d4a8b0;
+    border: 1.5px solid #1C0003;
     border-radius: 12px;
     transition: all 0.22s ease;
     cursor: pointer;
@@ -590,7 +590,7 @@ a {
 .btn-secondary:hover {
     border-color: #FF0015;
     color: #FF0015;
-    background: rgba(255, 0, 21, 0.04);
+    background: rgba(255, 0, 21, 0.03);
 }
 
 /* ─── Custom Radio ───────────────────────────────────────────────────────────── */

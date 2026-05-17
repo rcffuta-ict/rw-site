@@ -91,3 +91,18 @@ export const SUPPORT_ACCOUNT = {
 
 // ─── Sponsorship Prospectus ────────────────────────────────────────────────────
 export const PROSPECTUS_URL: string | null = null; // e.g. "/docs/rw26-prospectus.pdf"
+
+export const CONTACTS = [
+    {
+        name: "Aiyejagbara Oluwatobi",
+        phone: "09031676421",
+        email: "tobi4saviour2@gmail.com",
+        title: "Finance Lead",
+    },
+    {
+        name: "Olatona Ayobami",
+        phone: "09069948890",
+        email: "ayobamioluwaseyi118@gmail.com",
+        title: "Committe Chairperson",
+    },
+];

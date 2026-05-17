@@ -146,7 +146,7 @@ export function HeroSection() {
                     </div>
 
                     {/* CTA buttons */}
-                    <div className="animate-fade-in-up mt-10 flex flex-wrap gap-4">
+                    <div className="animate-fade-in-up mt-10 flex flex-wrap gap-3">
                         <Link href="/shop" id="hero-shop-cta" className="btn-primary shadow-lg">
                             Pre-order Merch
                             <svg className="h-4 w-4" fill="none" stroke="currentColor"
@@ -156,15 +156,14 @@ export function HeroSection() {
                         </Link>
                         <Link href="/support" id="hero-support-cta"
                             className="inline-flex items-center gap-2 h-12 px-7 rounded-xl font-semibold text-[15px]
-                                       border-2 border-[#FF0015]/20 text-[#1C0003] hover:border-[#FF0015] 
-                                       hover:text-[#FF0015] hover:bg-[#FF0015]/4 transition-all">
+                                       border-2 border-[#1C0003] text-[#1C0003] bg-white
+                                       hover:border-[#FF0015] hover:text-[#FF0015] hover:bg-[#FF0015]/4 transition-all">
                             Support the Event
                         </Link>
                         <Link href="/fulfil" id="hero-pay-cta"
-                            className="inline-flex items-center gap-2 h-12 px-7 rounded-xl font-semibold text-[15px]
-                                       border border-[#d4a8b0] text-[#5c4048] hover:border-[#1C0003] 
-                                       hover:text-[#1C0003] transition-all">
-                            Pay an Order
+                            className="inline-flex items-center gap-2 h-12 px-6 rounded-xl font-medium text-[14px]
+                                       text-[#5c4048] hover:text-[#1C0003] transition-colors underline-offset-2">
+                            Pay an Order →
                         </Link>
                     </div>
 

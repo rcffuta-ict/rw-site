@@ -14,10 +14,12 @@ const PROGRAMME = [
 ];
 
 const QUICK_LINKS = [
-    { href: "/", label: "Home" },
-    { href: "/shop", label: "Shop Merch" },
-    { href: "/fulfil", label: "Pay an Order" },
-    { href: "/checkout", label: "Checkout" },
+    { href: "/",        label: "Home" },
+    { href: "/shop",    label: "Shop Merch" },
+    { href: "/support", label: "Support Us" },
+    { href: "/fulfil",  label: "Pay an Order" },
+    { href: "/orders",  label: "My Orders" },
+    { href: "/admin",   label: "Admin Dashboard" },
 ];
 
 const SOCIAL_LINKS = [

@@ -39,7 +39,7 @@ export function SevenNightsSection({ nights }: { nights: Night[] }) {
     const imgPal = IMG_BG[active] ?? IMG_BG[0];
 
     return (
-        <section className="bg-white overflow-hidden">
+        <section id="programme" className="bg-white overflow-hidden scroll-mt-20">
             <div className="section-container section-py">
                 {/* Header */}
                 <div className="mb-14">

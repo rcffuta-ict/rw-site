@@ -9,6 +9,7 @@ import { MerchPreviewSection } from "@/components/public/home/MerchPreviewSectio
 import { GallerySection } from "@/components/public/home/GallerySection";
 import { SponsorsSection } from "@/components/public/home/SponsorsSection";
 import { CtaBannerSection } from "@/components/public/home/CtaBannerSection";
+import { VenueSection } from "@/components/public/home/VenueSection";
 
 export default function LandingPage() {
     return (
@@ -16,14 +17,21 @@ export default function LandingPage() {
             <HeroSection />
             <StatsSection />
             <MarqueeSection />
-            
+
             <SevenNightsSection nights={NIGHTS} />
 
             <div className="section-container"><div className="section-divider" /></div>
 
             <AboutSection />
             <MerchPreviewSection />
+
+            <div className="section-container"><div className="section-divider" /></div>
+
             <GallerySection />
+
+            <div className="section-container"><div className="section-divider" /></div>
+
+            <VenueSection />
             <SponsorsSection />
             <CtaBannerSection />
         </div>

@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { ph } from "@/lib/utils/functions";
 import { Button } from "@/components/ui/forms/Button";
 import { CONTACTS, SPONSORS } from "@/lib/data/info";
@@ -36,15 +37,23 @@ export function SponsorsSection() {
                             alumni during our flagship week of events.
                         </p>
                     </div>
-                    <div className="shrink-0 pb-2">
+                    <div className="shrink-0 pb-2 flex flex-wrap gap-3">
                         <Button
                             variant="primary"
                             size="lg"
-                            className="shadow-rw-shadow-crimson !px-10"
+                            className="shadow-rw-shadow-crimson !px-8"
                             onClick={handleDownload}
                         >
                             Download Prospectus
                         </Button>
+                        <Link
+                            href="/support#organisations"
+                            className="inline-flex items-center h-12 px-7 rounded-xl font-semibold text-sm
+                                       border-2 border-[#1C0003] text-[#1C0003] bg-white
+                                       hover:border-[#FF0015] hover:text-[#FF0015] transition-all"
+                        >
+                            View All Tiers →
+                        </Link>
                     </div>
                 </div>
 

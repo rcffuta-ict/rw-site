@@ -4,32 +4,21 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { DEMO_ORDERS } from "@/lib/data/orders";
 import { OrderStatusBadge } from "@/components/ui/Badge";
-import { Input } from "@/components/ui/forms/Input";
 import type { Order } from "@/lib/data/types";
 import { SearchInput } from "@/components/ui/SearchInput";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function formatDate(iso: string) {
-    return new Date(iso).toLocaleDateString("en-NG", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-    });
+    return new Date(iso).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" });
 }
-
 function formatTime(iso: string) {
-    return new Date(iso).toLocaleTimeString("en-NG", {
-        hour: "2-digit",
-        minute: "2-digit",
-    });
+    return new Date(iso).toLocaleTimeString("en-NG", { hour: "2-digit", minute: "2-digit" });
 }
-
 function fmtNgn(amount: number) {
     return `₦${amount.toLocaleString("en-NG")}`;
 }
 
-/** Merge demo orders + localStorage orders, deduplicated by orderRef */
 function getAllOrders(): Order[] {
     const combined: Order[] = [...DEMO_ORDERS];
     try {
@@ -37,26 +26,15 @@ function getAllOrders(): Order[] {
         if (raw) {
             const local = JSON.parse(raw) as Order[];
             for (const o of local) {
-                if (!combined.some((x) => x.orderRef === o.orderRef)) {
-                    combined.push(o);
-                }
+                if (!combined.some((x) => x.orderRef === o.orderRef)) combined.push(o);
             }
         }
     } catch {}
-    return combined.sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    return combined.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
-
-/** Refs this device created */
 function getDeviceRefs(): string[] {
-    try {
-        return JSON.parse(localStorage.getItem("rw_order_refs") ?? "[]") as string[];
-    } catch {
-        return [];
-    }
+    try { return JSON.parse(localStorage.getItem("rw_order_refs") ?? "[]") as string[]; } catch { return []; }
 }
-
 function searchOrders(all: Order[], query: string): Order[] {
     const q = query.trim().toLowerCase();
     if (!q) return [];
@@ -68,75 +46,66 @@ function searchOrders(all: Order[], query: string): Order[] {
     );
 }
 
+// ─── Status config ────────────────────────────────────────────────────────────
+
+const STATUS_CONFIG: Record<string, { label: string; icon: string; color: string; bg: string; message: string }> = {
+    pending:         { label: "Pending",         icon: "⏳", color: "#9a8085", bg: "#fdf5f5", message: "Your order is registered. Please make payment to proceed." },
+    partially_paid:  { label: "Partially Paid",  icon: "💳", color: "#b84500", bg: "#fff5ee", message: "Partial payment received. Complete payment to confirm your order." },
+    paid:            { label: "Paid",            icon: "✅", color: "#015500", bg: "#f0fff5", message: "Payment confirmed! Your order is being processed." },
+    confirmed:       { label: "Confirmed",       icon: "📋", color: "#004cb8", bg: "#f0f4ff", message: "Order confirmed and queued for production." },
+    in_production:   { label: "In Production",   icon: "🏭", color: "#5010aa", bg: "#f8f0ff", message: "Your merch is being produced — hang tight!" },
+    delivered:       { label: "Delivered",       icon: "🎉", color: "#015500", bg: "#f0fff5", message: "Order delivered. Enjoy your merch!" },
+    flagged:         { label: "Flagged",         icon: "⚠️", color: "#cc0011", bg: "#fff0f0", message: "There's an issue with your payment. Please reach out to the team." },
+    cancelled:       { label: "Cancelled",       icon: "✖",  color: "#9a8085", bg: "#fdf5f5", message: "This order has been cancelled." },
+};
+
+const STATUS_STEPS = ["pending", "partially_paid", "paid", "confirmed", "in_production", "delivered"];
+
 // ─── Order List Item ──────────────────────────────────────────────────────────
 
-function OrderListItem({
-    order,
-    selected,
-    onClick,
-    isDevice,
-}: {
-    order: Order;
-    selected: boolean;
-    onClick: () => void;
-    isDevice: boolean;
+function OrderListItem({ order, selected, onClick, isDevice }: {
+    order: Order; selected: boolean; onClick: () => void; isDevice: boolean;
 }) {
-    const paidPct =
-        order.totalAmount > 0
-            ? Math.min(100, Math.round((order.amountPaid / order.totalAmount) * 100))
-            : 0;
+    const paidPct = order.totalAmount > 0 ? Math.min(100, Math.round((order.amountPaid / order.totalAmount) * 100)) : 0;
+    const cfg = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.pending;
 
     return (
         <button
             onClick={onClick}
-            className={`w-full text-left rounded-2xl border p-4 transition-all duration-200 group ${
+            className={`w-full text-left rounded-2xl border p-4 transition-all duration-200 ${
                 selected
-                    ? "border-rw-crimson bg-rw-bg-warm shadow-[0_0_0_2px_rgba(196,18,48,0.12)]"
-                    : "border-[var(--rw-border)] bg-white hover:border-[var(--rw-border-mid)] hover:shadow-sm"
+                    ? "border-[#FF0015] bg-[#fff8f8] shadow-[0_0_0_2px_rgba(255,0,21,0.1)]"
+                    : "border-[#e8d0d4] bg-white hover:border-[#d4a8b0] hover:shadow-sm"
             }`}
         >
             <div className="flex items-start justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-mono text-[13px] font-bold text-rw-ink tracking-widest">
+                <div className="flex items-center gap-2 min-w-0 flex-wrap">
+                    <span className="font-mono text-[13px] font-bold text-[#1C0003] tracking-widest">
                         {order.orderRef}
                     </span>
                     {isDevice && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-rw-crimson/8 px-2 py-0.5 text-[10px] font-bold text-rw-crimson uppercase tracking-wide">
-                            <svg
-                                className="h-2.5 w-2.5"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                            >
-                                <path d="M13 7H7v6h6V7z" />
-                                <path
-                                    fillRule="evenodd"
-                                    d="M7 2a1 1 0 0 1 2 0v1h2V2a1 1 0 1 1 2 0v1h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2V2a1 1 0 0 1 2 0v1zm-2 5a1 1 0 0 0 0 2h8a1 1 0 1 0 0-2H5z"
-                                    clipRule="evenodd"
-                                />
-                            </svg>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#FF0015]/8 px-2 py-0.5
+                                         text-[10px] font-bold text-[#FF0015] uppercase tracking-wide">
                             This device
                         </span>
                     )}
                 </div>
-                <OrderStatusBadge status={order.status} />
+                <span className="shrink-0 text-base" title={cfg.label}>{cfg.icon}</span>
             </div>
 
-            <p className="text-sm font-semibold text-rw-ink truncate">
-                {order.customerName}
-            </p>
-            <p className="text-xs text-rw-muted mt-0.5 truncate">
-                {order.items.length} item{order.items.length !== 1 ? "s" : ""} ·{" "}
-                {formatDate(order.createdAt)}
+            <p className="text-sm font-semibold text-[#1C0003] truncate">{order.customerName}</p>
+            <p className="text-xs text-[#9a8085] mt-0.5 truncate">
+                {order.items.length} item{order.items.length !== 1 ? "s" : ""} · {formatDate(order.createdAt)}
             </p>
 
             <div className="mt-3">
                 <div className="flex justify-between items-center mb-1.5">
-                    <span className="text-xs text-rw-muted">Paid</span>
-                    <span className="text-xs font-semibold text-rw-ink">
+                    <span className="text-xs text-[#9a8085]">{cfg.label}</span>
+                    <span className="text-xs font-semibold text-[#1C0003]">
                         {fmtNgn(order.amountPaid)} / {fmtNgn(order.totalAmount)}
                     </span>
                 </div>
-                <div className="progress-bar-track">
+                <div className="progress-bar-track" style={{ height: "5px" }}>
                     <div className="progress-bar-fill" style={{ width: `${paidPct}%` }} />
                 </div>
             </div>
@@ -144,132 +113,145 @@ function OrderListItem({
     );
 }
 
+// ─── Order Status Timeline ────────────────────────────────────────────────────
+
+function StatusTimeline({ status }: { status: string }) {
+    const currentIdx = STATUS_STEPS.indexOf(status);
+    const isCancelled = status === "cancelled";
+    const isFlagged = status === "flagged";
+
+    if (isCancelled || isFlagged) {
+        const cfg = STATUS_CONFIG[status];
+        return (
+            <div className="rounded-2xl p-4 text-sm font-medium flex items-center gap-3"
+                 style={{ background: cfg.bg, color: cfg.color }}>
+                <span className="text-xl">{cfg.icon}</span>
+                {cfg.message}
+            </div>
+        );
+    }
+
+    const stepLabels = ["Placed", "Part-Paid", "Paid", "Confirmed", "Production", "Delivered"];
+
+    return (
+        <div className="rounded-2xl border border-[#e8d0d4] bg-white p-5">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[#9a8085] mb-4">Order Progress</p>
+            <div className="flex items-center gap-0">
+                {STATUS_STEPS.map((step, i) => {
+                    const done = i <= currentIdx;
+                    const active = i === currentIdx;
+                    const isLast = i === STATUS_STEPS.length - 1;
+                    return (
+                        <div key={step} className="flex items-center flex-1">
+                            <div className="flex flex-col items-center gap-1.5">
+                                <div
+                                    className="h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+                                    style={{
+                                        background: done ? (active ? "#FF0015" : "#FF0015") : "#f9f0f0",
+                                        color: done ? "white" : "#d4a8b0",
+                                        boxShadow: active ? "0 0 0 4px rgba(255,0,21,0.15)" : undefined,
+                                        transform: active ? "scale(1.15)" : undefined,
+                                    }}
+                                >
+                                    {done && !active ? (
+                                        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                        </svg>
+                                    ) : (
+                                        <span>{i + 1}</span>
+                                    )}
+                                </div>
+                                <span className="text-[9px] font-bold uppercase tracking-wide text-center"
+                                      style={{ color: done ? "#FF0015" : "#c4a0a8", maxWidth: "44px" }}>
+                                    {stepLabels[i]}
+                                </span>
+                            </div>
+                            {!isLast && (
+                                <div className="flex-1 h-0.5 mb-4 transition-all"
+                                     style={{ background: i < currentIdx ? "#FF0015" : "#e8d0d4" }} />
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
 // ─── Order Detail Panel ───────────────────────────────────────────────────────
 
 function OrderDetailPanel({ order }: { order: Order }) {
-    const paidPct =
-        order.totalAmount > 0
-            ? Math.min(100, Math.round((order.amountPaid / order.totalAmount) * 100))
-            : 0;
+    const paidPct = order.totalAmount > 0 ? Math.min(100, Math.round((order.amountPaid / order.totalAmount) * 100)) : 0;
     const remaining = order.totalAmount - order.amountPaid;
-
-    const statusMessages: Record<string, string> = {
-        pending: "Your order is registered. Please make payment to proceed.",
-        partially_paid:
-            "Partial payment received. Complete payment to confirm your order.",
-        paid: "Payment confirmed! Your order is being processed.",
-        confirmed: "Order confirmed and queued for production.",
-        in_production: "Your merch is being produced — hang tight!",
-        delivered: "Order delivered. Enjoy your merch! 🎉",
-        flagged: "There's an issue with your payment. Please reach out to the team.",
-        cancelled: "This order has been cancelled.",
-    };
+    const cfg = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.pending;
 
     return (
-        <div className="flex flex-col gap-5 animate-fade-in-up">
-            {/* Header */}
-            <div className="rw-card p-6 sm:p-8">
-                <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
+        <div className="flex flex-col gap-4 animate-fade-in-up">
+            {/* Header card */}
+            <div className="rw-card p-6">
+                <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
                     <div>
-                        <p className="eyebrow mb-1">Order Ref</p>
-                        <p className="font-mono text-3xl font-bold text-rw-ink tracking-[0.12em]">
+                        <p className="eyebrow mb-1">Order Reference</p>
+                        <p className="font-mono text-2xl sm:text-3xl font-bold text-[#1C0003] tracking-[0.1em]">
                             {order.orderRef}
                         </p>
-                        <p className="text-xs text-rw-muted mt-1">
-                            Placed on {formatDate(order.createdAt)} at{" "}
-                            {formatTime(order.createdAt)}
+                        <p className="text-xs text-[#9a8085] mt-1">
+                            Placed on {formatDate(order.createdAt)} at {formatTime(order.createdAt)}
                         </p>
                     </div>
                     <OrderStatusBadge status={order.status} />
                 </div>
 
-                {/* Status message */}
-                <div
-                    className={`rounded-xl p-4 mb-6 text-sm ${
-                        order.status === "flagged"
-                            ? "bg-red-50 border border-red-100 text-red-700"
-                            : order.status === "delivered"
-                              ? "bg-green-50 border border-green-100 text-green-700"
-                              : order.status === "paid" || order.status === "confirmed"
-                                ? "bg-blue-50 border border-blue-100 text-blue-700"
-                                : "bg-rw-bg-alt border border-[var(--rw-border)] text-rw-text-2"
-                    }`}
-                >
-                    {statusMessages[order.status] ?? "Status unknown."}
+                {/* Status message banner */}
+                <div className="rounded-xl px-4 py-3 text-sm flex items-center gap-3 mb-5"
+                     style={{ background: cfg.bg, color: cfg.color }}>
+                    <span className="text-lg shrink-0">{cfg.icon}</span>
+                    <span className="font-medium">{cfg.message}</span>
                 </div>
 
                 {/* Customer info */}
                 <div className="grid sm:grid-cols-3 gap-4 text-sm">
-                    <div>
-                        <p className="text-xs text-rw-muted mb-0.5 uppercase tracking-wide font-semibold">
-                            Name
-                        </p>
-                        <p className="font-medium text-rw-ink">{order.customerName}</p>
-                    </div>
-                    <div>
-                        <p className="text-xs text-rw-muted mb-0.5 uppercase tracking-wide font-semibold">
-                            Email
-                        </p>
-                        <p className="font-medium text-rw-ink break-all">
-                            {order.customerEmail}
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-xs text-rw-muted mb-0.5 uppercase tracking-wide font-semibold">
-                            Phone
-                        </p>
-                        <p className="font-medium text-rw-ink">{order.customerPhone}</p>
-                    </div>
-                    {order.customerNote && (
-                        <div className="sm:col-span-3">
-                            <p className="text-xs text-rw-muted mb-0.5 uppercase tracking-wide font-semibold">
-                                Note
-                            </p>
-                            <p className="font-medium text-rw-ink">
-                                {order.customerNote}
-                            </p>
+                    {[
+                        { label: "Name",  value: order.customerName },
+                        { label: "Email", value: order.customerEmail },
+                        { label: "Phone", value: order.customerPhone },
+                        ...(order.customerNote ? [{ label: "Note", value: order.customerNote }] : []),
+                    ].map((f) => (
+                        <div key={f.label} className={f.label === "Note" ? "sm:col-span-3" : ""}>
+                            <p className="text-[10px] text-[#9a8085] mb-0.5 uppercase tracking-wide font-bold">{f.label}</p>
+                            <p className="font-medium text-[#1C0003] break-all">{f.value}</p>
                         </div>
-                    )}
+                    ))}
                 </div>
             </div>
 
-            {/* Items */}
+            {/* Status timeline */}
+            <StatusTimeline status={order.status} />
+
+            {/* Items table */}
             <div className="rw-card overflow-hidden">
-                <div className="px-6 pt-6 pb-3 border-b border-[var(--rw-border)]">
-                    <h3 className="font-display font-bold text-rw-ink">Items Ordered</h3>
+                <div className="px-6 pt-5 pb-3 border-b border-[#e8d0d4]">
+                    <h3 className="font-display font-bold text-[#1C0003] text-base">
+                        Items Ordered ({order.items.length})
+                    </h3>
                 </div>
                 <table className="w-full text-sm">
                     <thead>
-                        <tr className="border-b border-[var(--rw-border)] bg-rw-bg-alt">
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-rw-muted uppercase tracking-wide">
-                                Product
-                            </th>
-                            <th className="px-3 py-3 text-right text-xs font-semibold text-rw-muted uppercase tracking-wide">
-                                Qty
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-semibold text-rw-muted uppercase tracking-wide">
-                                Subtotal
-                            </th>
+                        <tr className="border-b border-[#e8d0d4] bg-[#fdf8f8]">
+                            <th className="px-6 py-3 text-left text-[10px] font-bold text-[#9a8085] uppercase tracking-wide">Product</th>
+                            <th className="px-3 py-3 text-right text-[10px] font-bold text-[#9a8085] uppercase tracking-wide">Qty</th>
+                            <th className="px-6 py-3 text-right text-[10px] font-bold text-[#9a8085] uppercase tracking-wide">Subtotal</th>
                         </tr>
                     </thead>
                     <tbody>
                         {order.items.map((item) => (
-                            <tr
-                                key={item.id}
-                                className="border-b border-[var(--rw-border)] last:border-0 hover:bg-rw-bg-alt/50 transition-colors"
-                            >
+                            <tr key={item.id} className="border-b border-[#e8d0d4] last:border-0 hover:bg-[#fdf8f8]/50 transition-colors">
                                 <td className="px-6 py-4">
-                                    <p className="font-semibold text-rw-ink">
-                                        {item.productName}
-                                    </p>
-                                    <p className="text-xs text-rw-muted mt-0.5">
-                                        {item.variantLabel}
-                                    </p>
+                                    <p className="font-semibold text-[#1C0003]">{item.productName}</p>
+                                    <p className="text-xs text-[#9a8085] mt-0.5">{item.variantLabel}</p>
                                 </td>
-                                <td className="px-3 py-4 text-right text-rw-text-2">
-                                    {item.quantity}
-                                </td>
-                                <td className="px-6 py-4 text-right font-semibold text-rw-ink">
+                                <td className="px-3 py-4 text-right text-[#5c4048]">{item.quantity}</td>
+                                <td className="px-6 py-4 text-right font-semibold text-[#1C0003]">
                                     {fmtNgn(item.unitPrice * item.quantity)}
                                 </td>
                             </tr>
@@ -280,57 +262,45 @@ function OrderDetailPanel({ order }: { order: Order }) {
 
             {/* Payment summary */}
             <div className="rw-card p-6">
-                <h3 className="font-display font-bold text-rw-ink mb-4">
-                    Payment Summary
-                </h3>
+                <h3 className="font-display font-bold text-[#1C0003] mb-4">Payment Summary</h3>
+
                 <div className="space-y-3 mb-5">
                     <div className="flex justify-between text-sm">
-                        <span className="text-rw-text-2">Order total</span>
-                        <span className="font-semibold text-rw-ink">
-                            {fmtNgn(order.totalAmount)}
-                        </span>
+                        <span className="text-[#5c4048]">Order total</span>
+                        <span className="font-semibold text-[#1C0003]">{fmtNgn(order.totalAmount)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                        <span className="text-rw-text-2">Amount paid</span>
-                        <span className="font-semibold text-green-600">
-                            {fmtNgn(order.amountPaid)}
-                        </span>
+                        <span className="text-[#5c4048]">Amount paid</span>
+                        <span className="font-semibold text-green-600">{fmtNgn(order.amountPaid)}</span>
                     </div>
                     {remaining > 0 && (
-                        <div className="flex justify-between text-sm border-t border-[var(--rw-border)] pt-3">
-                            <span className="font-semibold text-rw-ink">Balance due</span>
-                            <span className="font-bold text-rw-crimson">
-                                {fmtNgn(remaining)}
-                            </span>
+                        <div className="flex justify-between text-sm border-t border-[#e8d0d4] pt-3">
+                            <span className="font-semibold text-[#1C0003]">Balance due</span>
+                            <span className="font-bold text-[#FF0015]">{fmtNgn(remaining)}</span>
                         </div>
                     )}
                 </div>
 
-                {/* Progress */}
+                {/* Progress bar */}
                 <div>
                     <div className="flex justify-between mb-2">
-                        <span className="text-xs text-rw-muted">Payment progress</span>
-                        <span className="text-xs font-bold text-rw-ink">{paidPct}%</span>
+                        <span className="text-xs text-[#9a8085]">Payment progress</span>
+                        <span className="text-xs font-bold text-[#1C0003]">{paidPct}%</span>
                     </div>
                     <div className="progress-bar-track">
-                        <div
-                            className="progress-bar-fill"
-                            style={{ width: `${paidPct}%` }}
-                        />
+                        <div className="progress-bar-fill" style={{ width: `${paidPct}%` }} />
                     </div>
                 </div>
 
-                {/* CTA to pay */}
-                {(order.status === "pending" ||
-                    order.status === "partially_paid" ||
-                    order.status === "flagged") && (
+                {/* CTA */}
+                {(order.status === "pending" || order.status === "partially_paid" || order.status === "flagged") && (
                     <Link
                         href={`/fulfil?ref=${order.orderRef}`}
-                        className="mt-5 flex h-11 w-full items-center justify-center rounded-xl bg-rw-crimson text-[14px] font-semibold text-white hover:bg-rw-crimson-dk transition-all hover:shadow-[var(--rw-shadow-crimson)]"
+                        className="mt-5 flex h-11 w-full items-center justify-center rounded-xl bg-[#FF0015]
+                                   text-[14px] font-semibold text-white hover:bg-[#cc0011] transition-all
+                                   hover:shadow-[0_4px_16px_rgba(255,0,21,0.35)]"
                     >
-                        {order.status === "flagged"
-                            ? "Resolve Payment →"
-                            : "Complete Payment →"}
+                        {order.status === "flagged" ? "Resolve Payment →" : "Complete Payment →"}
                     </Link>
                 )}
             </div>
@@ -343,63 +313,30 @@ function OrderDetailPanel({ order }: { order: Order }) {
 function EmptyState({ mode }: { mode: "initial" | "no-results" }) {
     return (
         <div className="flex flex-col items-center justify-center gap-4 py-16 text-center px-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-rw-bg-alt border border-[var(--rw-border)]">
-                {mode === "initial" ? (
-                    <svg
-                        className="h-7 w-7 text-rw-muted"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={1.5}
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 15.803 7.5 7.5 0 0 0 15.803 15.803Z"
-                        />
-                    </svg>
-                ) : (
-                    <svg
-                        className="h-7 w-7 text-rw-muted"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={1.5}
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M15.182 16.318A4.486 4.486 0 0 0 12.016 15a4.486 4.486 0 0 0-3.198 1.318M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z"
-                        />
-                    </svg>
-                )}
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#fdf8f8] border border-[#e8d0d4]">
+                <svg className="h-7 w-7 text-[#9a8085]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                    {mode === "initial" ? (
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 15.803 7.5 7.5 0 0 0 15.803 15.803Z" />
+                    ) : (
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.182 16.318A4.486 4.486 0 0 0 12.016 15a4.486 4.486 0 0 0-3.198 1.318M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z" />
+                    )}
+                </svg>
             </div>
-            {mode === "initial" ? (
-                <>
-                    <h3 className="font-display font-bold text-lg text-rw-ink">
-                        Find your order
-                    </h3>
-                    <p className="text-sm text-rw-muted max-w-xs">
-                        Enter your phone number or email address above to look up orders
-                        associated with your account.
-                    </p>
-                </>
-            ) : (
-                <>
-                    <h3 className="font-display font-bold text-lg text-rw-ink">
-                        No orders found
-                    </h3>
-                    <p className="text-sm text-rw-muted max-w-xs">
-                        We couldn&#39;t find any orders matching that phone number or
-                        email. Double-check the details you entered.
-                    </p>
-                </>
-            )}
+            <div>
+                <h3 className="font-display font-bold text-lg text-[#1C0003]">
+                    {mode === "initial" ? "Find your order" : "No orders found"}
+                </h3>
+                <p className="text-sm text-[#9a8085] max-w-xs mt-1">
+                    {mode === "initial"
+                        ? "Enter your phone number, email, or order reference above to look up your orders."
+                        : "We couldn't find orders matching that search. Double-check the details."}
+                </p>
+            </div>
         </div>
     );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
+// ─── Main ─────────────────────────────────────────────────────────────────────
 
 export function OrdersClient() {
     const [allOrders, setAllOrders] = useState<Order[]>([]);
@@ -409,27 +346,18 @@ export function OrdersClient() {
     const [selectedRef, setSelectedRef] = useState<string | null>(null);
     const [hasMounted, setHasMounted] = useState(false);
 
-    // Load localStorage data client-side only
     useEffect(() => {
-        (() => {
-            const orders = getAllOrders();
-            const refs = getDeviceRefs();
-            setAllOrders(orders);
-            setDeviceRefs(refs);
-            setHasMounted(true);
-
-            // Auto-select most recent device order if any
-            if (refs.length > 0) {
-                const latestRef = refs[refs.length - 1];
-                const match = orders.find((o) => o.orderRef === latestRef);
-                if (match) {
-                    setSelectedRef(match.orderRef);
-                }
-            }
-        })();
+        const orders = getAllOrders();
+        const refs = getDeviceRefs();
+        setAllOrders(orders);
+        setDeviceRefs(refs);
+        setHasMounted(true);
+        if (refs.length > 0) {
+            const match = orders.find((o) => o.orderRef === refs[refs.length - 1]);
+            if (match) setSelectedRef(match.orderRef);
+        }
     }, []);
 
-    // Debounce search
     useEffect(() => {
         const t = setTimeout(() => setDebouncedQuery(query), 320);
         return () => clearTimeout(t);
@@ -437,65 +365,40 @@ export function OrdersClient() {
 
     const deviceOrders = allOrders.filter((o) => deviceRefs.includes(o.orderRef));
     const searchResults = debouncedQuery ? searchOrders(allOrders, debouncedQuery) : [];
-
-    const selectedOrder = selectedRef
-        ? (allOrders.find((o) => o.orderRef === selectedRef) ?? null)
-        : null;
-
-    const handleSelect = useCallback((ref: string) => {
-        setSelectedRef(ref);
-    }, []);
-
+    const selectedOrder = selectedRef ? (allOrders.find((o) => o.orderRef === selectedRef) ?? null) : null;
+    const handleSelect = useCallback((ref: string) => setSelectedRef(ref), []);
     const showEmptyState = !debouncedQuery && deviceOrders.length === 0;
 
     return (
-        <div className="min-h-screen bg-rw-bg-alt">
+        <div className="min-h-screen bg-[#fdf8f8]">
             {/* Page header */}
-            <div className="bg-white border-b border-[var(--rw-border)]">
+            <div className="bg-white border-b border-[#e8d0d4]">
                 <div className="section-container py-8 sm:py-10">
-                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
                         <div>
-                            <p className="eyebrow mb-1.5">Redemption Week&lsquo;26</p>
-                            <h1 className="section-heading text-3xl sm:text-4xl">
-                                My Orders
-                            </h1>
-                            <p className="mt-2 text-sm text-rw-muted">
-                                Search by phone number or email to find your merch orders.
+                            <p className="eyebrow mb-1.5">Redemption Week &lsquo;26</p>
+                            <h1 className="section-heading text-3xl sm:text-4xl">My Orders</h1>
+                            <p className="mt-2 text-sm text-[#9a8085]">
+                                Track your merch orders — search by phone, email, or order reference.
                             </p>
                         </div>
                         <Link
                             href="/shop"
-                            className="inline-flex h-10 items-center gap-2 rounded-xl bg-rw-crimson px-5 text-sm font-semibold text-white hover:bg-rw-crimson-dk transition-all hover:shadow-[var(--rw-shadow-crimson)] self-start sm:self-auto"
+                            className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#FF0015] px-5 text-sm
+                                       font-semibold text-white hover:bg-[#cc0011] transition-all
+                                       hover:shadow-[0_4px_16px_rgba(255,0,21,0.3)] self-start sm:self-auto"
                         >
-                            <svg
-                                className="h-4 w-4"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z"
-                                />
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" />
                             </svg>
                             Shop Merch
                         </Link>
                     </div>
 
-                    {/* Search */}
                     <SearchInput
                         query={query}
-                        onChange={(e) => {
-                            setQuery(e.target.value);
-                            if (!e.target.value) setSelectedRef(null);
-                        }}
-                        onClear={() => {
-                            setQuery("");
-                            setSelectedRef(null);
-                            setDebouncedQuery("");
-                        }}
+                        onChange={(e) => { setQuery(e.target.value); if (!e.target.value) setSelectedRef(null); }}
+                        onClear={() => { setQuery(""); setSelectedRef(null); setDebouncedQuery(""); }}
                     />
                 </div>
             </div>
@@ -506,50 +409,39 @@ export function OrdersClient() {
                     <div className="grid lg:grid-cols-[380px_1fr] gap-6 items-start">
                         <div className="flex flex-col gap-3">
                             {[1, 2, 3].map((i) => (
-                                <div
-                                    key={i}
-                                    className="h-32 rounded-2xl bg-white border border-[var(--rw-border)] animate-pulse"
-                                />
+                                <div key={i} className="h-32 rounded-2xl bg-white border border-[#e8d0d4] animate-pulse" />
                             ))}
                         </div>
-                        <div className="hidden lg:block h-96 rounded-2xl bg-white border border-[var(--rw-border)] animate-pulse" />
+                        <div className="hidden lg:block h-96 rounded-2xl bg-white border border-[#e8d0d4] animate-pulse" />
                     </div>
                 ) : (
                     <div className="grid lg:grid-cols-[380px_1fr] gap-8 items-start">
                         {/* Left — order list */}
-                        <div className="flex flex-col gap-6">
-                            {/* Group 1: Search Results */}
+                        <div className="flex flex-col gap-5">
                             {debouncedQuery && (
                                 <div className="flex flex-col gap-3">
-                                    <p className="text-xs font-bold uppercase tracking-wide text-rw-crimson px-1">
+                                    <p className="text-xs font-bold uppercase tracking-wide text-[#FF0015] px-1">
                                         Search Results ({searchResults.length})
                                     </p>
                                     {searchResults.length === 0 ? (
-                                        <div className="rw-card">
-                                            <EmptyState mode="no-results" />
-                                        </div>
+                                        <div className="rw-card"><EmptyState mode="no-results" /></div>
                                     ) : (
                                         searchResults.map((order) => (
                                             <OrderListItem
                                                 key={order.orderRef}
                                                 order={order}
                                                 selected={selectedRef === order.orderRef}
-                                                onClick={() =>
-                                                    handleSelect(order.orderRef)
-                                                }
-                                                isDevice={deviceRefs.includes(
-                                                    order.orderRef
-                                                )}
+                                                onClick={() => handleSelect(order.orderRef)}
+                                                isDevice={deviceRefs.includes(order.orderRef)}
                                             />
                                         ))
                                     )}
                                 </div>
                             )}
 
-                            {/* Group 2: Device Orders (Only show if not searching or if there are results) */}
                             {deviceOrders.length > 0 && (
                                 <div className="flex flex-col gap-3">
-                                    <p className="text-xs font-bold uppercase tracking-wide text-rw-muted px-1">
+                                    <p className="text-xs font-bold uppercase tracking-wide text-[#9a8085] px-1">
                                         Orders from this device ({deviceOrders.length})
                                     </p>
                                     {deviceOrders.map((order) => (
@@ -565,9 +457,7 @@ export function OrdersClient() {
                             )}
 
                             {showEmptyState && (
-                                <div className="rw-card">
-                                    <EmptyState mode="initial" />
-                                </div>
+                                <div className="rw-card"><EmptyState mode="initial" /></div>
                             )}
                         </div>
 
@@ -577,28 +467,16 @@ export function OrdersClient() {
                                 <OrderDetailPanel order={selectedOrder} />
                             ) : (
                                 <div className="rw-card flex flex-col items-center justify-center gap-4 py-24 text-center px-6">
-                                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-rw-bg-alt border border-[var(--rw-border)]">
-                                        <svg
-                                            className="h-7 w-7 text-rw-muted"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth={1.5}
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"
-                                            />
+                                    <div className="h-16 w-16 rounded-full bg-[#fdf8f8] border border-[#e8d0d4]
+                                                    flex items-center justify-center">
+                                        <svg className="h-7 w-7 text-[#9a8085]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
                                         </svg>
                                     </div>
                                     <div>
-                                        <h3 className="font-display font-bold text-lg text-rw-ink">
-                                            Select an order
-                                        </h3>
-                                        <p className="mt-1 text-sm text-rw-muted max-w-xs">
-                                            Click any order on the left to see its full
-                                            details and current status.
+                                        <h3 className="font-display font-bold text-lg text-[#1C0003]">Select an order</h3>
+                                        <p className="mt-1 text-sm text-[#9a8085] max-w-xs">
+                                            Click any order on the left to see its full details, status timeline, and payment info.
                                         </p>
                                     </div>
                                 </div>

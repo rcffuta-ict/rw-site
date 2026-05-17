@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { SupportClient } from "./SupportClient";
+
 import { TENURE, FELLOWSHIP } from "@/lib/config";
+import { SupportClient } from "./SupportClient";
 
 export const metadata: Metadata = {
     title: `Support — ${TENURE.brandLabel} · ${FELLOWSHIP.shortName}`,
