@@ -25,6 +25,11 @@ export const TENURE = {
     dateRange: "July 6–12, 2026",
     /** Venue */
     venue: "RCFFUTA Southgate Auditorium, Akure",
+    /** Google Maps navigation URL — replace with real link when available */
+    googleMapsUrl:
+        "https://www.google.com/maps/dir/?api=1&destination=7.325683648594797,5.188835270364391",
+    /** Venue short address */
+    venueAddress: "Besides His Grace Pavilion, FUTA Southgate, Akure",
     /** Full branding label */
     get brandLabel() {
         return `${this.eventName} ${this.shortYear}`;
@@ -58,7 +63,7 @@ export const LOGOS = {
     /** Anniversary/Redemption Week event logo — replace when design team provides it */
     redemptionWeek: null as string | null, // e.g. "/images/logos/rw26.png"
     /** Tenure theme logo — replace when design team provides it */
-    tenureTheme: null as string | null,   // e.g. "/images/logos/lords-witnesses.png"
+    tenureTheme: null as string | null, // e.g. "/images/logos/lords-witnesses.png"
     /** Parent church logos */
     crm: "/images/logos/crm.png",
     rccg: "/images/logos/rccg.png",
@@ -73,3 +78,16 @@ export const BRAND = {
     forest: "#022400",
     white: "#FFFFFF",
 } as const;
+
+// ─── Support / Donations ───────────────────────────────────────────────────────
+// This is the INDIVIDUAL SUPPORT account — different from the /fulfil commerce account.
+export const SUPPORT_ACCOUNT = {
+    bankName: "Access Bank",
+    accountNumber: "0123456789", // ← Replace with real account number
+    accountName: "RCF FUTA Welfare Fund",
+    /** Minimum suggested donation */
+    minimumAmount: 1000,
+} as const;
+
+// ─── Sponsorship Prospectus ────────────────────────────────────────────────────
+export const PROSPECTUS_URL: string | null = null; // e.g. "/docs/rw26-prospectus.pdf"

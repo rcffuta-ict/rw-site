@@ -20,8 +20,7 @@ export function Identity({
     const isDark = mode === "dark" || dark === true;
     const isLarge = variant === "footer" || variant === "hero" || isDark;
 
-    const logoSize =
-        variant === "hero" ? "h-16 w-16" : isLarge ? "h-12 w-12" : "h-9 w-9";
+    const logoSize = variant === "hero" ? "h-16 w-16" : isLarge ? "h-12 w-12" : "h-9 w-9";
     const titleSize =
         variant === "hero" ? "text-2xl" : isLarge ? "text-lg" : "text-[14px]";
     const subSize = variant === "hero" ? "text-sm" : isLarge ? "text-xs" : "text-[10px]";
@@ -29,7 +28,7 @@ export function Identity({
 
     const isLink = variant === "nav" && !isDark;
     const Wrapper = isLink ? Link : "div";
-    // @ts-expect-error — dynamic wrapper
+
     const wrapperProps = isLink ? { href: "/", id: "site-logo" } : {};
 
     // Build logo slots — RCF FUTA always shown; RW logo shown if provided else placeholder
@@ -37,13 +36,13 @@ export function Identity({
         {
             src: LOGOS.rcfFuta,
             alt: "RCF FUTA",
-            style: isDark
-                ? "bg-white/5 border-white/10"
-                : "bg-white border-[#e8d0d4]",
+            style: isDark ? "bg-white/5 border-white/10" : "bg-white border-[#e8d0d4]",
         },
         {
             // Redemption Week event logo — placeholder until design team delivers it
-            src: LOGOS.redemptionWeek ?? ph(120, 120, `RW${TENURE.shortYear}`, "FF0015", "ffffff"),
+            src:
+                LOGOS.redemptionWeek ??
+                ph(120, 120, `RW${TENURE.shortYear}`, "FF0015", "ffffff"),
             alt: `Redemption Week ${TENURE.shortYear} Logo`,
             style: isDark
                 ? "bg-[#FF0015]/20 border-[#FF0015]/30"
@@ -79,12 +78,16 @@ export function Identity({
             {/* Tagline */}
             {showTagline && (
                 <div className={`${isLink ? "hidden sm:block" : ""} leading-tight`}>
-                    <p className={`font-display font-bold ${titleSize} ${isDark ? "text-white" : "text-[#1C0003]"}
-                                   group-hover:text-[#FF0015] transition-colors`}>
+                    <p
+                        className={`font-display font-bold ${titleSize} ${isDark ? "text-white" : "text-[#1C0003]"}
+                                   group-hover:text-[#FF0015] transition-colors`}
+                    >
                         {TENURE.eventName}{" "}
                         <span className="text-[#FF0015]">{TENURE.shortYear}</span>
                     </p>
-                    <p className={`${subSize} ${isDark ? "text-white/40" : "text-[#9a8085]"} font-medium tracking-wide mt-0.5`}>
+                    <p
+                        className={`${subSize} ${isDark ? "text-white/40" : "text-[#9a8085]"} font-medium tracking-wide mt-0.5`}
+                    >
                         {TENURE.anniversaryLabel} · RCF FUTA
                     </p>
                 </div>
