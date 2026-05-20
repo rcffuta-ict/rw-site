@@ -18,13 +18,13 @@ const QUICK_LINKS = [
     { href: "/#support", label: "Support Us" },
     { href: "/fulfil", label: "Pay an Order" },
     { href: "/orders", label: "My Orders" },
-    { href: "/admin", label: "Admin Dashboard" },
+    // { href: "/admin", label: "Admin Dashboard" },
 ];
 
 const SOCIAL_LINKS = [
     {
         label: "Instagram",
-        href: "#",
+        href: "https://www.instagram.com/rcffuta",
         icon: (
             <svg
                 viewBox="0 0 24 24"
@@ -37,7 +37,7 @@ const SOCIAL_LINKS = [
     },
     {
         label: "Facebook",
-        href: "#",
+        href: "https://www.facebook.com/rcffuta",
         icon: (
             <svg viewBox="0 0 24 24" fill="currentColor" className="h-[18px] w-[18px]">
                 <path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z" />
@@ -46,10 +46,19 @@ const SOCIAL_LINKS = [
     },
     {
         label: "YouTube",
-        href: "#",
+        href: "https://www.youtube.com/@rcffuta",
         icon: (
             <svg viewBox="0 0 24 24" fill="currentColor" className="h-[18px] w-[18px]">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+            </svg>
+        ),
+    },
+    {
+        label: "Telegram",
+        href: "https://t.me/rcffuta",
+        icon: (
+            <svg viewBox="0 0 24 24" fill="currentColor" className="h-[18px] w-[18px]">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.11.02-1.93 1.23-5.46 3.62-.51.35-.98.53-1.4.51-.46-.01-1.35-.26-2.01-.48-.81-.27-1.46-.42-1.4-.88.03-.24.37-.49 1.02-.75 3.99-1.74 6.66-2.88 7.99-3.43 3.8-1.56 4.59-1.83 5.1-.11.11.27.18.59.18.91z" />
             </svg>
         ),
     },
@@ -67,7 +76,7 @@ export function PublicFooter() {
         <footer className="bg-rw-bg-warm border-t border-[#e8d0d4] text-[#1C0003]">
             {/* ── Top brand band ─────────────────────────────────────────────── */}
             <div className="border-b border-[#e8d0d4]">
-                <div className="section-container py-10 lg:py-12 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-8 text-center lg:text-left">
+                <div className="section-container !pt-6 lg:pt-16 !pb-10 !lg:pb-12 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-8 text-center lg:text-left">
                     <Identity className="justify-center lg:justify-start" />
                     <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 lg:gap-12">
                         {[
@@ -92,7 +101,7 @@ export function PublicFooter() {
             </div>
 
             {/* ── Main columns ─────────────────────────────────────────────── */}
-            <div className="section-container py-16 lg:py-20">
+            <div className="section-container !pt-20 lg:!pt-28 !pb-16">
                 <div className="grid gap-12 lg:gap-16 xl:gap-20 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
                     {/* Col 1 — About */}
                     <div className="text-center sm:text-left">
@@ -231,7 +240,7 @@ export function PublicFooter() {
 
             {/* ── Bottom bar ─────────────────────────────────────────────────── */}
             <div className="border-t border-[#e8d0d4]">
-                <div className="section-container py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+                <div className="section-container !py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
                     <span className="text-xs text-[#9a8085]">
                         © 2026 Redeemed Christian Fellowship, FUTA Chapter · All rights
                         reserved

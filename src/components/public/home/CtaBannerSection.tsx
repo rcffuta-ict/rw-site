@@ -67,19 +67,11 @@ export function CtaBannerSection() {
                         Pre-order Merch
                     </Link>
                     <Link
-                        href="/#support"
+                        href="/fulfil"
                         id="cta-banner-support"
                         className="inline-flex items-center gap-2 h-12 px-8 rounded-xl font-bold text-[15px]
                                    bg-white text-[#1C0003] hover:bg-white/90 transition-all
                                    shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-                    >
-                        Support the Event
-                    </Link>
-                    <Link
-                        href="/fulfil"
-                        className="inline-flex items-center gap-2 h-12 px-7 rounded-xl font-semibold text-[14px]
-                                   border border-white/30 text-white/80 hover:text-white hover:border-white/60
-                                   hover:bg-white/8 transition-all backdrop-blur-sm"
                     >
                         Pay an Order
                     </Link>

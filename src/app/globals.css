@@ -50,7 +50,7 @@
     --rw-shadow-crimson: 0 4px 20px rgba(255, 0, 21, 0.22);
     --rw-radius: 16px;
     /* Section vertical rhythm */
-    --section-py-sm: clamp(3rem, 5vw, 5rem);
+    --section-py-sm: clamp(3rem, 3vw, 6rem);
     --section-py: clamp(5rem, 8vw, 8rem);
     --section-py-lg: clamp(6rem, 10vw, 10rem) !important;
 }
