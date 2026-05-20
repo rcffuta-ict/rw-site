@@ -36,12 +36,14 @@ export function CtaBannerSection() {
                 >
                     Let us make this
                     <br />
-                    <span style={{
-                        background: "linear-gradient(90deg, #FF6A00, #FF0015)",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
-                    }}>
+                    <span
+                        style={{
+                            background: "linear-gradient(90deg, #FF6A00, #FF0015)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            backgroundClip: "text",
+                        }}
+                    >
                         the best yet.
                     </span>
                 </h2>
@@ -65,7 +67,7 @@ export function CtaBannerSection() {
                         Pre-order Merch
                     </Link>
                     <Link
-                        href="/support"
+                        href="/#support"
                         id="cta-banner-support"
                         className="inline-flex items-center gap-2 h-12 px-8 rounded-xl font-bold text-[15px]
                                    bg-white text-[#1C0003] hover:bg-white/90 transition-all
@@ -86,8 +88,10 @@ export function CtaBannerSection() {
                 {/* Bottom sponsor note */}
                 <p className="mt-14 text-xs text-white/25 font-medium">
                     Interested in sponsoring? &nbsp;
-                    <a href="mailto:tobi4saviour2@gmail.com"
-                        className="text-[#FF6A00] hover:text-white transition-colors underline underline-offset-2">
+                    <a
+                        href="mailto:tobi4saviour2@gmail.com"
+                        className="text-[#FF6A00] hover:text-white transition-colors underline underline-offset-2"
+                    >
                         Reach out to our committee
                     </a>
                 </p>

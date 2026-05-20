@@ -235,7 +235,10 @@ export function GallerySection() {
     }, []);
 
     return (
-        <section ref={sectionRef} className="relative bg-[#1C0003] overflow-hidden">
+        <section
+            ref={sectionRef}
+            className="relative bg-rw-bg-warm overflow-hidden section-py-sm"
+        >
             {/* Atmospheric glow that responds to scroll */}
             <div
                 className="pointer-events-none absolute inset-0 transition-opacity duration-300"
@@ -265,7 +268,7 @@ export function GallerySection() {
                             </span>
                         </h2>
                     </div>
-                    <p className="text-sm text-white/40 max-w-[220px] sm:text-right leading-relaxed">
+                    <p className="text-sm text-rw-muted max-w-[220px] sm:text-right leading-relaxed">
                         A visual journey through past editions — glory, power, and
                         community.
                     </p>
@@ -282,11 +285,11 @@ export function GallerySection() {
             {/* Bottom bar */}
             <div className="section-container py-10 relative z-10">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <p className="text-xs text-white/25 font-medium text-center sm:text-left">
+                    <p className="text-xs text-rw-muted font-medium text-center sm:text-left">
                         Images courtesy of the RCF FUTA media team — updated as the event
                         approaches.
                     </p>
-                    <div className="flex items-center gap-2 text-xs text-white/30 font-bold uppercase tracking-wider">
+                    <div className="flex items-center gap-2 text-xs text-rw-muted font-bold uppercase tracking-wider">
                         <span className="h-1.5 w-1.5 rounded-full bg-[#FF6A00] animate-pulse" />
                         {GALLERY_ITEMS.length} moments captured
                     </div>

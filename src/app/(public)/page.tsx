@@ -27,15 +27,15 @@ export default function LandingPage() {
             <AboutSection />
             <MerchPreviewSection />
 
-            <div className="section-container">
+            {/* <div className="section-container">
                 <div className="section-divider" />
-            </div>
+            </div> */}
 
             <GallerySection />
 
-            <div className="section-container">
+            {/* <div className="section-container">
                 <div className="section-divider" />
-            </div>
+            </div> */}
 
             <VenueSection />
             <SponsorsSection />
