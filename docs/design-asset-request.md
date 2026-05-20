@@ -39,11 +39,14 @@ Two logos sit side-by-side in the top-left corner of the header (which is always
 
 | File | Where it goes | Description |
 |------|--------------|-------------|
-| `rcf-futa-logo.png` | Header (top-left), Footer | The main RCFFUTA fellowship crest. Already provided — confirm it's the latest version. Must work on both white and deep maroon (#1C0003) backgrounds. |
-| `rw26-logo.png` | Header (beside RCF logo), Hero strip | The official **Redemption Week '26** event logo. This is the second logo in the pair. It will sit in a small rounded square (≈40px on mobile, 48px on desktop). Must have a transparent background so it adapts to both light and dark surfaces. |
-| `lords-witnesses-logo.png` | Footer brand area (optional) | The tenure theme logo — *"The Lord's Witnesses: The Purified Army"*. Lower priority, but ideally present in the footer as a mark of the current tenure. |
+| `rcffuta-dark-on-white.png` | Header (top-left on light background), Sponsors Section | The main RCFFUTA crest in dark colors. Used on white backgrounds for contrast. |
+| `rcffuta-light.png` | Header (on dark backgrounds), Footer | The main RCFFUTA crest in white/light colors. Used on deep maroon (#1C0003) backdrops. |
+| `rw-2026-logo.png` | Header (beside RCF logo), Hero section, Footer | The official **Redemption Week '26** event logo. Must have a transparent background so it adapts to both light and dark surfaces. |
+| `rw-38th-logo.png` | Sponsors Section, Footer | The **38th Anniversary** thematic logo. |
+| `tenure-icon.png` | Sponsors Section, Footer | The tenure torch/flame icon — *"The Lord's Witnesses: The Purified Army"*. |
+| `crm.png` | Sponsors Section, Footer | The parent body crest: Christ the Redeemer's Ministries (CRM). |
 
-> **Tip:** Export each logo at 400×400px minimum at 2x resolution. The site will size them down automatically.
+> **Tip:** Export each logo at 400×400px minimum at 2x resolution. Keep transparent background (PNG format) for all logos. The site will size them down automatically.
 
 ---
 
@@ -68,7 +71,8 @@ The left side of the image can be slightly less busy (it will be covered by the 
 | Variant | Dimensions | Notes |
 |---------|-----------|-------|
 | Desktop | 1920 × 1080px | Landscape. Main action in center-right. |
-| Mobile | 768 × 1024px | Portrait crop. Main action centered vertically. |
+| Tablet  | 1024 × 768px  | Landscape. Optimized for medium tablet viewports. |
+| Mobile  | 640 × 960px   | Portrait. Optimized for portrait phone screens. |
 
 ---
 
@@ -143,6 +147,8 @@ The effect should feel like a **photo journal or mood board** — organic, warm,
 | `about-04-teaching.jpg` | Bottom-left | 340 × 240px | Someone reading/studying Bible, or a small group Bible study |
 | `about-05-prayer.jpg` | Bottom-right | 340 × 240px | Bowed heads in prayer — intimate, sincere |
 
+> **Performance Note:** The developer has implemented responsive `<picture>` tags. The page will automatically serve 50% downscaled, highly-optimized mobile-dimension variants (e.g., `170×140px` for community, `350×110px` for panoramic) to mobile screens for rapid loading. Standard exports at desktop specifications satisfy all requirements.
+
 ---
 
 ## 6. Gallery Section *(Full-Screen Photo Wall)*
@@ -173,6 +179,8 @@ The section has a **deep maroon (#1C0003) background**, so there's a branded col
 | `gallery-14.jpg` | 1×1 | 400 × 400px | Any conclusion/legacy moment |
 
 > **Visual direction:** The gallery should feel like looking through a window into the full soul of Redemption Week — joy, worship, community, drama, prayer. Vary the tones and moments so it tells a complete story.
+>
+> **Performance Note:** The gallery is fully optimized with responsive media sizes. While the primary desktop assets are high-res (e.g., `800×800px` featured), mobile viewports will automatically serve 2.5x downscaled dimensions (e.g. `320×320px`), and tablets will serve 1.5x downscaled dimensions. Delivering assets at the primary dimensions satisfies all screens.
 
 ---
 
@@ -194,6 +202,20 @@ Each product has one primary image shown in a **card** with a 5:6 portrait aspec
 | `merch-cap.jpg` | Anniversary Cap | 480 × 480px | Square OK |
 | `merch-stickers.jpg` | Sticker Pack | 480 × 480px | All 5 stickers laid flat |
 
+### Shop Page Banner Background:
+
+The top of the Shop page has a **wide panoramic banner background** with a deep maroon (#1C0003) backdrop. The image is overlaid with low opacity (~30%) to add a subtle texture and visual flair.
+
+**File:** `shop-banner-bg.jpg` (desktop) + `shop-banner-bg-tablet.jpg` (tablet) + `shop-banner-bg-mobile.jpg` (mobile)
+
+| Variant | Dimensions | Notes |
+|---------|-----------|-------|
+| Desktop | 1600 × 360px | Landscape panoramic format. |
+| Tablet  | 1024 × 300px | Optimized layout banner. |
+| Mobile  | 640 × 320px  | Taller aspect ratio for portrait mobile viewports. |
+
+**The shot:** A flat lay style arrangement of merchandise products, or a cinematic crop of students wearing fellowship merchandise at a gathering. Should have high contrast and rich dark tones to blend beautifully with the deep maroon background overlay.
+
 ---
 
 ## 8. CTA Banner Background *(Near Bottom of Page)*
@@ -203,9 +225,33 @@ A **full-width, dark section** near the bottom of the page. The background is de
 
 Large heading, two buttons, and a sponsor contact link sit on top.
 
-**File:** `cta-bg.jpg`
-**Dimensions:** 1920 × 640px landscape
+**File:** `cta-bg.jpg` (desktop) + `cta-bg-tablet.jpg` (tablet) + `cta-bg-mobile.jpg` (mobile)
+
+| Variant | Dimensions | Notes |
+|---------|-----------|-------|
+| Desktop | 1920 × 640px | Landscape wide-format layout. |
+| Tablet  | 1024 × 512px | Optimized layout. |
+| Mobile  | 640 × 640px  | Square format for portrait viewports. |
+
 **The shot:** A worship crowd from above or behind — silhouettes with stage lighting. Because it runs at low opacity, the image doesn't need to be sharp but should have strong tonal contrast (dark crowd, bright stage).
+
+---
+
+## 9. OpenGraph Images *(Link Sharing Previews)*
+
+### How they appear:
+When the website link is shared on social media platform feeds (WhatsApp, Telegram, Twitter/X, Facebook, LinkedIn), platforms fetch these graphics to render link-rich preview cards.
+
+### What I need:
+Two branded graphics containing a composition of:
+1. High-contrast worship atmosphere background photo (low opacity/cinematic blend).
+2. The Redemption Week '26 logo clearly visible.
+3. The text: *"Redemption Week '26"* and the tenure theme *"The Lord's Witnesses"* prominently styled.
+
+| File | Aspect Ratio | Dimensions | Notes |
+|------|--------------|------------|-------|
+| `og-image.jpg` | 1.91:1 Landscape | 1200 × 630px | Standard landscape banner for Twitter/X, LinkedIn, Facebook. |
+| `og-image-square.jpg` | 1:1 Square | 600 × 600px | Optimized square share badge for WhatsApp, Telegram conversation view. |
 
 ---
 
@@ -213,7 +259,7 @@ Large heading, two buttons, and a sponsor contact link sit on top.
 
 - Deliver files to the ICT team via **Google Drive** shared with the web team lead
 - Use the **exact filenames** listed in each table above
-- Organise into subfolders: `/logos/`, `/hero/`, `/nights/`, `/about/`, `/marquee/`, `/gallery/`, `/merch/`
+- Organise into subfolders: `/logos/`, `/hero/`, `/nights/`, `/about/`, `/marquee/`, `/gallery/`, `/merch/`, `/og/`
 - Format: **JPEG** for photos (quality 85%+), **PNG** for logos (transparent background)
 - The public folder path maps as: `public/images/{subfolder}/{filename}`
 

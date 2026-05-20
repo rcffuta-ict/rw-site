@@ -174,11 +174,33 @@ function GalleryItem({
             }`}
             style={{ transitionDelay: `${(index % 5) * 80}ms` }}
         >
-            <img
-                src={ph(item.w, item.h, item.label, item.bg, item.fg)}
-                alt={item.label}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-            />
+            <picture>
+                <source
+                    media="(max-width: 640px)"
+                    srcSet={ph(
+                        Math.round(item.w / 2.5),
+                        Math.round(item.h / 2.5),
+                        item.label,
+                        item.bg,
+                        item.fg
+                    )}
+                />
+                <source
+                    media="(max-width: 1024px)"
+                    srcSet={ph(
+                        Math.round(item.w / 1.5),
+                        Math.round(item.h / 1.5),
+                        item.label,
+                        item.bg,
+                        item.fg
+                    )}
+                />
+                <img
+                    src={ph(item.w, item.h, item.label, item.bg, item.fg)}
+                    alt={item.label}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                />
+            </picture>
 
             {/* Gradient hover overlay */}
             <div

@@ -8,11 +8,15 @@ export function CtaBannerSection() {
             {/* Deep maroon-to-dark background */}
             <div className="absolute inset-0 bg-[#1C0003]" />
             {/* Background image at very low opacity — cinematic feel */}
-            <img
-                src={ph(1920, 640, "Worship Crowd · CTA", "1C0003", "FF6A00")}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover opacity-15 mix-blend-luminosity"
-            />
+            <picture>
+                <source media="(max-width: 640px)" srcSet={ph(640, 640, "Worship Crowd · CTA", "1C0003", "FF6A00")} />
+                <source media="(max-width: 1024px)" srcSet={ph(1024, 512, "Worship Crowd · CTA", "1C0003", "FF6A00")} />
+                <img
+                    src={ph(1920, 640, "Worship Crowd · CTA", "1C0003", "FF6A00")}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover opacity-15 mix-blend-luminosity"
+                />
+            </picture>
             {/* Brand fire gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#FF0015]/20 via-transparent to-[#FF6A00]/10" />
             {/* Top light feather */}

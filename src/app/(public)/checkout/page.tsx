@@ -1,7 +1,9 @@
 import { CheckoutClient } from "./CheckoutClient";
 
+import { TENURE } from "@/lib/config";
+
 export const metadata = {
-    title: "Checkout — Redemption Week '26",
+    title: `Checkout — ${TENURE.brandLabel}`,
 };
 
 export default function CheckoutPage() {

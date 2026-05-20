@@ -44,6 +44,9 @@ export function HeroSection() {
         >
             {/* ── Background image — right-side, dramatic ──────────────────── */}
             <div className="absolute inset-0">
+            <picture>
+                <source media="(max-width: 640px)" srcSet={ph(640, 960, "Redemption Week · Worship Night", "1C0003", "FF6A00")} />
+                <source media="(max-width: 1024px)" srcSet={ph(1024, 768, "Redemption Week · Worship Night", "1C0003", "FF6A00")} />
                 <img
                     src={ph(
                         1920,
@@ -56,6 +59,7 @@ export function HeroSection() {
                     aria-hidden
                     className="absolute inset-0 w-full h-full object-cover object-right"
                 />
+            </picture>
                 {/* White sweep — content area */}
                 <div className="absolute inset-0 bg-gradient-to-r from-white via-white/98 lg:via-white/95 xl:via-white/88 to-white/5" />
                 {/* Bottom fade into white */}

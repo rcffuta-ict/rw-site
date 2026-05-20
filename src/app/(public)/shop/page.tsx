@@ -24,13 +24,16 @@ export default function ShopPage() {
 function ShopBanner() {
     return (
         <div className="relative overflow-hidden bg-[#1C0003]">
-            {/* Background image */}
-            <img
-                src={ph(1600, 360, "Official Merch · RW'26", "1C0003", "FF6A00")}
-                alt=""
-                aria-hidden
-                className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-luminosity"
-            />
+            <picture>
+                <source media="(max-width: 640px)" srcSet={ph(640, 320, "Official Merch · RW'26", "1C0003", "FF6A00")} />
+                <source media="(max-width: 1024px)" srcSet={ph(1024, 300, "Official Merch · RW'26", "1C0003", "FF6A00")} />
+                <img
+                    src={ph(1600, 360, "Official Merch · RW'26", "1C0003", "FF6A00")}
+                    alt=""
+                    aria-hidden
+                    className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-luminosity"
+                />
+            </picture>
             <div className="absolute inset-0 bg-gradient-to-r from-[#1C0003]/95 via-[#1C0003]/70 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FF0015]/5 to-[#FF6A00]/10" />
 

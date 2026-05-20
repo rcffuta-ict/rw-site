@@ -64,61 +64,125 @@ export function AboutSection() {
 
                         {/* Photo collage — 5 images in an asymmetric stagger */}
                         <div className="mt-10 grid grid-cols-2 gap-3">
-                            <img
-                                src={ph(
-                                    PHOTO_GRID[0].w,
-                                    PHOTO_GRID[0].h,
-                                    PHOTO_GRID[0].label,
-                                    PHOTO_GRID[0].bg,
-                                    PHOTO_GRID[0].fg
-                                )}
-                                alt="Fellowship community"
-                                className="rounded-2xl object-cover w-full h-44 hover-lift"
-                            />
-                            <img
-                                src={ph(
-                                    PHOTO_GRID[1].w,
-                                    PHOTO_GRID[1].h,
-                                    PHOTO_GRID[1].label,
-                                    PHOTO_GRID[1].bg,
-                                    PHOTO_GRID[1].fg
-                                )}
-                                alt="Praise and worship"
-                                className="rounded-2xl object-cover w-full h-44 hover-lift mt-6"
-                            />
-                            <img
-                                src={ph(
-                                    PHOTO_GRID[2].w,
-                                    PHOTO_GRID[2].h,
-                                    PHOTO_GRID[2].label,
-                                    PHOTO_GRID[2].bg,
-                                    PHOTO_GRID[2].fg
-                                )}
-                                alt="Campus gathering"
-                                className="col-span-2 rounded-2xl object-cover w-full h-36 hover-lift"
-                            />
-                            <img
-                                src={ph(
-                                    PHOTO_GRID[3].w,
-                                    PHOTO_GRID[3].h,
-                                    PHOTO_GRID[3].label,
-                                    PHOTO_GRID[3].bg,
-                                    PHOTO_GRID[3].fg
-                                )}
-                                alt="Word and teaching"
-                                className="rounded-2xl object-cover w-full h-36 hover-lift"
-                            />
-                            <img
-                                src={ph(
-                                    PHOTO_GRID[4].w,
-                                    PHOTO_GRID[4].h,
-                                    PHOTO_GRID[4].label,
-                                    PHOTO_GRID[4].bg,
-                                    PHOTO_GRID[4].fg
-                                )}
-                                alt="Prayer night"
-                                className="rounded-2xl object-cover w-full h-36 hover-lift"
-                            />
+                            <picture>
+                                <source
+                                    media="(max-width: 640px)"
+                                    srcSet={ph(
+                                        Math.round(PHOTO_GRID[0].w / 2),
+                                        Math.round(PHOTO_GRID[0].h / 2),
+                                        PHOTO_GRID[0].label,
+                                        PHOTO_GRID[0].bg,
+                                        PHOTO_GRID[0].fg
+                                    )}
+                                />
+                                <img
+                                    src={ph(
+                                        PHOTO_GRID[0].w,
+                                        PHOTO_GRID[0].h,
+                                        PHOTO_GRID[0].label,
+                                        PHOTO_GRID[0].bg,
+                                        PHOTO_GRID[0].fg
+                                    )}
+                                    alt="Fellowship community"
+                                    className="rounded-2xl object-cover w-full h-44 hover-lift"
+                                />
+                            </picture>
+
+                            <picture>
+                                <source
+                                    media="(max-width: 640px)"
+                                    srcSet={ph(
+                                        Math.round(PHOTO_GRID[1].w / 2),
+                                        Math.round(PHOTO_GRID[1].h / 2),
+                                        PHOTO_GRID[1].label,
+                                        PHOTO_GRID[1].bg,
+                                        PHOTO_GRID[1].fg
+                                    )}
+                                />
+                                <img
+                                    src={ph(
+                                        PHOTO_GRID[1].w,
+                                        PHOTO_GRID[1].h,
+                                        PHOTO_GRID[1].label,
+                                        PHOTO_GRID[1].bg,
+                                        PHOTO_GRID[1].fg
+                                    )}
+                                    alt="Praise and worship"
+                                    className="rounded-2xl object-cover w-full h-44 hover-lift mt-6"
+                                />
+                            </picture>
+
+                            <picture className="col-span-2">
+                                <source
+                                    media="(max-width: 640px)"
+                                    srcSet={ph(
+                                        Math.round(PHOTO_GRID[2].w / 2),
+                                        Math.round(PHOTO_GRID[2].h / 2),
+                                        PHOTO_GRID[2].label,
+                                        PHOTO_GRID[2].bg,
+                                        PHOTO_GRID[2].fg
+                                    )}
+                                />
+                                <img
+                                    src={ph(
+                                        PHOTO_GRID[2].w,
+                                        PHOTO_GRID[2].h,
+                                        PHOTO_GRID[2].label,
+                                        PHOTO_GRID[2].bg,
+                                        PHOTO_GRID[2].fg
+                                    )}
+                                    alt="Campus gathering"
+                                    className="rounded-2xl object-cover w-full h-36 hover-lift"
+                                />
+                            </picture>
+
+                            <picture>
+                                <source
+                                    media="(max-width: 640px)"
+                                    srcSet={ph(
+                                        Math.round(PHOTO_GRID[3].w / 2),
+                                        Math.round(PHOTO_GRID[3].h / 2),
+                                        PHOTO_GRID[3].label,
+                                        PHOTO_GRID[3].bg,
+                                        PHOTO_GRID[3].fg
+                                    )}
+                                />
+                                <img
+                                    src={ph(
+                                        PHOTO_GRID[3].w,
+                                        PHOTO_GRID[3].h,
+                                        PHOTO_GRID[3].label,
+                                        PHOTO_GRID[3].bg,
+                                        PHOTO_GRID[3].fg
+                                    )}
+                                    alt="Word and teaching"
+                                    className="rounded-2xl object-cover w-full h-36 hover-lift"
+                                />
+                            </picture>
+
+                            <picture>
+                                <source
+                                    media="(max-width: 640px)"
+                                    srcSet={ph(
+                                        Math.round(PHOTO_GRID[4].w / 2),
+                                        Math.round(PHOTO_GRID[4].h / 2),
+                                        PHOTO_GRID[4].label,
+                                        PHOTO_GRID[4].bg,
+                                        PHOTO_GRID[4].fg
+                                    )}
+                                />
+                                <img
+                                    src={ph(
+                                        PHOTO_GRID[4].w,
+                                        PHOTO_GRID[4].h,
+                                        PHOTO_GRID[4].label,
+                                        PHOTO_GRID[4].bg,
+                                        PHOTO_GRID[4].fg
+                                    )}
+                                    alt="Prayer night"
+                                    className="rounded-2xl object-cover w-full h-36 hover-lift"
+                                />
+                            </picture>
                         </div>
                     </div>
 
