@@ -22,7 +22,10 @@ function ProductCard({ product, onOpen }: { product: Product; onOpen: () => void
     return (
         <article className="rw-card group flex flex-col overflow-hidden hover:-translate-y-1.5 transition-all duration-300">
             {/* Image */}
-            <div className="relative overflow-hidden bg-rw-bg-alt" style={{ aspectRatio: "3/4" }}>
+            <div
+                className="relative overflow-hidden bg-rw-bg-alt"
+                style={{ aspectRatio: "3/4" }}
+            >
                 <img
                     src={productImageUrl(product.name, displayColor, 360, 480)}
                     alt={`${product.name}${displayColor ? ` — ${displayColor}` : ""}`}
@@ -50,7 +53,11 @@ function ProductCard({ product, onOpen }: { product: Product; onOpen: () => void
                                 title={c}
                                 onMouseEnter={() => setHoveredColor(c)}
                                 onMouseLeave={() => setHoveredColor(null)}
-                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setHoveredColor(c); }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setHoveredColor(c);
+                                }}
                                 className={`h-5 w-5 rounded-full border-2 shadow-sm transition-all ${hoveredColor === c ? "border-white scale-125" : "border-white/60"}`}
                                 style={{ background: COLOR_HEX[c] ?? "#888" }}
                             />
@@ -100,7 +107,7 @@ export function MerchPreviewSection() {
     const preview = DEMO_PRODUCTS.slice(0, 4);
 
     return (
-        <section className="section-py bg-white">
+        <section className="section-py-sm bg-white">
             <div className="section-container">
                 {/* Header */}
                 <div className="mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
@@ -110,11 +117,14 @@ export function MerchPreviewSection() {
                             Pre-order now
                         </h2>
                         <p className="mt-3 text-rw-text-2 text-lg max-w-[44ch]">
-                            Ready for pickup during the Handing Over ceremony.
-                            Secure yours before quantities run out.
+                            Ready for pickup during the Handing Over ceremony. Secure
+                            yours before quantities run out.
                         </p>
                     </div>
-                    <Link href="/shop" className="btn-secondary shrink-0 !h-11 !px-6 text-sm self-start sm:self-auto">
+                    <Link
+                        href="/shop"
+                        className="btn-secondary shrink-0 !h-11 !px-6 text-sm self-start sm:self-auto"
+                    >
                         View all items →
                     </Link>
                 </div>
@@ -122,7 +132,11 @@ export function MerchPreviewSection() {
                 {/* Product grid — using same ProductCard as shop page */}
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     {preview.map((p) => (
-                        <ProductCard key={p.id} product={p} onOpen={() => setSelected(p)} />
+                        <ProductCard
+                            key={p.id}
+                            product={p}
+                            onOpen={() => setSelected(p)}
+                        />
                     ))}
                 </div>
 
@@ -152,7 +166,9 @@ export function MerchPreviewSection() {
             </div>
 
             {/* Modals */}
-            {selected && <ProductDrawer product={selected} onClose={() => setSelected(null)} />}
+            {selected && (
+                <ProductDrawer product={selected} onClose={() => setSelected(null)} />
+            )}
             {isOpen && <CartSidebar onClose={closeCart} />}
         </section>
     );

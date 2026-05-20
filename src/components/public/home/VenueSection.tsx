@@ -4,8 +4,18 @@ import { TENURE } from "@/lib/config";
 const HOW_TO_GET_THERE = [
     {
         icon: (
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+            <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                viewBox="0 0 24 24"
+            >
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"
+                />
             </svg>
         ),
         title: "By Road / Private Car",
@@ -13,8 +23,18 @@ const HOW_TO_GET_THERE = [
     },
     {
         icon: (
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h.75m-.75 3h.75m-.75 3h.75m-3.75 0H5.25a2.25 2.25 0 0 1-2.25-2.25V6.75A2.25 2.25 0 0 1 5.25 4.5h13.5A2.25 2.25 0 0 1 21 6.75v6.75a2.25 2.25 0 0 1-2.25 2.25H15m-3 0 3 3m0 0-3 3m3-3h-6m-2.25 0a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z" />
+            <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                viewBox="0 0 24 24"
+            >
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M8.25 6.75h.75m-.75 3h.75m-.75 3h.75m-3.75 0H5.25a2.25 2.25 0 0 1-2.25-2.25V6.75A2.25 2.25 0 0 1 5.25 4.5h13.5A2.25 2.25 0 0 1 21 6.75v6.75a2.25 2.25 0 0 1-2.25 2.25H15m-3 0 3 3m0 0-3 3m3-3h-6m-2.25 0a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z"
+                />
             </svg>
         ),
         title: "From Akure City Centre",
@@ -22,8 +42,18 @@ const HOW_TO_GET_THERE = [
     },
     {
         icon: (
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" />
+            <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                viewBox="0 0 24 24"
+            >
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z"
+                />
             </svg>
         ),
         title: "Parking",
@@ -32,16 +62,18 @@ const HOW_TO_GET_THERE = [
 ];
 
 const QUICK_FACTS = [
-    { label: "Entry",  value: "Free — All 7 Nights" },
-    { label: "Time",   value: "6:00 PM Daily" },
-    { label: "Dates",  value: "July 6–12, 2026" },
-    { label: "Venue",  value: "Southgate Auditorium" },
+    { label: "Entry", value: "Free — All 7 Nights" },
+    { label: "Time", value: "6:00 PM Daily" },
+    { label: "Dates", value: "July 6–12, 2026" },
+    { label: "Venue", value: "Southgate Auditorium" },
 ];
 
 export function VenueSection() {
     return (
-        <section id="venue" className="scroll-mt-20 bg-[#fdf8f8] overflow-hidden">
-
+        <section
+            id="venue"
+            className="scroll-mt-20 bg-[#fdf8f8] overflow-hidden section-py-sm"
+        >
             {/* ── Hero intro — light bg throughout ──────────────────────────── */}
             <div className="section-container py-20 lg:py-28 relative">
                 {/* Subtle background glows */}
@@ -58,32 +90,48 @@ export function VenueSection() {
                             style={{ fontSize: "clamp(2.8rem, 6vw, 5.5rem)" }}
                         >
                             Come to{" "}
-                            <span style={{
-                                background: "linear-gradient(135deg, #FF6A00, #FF0015)",
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                                backgroundClip: "text",
-                            }}>
+                            <span
+                                style={{
+                                    background:
+                                        "linear-gradient(135deg, #FF6A00, #FF0015)",
+                                    WebkitBackgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                    backgroundClip: "text",
+                                }}
+                            >
                                 Akure
                             </span>
                             <br />
                             for the week
                         </h2>
                         <p className="mt-6 text-[#5c4048] text-lg leading-relaxed max-w-[46ch]">
-                            {TENURE.venue} is your destination for seven nights of worship,
-                            drama, music, and community. Everyone is welcome — free admission, every night.
+                            {TENURE.venue} is your destination for seven nights of
+                            worship, drama, music, and community. Everyone is welcome —
+                            free admission, every night.
                         </p>
 
                         {/* Address pill */}
                         <div className="mt-7 inline-flex items-center gap-3 bg-white border border-[#e8d0d4] rounded-2xl px-5 py-4 shadow-sm">
                             <div className="shrink-0 h-9 w-9 rounded-xl bg-[#FF0015]/10 border border-[#FF0015]/20 flex items-center justify-center text-[#FF0015]">
-                                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                                    <path fillRule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-2.079 3.208-4.196 3.208-6.797a6.5 6.5 0 00-13 0c0 2.601 1.265 4.719 3.208 6.797a19.58 19.58 0 002.684 2.282 16.975 16.975 0 001.144.742zM12 9a2 2 0 100 4 2 2 0 000-4z" clipRule="evenodd" />
+                                <svg
+                                    className="h-4 w-4"
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-2.079 3.208-4.196 3.208-6.797a6.5 6.5 0 00-13 0c0 2.601 1.265 4.719 3.208 6.797a19.58 19.58 0 002.684 2.282 16.975 16.975 0 001.144.742zM12 9a2 2 0 100 4 2 2 0 000-4z"
+                                        clipRule="evenodd"
+                                    />
                                 </svg>
                             </div>
                             <div>
-                                <p className="text-[#1C0003] font-bold text-sm leading-tight">{TENURE.venueAddress}</p>
-                                <p className="text-[#9a8085] text-[11px] mt-0.5">FUTA Southgate, Akure, Ondo State</p>
+                                <p className="text-[#1C0003] font-bold text-sm leading-tight">
+                                    {TENURE.venueAddress}
+                                </p>
+                                <p className="text-[#9a8085] text-[11px] mt-0.5">
+                                    FUTA Southgate, Akure, Ondo State
+                                </p>
                             </div>
                         </div>
 
@@ -99,8 +147,18 @@ export function VenueSection() {
                                            transition-all duration-300 shadow-[0_4px_16px_rgba(255,0,21,0.3)]
                                            hover:shadow-[0_6px_24px_rgba(255,0,21,0.4)] hover:-translate-y-0.5"
                             >
-                                <svg className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                                <svg
+                                    className="h-[18px] w-[18px]"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={2}
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
+                                    />
                                 </svg>
                                 Navigate via Google Maps
                             </Link>
@@ -118,10 +176,16 @@ export function VenueSection() {
                     {/* Quick facts grid */}
                     <div className="grid grid-cols-2 gap-3 shrink-0 lg:w-72 w-full">
                         {QUICK_FACTS.map((f) => (
-                            <div key={f.label}
-                                className="rounded-2xl border border-[#e8d0d4] bg-white px-5 py-5 hover:border-[#FF0015]/30 hover:shadow-sm transition-all">
-                                <p className="text-[10px] font-bold uppercase tracking-wide text-[#9a8085] mb-1.5">{f.label}</p>
-                                <p className="text-sm font-bold text-[#1C0003] leading-snug">{f.value}</p>
+                            <div
+                                key={f.label}
+                                className="rounded-2xl border border-[#e8d0d4] bg-white px-5 py-5 hover:border-[#FF0015]/30 hover:shadow-sm transition-all"
+                            >
+                                <p className="text-[10px] font-bold uppercase tracking-wide text-[#9a8085] mb-1.5">
+                                    {f.label}
+                                </p>
+                                <p className="text-sm font-bold text-[#1C0003] leading-snug">
+                                    {f.value}
+                                </p>
                             </div>
                         ))}
                     </div>
@@ -134,24 +198,31 @@ export function VenueSection() {
             {/* ── Directions + map ─────────────────────────────────────────── */}
             <div className="bg-[#fdf8f8] section-container py-16 lg:py-20">
                 <div className="grid lg:grid-cols-[1fr_420px] gap-10 xl:gap-16 items-start">
-
                     {/* Directions */}
                     <div>
                         <p className="eyebrow mb-6">How to Get Here</p>
                         <div className="flex flex-col gap-4">
                             {HOW_TO_GET_THERE.map((d) => (
-                                <div key={d.title}
+                                <div
+                                    key={d.title}
                                     className="group flex gap-4 rounded-2xl border border-[#e8d0d4] bg-white p-6
-                                               hover:border-[#FF0015]/30 hover:shadow-md transition-all duration-300">
-                                    <div className="shrink-0 h-12 w-12 rounded-xl flex items-center justify-center
+                                               hover:border-[#FF0015]/30 hover:shadow-md transition-all duration-300"
+                                >
+                                    <div
+                                        className="shrink-0 h-12 w-12 rounded-xl flex items-center justify-center
                                                     text-[#FF0015] border border-[#e8d0d4] bg-[#fdf8f8]
                                                     group-hover:bg-[#FF0015] group-hover:text-white
-                                                    group-hover:border-[#FF0015] transition-all duration-300">
+                                                    group-hover:border-[#FF0015] transition-all duration-300"
+                                    >
                                         {d.icon}
                                     </div>
                                     <div>
-                                        <p className="font-bold text-[#1C0003] text-sm group-hover:text-[#FF0015] transition-colors mb-1.5">{d.title}</p>
-                                        <p className="text-sm text-[#5c4048] leading-relaxed">{d.desc}</p>
+                                        <p className="font-bold text-[#1C0003] text-sm group-hover:text-[#FF0015] transition-colors mb-1.5">
+                                            {d.title}
+                                        </p>
+                                        <p className="text-sm text-[#5c4048] leading-relaxed">
+                                            {d.desc}
+                                        </p>
                                     </div>
                                 </div>
                             ))}
@@ -161,10 +232,14 @@ export function VenueSection() {
                         <div className="mt-5 rounded-2xl bg-white border border-[#FF0015]/15 p-6 flex items-start gap-4">
                             <span className="text-2xl shrink-0">📍</span>
                             <div>
-                                <p className="font-bold text-[#1C0003] text-sm mb-1">Key Landmark</p>
+                                <p className="font-bold text-[#1C0003] text-sm mb-1">
+                                    Key Landmark
+                                </p>
                                 <p className="text-sm text-[#5c4048] leading-relaxed">
-                                    The auditorium is located <strong>beside His Grace Pavilion</strong> at the
-                                    FUTA Southgate entrance. Look for event banners and marshals from the junction.
+                                    The auditorium is located{" "}
+                                    <strong>beside His Grace Pavilion</strong> at the FUTA
+                                    Southgate entrance. Look for event banners and
+                                    marshals from the junction.
                                 </p>
                             </div>
                         </div>
@@ -172,29 +247,92 @@ export function VenueSection() {
 
                     {/* Map card — light themed */}
                     <div className="lg:sticky lg:top-24">
-                        <div className="relative rounded-3xl overflow-hidden border border-[#e8d0d4] shadow-xl bg-white"
-                             style={{ aspectRatio: "4/5" }}>
-
+                        <div
+                            className="relative rounded-3xl overflow-hidden border border-[#e8d0d4] shadow-xl bg-white"
+                            style={{ aspectRatio: "4/5" }}
+                        >
                             {/* Map grid bg */}
                             <div className="absolute inset-0 bg-[#eaf2ea]">
-                                <div className="absolute inset-0 opacity-40"
-                                     style={{
-                                         backgroundImage: [
-                                             "linear-gradient(0deg, rgba(255,255,255,0.7) 2px, transparent 2px)",
-                                             "linear-gradient(90deg, rgba(255,255,255,0.7) 2px, transparent 2px)",
-                                             "linear-gradient(0deg, rgba(200,230,200,0.4) 1px, transparent 1px)",
-                                             "linear-gradient(90deg, rgba(200,230,200,0.4) 1px, transparent 1px)",
-                                         ].join(", "),
-                                         backgroundSize: "80px 80px, 80px 80px, 20px 20px, 20px 20px",
-                                     }}
+                                <div
+                                    className="absolute inset-0 opacity-40"
+                                    style={{
+                                        backgroundImage: [
+                                            "linear-gradient(0deg, rgba(255,255,255,0.7) 2px, transparent 2px)",
+                                            "linear-gradient(90deg, rgba(255,255,255,0.7) 2px, transparent 2px)",
+                                            "linear-gradient(0deg, rgba(200,230,200,0.4) 1px, transparent 1px)",
+                                            "linear-gradient(90deg, rgba(200,230,200,0.4) 1px, transparent 1px)",
+                                        ].join(", "),
+                                        backgroundSize:
+                                            "80px 80px, 80px 80px, 20px 20px, 20px 20px",
+                                    }}
                                 />
-                                <div className="absolute" style={{ top: "10%", left: "5%",  width: "35%", height: "25%", background: "rgba(200,220,200,0.5)", borderRadius: 4 }} />
-                                <div className="absolute" style={{ top: "40%", left: "55%", width: "40%", height: "20%", background: "rgba(210,225,210,0.5)", borderRadius: 4 }} />
-                                <div className="absolute" style={{ top: "60%", left: "8%",  width: "28%", height: "18%", background: "rgba(205,222,205,0.5)", borderRadius: 4 }} />
-                                <div className="absolute" style={{ top: "15%", right: "5%", width: "22%", height: "30%", background: "rgba(215,228,215,0.5)", borderRadius: 4 }} />
+                                <div
+                                    className="absolute"
+                                    style={{
+                                        top: "10%",
+                                        left: "5%",
+                                        width: "35%",
+                                        height: "25%",
+                                        background: "rgba(200,220,200,0.5)",
+                                        borderRadius: 4,
+                                    }}
+                                />
+                                <div
+                                    className="absolute"
+                                    style={{
+                                        top: "40%",
+                                        left: "55%",
+                                        width: "40%",
+                                        height: "20%",
+                                        background: "rgba(210,225,210,0.5)",
+                                        borderRadius: 4,
+                                    }}
+                                />
+                                <div
+                                    className="absolute"
+                                    style={{
+                                        top: "60%",
+                                        left: "8%",
+                                        width: "28%",
+                                        height: "18%",
+                                        background: "rgba(205,222,205,0.5)",
+                                        borderRadius: 4,
+                                    }}
+                                />
+                                <div
+                                    className="absolute"
+                                    style={{
+                                        top: "15%",
+                                        right: "5%",
+                                        width: "22%",
+                                        height: "30%",
+                                        background: "rgba(215,228,215,0.5)",
+                                        borderRadius: 4,
+                                    }}
+                                />
                                 {/* Roads */}
-                                <div className="absolute" style={{ top: "50%", left: 0, right: 0, height: 8, background: "rgba(255,255,255,0.9)", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }} />
-                                <div className="absolute" style={{ left: "42%", top: 0, bottom: 0, width: 8, background: "rgba(255,255,255,0.9)", boxShadow: "1px 0 3px rgba(0,0,0,0.08)" }} />
+                                <div
+                                    className="absolute"
+                                    style={{
+                                        top: "50%",
+                                        left: 0,
+                                        right: 0,
+                                        height: 8,
+                                        background: "rgba(255,255,255,0.9)",
+                                        boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+                                    }}
+                                />
+                                <div
+                                    className="absolute"
+                                    style={{
+                                        left: "42%",
+                                        top: 0,
+                                        bottom: 0,
+                                        width: 8,
+                                        background: "rgba(255,255,255,0.9)",
+                                        boxShadow: "1px 0 3px rgba(0,0,0,0.08)",
+                                    }}
+                                />
                             </div>
 
                             {/* Pin */}
@@ -203,14 +341,26 @@ export function VenueSection() {
                                     <div className="absolute inset-0 rounded-full bg-[#FF0015]/20 animate-ping scale-150" />
                                     <div className="absolute inset-0 rounded-full bg-[#FF0015]/10 scale-[2.5]" />
                                     <div className="relative h-14 w-14 rounded-full bg-[#FF0015] flex items-center justify-center shadow-[0_4px_24px_rgba(255,0,21,0.4)] text-white z-10">
-                                        <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                                            <path fillRule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-2.079 3.208-4.196 3.208-6.797a6.5 6.5 0 00-13 0c0 2.601 1.265 4.719 3.208 6.797a19.58 19.58 0 002.684 2.282 16.975 16.975 0 001.144.742zM12 9a2 2 0 100 4 2 2 0 000-4z" clipRule="evenodd" />
+                                        <svg
+                                            className="h-6 w-6"
+                                            fill="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-2.079 3.208-4.196 3.208-6.797a6.5 6.5 0 00-13 0c0 2.601 1.265 4.719 3.208 6.797a19.58 19.58 0 002.684 2.282 16.975 16.975 0 001.144.742zM12 9a2 2 0 100 4 2 2 0 000-4z"
+                                                clipRule="evenodd"
+                                            />
                                         </svg>
                                     </div>
                                     {/* Bubble */}
                                     <div className="absolute -top-14 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white rounded-xl px-3 py-2 shadow-lg border border-[#e8d0d4]">
-                                        <p className="text-[11px] font-bold text-[#1C0003]">RCFFUTA Southgate Auditorium</p>
-                                        <p className="text-[10px] text-[#9a8085]">Beside His Grace Pavilion</p>
+                                        <p className="text-[11px] font-bold text-[#1C0003]">
+                                            RCFFUTA Southgate Auditorium
+                                        </p>
+                                        <p className="text-[10px] text-[#9a8085]">
+                                            Beside His Grace Pavilion
+                                        </p>
                                         <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-3 w-3 bg-white border-r border-b border-[#e8d0d4] rotate-45" />
                                     </div>
                                 </div>

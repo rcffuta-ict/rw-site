@@ -37,10 +37,10 @@ const AIMS = [
 // Three staggered photo placeholders with different colored tones
 const PHOTO_GRID = [
     { w: 340, h: 280, label: "Fellowship Community", bg: "fdf0f0", fg: "FF0015" },
-    { w: 340, h: 280, label: "Praise & Worship",     bg: "f0f0fd", fg: "5544cc" },
-    { w: 700, h: 220, label: "Campus Gathering",      bg: "f0fdf0", fg: "022400" },
-    { w: 340, h: 240, label: "Word & Teaching",       bg: "fdf8f0", fg: "cc6600" },
-    { w: 340, h: 240, label: "Prayer Night",          bg: "fdf0fd", fg: "884499" },
+    { w: 340, h: 280, label: "Praise & Worship", bg: "f0f0fd", fg: "5544cc" },
+    { w: 700, h: 220, label: "Campus Gathering", bg: "f0fdf0", fg: "022400" },
+    { w: 340, h: 240, label: "Word & Teaching", bg: "fdf8f0", fg: "cc6600" },
+    { w: 340, h: 240, label: "Prayer Night", bg: "fdf0fd", fg: "884499" },
 ];
 
 export function AboutSection() {
@@ -48,61 +48,77 @@ export function AboutSection() {
         <section className="section-py bg-white">
             <div className="section-container">
                 <div className="grid lg:grid-cols-2 gap-16 xl:gap-24 items-start">
-
                     {/* Left: images + intro */}
                     <div>
                         <p className="eyebrow mb-4">Why We Gather</p>
                         <h2 className="section-heading text-3xl sm:text-4xl lg:text-5xl">
-                            The heart of<br />
+                            The heart of
+                            <br />
                             <span className="text-[#FF0015]">Redemption Week</span>
                         </h2>
                         <p className="mt-5 text-rw-text-2 leading-relaxed text-lg max-w-[44ch]">
                             The Redeemed Christian Fellowship, FUTA — shaping hearts and
-                            lives since {FELLOWSHIP.founded}. A spiritual home, a family, a legacy.
+                            lives since {FELLOWSHIP.founded}. A spiritual home, a family,
+                            a legacy.
                         </p>
 
                         {/* Photo collage — 5 images in an asymmetric stagger */}
                         <div className="mt-10 grid grid-cols-2 gap-3">
                             <img
-                                src={ph(PHOTO_GRID[0].w, PHOTO_GRID[0].h, PHOTO_GRID[0].label, PHOTO_GRID[0].bg, PHOTO_GRID[0].fg)}
+                                src={ph(
+                                    PHOTO_GRID[0].w,
+                                    PHOTO_GRID[0].h,
+                                    PHOTO_GRID[0].label,
+                                    PHOTO_GRID[0].bg,
+                                    PHOTO_GRID[0].fg
+                                )}
                                 alt="Fellowship community"
                                 className="rounded-2xl object-cover w-full h-44 hover-lift"
                             />
                             <img
-                                src={ph(PHOTO_GRID[1].w, PHOTO_GRID[1].h, PHOTO_GRID[1].label, PHOTO_GRID[1].bg, PHOTO_GRID[1].fg)}
+                                src={ph(
+                                    PHOTO_GRID[1].w,
+                                    PHOTO_GRID[1].h,
+                                    PHOTO_GRID[1].label,
+                                    PHOTO_GRID[1].bg,
+                                    PHOTO_GRID[1].fg
+                                )}
                                 alt="Praise and worship"
                                 className="rounded-2xl object-cover w-full h-44 hover-lift mt-6"
                             />
                             <img
-                                src={ph(PHOTO_GRID[2].w, PHOTO_GRID[2].h, PHOTO_GRID[2].label, PHOTO_GRID[2].bg, PHOTO_GRID[2].fg)}
+                                src={ph(
+                                    PHOTO_GRID[2].w,
+                                    PHOTO_GRID[2].h,
+                                    PHOTO_GRID[2].label,
+                                    PHOTO_GRID[2].bg,
+                                    PHOTO_GRID[2].fg
+                                )}
                                 alt="Campus gathering"
                                 className="col-span-2 rounded-2xl object-cover w-full h-36 hover-lift"
                             />
                             <img
-                                src={ph(PHOTO_GRID[3].w, PHOTO_GRID[3].h, PHOTO_GRID[3].label, PHOTO_GRID[3].bg, PHOTO_GRID[3].fg)}
+                                src={ph(
+                                    PHOTO_GRID[3].w,
+                                    PHOTO_GRID[3].h,
+                                    PHOTO_GRID[3].label,
+                                    PHOTO_GRID[3].bg,
+                                    PHOTO_GRID[3].fg
+                                )}
                                 alt="Word and teaching"
                                 className="rounded-2xl object-cover w-full h-36 hover-lift"
                             />
                             <img
-                                src={ph(PHOTO_GRID[4].w, PHOTO_GRID[4].h, PHOTO_GRID[4].label, PHOTO_GRID[4].bg, PHOTO_GRID[4].fg)}
+                                src={ph(
+                                    PHOTO_GRID[4].w,
+                                    PHOTO_GRID[4].h,
+                                    PHOTO_GRID[4].label,
+                                    PHOTO_GRID[4].bg,
+                                    PHOTO_GRID[4].fg
+                                )}
                                 alt="Prayer night"
                                 className="rounded-2xl object-cover w-full h-36 hover-lift"
                             />
-                        </div>
-
-                        {/* Fellowship quick stats */}
-                        <div className="mt-8 grid grid-cols-3 gap-3">
-                            {[
-                                { value: `${TENURE.anniversary} yrs`, label: "Of Impact" },
-                                { value: FELLOWSHIP.stats.alumni, label: "Alumni" },
-                                { value: FELLOWSHIP.stats.members, label: "Active Members" },
-                            ].map((s) => (
-                                <div key={s.label}
-                                    className="rounded-2xl bg-[#fdf8f8] border border-[#e8d0d4] p-4 text-center">
-                                    <p className="font-display font-extrabold text-2xl text-[#FF0015]">{s.value}</p>
-                                    <p className="text-xs text-rw-muted font-medium mt-0.5">{s.label}</p>
-                                </div>
-                            ))}
                         </div>
                     </div>
 
@@ -126,11 +142,40 @@ export function AboutSection() {
                                         <h3 className="font-semibold text-[#1C0003] text-lg group-hover:text-[#FF0015] transition-colors">
                                             {a.title}
                                         </h3>
-                                        <p className="mt-2 text-sm text-rw-muted leading-relaxed">{a.desc}</p>
+                                        <p className="mt-2 text-sm text-rw-muted leading-relaxed">
+                                            {a.desc}
+                                        </p>
                                     </div>
                                 </li>
                             ))}
                         </ul>
+
+                        {/* Fellowship quick stats */}
+                        <div className="mt-8 grid grid-cols-3 gap-3">
+                            {[
+                                {
+                                    value: `${TENURE.anniversary} yrs`,
+                                    label: "Of Impact",
+                                },
+                                { value: FELLOWSHIP.stats.alumni, label: "Alumni" },
+                                {
+                                    value: FELLOWSHIP.stats.members,
+                                    label: "Active Members",
+                                },
+                            ].map((s) => (
+                                <div
+                                    key={s.label}
+                                    className="rounded-2xl bg-[#fdf8f8] border border-[#e8d0d4] p-4 text-center"
+                                >
+                                    <p className="font-display font-extrabold text-2xl text-[#FF0015]">
+                                        {s.value}
+                                    </p>
+                                    <p className="text-xs text-rw-muted font-medium mt-0.5">
+                                        {s.label}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
