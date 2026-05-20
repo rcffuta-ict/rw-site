@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAdminAuth } from "@/context/AdminAuthContext";
+
+import { AdminLogo } from "@/components/admin/AdminLogo";
 
 const NAV = [
     { href: "/admin",          label: "Dashboard",  icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
@@ -14,21 +17,14 @@ const NAV = [
 
 export function AdminSidebar({ isMobileOpen, onClose }: { isMobileOpen?: boolean; onClose?: () => void }) {
     const pathname = usePathname();
+    const { user, role, signOut } = useAdminAuth();
 
     return (
         <aside className={`flex flex-col w-64 shrink-0 border-r border-[var(--rw-border)] bg-white h-full relative z-20 transition-transform duration-300 ${
             isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}>
             <div className="flex items-center justify-between px-5 py-5 border-b border-[var(--rw-border)]">
-                <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-rw-crimson">
-                        <svg className="h-4.5 w-4.5 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9 7 6 9 6 13a6 6 0 0 0 12 0c0-4-3-6-6-11z" /></svg>
-                    </span>
-                    <div className="leading-tight">
-                        <p className="text-sm font-bold text-rw-ink">RW&apos;26 Admin</p>
-                        <p className="text-[10px] text-rw-muted font-medium">RCF FUTA · CRM</p>
-                    </div>
-                </div>
+                <AdminLogo variant="sidebar" role={role} />
                 {onClose && (
                     <button onClick={onClose} className="md:hidden h-8 w-8 flex items-center justify-center rounded-lg bg-rw-bg-alt text-rw-muted">
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
@@ -52,10 +48,38 @@ export function AdminSidebar({ isMobileOpen, onClose }: { isMobileOpen?: boolean
                         </Link>
                     );
                 })}
+
+                {/* Elegant Sign out option inside core sidebar items */}
+                <button
+                    onClick={signOut}
+                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all text-rw-crimson hover:bg-rw-crimson/5 w-full text-left mt-2 border border-dashed border-rw-crimson/10"
+                >
+                    <svg className="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                    </svg>
+                    Sign out
+                </button>
             </nav>
 
-            <div className="border-t border-[var(--rw-border)] px-5 py-4">
-                <Link href="/" className="flex items-center gap-2 text-xs text-rw-muted hover:text-rw-ink transition-colors">
+            <div className="border-t border-[var(--rw-border)] px-4 py-4 flex flex-col gap-3">
+                {/* Premium User Profile Card */}
+                {user && (
+                    <div className="flex items-center gap-3 px-1 pb-3 border-b border-[var(--rw-border)]/60">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-rw-crimson/10 text-rw-crimson text-sm font-bold border border-rw-crimson/10 select-none">
+                            {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0 leading-tight">
+                            <p className="text-xs font-bold text-rw-ink truncate" title={user.name || "Administrator"}>
+                                {user.name || "Administrator"}
+                            </p>
+                            <p className="text-[10px] text-rw-muted font-medium truncate mt-0.5" title={user.email}>
+                                {user.email}
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                <Link href="/" className="flex items-center gap-2 text-xs text-rw-muted hover:text-rw-ink transition-colors px-1 font-medium">
                     <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
                     Public site
                 </Link>

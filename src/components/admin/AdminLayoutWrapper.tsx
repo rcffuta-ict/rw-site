@@ -6,8 +6,44 @@ import { AdminSidebar } from "./AdminSidebar";
 import { AdminNotification } from "./AdminNotification";
 import { MobileAdviceModal } from "./MobileAdviceModal";
 import { AdminHeader } from "./common/AdminHeader";
+import { AdminAuthProvider, useAdminAuth } from "@/context/AdminAuthContext";
+import { DEMO_MODE } from "@/lib/config";
 
-export function AdminLayoutWrapper({ children }: { children: React.ReactNode }) {
+/** Role/demo status indicator — shown in the bottom-right corner when in the admin panel */
+function AdminStatusIndicator() {
+    const { role, loading } = useAdminAuth();
+
+    if (loading) return null;
+
+    let label: string | null = null;
+
+    if (DEMO_MODE && role) {
+        label = `Demo · ${role}`;
+    } else if (DEMO_MODE && !role) {
+        label = "Demo Mode";
+    } else if (!DEMO_MODE && role) {
+        label = role;
+    }
+
+    if (!label) return null;
+
+    return (
+        <div
+            className="fixed bottom-4 right-4 z-[9999] flex items-center gap-2 rounded-full
+                       bg-[#1C0003] text-white text-[11px] font-bold px-4 py-2 shadow-lg
+                       border border-white/10 opacity-80 hover:opacity-100 transition-opacity
+                       select-none pointer-events-none"
+            title={
+                DEMO_MODE ? "Running in demo mode — no real data" : `Logged in as ${role}`
+            }
+        >
+            <span className="h-1.5 w-1.5 rounded-full bg-[#FF6A00] animate-pulse-soft" />
+            {label}
+        </div>
+    );
+}
+
+function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isLoginPage = pathname === "/admin/login";
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -30,6 +66,7 @@ export function AdminLayoutWrapper({ children }: { children: React.ReactNode }) 
         <div className="h-screen flex flex-col bg-rw-bg-alt relative overflow-hidden">
             <AdminNotification />
             <MobileAdviceModal />
+            <AdminStatusIndicator />
 
             {/* Mobile Header */}
             <AdminHeader onOpenMobileMenu={() => setIsMobileMenuOpen(true)} />
@@ -62,5 +99,13 @@ export function AdminLayoutWrapper({ children }: { children: React.ReactNode }) 
                 </main>
             </div>
         </div>
+    );
+}
+
+export function AdminLayoutWrapper({ children }: { children: React.ReactNode }) {
+    return (
+        <AdminAuthProvider>
+            <AdminLayoutInner>{children}</AdminLayoutInner>
+        </AdminAuthProvider>
     );
 }
