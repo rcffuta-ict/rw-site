@@ -99,7 +99,10 @@ function OrderSummaryPanel({
                         <li key={i.variantId} className="flex gap-4 group">
                             <div className="h-16 w-16 rounded-xl overflow-hidden shrink-0 bg-rw-bg-alt border border-[var(--rw-border)] relative">
                                 <img
-                                    src={i.imageUrl || ph(80, 80, i.productName.slice(0, 6))}
+                                    src={
+                                        i.imageUrl ||
+                                        ph(80, 80, i.productName.slice(0, 6))
+                                    }
                                     alt={i.productName}
                                     className="h-full w-full object-cover transition-transform group-hover:scale-110"
                                 />
@@ -153,14 +156,17 @@ function OrderSummaryPanel({
 }
 
 export function CheckoutClient() {
-    const { items, total, clearCart } = useCart();
+    const { items, total, submitOrder, submitError } = useCart();
     const [step, setStep] = useState<Step>(1);
     const [orderRef, setOrderRef] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const [form, setForm] = useState({ name: "", email: "", phone: "", note: "" });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [submitting, setSubmitting] = useState(false);
-    const [finalOrder, setFinalOrder] = useState<{ items: ReturnType<typeof useCart>["items"], total: number } | null>(null);
+    const [finalOrder, setFinalOrder] = useState<{
+        items: ReturnType<typeof useCart>["items"];
+        total: number;
+    } | null>(null);
 
     function validate() {
         const e: Record<string, string> = {};
@@ -174,46 +180,33 @@ export function CheckoutClient() {
     async function handleSubmit() {
         if (!validate()) return;
         setSubmitting(true);
-        await new Promise((r) => setTimeout(r, 1200));
-        const ref = generateRef();
+
+        // Save items for Step 3 display before they are cleared from the cart
         setFinalOrder({ items, total });
+
         try {
-            const existing = JSON.parse(
-                localStorage.getItem("rw_demo_orders") ?? "[]"
-            ) as unknown[];
-            existing.push({
-                orderRef: ref,
-                customerName: form.name,
-                customerEmail: form.email,
-                customerPhone: form.phone,
-                customerNote: form.note || null,
-                status: "pending",
-                totalAmount: total,
-                amountPaid: 0,
-                items: items.map((i) => ({
-                    id: crypto.randomUUID(),
-                    variantId: i.variantId,
-                    productName: i.productName,
-                    variantLabel: i.variantLabel,
-                    quantity: i.quantity,
-                    unitPrice: i.unitPrice,
-                })),
-                payments: [],
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            });
-            localStorage.setItem("rw_demo_orders", JSON.stringify(existing));
-            // Store order ref for device-linked order history
-            const refs = JSON.parse(
-                localStorage.getItem("rw_order_refs") ?? "[]"
-            ) as string[];
-            refs.push(ref);
-            localStorage.setItem("rw_order_refs", JSON.stringify(refs));
-        } catch {}
-        setOrderRef(ref);
-        clearCart();
-        setSubmitting(false);
-        setStep(3);
+            const result = await submitOrder(form);
+
+            if (result.success && result.data) {
+                const ref = result.data.orderRef;
+
+                // Keep local storage tracking so the user can easily find their orders later
+                const refs = JSON.parse(
+                    localStorage.getItem("rw_order_refs") ?? "[]"
+                ) as string[];
+                if (!refs.includes(ref)) {
+                    refs.push(ref);
+                    localStorage.setItem("rw_order_refs", JSON.stringify(refs));
+                }
+
+                setOrderRef(ref);
+                setStep(3);
+            }
+        } catch (e) {
+            console.error("Failed to submit order:", e);
+        } finally {
+            setSubmitting(false);
+        }
     }
 
     async function copyRef() {
@@ -386,7 +379,14 @@ export function CheckoutClient() {
                                             >
                                                 <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl overflow-hidden shrink-0 border border-[var(--rw-border)] bg-rw-bg-alt relative">
                                                     <img
-                                                        src={i.imageUrl || ph(140, 140, i.productName.slice(0, 6))}
+                                                        src={
+                                                            i.imageUrl ||
+                                                            ph(
+                                                                140,
+                                                                140,
+                                                                i.productName.slice(0, 6)
+                                                            )
+                                                        }
                                                         alt={i.productName}
                                                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                     />
@@ -502,34 +502,45 @@ export function CheckoutClient() {
                                 </div>
 
                                 {/* Confirmation Buttons */}
-                                <div className="flex flex-col sm:flex-row gap-5">
-                                    <Button
-                                        variant="outlined"
-                                        size="lg"
-                                        onClick={() => setStep(1)}
-                                        className="sm:w-1/3 h-16 text-rw-muted border-[var(--rw-border-strong)]"
-                                    >
-                                        ← Return to Edit
-                                    </Button>
-                                    <Button
-                                        variant="primary"
-                                        size="lg"
-                                        loading={submitting}
-                                        onClick={handleSubmit}
-                                        className="flex-1 h-16 text-xl font-display font-black uppercase tracking-wider shadow-2xl hover:shadow-rw-crimson/30"
-                                        id="confirm-order-btn"
-                                    >
-                                        {submitting
-                                            ? "Processing Order..."
-                                            : "Confirm & Place Order"}
-                                    </Button>
+                                <div className="flex flex-col gap-4">
+                                    <div className="flex flex-col sm:flex-row gap-5">
+                                        <Button
+                                            variant="outlined"
+                                            size="lg"
+                                            onClick={() => setStep(1)}
+                                            className="sm:w-1/3 h-16 text-rw-muted border-[var(--rw-border-strong)]"
+                                        >
+                                            ← Return to Edit
+                                        </Button>
+                                        <Button
+                                            variant="primary"
+                                            size="lg"
+                                            loading={submitting}
+                                            onClick={handleSubmit}
+                                            className="flex-1 h-16 text-xl font-display font-black uppercase tracking-wider shadow-2xl hover:shadow-rw-crimson/30"
+                                            id="confirm-order-btn"
+                                        >
+                                            {submitting
+                                                ? "Processing Order..."
+                                                : "Confirm & Place Order"}
+                                        </Button>
+                                    </div>
+                                    {submitError && (
+                                        <div className="p-4 bg-rw-crimson/10 border border-rw-crimson/20 rounded-xl">
+                                            <p className="text-sm text-rw-crimson font-medium text-center">
+                                                {submitError}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
                     </div>
 
                     {/* Right — order summary */}
-                    <div className={`order-1 lg:order-2 lg:sticky lg:top-28 ${step === 2 ? "hidden lg:block" : "block"}`}>
+                    <div
+                        className={`order-1 lg:order-2 lg:sticky lg:top-28 ${step === 2 ? "hidden lg:block" : "block"}`}
+                    >
                         <OrderSummaryPanel items={items} total={total} />
                     </div>
                 </div>
@@ -647,7 +658,10 @@ export function CheckoutClient() {
 
                         {finalOrder && (
                             <div className="w-full max-w-md mx-auto mt-4">
-                                <OrderSummaryPanel items={finalOrder.items} total={finalOrder.total} />
+                                <OrderSummaryPanel
+                                    items={finalOrder.items}
+                                    total={finalOrder.total}
+                                />
                             </div>
                         )}
 

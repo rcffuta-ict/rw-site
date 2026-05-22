@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { ph } from "@/lib/utils/functions";
 
-// Varied grid layout — mix of wide + tall + square cells
+// Completely optimized grid spans for a seamless mosaic on ALL screens
 const GALLERY_ITEMS = [
     {
         w: 900,
@@ -11,7 +11,8 @@ const GALLERY_ITEMS = [
         label: "Worship Night",
         bg: "1C0003",
         fg: "FF6A00",
-        span: "col-span-2 row-span-2",
+        // Large square: Takes full width on mobile, massive block on desktop
+        span: "col-span-2 row-span-2 sm:col-span-4 sm:row-span-4 lg:col-span-4 lg:row-span-4",
     },
     {
         w: 600,
@@ -19,7 +20,8 @@ const GALLERY_ITEMS = [
         label: "Opening Ceremony",
         bg: "2d0008",
         fg: "ffaaaa",
-        span: "col-span-2 row-span-1",
+        // Wide rectangle: Full width on mobile, wide banner on desktop
+        span: "col-span-2 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-4 lg:row-span-2",
     },
     {
         w: 400,
@@ -27,7 +29,8 @@ const GALLERY_ITEMS = [
         label: "Drama Night",
         bg: "3d1500",
         fg: "ff8844",
-        span: "col-span-1 row-span-2",
+        // Portrait tall: 1 column on mobile (so things can flow next to it!), tall on desktop
+        span: "col-span-1 row-span-2 sm:col-span-2 sm:row-span-4 lg:col-span-2 lg:row-span-4",
     },
     {
         w: 400,
@@ -35,7 +38,8 @@ const GALLERY_ITEMS = [
         label: "Choir Concert",
         bg: "002a15",
         fg: "66ffaa",
-        span: "col-span-1 row-span-1",
+        // Small Square: Fits perfectly next to tall portrait items on mobile
+        span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
     },
     {
         w: 400,
@@ -43,7 +47,7 @@ const GALLERY_ITEMS = [
         label: "Power Night",
         bg: "15004a",
         fg: "aa66ff",
-        span: "col-span-1 row-span-1",
+        span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
     },
     {
         w: 800,
@@ -51,7 +55,7 @@ const GALLERY_ITEMS = [
         label: "Word Night",
         bg: "001540",
         fg: "66aaff",
-        span: "col-span-2 row-span-1",
+        span: "col-span-2 row-span-1 sm:col-span-4 sm:row-span-2 lg:col-span-4 lg:row-span-2",
     },
     {
         w: 400,
@@ -59,7 +63,7 @@ const GALLERY_ITEMS = [
         label: "Alumni Reunion",
         bg: "2a1c00",
         fg: "ffcc44",
-        span: "col-span-1 row-span-1",
+        span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
     },
     {
         w: 400,
@@ -67,7 +71,7 @@ const GALLERY_ITEMS = [
         label: "Handing Over",
         bg: "003322",
         fg: "aaffcc",
-        span: "col-span-1 row-span-2",
+        span: "col-span-1 row-span-2 sm:col-span-2 sm:row-span-4 lg:col-span-2 lg:row-span-4",
     },
     {
         w: 800,
@@ -75,7 +79,7 @@ const GALLERY_ITEMS = [
         label: "Fellowship Moments",
         bg: "200010",
         fg: "FF6A00",
-        span: "col-span-2 row-span-2",
+        span: "col-span-2 row-span-2 sm:col-span-4 sm:row-span-4 lg:col-span-4 lg:row-span-4",
     },
     {
         w: 400,
@@ -83,7 +87,7 @@ const GALLERY_ITEMS = [
         label: "Campus Life",
         bg: "0a1800",
         fg: "88ff88",
-        span: "col-span-1 row-span-1",
+        span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
     },
     {
         w: 400,
@@ -91,7 +95,7 @@ const GALLERY_ITEMS = [
         label: "Community",
         bg: "1C0003",
         fg: "ffaaaa",
-        span: "col-span-1 row-span-1",
+        span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
     },
     {
         w: 800,
@@ -99,7 +103,7 @@ const GALLERY_ITEMS = [
         label: "Prayer Night",
         bg: "0d0028",
         fg: "ccaaff",
-        span: "col-span-2 row-span-1",
+        span: "col-span-2 row-span-1 sm:col-span-4 sm:row-span-2 lg:col-span-4 lg:row-span-2",
     },
     {
         w: 400,
@@ -107,7 +111,7 @@ const GALLERY_ITEMS = [
         label: "Praise & Worship",
         bg: "300005",
         fg: "FF6A00",
-        span: "col-span-1 row-span-1",
+        span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
     },
     {
         w: 400,
@@ -115,7 +119,7 @@ const GALLERY_ITEMS = [
         label: "RIFE Night",
         bg: "1a1800",
         fg: "ffff88",
-        span: "col-span-1 row-span-1",
+        span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
     },
     {
         w: 800,
@@ -123,7 +127,7 @@ const GALLERY_ITEMS = [
         label: "Southgate Auditorium",
         bg: "001820",
         fg: "44ddff",
-        span: "col-span-2 row-span-1",
+        span: "col-span-2 row-span-1 sm:col-span-4 sm:row-span-2 lg:col-span-4 lg:row-span-2",
     },
     {
         w: 400,
@@ -131,7 +135,7 @@ const GALLERY_ITEMS = [
         label: "Drama Team",
         bg: "380000",
         fg: "ffaaaa",
-        span: "col-span-1 row-span-1",
+        span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
     },
     {
         w: 400,
@@ -139,7 +143,15 @@ const GALLERY_ITEMS = [
         label: "Choir",
         bg: "003010",
         fg: "aaffaa",
-        span: "col-span-1 row-span-1",
+        span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
+    },
+    {
+        w: 400,
+        h: 400,
+        label: "Bible Study",
+        bg: "0d0028",
+        fg: "aaffaa",
+        span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
     },
 ];
 
@@ -160,7 +172,7 @@ function GalleryItem({
             ([entry]) => {
                 if (entry.isIntersecting) setVisible(true);
             },
-            { threshold: 0.1 }
+            { threshold: 0.05 }
         );
         obs.observe(el);
         return () => obs.disconnect();
@@ -169,17 +181,17 @@ function GalleryItem({
     return (
         <div
             ref={ref}
-            className={`${item.span} overflow-hidden group relative cursor-pointer transition-all duration-700 ${
+            className={`${item.span} overflow-hidden group relative cursor-pointer w-full h-full min-h-full transition-all duration-700 ${
                 visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
             style={{ transitionDelay: `${(index % 5) * 80}ms` }}
         >
-            <picture>
+            <picture className="w-full h-full block">
                 <source
                     media="(max-width: 640px)"
                     srcSet={ph(
-                        Math.round(item.w / 2.5),
-                        Math.round(item.h / 2.5),
+                        Math.round(item.w / 1.5),
+                        Math.round(item.h / 1.5),
                         item.label,
                         item.bg,
                         item.fg
@@ -188,8 +200,8 @@ function GalleryItem({
                 <source
                     media="(max-width: 1024px)"
                     srcSet={ph(
-                        Math.round(item.w / 1.5),
-                        Math.round(item.h / 1.5),
+                        Math.round(item.w / 1.2),
+                        Math.round(item.h / 1.2),
                         item.label,
                         item.bg,
                         item.fg
@@ -259,7 +271,7 @@ export function GallerySection() {
     return (
         <section
             ref={sectionRef}
-            className="relative bg-rw-bg-warm overflow-hidden section-py-sm"
+            className="relative bg-rw-bg-warm overflow-hidden w-full section-py-sm"
         >
             {/* Atmospheric glow that responds to scroll */}
             <div
@@ -269,8 +281,8 @@ export function GallerySection() {
                 }}
             />
 
-            {/* Heading — sticky while scrolling through grid */}
-            <div className="section-container pt-20 pb-12 relative z-10">
+            {/* Heading */}
+            <div className="section-container pb-12! relative z-10">
                 <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
                     <div>
                         <p className="eyebrow mb-4 !text-[#FF6A00]">The Archives</p>
@@ -297,15 +309,15 @@ export function GallerySection() {
                 </div>
             </div>
 
-            {/* Full-bleed masonry photo grid — NO side padding */}
-            <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-1 auto-rows-[100px] sm:auto-rows-[130px] lg:auto-rows-[160px]">
+            {/* Full-bleed responsive masonry photo grid with your exact layout wrapper */}
+            <div className="w-full grid grid-cols-2 sm:grid-cols-6 lg:grid-cols-12 grid-flow-dense gap-1 auto-rows-[140px] sm:auto-rows-[65px] lg:auto-rows-[65px]">
                 {GALLERY_ITEMS.map((item, i) => (
                     <GalleryItem key={i} item={item} index={i} />
                 ))}
             </div>
 
             {/* Bottom bar */}
-            <div className="section-container py-10 relative z-10">
+            <div className="section-container pt-10! relative z-10">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <p className="text-xs text-rw-muted font-medium text-center sm:text-left">
                         Images courtesy of the RCF FUTA media team — updated as the event
