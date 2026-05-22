@@ -237,10 +237,11 @@ CREATE TABLE IF NOT EXISTS order_items (
     variant_label TEXT NOT NULL,    -- snapshot: e.g. "Black · L · Holy Spirit"
     quantity      INTEGER NOT NULL CHECK (quantity > 0),
     unit_price    INTEGER NOT NULL CHECK (unit_price >= 0),  -- snapshot at order time
+    image_url     TEXT,             -- snapshot: product image at order time
     created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE order_items IS 'Line items per order. product_name, variant_label, unit_price are snapshots and immutable.';
+COMMENT ON TABLE order_items IS 'Line items per order. product_name, variant_label, unit_price, image_url are snapshots and immutable.';
 
 CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
 
@@ -326,6 +327,27 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE TRIGGER payments_sync_amount_paid
     AFTER INSERT OR UPDATE OF status OR DELETE ON payments
     FOR EACH ROW EXECUTE FUNCTION sync_order_amount_paid();
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 8. ADMIN MODERATORS
+-- ═══════════════════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS public.rw_admin_moderators (
+  id        uuid NOT NULL DEFAULT gen_random_uuid(),
+  profile_id uuid NOT NULL,
+  role      text NOT NULL CHECK (role IN ('ADMIN', 'MODERATOR')),
+  added_by  uuid,
+  created_at timestamptz DEFAULT now(),
+  CONSTRAINT rw_admin_moderators_pkey PRIMARY KEY (id),
+  CONSTRAINT rw_admin_moderators_profile_id_unique UNIQUE (profile_id),
+  CONSTRAINT rw_admin_moderators_profile_id_fkey
+    FOREIGN KEY (profile_id) REFERENCES public.profiles(id) ON DELETE CASCADE,
+  CONSTRAINT rw_admin_moderators_added_by_fkey
+    FOREIGN KEY (added_by) REFERENCES public.profiles(id)
+);
+
+COMMENT ON TABLE public.rw_admin_moderators IS 'Admin/moderator access roles for Redemption Week platform.';
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
