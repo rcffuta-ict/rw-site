@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useTransition, useRef, useEffect } from "react";
@@ -212,6 +213,42 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                 );
 
                 let uploadedImage: { publicId: string; url: string } | null = null;
+
+                // Upload image FIRST
+                if (v.imageFile) {
+                    toast.loading(`Uploading image for variant ${addedCount + 1}...`, {
+                        id: toastId,
+                    });
+                    const formData = new FormData();
+                    formData.append("file", v.imageFile);
+                    // Use a temporary ID since the variant isn't in DB yet
+                    formData.append("variantId", `grp-${Date.now()}-${addedCount}`);
+
+                    try {
+                        const uploadRes = await fetch("/api/cloudinary/upload", {
+                            method: "POST",
+                            body: formData,
+                        });
+                        const uploadData = await uploadRes.json();
+
+                        if (uploadRes.ok && uploadData.publicId && uploadData.url) {
+                            uploadedImage = {
+                                publicId: uploadData.publicId,
+                                url: uploadData.url,
+                            };
+                        } else {
+                            throw new Error(uploadData.error || "Failed to upload image");
+                        }
+                    } catch (e: any) {
+                        toast.error(
+                            `Image upload failed for variant ${addedCount + 1}: ${e.message}`,
+                            { id: toastId }
+                        );
+                        // Skip creating this variant group entirely if image fails
+                        continue;
+                    }
+                }
+
                 const sizesToCreate = v.sizes.length > 0 ? v.sizes : [null];
 
                 for (const size of sizesToCreate) {
@@ -253,49 +290,15 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                         isAvailable: v.isAvailable,
                     });
 
-                    if (varRes.success && varRes.data && v.imageFile) {
-                        // Upload image only once per group
-                        if (!uploadedImage) {
-                            toast.loading(
-                                `Uploading image for variant ${addedCount + 1}...`,
-                                { id: toastId }
-                            );
-                            const formData = new FormData();
-                            formData.append("file", v.imageFile);
-                            formData.append("variantId", varRes.data.id);
-
-                            try {
-                                const uploadRes = await fetch("/api/cloudinary/upload", {
-                                    method: "POST",
-                                    body: formData,
-                                });
-                                const uploadData = await uploadRes.json();
-
-                                if (uploadData.publicId && uploadData.url) {
-                                    uploadedImage = {
-                                        publicId: uploadData.publicId,
-                                        url: uploadData.url,
-                                    };
-                                }
-                            } catch (e) {
-                                console.error(
-                                    "Failed to upload image for variant",
-                                    varRes.data.id,
-                                    e
-                                );
-                            }
-                        }
-
+                    if (varRes.success && varRes.data && uploadedImage) {
                         // Link the image in DB for THIS size variant
-                        if (uploadedImage) {
-                            await upsertVariantImage(
-                                varRes.data.id,
-                                uploadedImage.publicId,
-                                uploadedImage.url,
-                                `${name} - ${v.color || ""} ${size || ""}`,
-                                true // Make it primary
-                            );
-                        }
+                        await upsertVariantImage(
+                            varRes.data.id,
+                            uploadedImage.publicId,
+                            uploadedImage.url,
+                            `${name} - ${v.color || ""} ${size || ""}`,
+                            true // Make it primary
+                        );
                     }
                 }
                 addedCount++;

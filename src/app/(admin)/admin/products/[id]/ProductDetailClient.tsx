@@ -137,44 +137,44 @@ export default function ProductDetailClient({
         const toastId = `upload-${variantId}`;
         toast.loading("Uploading image...", { id: toastId });
 
-        startTransition(async () => {
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("variantId", variantId);
+        // startTransition(async () => {
+        //     const formData = new FormData();
+        //     formData.append("file", file);
+        //     formData.append("variantId", variantId);
 
-            try {
-                const res = await fetch("/api/cloudinary/upload", {
-                    method: "POST",
-                    body: formData,
-                });
-                const data = await res.json();
+        //     try {
+        //         const res = await fetch("/api/cloudinary/upload", {
+        //             method: "POST",
+        //             body: formData,
+        //         });
+        //         const data = await res.json();
 
-                if (data.publicId && data.url) {
-                    const dbRes = await upsertVariantImage(
-                        variantId,
-                        data.publicId,
-                        data.url,
-                        `${product.name}`,
-                        true
-                    );
-                    if (dbRes.success && dbRes.data) {
-                        toast.success("Image uploaded", { id: toastId });
-                        // Update local state
-                        setVariants((prev) =>
-                            prev.map((v) =>
-                                v.id === variantId ? { ...v, images: [dbRes.data!] } : v
-                            )
-                        );
-                    } else {
-                        toast.error(`Database error: ${dbRes.error}`, { id: toastId });
-                    }
-                } else {
-                    toast.error(`Upload error: ${data.error}`, { id: toastId });
-                }
-            } catch (err) {
-                toast.error("Failed to upload image", { id: toastId });
-            }
-        });
+        //         if (data.publicId && data.url) {
+        //             const dbRes = await upsertVariantImage(
+        //                 variantId,
+        //                 data.publicId,
+        //                 data.url,
+        //                 `${product.name}`,
+        //                 true
+        //             );
+        //             if (dbRes.success && dbRes.data) {
+        //                 toast.success("Image uploaded", { id: toastId });
+        //                 // Update local state
+        //                 setVariants((prev) =>
+        //                     prev.map((v) =>
+        //                         v.id === variantId ? { ...v, images: [dbRes.data!] } : v
+        //                     )
+        //                 );
+        //             } else {
+        //                 toast.error(`Database error: ${dbRes.error}`, { id: toastId });
+        //             }
+        //         } else {
+        //             toast.error(`Upload error: ${data.error}`, { id: toastId });
+        //         }
+        //     } catch (err) {
+        //         toast.error("Failed to upload image", { id: toastId });
+        //     }
+        // });
     }
 
     // Toggle Variant
@@ -188,6 +188,7 @@ export default function ProductDetailClient({
         );
 
         startTransition(async () => {
+            toast.loading("Updating visibility...", { id: toastId });
             const res = await updateVariant(variant.id, { isAvailable: next });
             if (!res.success) {
                 // Revert
@@ -205,32 +206,28 @@ export default function ProductDetailClient({
 
     // Edit SKU
     function startSkuEdit(v: ProductVariant) {
-        setEditSkuId(v.id);
-        setEditSkuVal(v.sku ?? "");
+        // setEditSkuId(v.id);
+        // setEditSkuVal(v.sku ?? "");
     }
 
     function saveSkuEdit(id: string) {
-        const val = editSkuVal.trim() || null;
-        setEditSkuId(null);
-
-        const original = variants.find((v) => v.id === id)?.sku;
-        if (original === val) return;
-
-        const toastId = `sku-${id}`;
-        toast.loading("Saving SKU...", { id: toastId });
-
-        setVariants((prev) => prev.map((v) => (v.id === id ? { ...v, sku: val } : v)));
-
-        startTransition(async () => {
-            const res = await updateVariant(id, { sku: val });
-            if (res.success) toast.success("SKU updated", { id: toastId });
-            else {
-                setVariants((prev) =>
-                    prev.map((v) => (v.id === id ? { ...v, sku: original || null } : v))
-                );
-                toast.error("Failed to save SKU", { id: toastId });
-            }
-        });
+        // const val = editSkuVal.trim() || null;
+        // setEditSkuId(null);
+        // const original = variants.find((v) => v.id === id)?.sku;
+        // if (original === val) return;
+        // const toastId = `sku-${id}`;
+        // toast.loading("Saving SKU...", { id: toastId });
+        // setVariants((prev) => prev.map((v) => (v.id === id ? { ...v, sku: val } : v)));
+        // startTransition(async () => {
+        //     const res = await updateVariant(id, { sku: val });
+        //     if (res.success) toast.success("SKU updated", { id: toastId });
+        //     else {
+        //         setVariants((prev) =>
+        //             prev.map((v) => (v.id === id ? { ...v, sku: original || null } : v))
+        //         );
+        //         toast.error("Failed to save SKU", { id: toastId });
+        //     }
+        // });
     }
 
     // Edit Price
@@ -457,7 +454,7 @@ export default function ProductDetailClient({
                                                 {v.color || "-"}
                                             </span>
                                         </div>
-                                    )
+                                    ),
                                 },
                                 {
                                     key: "size",
@@ -466,16 +463,14 @@ export default function ProductDetailClient({
                                         <span className="font-semibold text-rw-muted">
                                             {v.size || "-"}
                                         </span>
-                                    )
+                                    ),
                                 },
                                 {
                                     key: "design",
                                     label: "Design",
                                     render: (v: ProductVariant) => (
-                                        <span className="text-xs">
-                                            {v.design || "-"}
-                                        </span>
-                                    )
+                                        <span className="text-xs">{v.design || "-"}</span>
+                                    ),
                                 },
                                 {
                                     key: "sku",
@@ -491,7 +486,8 @@ export default function ProductDetailClient({
                                                     }
                                                     onBlur={() => saveSkuEdit(v.id)}
                                                     onKeyDown={(e) =>
-                                                        e.key === "Enter" && saveSkuEdit(v.id)
+                                                        e.key === "Enter" &&
+                                                        saveSkuEdit(v.id)
                                                     }
                                                     className="w-32 rounded border border-[var(--rw-border)] px-2 py-1 text-xs font-mono text-rw-ink focus:outline-none focus:ring-1 focus:ring-rw-crimson"
                                                 />
@@ -500,7 +496,7 @@ export default function ProductDetailClient({
                                                     <span className="font-mono text-[10px] bg-rw-bg-alt px-2 py-1 rounded text-rw-muted">
                                                         {v.sku || "—"}
                                                     </span>
-                                                    <button
+                                                    {/* <button
                                                         onClick={() => startSkuEdit(v)}
                                                         className="opacity-0 group-hover:opacity-100 p-1 text-rw-muted hover:text-rw-ink transition-opacity"
                                                     >
@@ -517,17 +513,18 @@ export default function ProductDetailClient({
                                                                 d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487z"
                                                             />
                                                         </svg>
-                                                    </button>
+                                                    </button> */}
                                                 </>
                                             )}
                                         </div>
-                                    )
+                                    ),
                                 },
                                 {
                                     key: "price",
                                     label: "Price",
                                     render: (v: ProductVariant) => {
-                                        const effPrice = v.priceOverride ?? product.basePrice;
+                                        const effPrice =
+                                            v.priceOverride ?? product.basePrice;
                                         return (
                                             <div className="group flex items-center gap-2">
                                                 {editPriceId === v.id ? (
@@ -536,13 +533,16 @@ export default function ProductDetailClient({
                                                         type="number"
                                                         value={editPriceVal}
                                                         onChange={(e) =>
-                                                            setEditPriceVal(e.target.value)
+                                                            setEditPriceVal(
+                                                                e.target.value
+                                                            )
                                                         }
                                                         onBlur={() => savePriceEdit(v.id)}
                                                         onKeyDown={(e) =>
                                                             e.key === "Enter" &&
                                                             savePriceEdit(v.id)
                                                         }
+                                                        placeholder={`₦${effPrice.toLocaleString()}`}
                                                         className="w-24 rounded border border-[var(--rw-border)] px-2 py-1 text-xs font-mono text-rw-ink focus:outline-none focus:ring-1 focus:ring-rw-crimson"
                                                     />
                                                 ) : (
@@ -553,7 +553,9 @@ export default function ProductDetailClient({
                                                             ₦{effPrice.toLocaleString()}
                                                         </span>
                                                         <button
-                                                            onClick={() => startPriceEdit(v)}
+                                                            onClick={() =>
+                                                                startPriceEdit(v)
+                                                            }
                                                             className="opacity-0 group-hover:opacity-100 p-1 text-rw-muted hover:text-rw-ink transition-opacity"
                                                         >
                                                             <svg
@@ -574,7 +576,7 @@ export default function ProductDetailClient({
                                                 )}
                                             </div>
                                         );
-                                    }
+                                    },
                                 },
                                 {
                                     key: "status",
@@ -584,14 +586,16 @@ export default function ProductDetailClient({
                                             onClick={() => toggleVariant(v)}
                                             disabled={isPending}
                                             className={`relative inline-flex h-5 w-9 items-center rounded-full transition-all duration-300 ${
-                                                v.isAvailable ? "bg-green-500" : "bg-gray-200"
+                                                v.isAvailable
+                                                    ? "bg-green-500"
+                                                    : "bg-gray-200"
                                             }`}
                                         >
                                             <span
                                                 className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow-sm transition-transform duration-300 ${v.isAvailable ? "translate-x-4" : "translate-x-0.5"}`}
                                             />
                                         </button>
-                                    )
+                                    ),
                                 },
                                 {
                                     key: "actions",
@@ -616,8 +620,8 @@ export default function ProductDetailClient({
                                                 />
                                             </svg>
                                         </button>
-                                    )
-                                }
+                                    ),
+                                },
                             ]}
                             data={variants}
                             keyExtractor={(v) => v.id}

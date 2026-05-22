@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 // ─── Products Service — Supabase ──────────────────────────────────────────────
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { deleteCloudinaryAsset } from "@/lib/cloudinary/server";
 import { mapProductFromDb, mapVariantFromDb } from "@/lib/supabase/mappers";
 import type {
     Product,
@@ -150,6 +152,31 @@ export async function updateProduct(
 
 export async function deleteProduct(id: string): Promise<ServiceResult> {
     const supabase = await createSupabaseAdminClient();
+
+    // 1. Fetch images to delete from Cloudinary
+    const { data: variants } = await supabase
+        .from("product_variants")
+        .select("id, product_images(cloudinary_public_id)")
+        .eq("product_id", id);
+
+    if (variants) {
+        for (const variant of variants) {
+            for (const img of (variant.product_images || []) as any[]) {
+                if (img.cloudinary_public_id) {
+                    try {
+                        await deleteCloudinaryAsset(img.cloudinary_public_id);
+                    } catch (err) {
+                        console.error(
+                            `Failed to delete Cloudinary asset ${img.cloudinary_public_id}:`,
+                            err
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    // 2. Delete product from Supabase (cascades variants and images)
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) return { success: false, error: error.message };
     revalidateTag("products", "max");
