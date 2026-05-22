@@ -38,6 +38,11 @@ function ProductCard({ product, onOpen }: { product: Product; onOpen: () => void
     const [hoveredColor, setHoveredColor] = useState<string | null>(null);
     const displayColor = hoveredColor ?? colors[0] ?? null;
 
+    // Find the image for the current display colour
+    const activeVariant = product.variants.find((v) => v.color === displayColor) || product.variants[0];
+    const primaryImage = activeVariant?.images?.find((img) => img.isPrimary)?.cloudinaryUrl || activeVariant?.images?.[0]?.cloudinaryUrl;
+    const finalImageUrl = primaryImage || productImageUrl(product.name, displayColor, 360, 480);
+
     return (
         <article className="rw-card group flex flex-col overflow-hidden hover:-translate-y-1.5">
             {/* Image */}
@@ -46,7 +51,7 @@ function ProductCard({ product, onOpen }: { product: Product; onOpen: () => void
                 style={{ aspectRatio: "3/4" }}
             >
                 <img
-                    src={productImageUrl(product.name, displayColor, 360, 480)}
+                    src={finalImageUrl}
                     alt={`${product.name}${displayColor ? ` — ${displayColor}` : ""}`}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
@@ -131,7 +136,40 @@ export function ShopClient({ products }: { products: Product[] }) {
     const { isOpen, closeCart } = useCart();
 
     const filtered =
-        category === "all" ? products : products.filter((p) => p.categorySlug === category);
+        category === "all"
+            ? products
+            : products.filter((p) => p.categorySlug === category);
+
+    if (products.length === 0) {
+        return (
+            <div className="py-24 max-w-2xl mx-auto text-center flex flex-col items-center">
+                <div className="mb-6 flex items-center justify-center w-24 h-24 rounded-full bg-rw-bg-alt border-8 border-white shadow-sm text-rw-muted">
+                    <svg
+                        className="w-10 h-10"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={1.5}
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+                        />
+                    </svg>
+                </div>
+                <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-rw-ink mb-4">
+                    Collection Dropping Soon
+                </h2>
+                <p className="text-rw-muted text-lg leading-relaxed">
+                    The official merchandise collection is currently being finalized.
+                    We&#39;re putting the finishing touches on our exclusive items for the
+                    upcoming celebration. Check back shortly to secure your limited
+                    edition pieces!
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div className="mb-20">

@@ -10,8 +10,11 @@ import { GallerySection } from "@/components/public/home/GallerySection";
 import { SponsorsSection } from "@/components/public/home/SponsorsSection";
 import { CtaBannerSection } from "@/components/public/home/CtaBannerSection";
 import { VenueSection } from "@/components/public/home/VenueSection";
+import { getProducts } from "@/lib/services/products.service";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+    const products = await getProducts();
+
     return (
         <div className="bg-white overflow-x-hidden">
             <HeroSection />
@@ -25,7 +28,7 @@ export default function LandingPage() {
             </div>
 
             <AboutSection />
-            <MerchPreviewSection />
+            <MerchPreviewSection products={products} />
 
             {/* <div className="section-container">
                 <div className="section-divider" />

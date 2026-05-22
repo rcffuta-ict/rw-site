@@ -1,4 +1,4 @@
-import { DEMO_PRODUCTS } from "@/lib/data/products";
+import { getProducts } from "@/lib/services/products.service";
 import { ph } from "@/lib/utils/functions";
 import { ShopClient } from "./ShopClient";
 import { TENURE } from "@/lib/config";
@@ -8,14 +8,16 @@ export const metadata = {
     description: `Pre-order official RW${TENURE.shortYear} anniversary merchandise. T-shirts, hoodies, caps, and more. Ready for pickup during the Handing Over ceremony.`,
 };
 
-export default function ShopPage() {
+export default async function ShopPage() {
+    const products = await getProducts();
+
     return (
         <div className="min-h-screen bg-white">
             {/* Full-width hero banner */}
             <ShopBanner />
 
             <div className="section-container py-12 lg:py-16">
-                <ShopClient products={DEMO_PRODUCTS} />
+                <ShopClient products={products} />
             </div>
         </div>
     );

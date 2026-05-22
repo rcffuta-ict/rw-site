@@ -58,6 +58,10 @@ export function ProductDrawer({
     const available = variant?.isAvailable ?? false;
     const price = variant ? getEffectivePrice(product, variant.id) : product.basePrice;
 
+    const activeImageVariant = product.variants.find((v) => v.color === selectedColor) || product.variants[0];
+    const primaryImage = activeImageVariant?.images?.find((img) => img.isPrimary)?.cloudinaryUrl || activeImageVariant?.images?.[0]?.cloudinaryUrl;
+    const finalImageUrl = primaryImage || productImageUrl(product.name, selectedColor);
+
     function sizesForColor(color: string | null) {
         return product.variants
             .filter((v) => color === null || v.color === color)
@@ -145,7 +149,7 @@ export function ProductDrawer({
                     <div className="relative bg-rw-bg-alt" style={{ aspectRatio: "4/3" }}>
                         <img
                             key={selectedColor ?? "default"}
-                            src={productImageUrl(product.name, selectedColor)}
+                            src={finalImageUrl}
                             alt={`${product.name}${selectedColor ? ` — ${selectedColor}` : ""}`}
                             className="w-full h-full object-cover animate-fade-in"
                         />
@@ -163,12 +167,6 @@ export function ProductDrawer({
                                 </span>
                             </div>
                         )}
-                        {/* Dimensions badge */}
-                        <div className="absolute top-3 right-3 bg-black/30 backdrop-blur-sm rounded-lg px-2 py-1">
-                            <span className="text-[10px] font-mono text-white/80">
-                                512×384
-                            </span>
-                        </div>
                     </div>
 
                     <div className="flex flex-col gap-7 p-6">

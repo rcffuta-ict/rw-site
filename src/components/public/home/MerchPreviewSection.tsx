@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { DEMO_PRODUCTS, COLOR_HEX } from "@/lib/data/products";
+import { COLOR_HEX } from "@/lib/data/products";
 import { ProductDrawer } from "@/components/public/ProductDrawer";
 import { useCart } from "@/context/CartContext";
 import { CartSidebar } from "@/components/public/CartSidebar";
@@ -99,12 +99,12 @@ function ProductCard({ product, onOpen }: { product: Product; onOpen: () => void
 
 // ─── MerchPreviewSection ──────────────────────────────────────────────────────
 
-export function MerchPreviewSection() {
+export function MerchPreviewSection({ products }: { products: Product[] }) {
     const [selected, setSelected] = useState<Product | null>(null);
     const { isOpen, closeCart } = useCart();
 
     // Show first 4 products on home page
-    const preview = DEMO_PRODUCTS.slice(0, 4);
+    const preview = products.slice(0, 4);
 
     return (
         <section className="section-py-sm bg-white">
@@ -130,15 +130,41 @@ export function MerchPreviewSection() {
                 </div>
 
                 {/* Product grid — using same ProductCard as shop page */}
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    {preview.map((p) => (
-                        <ProductCard
-                            key={p.id}
-                            product={p}
-                            onOpen={() => setSelected(p)}
-                        />
-                    ))}
-                </div>
+                {preview.length > 0 ? (
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                        {preview.map((p) => (
+                            <ProductCard
+                                key={p.id}
+                                product={p}
+                                onOpen={() => setSelected(p)}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="rw-card p-12 text-center flex flex-col items-center justify-center space-y-4 bg-rw-bg-alt/30 border border-rw-muted/20">
+                        <svg
+                            className="h-12 w-12 text-rw-muted/50 mb-2"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={1}
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                        </svg>
+                        <h3 className="font-display font-bold text-2xl text-rw-ink">
+                            Coming Soon
+                        </h3>
+                        <p className="text-rw-muted max-w-sm">
+                            The official merchandise collection is currently being
+                            finalized. Check back shortly to secure your limited edition
+                            items!
+                        </p>
+                    </div>
+                )}
 
                 {/* Bottom CTA strip */}
                 <div className="mt-12 rounded-3xl overflow-hidden relative">
