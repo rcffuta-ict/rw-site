@@ -21,19 +21,20 @@ function RwToaster() {
             closeButton
             toastOptions={{
                 style: {
-                    background:  "var(--rw-bg, #fff)",
-                    color:       "var(--rw-ink, #1C0003)",
-                    border:      "1px solid var(--rw-border, #e4dcd9)",
+                    background: "var(--rw-bg, #fff)",
+                    color: "var(--rw-ink, #1C0003)",
+                    border: "1px solid var(--rw-border, #e4dcd9)",
                     borderRadius: "0.875rem",
-                    fontFamily:  "var(--font-body, inherit)",
-                    fontSize:    "0.8125rem",
-                    boxShadow:   "0 8px 32px rgba(28,0,3,0.12), 0 2px 8px rgba(28,0,3,0.06)",
+                    fontFamily: "var(--font-body, inherit)",
+                    fontSize: "0.8125rem",
+                    boxShadow:
+                        "0 8px 32px rgba(28,0,3,0.12), 0 2px 8px rgba(28,0,3,0.06)",
                 },
                 classNames: {
-                    error:       "!border-red-200 !text-red-700",
-                    success:     "!border-green-200 !text-green-700",
-                    warning:     "!border-amber-200 !text-amber-700",
-                    info:        "!border-blue-200 !text-blue-700",
+                    error: "!border-red-200 !text-red-700",
+                    success: "!border-green-200 !text-green-700",
+                    warning: "!border-amber-200 !text-amber-700",
+                    info: "!border-blue-200 !text-blue-700",
                     description: "!text-rw-muted",
                     closeButton: "!bg-white !border-[var(--rw-border)]",
                 },
@@ -78,23 +79,14 @@ function AdminStatusIndicator() {
 
 function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const isLoginPage = pathname?.includes("/admin/login");
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Close mobile menu on route change
     useEffect(() => {
-        (() => setIsMobileMenuOpen(false))();
+        (() => {
+            setIsMobileMenuOpen(false);
+        })();
     }, [pathname]);
-
-    if (isLoginPage) {
-        return (
-            <div className="h-screen flex flex-col bg-rw-bg-alt relative overflow-hidden">
-                <AdminNotification />
-                <div className="flex-1 overflow-y-auto">{children}</div>
-                <RwToaster />
-            </div>
-        );
-    }
 
     return (
         <div className="h-screen flex flex-col bg-rw-bg-alt relative overflow-hidden">
