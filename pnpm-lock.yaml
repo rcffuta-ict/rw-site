@@ -20,6 +20,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.2.4
         version: 4.2.4
+      groq-sdk:
+        specifier: ^1.2.0
+        version: 1.2.0
       next:
         specifier: 16.2.4
         version: 16.2.4(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -29,6 +32,9 @@ importers:
       react-dom:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
+      receipt-ocr-ng:
+        specifier: ^1.1.0
+        version: 1.1.0(groq-sdk@1.2.0)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -1260,6 +1266,10 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
+  groq-sdk@1.2.0:
+    resolution: {integrity: sha512-pMhSYXWcjiqvbOeKdv2zjci1BYjGdp04a40hnmQmJpKJyB6oa+gRndAqE128gwR0NLgYO+Wt1fIF46KNHcplsw==}
+    hasBin: true
+
   has-bigints@1.1.0:
     resolution: {integrity: sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg==}
     engines: {node: '>= 0.4'}
@@ -1765,6 +1775,11 @@ packages:
   react@19.2.4:
     resolution: {integrity: sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ==}
     engines: {node: '>=0.10.0'}
+
+  receipt-ocr-ng@1.1.0:
+    resolution: {integrity: sha512-gTYMjMOnGNUj3kwCJeZv4H75n7Q0jEp5ZA8lkEr39sEJYeUBputTxUtiWVQwOMJ5neZ2Mg8/FWYu5B1j8KMnEg==}
+    peerDependencies:
+      groq-sdk: ^1.1.2
 
   reflect.getprototypeof@1.0.10:
     resolution: {integrity: sha512-00o4I+DVrefhv+nX0ulyi3biSHCPDe+yLv5o/p6d/UVlirijB8E16FtfwSAi4g3tcqrQ4lRAqQSoFEZJehYEcw==}
@@ -3433,6 +3448,8 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
+  groq-sdk@1.2.0: {}
+
   has-bigints@1.1.0: {}
 
   has-flag@4.0.0: {}
@@ -3901,6 +3918,10 @@ snapshots:
   react-is@16.13.1: {}
 
   react@19.2.4: {}
+
+  receipt-ocr-ng@1.1.0(groq-sdk@1.2.0):
+    dependencies:
+      groq-sdk: 1.2.0
 
   reflect.getprototypeof@1.0.10:
     dependencies:
