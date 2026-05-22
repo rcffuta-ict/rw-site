@@ -1,10 +1,7 @@
 "use server";
 
 // ─── Products Service — Supabase ──────────────────────────────────────────────
-import {
-    createSupabaseAdminClient,
-    createSupabaseServerClient,
-} from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { mapProductFromDb, mapVariantFromDb } from "@/lib/supabase/mappers";
 import type {
     Product,
@@ -14,6 +11,7 @@ import type {
     ProductImage,
     ServiceResult,
 } from "@/lib/data/types";
+import { unstable_cache, revalidateTag } from "next/cache";
 
 // ─── Shared select fragment ───────────────────────────────────────────────────
 
@@ -30,49 +28,73 @@ const PRODUCT_SELECT = `
 
 /** Public storefront — returns only available products. */
 export async function getProducts(): Promise<Product[]> {
-    const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase
-        .from("products")
-        .select(PRODUCT_SELECT)
-        .eq("is_available", true)
-        .order("created_at", { ascending: true });
+    return unstable_cache(
+        async () => {
+            const supabase = await createSupabaseAdminClient();
+            const { data, error } = await supabase
+                .from("products")
+                .select(PRODUCT_SELECT)
+                .eq("is_available", true)
+                .order("created_at", { ascending: true });
 
-    if (error) throw new Error(`Failed to load products: ${error.message}`);
-    return (data ?? []).map(mapProductFromDb);
+            if (error) throw new Error(`Failed to load products: ${error.message}`);
+            return (data ?? []).map(mapProductFromDb);
+        },
+        ["storefront-products"],
+        { tags: ["products"], revalidate: 3600 }
+    )();
 }
 
 /** Admin — returns ALL products (including hidden). */
 export async function getAllProducts(): Promise<Product[]> {
-    const supabase = await createSupabaseAdminClient();
-    const { data, error } = await supabase
-        .from("products")
-        .select(PRODUCT_SELECT)
-        .order("created_at", { ascending: true });
+    return unstable_cache(
+        async () => {
+            const supabase = await createSupabaseAdminClient();
+            const { data, error } = await supabase
+                .from("products")
+                .select(PRODUCT_SELECT)
+                .order("created_at", { ascending: true });
 
-    if (error) throw new Error(`Failed to load products: ${error.message}`);
-    return (data ?? []).map(mapProductFromDb);
+            if (error) throw new Error(`Failed to load products: ${error.message}`);
+            return (data ?? []).map(mapProductFromDb);
+        },
+        ["admin-all-products"],
+        { tags: ["products"], revalidate: 3600 }
+    )();
 }
 
 export async function getProductById(id: string): Promise<Product | undefined> {
-    const supabase = await createSupabaseAdminClient();
-    const { data } = await supabase
-        .from("products")
-        .select(PRODUCT_SELECT)
-        .eq("id", id)
-        .single();
-    return data ? mapProductFromDb(data) : undefined;
+    return unstable_cache(
+        async () => {
+            const supabase = await createSupabaseAdminClient();
+            const { data } = await supabase
+                .from("products")
+                .select(PRODUCT_SELECT)
+                .eq("id", id)
+                .single();
+            return data ? mapProductFromDb(data) : undefined;
+        },
+        [`product-${id}`],
+        { tags: ["products"], revalidate: 3600 }
+    )();
 }
 
 export async function getVariantById(
     variantId: string
 ): Promise<ProductVariant | undefined> {
-    const supabase = await createSupabaseAdminClient();
-    const { data } = await supabase
-        .from("product_variants")
-        .select("*, images:product_images(*)")
-        .eq("id", variantId)
-        .single();
-    return data ? mapVariantFromDb(data) : undefined;
+    return unstable_cache(
+        async () => {
+            const supabase = await createSupabaseAdminClient();
+            const { data } = await supabase
+                .from("product_variants")
+                .select("*, images:product_images(*)")
+                .eq("id", variantId)
+                .single();
+            return data ? mapVariantFromDb(data) : undefined;
+        },
+        [`variant-${variantId}`],
+        { tags: ["products"], revalidate: 3600 }
+    )();
 }
 
 // ─── Product CRUD ─────────────────────────────────────────────────────────────
@@ -96,6 +118,7 @@ export async function createProduct(
         .single();
 
     if (error) return { success: false, error: error.message };
+    revalidateTag("products", "max");
     return { success: true, data: mapProductFromDb(data) };
 }
 
@@ -121,6 +144,7 @@ export async function updateProduct(
         .single();
 
     if (error) return { success: false, error: error.message };
+    revalidateTag("products", "max");
     return { success: true, data: mapProductFromDb(data) };
 }
 
@@ -128,6 +152,7 @@ export async function deleteProduct(id: string): Promise<ServiceResult> {
     const supabase = await createSupabaseAdminClient();
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) return { success: false, error: error.message };
+    revalidateTag("products", "max");
     return { success: true };
 }
 
@@ -155,6 +180,7 @@ export async function addVariant(
         .single();
 
     if (error) return { success: false, error: error.message };
+    revalidateTag("products", "max");
     return { success: true, data: mapVariantFromDb(data) };
 }
 
@@ -181,6 +207,7 @@ export async function updateVariant(
         .single();
 
     if (error) return { success: false, error: error.message };
+    revalidateTag("products", "max");
     return { success: true, data: mapVariantFromDb(data) };
 }
 
@@ -201,6 +228,7 @@ export async function deleteVariant(variantId: string): Promise<ServiceResult> {
         }
         return { success: false, error: error.message };
     }
+    revalidateTag("products", "max");
     return { success: true };
 }
 
@@ -245,6 +273,7 @@ export async function upsertVariantImage(
 
     if (error) return { success: false, error: error.message };
 
+    revalidateTag("products", "max");
     return {
         success: true,
         data: {
@@ -262,5 +291,6 @@ export async function deleteVariantImage(imageId: string): Promise<ServiceResult
     const supabase = await createSupabaseAdminClient();
     const { error } = await supabase.from("product_images").delete().eq("id", imageId);
     if (error) return { success: false, error: error.message };
+    revalidateTag("products", "max");
     return { success: true };
 }

@@ -14,6 +14,7 @@ import type {
     OrderPaymentSummary,
     ServiceResult,
 } from "@/lib/data/types";
+import { unstable_cache, revalidateTag } from "next/cache";
 
 // ─── Shared select fragment ───────────────────────────────────────────────────
 
@@ -64,60 +65,84 @@ export interface ReviewPaymentInput {
 // ─── Read ─────────────────────────────────────────────────────────────────────
 
 export async function listOrders(): Promise<Order[]> {
-    const supabase = await createSupabaseAdminClient();
-    const { data, error } = await supabase
-        .from("orders")
-        .select(ORDER_SELECT)
-        .order("created_at", { ascending: false });
+    return unstable_cache(
+        async () => {
+            const supabase = await createSupabaseAdminClient();
+            const { data, error } = await supabase
+                .from("orders")
+                .select(ORDER_SELECT)
+                .order("created_at", { ascending: false });
 
-    if (error) throw new Error(`Failed to load orders: ${error.message}`);
-    return (data ?? []).map(mapOrderFromDb);
+            if (error) throw new Error(`Failed to load orders: ${error.message}`);
+            return (data ?? []).map(mapOrderFromDb);
+        },
+        ["admin-list-orders"],
+        { tags: ["orders"], revalidate: 3600 }
+    )();
 }
 
 export async function getOrderByRef(ref: string): Promise<Order | undefined> {
-    const supabase = await createSupabaseServerClient();
-    const { data } = await supabase
-        .from("orders")
-        .select(ORDER_SELECT)
-        .eq("order_ref", ref.toUpperCase())
-        .single();
-    return data ? mapOrderFromDb(data) : undefined;
+    return unstable_cache(
+        async () => {
+            const supabase = await createSupabaseAdminClient();
+            const { data } = await supabase
+                .from("orders")
+                .select(ORDER_SELECT)
+                .eq("order_ref", ref.toUpperCase())
+                .single();
+            return data ? mapOrderFromDb(data) : undefined;
+        },
+        [`order-ref-${ref.toUpperCase()}`],
+        { tags: ["orders"], revalidate: 3600 }
+    )();
 }
 
 export async function getOrderById(id: string): Promise<Order | undefined> {
-    const supabase = await createSupabaseAdminClient();
-    const { data } = await supabase
-        .from("orders")
-        .select(ORDER_SELECT)
-        .eq("id", id)
-        .single();
-    return data ? mapOrderFromDb(data) : undefined;
+    return unstable_cache(
+        async () => {
+            const supabase = await createSupabaseAdminClient();
+            const { data } = await supabase
+                .from("orders")
+                .select(ORDER_SELECT)
+                .eq("id", id)
+                .single();
+            return data ? mapOrderFromDb(data) : undefined;
+        },
+        [`order-id-${id}`],
+        { tags: ["orders"], revalidate: 3600 }
+    )();
 }
 
 export async function getOrderPaymentSummary(
     orderId: string
 ): Promise<OrderPaymentSummary | undefined> {
-    const supabase = await createSupabaseServerClient();
-    const { data } = await supabase
-        .from("order_payment_summary")
-        .select("*")
-        .eq("order_id", orderId)
-        .single();
+    return unstable_cache(
+        async () => {
+            const supabase = await createSupabaseAdminClient();
+            const { data } = await supabase
+                .from("order_payment_summary")
+                .select("*")
+                .eq("order_id", orderId)
+                .single();
 
-    if (!data) return undefined;
+            if (!data) return undefined;
 
-    return {
-        orderId: data.order_id,
-        totalAmount: data.total_amount,
-        amountPaid: Number(data.amount_paid),
-        amountPending: Number(data.amount_pending),
-        balance: Number(data.balance),
-        isFullyPaid: data.is_fully_paid,
-        approvedCount: Number(data.approved_count),
-        pendingCount: Number(data.pending_count),
-        flaggedCount: Number(data.flagged_count),
-        rejectedCount: Number(data.rejected_count),
-    };
+            return {
+                orderId: data.order_id,
+                totalAmount: data.total_amount,
+                amountPaid: Number(data.amount_paid),
+                amountPending: Number(data.amount_pending),
+                balance: Number(data.balance),
+                isFullyPaid: data.is_fully_paid,
+                approvedCount: Number(data.approved_count),
+                pendingCount: Number(data.pending_count),
+                flaggedCount: Number(data.flagged_count),
+                rejectedCount: Number(data.rejected_count),
+            };
+        },
+        [`order-payment-summary-${orderId}`],
+        { tags: ["orders"], revalidate: 3600 }
+    )();
 }
 
 // ─── Create ───────────────────────────────────────────────────────────────────
@@ -180,6 +205,7 @@ export async function createOrder(
     if (!fullOrder)
         return { success: false, error: "Created but could not retrieve order." };
 
+    revalidateTag("orders", "max");
     return { success: true, data: fullOrder };
 }
 
@@ -197,6 +223,7 @@ export async function updateOrderStatus(
 
     const updated = await getOrderById(orderId);
     if (!updated) return { success: false, error: "Order not found after update." };
+    revalidateTag("orders", "max");
     return { success: true, data: updated };
 }
 
@@ -229,6 +256,7 @@ export async function attachPayment(
 
     const updated = await getOrderById(input.orderId);
     if (!updated) return { success: false, error: "Failed to retrieve updated order." };
+    revalidateTag("orders", "max");
     return { success: true, data: updated };
 }
 
@@ -251,6 +279,7 @@ export async function reviewPayment(
         .single();
 
     if (error) return { success: false, error: error.message };
+    revalidateTag("orders", "max");
     return { success: true, data: mapPaymentFromDb(data) };
 }
 
@@ -266,5 +295,6 @@ export async function deletePaymentReceipt(paymentId: string): Promise<ServiceRe
         .eq("id", paymentId);
 
     if (error) return { success: false, error: error.message };
+    revalidateTag("orders", "max");
     return { success: true };
 }

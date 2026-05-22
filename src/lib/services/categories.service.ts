@@ -7,39 +7,58 @@ import {
 } from "@/lib/supabase/server";
 import { mapCategoryFromDb } from "@/lib/supabase/mappers";
 import type { Category, CategoryInput, ServiceResult } from "@/lib/data/types";
+import { unstable_cache, revalidateTag } from "next/cache";
 
 // ─── Read ─────────────────────────────────────────────────────────────────────
 
 export async function listCategories(includeInactive = false): Promise<Category[]> {
-    const supabase = await createSupabaseServerClient();
-    let query = supabase
-        .from("categories")
-        .select("*")
-        .order("sort_order", { ascending: true });
+    return unstable_cache(
+        async () => {
+            const supabase = await createSupabaseAdminClient();
+            let query = supabase
+                .from("categories")
+                .select("*")
+                .order("sort_order", { ascending: true });
 
-    if (!includeInactive) {
-        query = query.eq("is_active", true);
-    }
+            if (!includeInactive) {
+                query = query.eq("is_active", true);
+            }
 
-    const { data, error } = await query;
-    if (error) throw new Error(`Failed to load categories: ${error.message}`);
-    return (data ?? []).map(mapCategoryFromDb);
+            const { data, error } = await query;
+            if (error) throw new Error(`Failed to load categories: ${error.message}`);
+            return (data ?? []).map(mapCategoryFromDb);
+        },
+        [`categories-list-${includeInactive}`],
+        { tags: ["categories"], revalidate: 3600 }
+    )();
 }
 
 export async function getCategoryById(id: string): Promise<Category | undefined> {
-    const supabase = await createSupabaseServerClient();
-    const { data } = await supabase.from("categories").select("*").eq("id", id).single();
-    return data ? mapCategoryFromDb(data) : undefined;
+    return unstable_cache(
+        async () => {
+            const supabase = await createSupabaseAdminClient();
+            const { data } = await supabase.from("categories").select("*").eq("id", id).single();
+            return data ? mapCategoryFromDb(data) : undefined;
+        },
+        [`category-${id}`],
+        { tags: ["categories"], revalidate: 3600 }
+    )();
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | undefined> {
-    const supabase = await createSupabaseServerClient();
-    const { data } = await supabase
-        .from("categories")
-        .select("*")
-        .eq("slug", slug)
-        .single();
-    return data ? mapCategoryFromDb(data) : undefined;
+    return unstable_cache(
+        async () => {
+            const supabase = await createSupabaseAdminClient();
+            const { data } = await supabase
+                .from("categories")
+                .select("*")
+                .eq("slug", slug)
+                .single();
+            return data ? mapCategoryFromDb(data) : undefined;
+        },
+        [`category-slug-${slug}`],
+        { tags: ["categories"], revalidate: 3600 }
+    )();
 }
 
 // ─── Create ───────────────────────────────────────────────────────────────────
@@ -62,6 +81,7 @@ export async function createCategory(
         .single();
 
     if (error) return { success: false, error: error.message };
+    revalidateTag("categories", "max");
     return { success: true, data: mapCategoryFromDb(data) };
 }
 
@@ -89,6 +109,7 @@ export async function updateCategory(
         .single();
 
     if (error) return { success: false, error: error.message };
+    revalidateTag("categories", "max");
     return { success: true, data: mapCategoryFromDb(data) };
 }
 
@@ -110,6 +131,7 @@ export async function deleteCategory(id: string): Promise<ServiceResult> {
         return { success: false, error: error.message };
     }
 
+    revalidateTag("categories", "max");
     return { success: true };
 }
 
@@ -129,5 +151,6 @@ export async function reorderCategories(orderedIds: string[]): Promise<ServiceRe
     const failed = results.find((r) => r.error);
     if (failed?.error) return { success: false, error: failed.error.message };
 
+    revalidateTag("categories", "max");
     return { success: true };
 }
