@@ -4,16 +4,15 @@ import { createProxySupabaseClient } from "@/lib/supabase/proxy";
 
 export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
-    // Inside your main middleware function:
+
+    // Build enriched request headers that all downstream Server Components can read
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-current-path", request.nextUrl.pathname);
 
-    // 1. Always allow the login page through immediately
+    // 1. Always allow the login page through immediately (no auth check needed)
     if (pathname === "/admin/login") {
         return NextResponse.next({
-            request: {
-                headers: requestHeaders,
-            },
+            request: { headers: requestHeaders },
         });
     }
 
@@ -31,7 +30,7 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(loginUrl);
     }
 
-    // 4. Check rw_admin_moderators directly
+    // 4. Check rw_admin_moderators for an admin/moderator role
     const { data: mod, error } = await supabase
         .from("rw_admin_moderators")
         .select("role")
@@ -39,33 +38,24 @@ export async function proxy(request: NextRequest) {
         .maybeSingle();
 
     if (error || !mod) {
-        // Clear cookies and reject if not a real administrator
+        // Valid Supabase session but no admin permissions — sign out and reject
         await supabase.auth.signOut();
         const loginUrl = new URL("/admin/login", request.url);
         loginUrl.searchParams.set("error", "unauthorized");
         return NextResponse.redirect(loginUrl);
     }
 
-    // 5. CRITICAL CRUX FIX: Clone the base request and pass the auth cookies
-    // down into the request context, combined with your custom layout headers.
-    const finalResponse = NextResponse.next({
-        request: {
-            headers: request.headers,
-        },
+    // 5. Forward the role on the REQUEST headers so that Server Component
+    //    layouts can read it via next/headers (which reads request headers,
+    //    NOT response headers).
+    requestHeaders.set("x-admin-role", mod.role);
+
+    return NextResponse.next({
+        request: { headers: requestHeaders },
     });
-
-    // Mirror the security context cookies into the request headers context
-    // so downstream Server layouts can read the active auth cookies instantly!
-    request.cookies.getAll().forEach((cookie) => {
-        finalResponse.cookies.set(cookie.name, cookie.value);
-    });
-
-    finalResponse.headers.set("x-admin-role", mod.role);
-
-    return finalResponse;
 }
 
 export const config = {
-    // Make sure we skip internal files, static styles, images, and only match admin paths
+    // Only intercept admin paths; skip internal Next.js files, static assets, etc.
     matcher: ["/admin/:path*"],
 };

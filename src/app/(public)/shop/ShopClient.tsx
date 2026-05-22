@@ -38,9 +38,13 @@ function ProductCard({ product, onOpen }: { product: Product; onOpen: () => void
     const displayColor = hoveredColor ?? colors[0] ?? null;
 
     // Find the image for the current display colour
-    const activeVariant = product.variants.find((v) => v.color === displayColor) || product.variants[0];
-    const primaryImage = activeVariant?.images?.find((img) => img.isPrimary)?.cloudinaryUrl || activeVariant?.images?.[0]?.cloudinaryUrl;
-    const finalImageUrl = primaryImage || productImageUrl(product.name, displayColor, 360, 480);
+    const activeVariant =
+        product.variants.find((v) => v.color === displayColor) || product.variants[0];
+    const primaryImage =
+        activeVariant?.images?.find((img) => img.isPrimary)?.cloudinaryUrl ||
+        activeVariant?.images?.[0]?.cloudinaryUrl;
+    const finalImageUrl =
+        primaryImage || productImageUrl(product.name, displayColor, 360, 480);
 
     return (
         <article className="rw-card group flex flex-col overflow-hidden hover:-translate-y-1.5">
@@ -132,7 +136,6 @@ function ProductCard({ product, onOpen }: { product: Product; onOpen: () => void
 export function ShopClient({ products }: { products: Product[] }) {
     const [category, setCategory] = useState<Category>("all");
     const [selected, setSelected] = useState<Product | null>(null);
-    const { isOpen, closeCart } = useCart();
 
     const filtered =
         category === "all"
@@ -141,31 +144,73 @@ export function ShopClient({ products }: { products: Product[] }) {
 
     if (products.length === 0) {
         return (
-            <div className="py-24 max-w-2xl mx-auto text-center flex flex-col items-center">
-                <div className="mb-6 flex items-center justify-center w-24 h-24 rounded-full bg-rw-bg-alt border-8 border-white shadow-sm text-rw-muted">
-                    <svg
-                        className="w-10 h-10"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={1.5}
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
-                        />
-                    </svg>
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1C0003] via-[#2a0005] to-[#3d0008] py-32 px-6 flex flex-col items-center text-center">
+                {/* Ambient glow blobs */}
+                <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-rw-crimson/10 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-[#FF6A00]/8 blur-3xl" />
+                <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-64 w-64 rounded-full bg-rw-crimson/5 blur-2xl" />
+
+                {/* Pulse rings + icon */}
+                <div className="relative mb-8 flex items-center justify-center">
+                    <span
+                        className="absolute h-32 w-32 rounded-full border border-white/5 animate-ping"
+                        style={{ animationDuration: "3s" }}
+                    />
+                    <span
+                        className="absolute h-24 w-24 rounded-full border border-rw-crimson/15 animate-ping"
+                        style={{ animationDuration: "2.4s", animationDelay: "0.5s" }}
+                    />
+                    <span
+                        className="absolute h-16 w-16 rounded-full bg-rw-crimson/10 animate-ping"
+                        style={{ animationDuration: "2s", animationDelay: "0.2s" }}
+                    />
+                    <div className="relative z-10 h-20 w-20 rounded-full bg-gradient-to-br from-[#FF0015] to-[#FF6A00] flex items-center justify-center shadow-[0_0_48px_rgba(255,0,21,0.45)]">
+                        <svg
+                            className="w-9 h-9 text-white"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={1.5}
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z"
+                            />
+                        </svg>
+                    </div>
                 </div>
-                <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-rw-ink mb-4">
-                    Collection Dropping Soon
+
+                {/* Status badge */}
+                <div className="mb-5 inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#FF6A00] animate-pulse" />
+                    <span className="text-xs font-bold tracking-[0.18em] uppercase text-white/60">
+                        We&#39;re coming
+                    </span>
+                </div>
+
+                {/* Headline */}
+                <h2
+                    className="font-display font-extrabold text-white leading-tight tracking-tight mb-4"
+                    style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}
+                >
+                    Merch Dropping
+                    <span className="block bg-gradient-to-r from-[#FF0015] to-[#FF6A00] bg-clip-text text-transparent">
+                        Very Soon
+                    </span>
                 </h2>
-                <p className="text-rw-muted text-lg leading-relaxed">
-                    The official merchandise collection is currently being finalized.
-                    We&#39;re putting the finishing touches on our exclusive items for the
-                    upcoming celebration. Check back shortly to secure your limited
-                    edition pieces!
+
+                {/* Body */}
+                <p className="text-white/50 text-base sm:text-lg leading-relaxed max-w-[44ch] mb-8">
+                    Our exclusive Redemption Week&nbsp;&apos;26 collection is currently
+                    being finalized. Limited quantities — be ready to secure yours the
+                    moment we go live.
                 </p>
+
+                {/* Shimmer bar — decorative */}
+                <div className="absolute bottom-0 left-0 right-0 h-1 overflow-hidden">
+                    <div className="h-full w-full bg-gradient-to-r from-transparent via-[#FF0015] to-transparent animate-[shimmer-slide_2.5s_ease-in-out_infinite]" />
+                </div>
             </div>
         );
     }

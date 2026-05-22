@@ -19,14 +19,10 @@ export function createProxySupabaseClient(request: NextRequest) {
                 getAll() {
                     return request.cookies.getAll();
                 },
-                setAll(cookiesToSet, headers) {
-                    // Write refreshed session cookies to the response
+                setAll(cookiesToSet) {
+                    // Write refreshed session cookies back to the response
                     cookiesToSet.forEach(({ name, value, options }) =>
                         response.cookies.set(name, value, options)
-                    );
-                    // Apply cache-busting headers required by Supabase SSR
-                    Object.entries(headers ?? {}).forEach(([key, value]) =>
-                        response.headers.set(key, value)
                     );
                 },
             },

@@ -96,6 +96,94 @@ function ProductCard({ product, onOpen }: { product: Product; onOpen: () => void
     );
 }
 
+// ─── Coming-Soon State (Home) ─────────────────────────────────────────────────
+
+function ShimmerCard() {
+    return (
+        <div className="rw-card overflow-hidden flex flex-col" style={{ aspectRatio: "auto" }}>
+            {/* Image placeholder */}
+            <div
+                className="relative bg-gradient-to-br from-[#f5f0ef] to-[#ede5e3] overflow-hidden"
+                style={{ aspectRatio: "3/4" }}
+            >
+                {/* Shimmer sweep */}
+                <div className="absolute inset-0 -translate-x-full animate-[shimmer-slide_1.8s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+                {/* Ghost icon */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <svg className="w-10 h-10 text-[#1C0003]/10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" />
+                    </svg>
+                </div>
+            </div>
+            {/* Info placeholder */}
+            <div className="p-5 flex flex-col gap-3">
+                <div className="h-4 w-3/4 rounded-full bg-[#1C0003]/8 overflow-hidden relative">
+                    <div className="absolute inset-0 -translate-x-full animate-[shimmer-slide_1.8s_ease-in-out_infinite_0.2s] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                </div>
+                <div className="h-3 w-1/2 rounded-full bg-[#1C0003]/5 overflow-hidden relative">
+                    <div className="absolute inset-0 -translate-x-full animate-[shimmer-slide_1.8s_ease-in-out_infinite_0.4s] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                </div>
+                <div className="pt-3 border-t border-[var(--rw-border)] flex items-center justify-between">
+                    <div className="h-5 w-16 rounded-full bg-rw-crimson/15 overflow-hidden relative">
+                        <div className="absolute inset-0 -translate-x-full animate-[shimmer-slide_1.8s_ease-in-out_infinite_0.6s] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                    </div>
+                    <div className="h-8 w-24 rounded-xl bg-[#1C0003]/8 overflow-hidden relative">
+                        <div className="absolute inset-0 -translate-x-full animate-[shimmer-slide_1.8s_ease-in-out_infinite_0.3s] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function MerchComingSoon() {
+    return (
+        <div className="relative">
+            {/* Ghost cards grid */}
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 select-none pointer-events-none">
+                {[0, 1, 2, 3].map((i) => (
+                    <div key={i} style={{ opacity: 1 - i * 0.18 }}>
+                        <ShimmerCard />
+                    </div>
+                ))}
+            </div>
+
+            {/* Frosted overlay with centred badge + text */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 bg-gradient-to-b from-white/40 via-white/75 to-white/95 backdrop-blur-[2px] rounded-2xl">
+                {/* Glow ring + badge */}
+                <div className="relative flex items-center justify-center">
+                    {/* Pulse rings */}
+                    <span className="absolute h-20 w-20 rounded-full bg-rw-crimson/10 animate-ping" style={{ animationDuration: "2s" }} />
+                    <span className="absolute h-14 w-14 rounded-full bg-rw-crimson/15 animate-ping" style={{ animationDuration: "2.4s", animationDelay: "0.4s" }} />
+                    {/* Icon circle */}
+                    <div className="relative z-10 h-16 w-16 rounded-full bg-gradient-to-br from-[#1C0003] to-[#3d0008] flex items-center justify-center shadow-[0_8px_32px_rgba(196,18,48,0.35)]">
+                        <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+
+                {/* Label pill */}
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.15em] uppercase border border-rw-crimson/25 bg-rw-crimson/8 text-rw-crimson">
+                    <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson animate-pulse" />
+                    Collection Dropping Soon
+                </span>
+
+                {/* Headline */}
+                <div className="text-center px-6">
+                    <h3 className="font-display font-extrabold text-2xl sm:text-3xl text-rw-ink leading-tight">
+                        Official Merch on the Way
+                    </h3>
+                    <p className="mt-2 text-rw-muted text-sm sm:text-base leading-relaxed max-w-[38ch] mx-auto">
+                        We&apos;re finalizing our exclusive Redemption Week&nbsp;&apos;26 collection.
+                        Be the first to know when it drops.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 // ─── MerchPreviewSection ──────────────────────────────────────────────────────
 
 export function MerchPreviewSection({ products }: { products: Product[] }) {
@@ -139,29 +227,7 @@ export function MerchPreviewSection({ products }: { products: Product[] }) {
                         ))}
                     </div>
                 ) : (
-                    <div className="rw-card p-12 text-center flex flex-col items-center justify-center space-y-4 bg-rw-bg-alt/30 border border-rw-muted/20">
-                        <svg
-                            className="h-12 w-12 text-rw-muted/50 mb-2"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1}
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                        </svg>
-                        <h3 className="font-display font-bold text-2xl text-rw-ink">
-                            Coming Soon
-                        </h3>
-                        <p className="text-rw-muted max-w-sm">
-                            The official merchandise collection is currently being
-                            finalized. Check back shortly to secure your limited edition
-                            items!
-                        </p>
-                    </div>
+                    <MerchComingSoon />
                 )}
 
                 {/* Bottom CTA strip */}
