@@ -123,6 +123,7 @@ export interface CartItem {
     variantLabel: string; // e.g. "Black · M · Holy Spirit"
     unitPrice: number;
     quantity: number;
+    imageUrl?: string;
 }
 
 // ─── Orders ───────────────────────────────────────────────────────────────────

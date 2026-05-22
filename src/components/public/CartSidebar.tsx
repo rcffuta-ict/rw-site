@@ -5,14 +5,17 @@ import { ph } from "@/lib/utils/functions";
 import Link from "next/link";
 import { Button } from "@/components/ui/forms/Button";
 
-export function CartSidebar({ onClose }: { onClose: () => void }) {
-    const { items, removeItem, updateQuantity, total, itemCount } = useCart();
+export function CartSidebar() {
+    const { items, removeItem, updateQuantity, total, itemCount, isOpen, closeCart } =
+        useCart();
+
+    if (!isOpen) return null;
 
     return (
         <>
             <div
                 className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
-                onClick={onClose}
+                onClick={closeCart}
                 aria-hidden
             />
             <aside
@@ -27,7 +30,7 @@ export function CartSidebar({ onClose }: { onClose: () => void }) {
                         </span>
                     </h2>
                     <button
-                        onClick={onClose}
+                        onClick={closeCart}
                         aria-label="Close"
                         className="rounded-full p-2 text-rw-muted hover:text-rw-ink hover:bg-rw-bg-alt transition-colors"
                     >
@@ -65,7 +68,7 @@ export function CartSidebar({ onClose }: { onClose: () => void }) {
                             </svg>
                         </div>
                         <p className="text-rw-muted">Your cart is empty</p>
-                        <Button variant="outlined" size="md" onClick={onClose}>
+                        <Button variant="outlined" size="md" onClick={closeCart}>
                             Browse Merch
                         </Button>
                     </div>
@@ -76,7 +79,10 @@ export function CartSidebar({ onClose }: { onClose: () => void }) {
                                 <li key={item.variantId} className="flex gap-4 p-5">
                                     <div className="h-20 w-20 rounded-xl overflow-hidden shrink-0 bg-rw-bg-alt">
                                         <img
-                                            src={ph(80, 80, item.productName.slice(0, 8))}
+                                            src={
+                                                item.imageUrl ||
+                                                ph(80, 80, item.productName.slice(0, 8))
+                                            }
                                             alt={item.productName}
                                             className="h-full w-full object-cover"
                                         />
@@ -145,7 +151,7 @@ export function CartSidebar({ onClose }: { onClose: () => void }) {
                             </div>
                             <Link
                                 href="/checkout"
-                                onClick={onClose}
+                                onClick={closeCart}
                                 id="cart-checkout-cta"
                             >
                                 <Button variant="primary" size="lg" className="w-full">
@@ -153,7 +159,7 @@ export function CartSidebar({ onClose }: { onClose: () => void }) {
                                 </Button>
                             </Link>
                             <button
-                                onClick={onClose}
+                                onClick={closeCart}
                                 className="text-xs text-center text-rw-muted hover:text-rw-ink transition-colors"
                             >
                                 Continue shopping

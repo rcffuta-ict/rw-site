@@ -99,7 +99,7 @@ function OrderSummaryPanel({
                         <li key={i.variantId} className="flex gap-4 group">
                             <div className="h-16 w-16 rounded-xl overflow-hidden shrink-0 bg-rw-bg-alt border border-[var(--rw-border)] relative">
                                 <img
-                                    src={ph(80, 80, i.productName.slice(0, 6))}
+                                    src={i.imageUrl || ph(80, 80, i.productName.slice(0, 6))}
                                     alt={i.productName}
                                     className="h-full w-full object-cover transition-transform group-hover:scale-110"
                                 />
@@ -160,6 +160,7 @@ export function CheckoutClient() {
     const [form, setForm] = useState({ name: "", email: "", phone: "", note: "" });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [submitting, setSubmitting] = useState(false);
+    const [finalOrder, setFinalOrder] = useState<{ items: ReturnType<typeof useCart>["items"], total: number } | null>(null);
 
     function validate() {
         const e: Record<string, string> = {};
@@ -175,6 +176,7 @@ export function CheckoutClient() {
         setSubmitting(true);
         await new Promise((r) => setTimeout(r, 1200));
         const ref = generateRef();
+        setFinalOrder({ items, total });
         try {
             const existing = JSON.parse(
                 localStorage.getItem("rw_demo_orders") ?? "[]"
@@ -294,7 +296,7 @@ export function CheckoutClient() {
             {step !== 3 ? (
                 <div className="grid lg:grid-cols-[1fr_400px] gap-12 items-start">
                     {/* Left — content area */}
-                    <div className="space-y-8">
+                    <div className="space-y-8 order-2 lg:order-1">
                         {step === 1 && (
                             <div className="rw-card p-6 sm:p-10 flex flex-col gap-6 animate-fade-in-up">
                                 <div className="flex flex-col gap-1">
@@ -384,11 +386,7 @@ export function CheckoutClient() {
                                             >
                                                 <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl overflow-hidden shrink-0 border border-[var(--rw-border)] bg-rw-bg-alt relative">
                                                     <img
-                                                        src={ph(
-                                                            140,
-                                                            140,
-                                                            i.productName.slice(0, 6)
-                                                        )}
+                                                        src={i.imageUrl || ph(140, 140, i.productName.slice(0, 6))}
                                                         alt={i.productName}
                                                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                     />
@@ -531,7 +529,7 @@ export function CheckoutClient() {
                     </div>
 
                     {/* Right — order summary */}
-                    <div className="hidden lg:block sticky top-28">
+                    <div className={`order-1 lg:order-2 lg:sticky lg:top-28 ${step === 2 ? "hidden lg:block" : "block"}`}>
                         <OrderSummaryPanel items={items} total={total} />
                     </div>
                 </div>
@@ -647,7 +645,13 @@ export function CheckoutClient() {
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-6 text-center">
+                        {finalOrder && (
+                            <div className="w-full max-w-md mx-auto mt-4">
+                                <OrderSummaryPanel items={finalOrder.items} total={finalOrder.total} />
+                            </div>
+                        )}
+
+                        <div className="flex flex-col gap-6 text-center mt-4">
                             <p className="text-rw-muted font-medium text-sm">
                                 Lost your code? Find it anytime in{" "}
                                 <Link

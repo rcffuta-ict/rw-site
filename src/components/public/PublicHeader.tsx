@@ -9,9 +9,6 @@ import { useCart } from "@/context/CartContext";
 const NAV = [
     { href: "/", label: "Home" },
     { href: "/shop", label: "Shop" },
-    { href: "/#programme", label: "Programme", anchor: true },
-    { href: "/#venue", label: "Venue", anchor: true },
-    { href: "/#support", label: "Support", anchor: true },
     { href: "/fulfil", label: "Pay Order" },
 ];
 
@@ -37,6 +34,9 @@ export function PublicHeader() {
         if (href.includes("#")) return false; // anchor links never get active state
         return pathname === href;
     };
+
+    const isOrdersActive = pathname?.startsWith("/orders");
+    const isCheckoutActive = pathname === "/checkout";
 
     return (
         <header
@@ -76,9 +76,13 @@ export function PublicHeader() {
                     {/* Cart button */}
                     <button
                         id="cart-button"
-                        onClick={openCart}
+                        onClick={() => (!isCheckoutActive ? openCart() : null)}
                         aria-label={`Cart — ${itemCount} item${itemCount !== 1 ? "s" : ""}`}
-                        className="relative rounded-lg p-2.5 text-[#5c4048] hover:text-[#1C0003] hover:bg-[#fdf8f8] transition-colors"
+                        className={`relative rounded-lg p-2.5 transition-colors ${
+                            isCheckoutActive
+                                ? "text-[#FF0015] bg-[#fff0f0]"
+                                : "text-[#5c4048] hover:text-[#1C0003] hover:bg-[#fdf8f8]"
+                        }`}
                     >
                         <svg
                             className="h-5 w-5"
@@ -108,9 +112,11 @@ export function PublicHeader() {
                     <Link
                         href="/orders"
                         id="header-orders-cta"
-                        className="hidden sm:inline-flex h-9 items-center gap-1.5 rounded-lg border
-                                   border-[#e8d0d4] bg-white px-4 text-[13px] font-semibold text-[#1C0003]
-                                   hover:border-[#FF0015] hover:text-[#FF0015] transition-all"
+                        className={`hidden sm:inline-flex h-9 items-center gap-1.5 rounded-lg border px-4 text-[13px] font-semibold transition-all ${
+                            isOrdersActive
+                                ? "border-[#FF0015] bg-[#fff0f0] text-[#FF0015]"
+                                : "border-[#e8d0d4] bg-white text-[#1C0003] hover:border-[#FF0015] hover:text-[#FF0015]"
+                        }`}
                     >
                         <svg
                             className="h-3.5 w-3.5"
@@ -197,9 +203,11 @@ export function PublicHeader() {
                     {/* My Orders in mobile */}
                     <Link
                         href="/orders"
-                        className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-[#e8d0d4]
-                                   px-4 py-3 text-sm font-semibold text-[#1C0003] hover:border-[#FF0015]
-                                   hover:text-[#FF0015] transition-all"
+                        className={`mt-3 flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition-all ${
+                            isOrdersActive
+                                ? "border-[#FF0015] bg-[#fff0f0] text-[#FF0015]"
+                                : "border-[#e8d0d4] text-[#1C0003] hover:border-[#FF0015] hover:text-[#FF0015]"
+                        }`}
                     >
                         <svg
                             className="h-4 w-4"

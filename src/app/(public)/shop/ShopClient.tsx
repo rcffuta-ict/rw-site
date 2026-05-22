@@ -6,7 +6,6 @@ import { COLOR_HEX } from "@/lib/data/products";
 import { ProductDrawer } from "@/components/public/ProductDrawer";
 import { useCart } from "@/context/CartContext";
 import { productImageUrl } from "@/lib/utils/functions";
-import { CartSidebar } from "@/components/public/CartSidebar";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -213,7 +212,6 @@ export function ShopClient({ products }: { products: Product[] }) {
             {selected && (
                 <ProductDrawer product={selected} onClose={() => setSelected(null)} />
             )}
-            {isOpen && <CartSidebar onClose={closeCart} />}
         </div>
     );
 }

@@ -93,6 +93,7 @@ export function ProductDrawer({
             variantLabel: buildVariantLabel(variant),
             unitPrice: price,
             quantity,
+            imageUrl: finalImageUrl,
         });
         setAdded(true);
         setTimeout(() => {

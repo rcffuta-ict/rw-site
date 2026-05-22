@@ -5,7 +5,6 @@ import { useState } from "react";
 import { COLOR_HEX } from "@/lib/data/products";
 import { ProductDrawer } from "@/components/public/ProductDrawer";
 import { useCart } from "@/context/CartContext";
-import { CartSidebar } from "@/components/public/CartSidebar";
 import { productImageUrl } from "@/lib/utils/functions";
 import { TENURE } from "@/lib/config";
 import type { Product } from "@/lib/data/types";
@@ -101,7 +100,6 @@ function ProductCard({ product, onOpen }: { product: Product; onOpen: () => void
 
 export function MerchPreviewSection({ products }: { products: Product[] }) {
     const [selected, setSelected] = useState<Product | null>(null);
-    const { isOpen, closeCart } = useCart();
 
     // Show first 4 products on home page
     const preview = products.slice(0, 4);
@@ -195,7 +193,6 @@ export function MerchPreviewSection({ products }: { products: Product[] }) {
             {selected && (
                 <ProductDrawer product={selected} onClose={() => setSelected(null)} />
             )}
-            {isOpen && <CartSidebar onClose={closeCart} />}
         </section>
     );
 }
