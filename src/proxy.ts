@@ -4,10 +4,17 @@ import { createProxySupabaseClient } from "@/lib/supabase/proxy";
 
 export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
+    // Inside your main middleware function:
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-current-path", request.nextUrl.pathname);
 
     // 1. Always allow the login page through immediately
     if (pathname === "/admin/login") {
-        return NextResponse.next();
+        return NextResponse.next({
+            request: {
+                headers: requestHeaders,
+            },
+        });
     }
 
     // 2. Create SSR-aware client (reads/writes session cookies)
