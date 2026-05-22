@@ -1,43 +1,57 @@
+"use client";
+
+import { useEffect } from "react";
+import Image from "next/image";
+import { LOGOS } from "@/lib/config";
+
 export default function AdminLoading() {
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: "instant" });
+    }, []);
+
     return (
-        <div className="flex flex-col gap-8 animate-pulse w-full">
-            {/* Generic Header Skeleton */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[var(--rw-border)] pb-8">
-                <div className="flex flex-col gap-3">
-                    <div className="h-10 w-48 sm:w-64 bg-rw-bg-alt rounded-xl" />
-                    <div className="h-4 w-32 sm:w-48 bg-rw-bg-alt/60 rounded-md" />
-                </div>
-                <div className="flex gap-3">
-                    <div className="h-10 w-24 bg-rw-bg-alt rounded-xl hidden sm:block" />
-                    <div className="h-10 w-32 bg-rw-bg-alt rounded-xl" />
-                </div>
-            </div>
-
-            {/* Generic Content Skeleton */}
-            <div className="flex flex-col gap-4">
-                {/* Optional Toolbar/Filter skeleton */}
-                <div className="flex items-center gap-4 mb-4">
-                    <div className="h-12 w-full sm:max-w-md bg-white border border-[var(--rw-border)] rounded-xl" />
-                    <div className="h-12 w-24 bg-white border border-[var(--rw-border)] rounded-xl hidden sm:block" />
+        <div className="flex items-center justify-center min-h-[60vh] w-full">
+            <div className="flex flex-col items-center justify-center gap-6">
+                <div className="relative flex items-center justify-center h-20 w-20 bg-rw-ink rounded-2xl shadow-xl shadow-rw-ink/20 animate-fade-in-up">
+                    <div className="absolute inset-0 border border-[var(--rw-border)]/10 rounded-2xl" />
+                    {LOGOS.tenureIcon ? (
+                        <Image
+                            src={LOGOS.tenureIcon}
+                            alt="Admin Preloader"
+                            width={44}
+                            height={44}
+                            className="object-contain animate-pulse"
+                            priority
+                        />
+                    ) : (
+                        <div className="h-10 w-10 bg-white/20 rounded-full animate-pulse" />
+                    )}
                 </div>
 
-                {/* Main Generic Content Area */}
-                <div className="bg-white border border-[var(--rw-border)] rounded-[24px] shadow-sm flex flex-col p-6 min-h-[500px] relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-rw-bg-alt/5 pointer-events-none" />
-                    
-                    {/* Simulated generic rows/items */}
-                    <div className="flex flex-col gap-6 relative z-10 w-full">
-                        {[1, 2, 3, 4, 5, 6].map((i) => (
-                            <div key={i} className="flex gap-4 items-center border-b border-[var(--rw-border)]/50 pb-6 last:border-0 last:pb-0">
-                                <div className="h-14 w-14 bg-rw-bg-alt rounded-2xl shrink-0" />
-                                <div className="flex flex-col gap-2.5 flex-1">
-                                    <div className="h-4 w-1/3 min-w-[150px] bg-rw-bg-alt rounded-md" />
-                                    <div className="h-3 w-1/4 min-w-[100px] bg-rw-bg-alt/60 rounded-md" />
-                                </div>
-                                <div className="h-8 w-24 bg-rw-bg-alt rounded-lg hidden sm:block shrink-0" />
-                            </div>
-                        ))}
+                <div
+                    className="flex flex-col items-center gap-3 animate-fade-in-up"
+                    style={{ animationDelay: "150ms" }}
+                >
+                    <p className="text-[11px] font-black text-rw-ink uppercase tracking-[0.25em] animate-pulse-soft">
+                        System Init
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                        <div
+                            className="h-1 w-6 bg-rw-crimson rounded-full animate-pulse"
+                            style={{ animationDelay: "0ms" }}
+                        />
+                        <div
+                            className="h-1 w-6 bg-rw-crimson/50 rounded-full animate-pulse"
+                            style={{ animationDelay: "150ms" }}
+                        />
+                        <div
+                            className="h-1 w-6 bg-rw-crimson/20 rounded-full animate-pulse"
+                            style={{ animationDelay: "300ms" }}
+                        />
                     </div>
+                    <p className="text-[10px] text-rw-muted font-mono mt-1 uppercase tracking-widest">
+                        Loading...
+                    </p>
                 </div>
             </div>
         </div>
