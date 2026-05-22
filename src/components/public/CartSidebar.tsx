@@ -4,10 +4,14 @@ import { useCart } from "@/context/CartContext";
 import { ph } from "@/lib/utils/functions";
 import Link from "next/link";
 import { Button } from "@/components/ui/forms/Button";
+import { usePathname } from "next/navigation";
 
 export function CartSidebar() {
     const { items, removeItem, updateQuantity, total, itemCount, isOpen, closeCart } =
         useCart();
+
+    const pathname = usePathname();
+    const isCheckoutActive = pathname === "/checkout";
 
     if (!isOpen) return null;
 
@@ -68,9 +72,15 @@ export function CartSidebar() {
                             </svg>
                         </div>
                         <p className="text-rw-muted">Your cart is empty</p>
-                        <Button variant="outlined" size="md" onClick={closeCart}>
+                        {/* <Button variant="outlined" size="md" onClick={closeCart}>
                             Browse Merch
-                        </Button>
+                        </Button> */}
+
+                        <Link href="/shop" onClick={closeCart} id="cart-checkout-cta">
+                            <Button variant="primary" size="lg" className="w-full">
+                                Browse Merch
+                            </Button>
+                        </Link>
                     </div>
                 ) : (
                     <>
@@ -149,21 +159,46 @@ export function CartSidebar() {
                                     ₦{total.toLocaleString()}
                                 </span>
                             </div>
-                            <Link
-                                href="/checkout"
-                                onClick={closeCart}
-                                id="cart-checkout-cta"
-                            >
-                                <Button variant="primary" size="lg" className="w-full">
-                                    Proceed to Checkout
-                                </Button>
-                            </Link>
-                            <button
-                                onClick={closeCart}
-                                className="text-xs text-center text-rw-muted hover:text-rw-ink transition-colors"
-                            >
-                                Continue shopping
-                            </button>
+                            {isCheckoutActive ? (
+                                <Link
+                                    href="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        closeCart();
+                                    }}
+                                    id="cart-checkout-cta"
+                                >
+                                    <Button
+                                        variant="primary"
+                                        size="lg"
+                                        className="w-full"
+                                    >
+                                        Continue to Checkout
+                                    </Button>
+                                </Link>
+                            ) : (
+                                <>
+                                    <Link
+                                        href="/checkout"
+                                        onClick={closeCart}
+                                        id="cart-checkout-cta"
+                                    >
+                                        <Button
+                                            variant="primary"
+                                            size="lg"
+                                            className="w-full"
+                                        >
+                                            Proceed to Checkout
+                                        </Button>
+                                    </Link>
+                                    <button
+                                        onClick={closeCart}
+                                        className="text-xs text-center text-rw-muted hover:text-rw-ink transition-colors"
+                                    >
+                                        Continue shopping
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </>
                 )}

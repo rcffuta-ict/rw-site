@@ -108,6 +108,7 @@ export function mapOrderItemFromDb(row: any): OrderItem {
         variantLabel: row.variant_label,
         quantity: row.quantity,
         unitPrice: row.unit_price,
+        imageUrl: row.image_url ?? null,
     });
 }
 

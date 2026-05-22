@@ -146,6 +146,7 @@ export interface OrderItem {
     variantLabel: string; // snapshot at order time — immutable
     quantity: number;
     unitPrice: number; // snapshot at order time — immutable
+    imageUrl?: string | null;
 }
 
 export interface Payment {

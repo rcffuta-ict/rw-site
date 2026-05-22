@@ -44,8 +44,9 @@ export function ProductDrawer({
         ...new Set(product.variants.filter((v) => v.size).map((v) => v.size!)),
     ].sort((a, b) => SIZE_ORDER.indexOf(a) - SIZE_ORDER.indexOf(b));
 
-    const [selectedColor, setSelectedColor] = useState<string | null>(colors[0] ?? null);
-    const [selectedSize, setSelectedSize] = useState<string | null>(allSizes[0] ?? null);
+    const firstVariant = product.variants[0];
+    const [selectedColor, setSelectedColor] = useState<string | null>(firstVariant?.color ?? null);
+    const [selectedSize, setSelectedSize] = useState<string | null>(firstVariant?.size ?? null);
     const [quantity, setQuantity] = useState(1);
     const [added, setAdded] = useState(false);
 
@@ -58,7 +59,8 @@ export function ProductDrawer({
     const available = variant?.isAvailable ?? false;
     const price = variant ? getEffectivePrice(product, variant.id) : product.basePrice;
 
-    const activeImageVariant = product.variants.find((v) => v.color === selectedColor) || product.variants[0];
+    // Use the explicitly selected variant if available, otherwise fallback to the first variant matching the color
+    const activeImageVariant = variant || product.variants.find((v) => v.color === selectedColor) || product.variants[0];
     const primaryImage = activeImageVariant?.images?.find((img) => img.isPrimary)?.cloudinaryUrl || activeImageVariant?.images?.[0]?.cloudinaryUrl;
     const finalImageUrl = primaryImage || productImageUrl(product.name, selectedColor);
 

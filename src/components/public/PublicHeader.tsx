@@ -76,7 +76,8 @@ export function PublicHeader() {
                     {/* Cart button */}
                     <button
                         id="cart-button"
-                        onClick={() => (!isCheckoutActive ? openCart() : null)}
+                        // onClick={() => (!isCheckoutActive ? openCart() : null)}
+                        onClick={openCart}
                         aria-label={`Cart — ${itemCount} item${itemCount !== 1 ? "s" : ""}`}
                         className={`relative rounded-lg p-2.5 transition-colors ${
                             isCheckoutActive

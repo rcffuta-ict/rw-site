@@ -55,7 +55,7 @@ export function OrderSummary({ order }: { order: Order }) {
                             className="flex items-center gap-4 p-3 rounded-2xl border border-[var(--rw-border)] hover:border-[var(--rw-border-mid)] transition-colors"
                         >
                             <img
-                                src={ph(64, 64, i.productName.slice(0, 6))}
+                                src={i.imageUrl || ph(64, 64, i.productName.slice(0, 6))}
                                 alt={i.productName}
                                 className="h-16 w-16 rounded-xl object-cover shrink-0 bg-rw-bg-alt"
                             />

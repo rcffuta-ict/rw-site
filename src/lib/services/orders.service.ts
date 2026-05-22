@@ -37,6 +37,7 @@ export interface CreateOrderInput {
         variantLabel: string;
         unitPrice: number;
         quantity: number;
+        imageUrl?: string | null;
     }>;
 }
 
@@ -193,6 +194,7 @@ export async function createOrder(
             variant_label: l.variantLabel,
             quantity: l.quantity,
             unit_price: l.unitPrice,
+            image_url: l.imageUrl || null,
         }))
     );
 

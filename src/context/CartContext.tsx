@@ -122,6 +122,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                         variantLabel: i.variantLabel,
                         unitPrice: i.unitPrice,
                         quantity: i.quantity,
+                        imageUrl: i.imageUrl,
                     })),
                 });
                 if (result.success) {

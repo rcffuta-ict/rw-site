@@ -372,12 +372,23 @@ function OrderDetailPanel({ order }: { order: Order }) {
                                 className="border-b border-[#e8d0d4] last:border-0 hover:bg-[#fdf8f8]/50 transition-colors"
                             >
                                 <td className="px-6 py-4">
-                                    <p className="font-semibold text-[#1C0003]">
-                                        {item.productName}
-                                    </p>
-                                    <p className="text-xs text-[#9a8085] mt-0.5">
-                                        {item.variantLabel}
-                                    </p>
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-10 w-10 shrink-0 rounded-lg overflow-hidden bg-[#fdf8f8] border border-[#e8d0d4]">
+                                            <img
+                                                src={item.imageUrl || ph(40, 40, item.productName.slice(0, 6))}
+                                                alt={item.productName}
+                                                className="h-full w-full object-cover"
+                                            />
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-[#1C0003]">
+                                                {item.productName}
+                                            </p>
+                                            <p className="text-xs text-[#9a8085] mt-0.5">
+                                                {item.variantLabel}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td className="px-3 py-4 text-right text-[#5c4048]">
                                     {item.quantity}

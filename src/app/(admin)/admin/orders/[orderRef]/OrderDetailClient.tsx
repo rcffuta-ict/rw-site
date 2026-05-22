@@ -159,7 +159,7 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
                                 >
                                     <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-lg sm:rounded-xl bg-rw-bg-alt overflow-hidden shrink-0 border border-[var(--rw-border)]">
                                         <img
-                                            src={ph(56, 56, i.productName.slice(0, 6))}
+                                            src={i.imageUrl || ph(56, 56, i.productName.slice(0, 6))}
                                             alt={i.productName}
                                             className="h-full w-full object-cover"
                                         />
