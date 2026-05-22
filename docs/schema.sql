@@ -266,6 +266,7 @@ CREATE TABLE IF NOT EXISTS payments (
     extracted_bank          TEXT,
     extracted_transaction_ref TEXT, -- Unique reference for the transaction
     extraction_confidence   extraction_confidence,
+    user_confirmed_accuracy BOOLEAN,
 
     -- Moderator confirmed amount (entered during approval)
     amount_confirmed        INTEGER CHECK (amount_confirmed >= 0),
