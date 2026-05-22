@@ -16,7 +16,7 @@ export async function listCategories(includeInactive = false): Promise<Category[
         async () => {
             const supabase = await createSupabaseAdminClient();
             let query = supabase
-                .from("categories")
+                .from("rw_categories")
                 .select("*")
                 .order("sort_order", { ascending: true });
 
@@ -37,7 +37,7 @@ export async function getCategoryById(id: string): Promise<Category | undefined>
     return unstable_cache(
         async () => {
             const supabase = await createSupabaseAdminClient();
-            const { data } = await supabase.from("categories").select("*").eq("id", id).single();
+            const { data } = await supabase.from("rw_categories").select("*").eq("id", id).single();
             return data ? mapCategoryFromDb(data) : undefined;
         },
         [`category-${id}`],
@@ -50,7 +50,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | undefi
         async () => {
             const supabase = await createSupabaseAdminClient();
             const { data } = await supabase
-                .from("categories")
+                .from("rw_categories")
                 .select("*")
                 .eq("slug", slug)
                 .single();
@@ -69,7 +69,7 @@ export async function createCategory(
     const supabase = await createSupabaseAdminClient();
 
     const { data, error } = await supabase
-        .from("categories")
+        .from("rw_categories")
         .insert({
             slug: input.slug.toLowerCase().replace(/\s+/g, "-"),
             label: input.label,
@@ -102,7 +102,7 @@ export async function updateCategory(
     if (input.isActive !== undefined) patch.is_active = input.isActive;
 
     const { data, error } = await supabase
-        .from("categories")
+        .from("rw_categories")
         .update(patch)
         .eq("id", id)
         .select()
@@ -118,7 +118,7 @@ export async function updateCategory(
 export async function deleteCategory(id: string): Promise<ServiceResult> {
     const supabase = await createSupabaseAdminClient();
 
-    const { error } = await supabase.from("categories").delete().eq("id", id);
+    const { error } = await supabase.from("rw_categories").delete().eq("id", id);
 
     if (error) {
         // FK violation: products are still assigned to this category
@@ -142,7 +142,7 @@ export async function reorderCategories(orderedIds: string[]): Promise<ServiceRe
 
     const updates = orderedIds.map((id, idx) =>
         supabase
-            .from("categories")
+            .from("rw_categories")
             .update({ sort_order: idx + 1 })
             .eq("id", id)
     );

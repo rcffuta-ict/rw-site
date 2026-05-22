@@ -2,30 +2,18 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createProxySupabaseClient } from "@/lib/supabase/proxy";
 
-/**
- * Proxy (auth guard) for all /admin/* routes.
- *
- * Rules:
- *  1. /admin/login is always accessible (no session required)
- *  2. All other /admin/* routes require a valid Supabase session
- *  3. The session user must exist in rw_admin_moderators — otherwise rejected
- *  4. Approved requests receive an x-admin-role header for downstream use
- *
- * NOTE: This file uses proxy.ts conventions (renamed from middleware.ts in
- * this version of Next.js). The export must be named `proxy`.
- */
 export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // Always allow the login page through
+    // 1. Always allow the login page through immediately
     if (pathname === "/admin/login") {
-        return NextResponse.next({ request });
+        return NextResponse.next();
     }
 
-    // Create SSR-aware client (reads/writes session cookies)
-    const { supabase, response } = createProxySupabaseClient(request);
+    // 2. Create SSR-aware client (reads/writes session cookies)
+    const { supabase } = createProxySupabaseClient(request);
 
-    // Verify session
+    // 3. Verify session
     const {
         data: { user },
     } = await supabase.auth.getUser();
@@ -36,7 +24,7 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(loginUrl);
     }
 
-    // Check rw_admin_moderators directly (ict-lib not SSR-aware, can't use here)
+    // 4. Check rw_admin_moderators directly
     const { data: mod, error } = await supabase
         .from("rw_admin_moderators")
         .select("role")
@@ -44,18 +32,33 @@ export async function proxy(request: NextRequest) {
         .maybeSingle();
 
     if (error || !mod) {
-        // Valid Supabase user but not an admin/moderator — sign out and reject
+        // Clear cookies and reject if not a real administrator
         await supabase.auth.signOut();
         const loginUrl = new URL("/admin/login", request.url);
         loginUrl.searchParams.set("error", "unauthorized");
         return NextResponse.redirect(loginUrl);
     }
 
-    // Attach role to response headers for downstream Server Components to read
-    response.headers.set("x-admin-role", mod.role);
-    return response;
+    // 5. CRITICAL CRUX FIX: Clone the base request and pass the auth cookies
+    // down into the request context, combined with your custom layout headers.
+    const finalResponse = NextResponse.next({
+        request: {
+            headers: request.headers,
+        },
+    });
+
+    // Mirror the security context cookies into the request headers context
+    // so downstream Server layouts can read the active auth cookies instantly!
+    request.cookies.getAll().forEach((cookie) => {
+        finalResponse.cookies.set(cookie.name, cookie.value);
+    });
+
+    finalResponse.headers.set("x-admin-role", mod.role);
+
+    return finalResponse;
 }
 
 export const config = {
+    // Make sure we skip internal files, static styles, images, and only match admin paths
     matcher: ["/admin/:path*"],
 };

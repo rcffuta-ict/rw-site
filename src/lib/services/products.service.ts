@@ -19,10 +19,10 @@ import { unstable_cache, revalidateTag } from "next/cache";
 
 const PRODUCT_SELECT = `
     *,
-    category:categories ( id, slug, label ),
-    variants:product_variants (
+    category:rw_categories ( id, slug, label ),
+    variants:rw_product_variants (
         *,
-        images:product_images ( * )
+        images:rw_product_images ( * )
     )
 ` as const;
 
@@ -34,7 +34,7 @@ export async function getProducts(): Promise<Product[]> {
         async () => {
             const supabase = await createSupabaseAdminClient();
             const { data, error } = await supabase
-                .from("products")
+                .from("rw_products")
                 .select(PRODUCT_SELECT)
                 .eq("is_available", true)
                 .order("created_at", { ascending: true });
@@ -53,7 +53,7 @@ export async function getAllProducts(): Promise<Product[]> {
         async () => {
             const supabase = await createSupabaseAdminClient();
             const { data, error } = await supabase
-                .from("products")
+                .from("rw_products")
                 .select(PRODUCT_SELECT)
                 .order("created_at", { ascending: true });
 
@@ -70,7 +70,7 @@ export async function getProductById(id: string): Promise<Product | undefined> {
         async () => {
             const supabase = await createSupabaseAdminClient();
             const { data } = await supabase
-                .from("products")
+                .from("rw_products")
                 .select(PRODUCT_SELECT)
                 .eq("id", id)
                 .single();
@@ -88,8 +88,8 @@ export async function getVariantById(
         async () => {
             const supabase = await createSupabaseAdminClient();
             const { data } = await supabase
-                .from("product_variants")
-                .select("*, images:product_images(*)")
+                .from("rw_product_variants")
+                .select("*, images:rw_product_images(*)")
                 .eq("id", variantId)
                 .single();
             return data ? mapVariantFromDb(data) : undefined;
@@ -107,7 +107,7 @@ export async function createProduct(
     const supabase = await createSupabaseAdminClient();
 
     const { data, error } = await supabase
-        .from("products")
+        .from("rw_products")
         .insert({
             category_id: input.categoryId,
             name: input.name,
@@ -139,7 +139,7 @@ export async function updateProduct(
     if (input.isAvailable !== undefined) patch.is_available = input.isAvailable;
 
     const { data, error } = await supabase
-        .from("products")
+        .from("rw_products")
         .update(patch)
         .eq("id", id)
         .select(PRODUCT_SELECT)
@@ -155,13 +155,13 @@ export async function deleteProduct(id: string): Promise<ServiceResult> {
 
     // 1. Fetch images to delete from Cloudinary
     const { data: variants } = await supabase
-        .from("product_variants")
-        .select("id, product_images(cloudinary_public_id)")
+        .from("rw_product_variants")
+        .select("id, rw_product_images(cloudinary_public_id)")
         .eq("product_id", id);
 
     if (variants) {
         for (const variant of variants) {
-            for (const img of (variant.product_images || []) as any[]) {
+            for (const img of (variant.rw_product_images || []) as any[]) {
                 if (img.cloudinary_public_id) {
                     try {
                         await deleteCloudinaryAsset(img.cloudinary_public_id);
@@ -177,7 +177,7 @@ export async function deleteProduct(id: string): Promise<ServiceResult> {
     }
 
     // 2. Delete product from Supabase (cascades variants and images)
-    const { error } = await supabase.from("products").delete().eq("id", id);
+    const { error } = await supabase.from("rw_products").delete().eq("id", id);
     if (error) return { success: false, error: error.message };
     revalidateTag("products", "max");
     return { success: true };
@@ -192,7 +192,7 @@ export async function addVariant(
     const supabase = await createSupabaseAdminClient();
 
     const { data, error } = await supabase
-        .from("product_variants")
+        .from("rw_product_variants")
         .insert({
             product_id: productId,
             size: input.size ?? null,
@@ -203,7 +203,7 @@ export async function addVariant(
             price_override: input.priceOverride ?? null,
             is_available: input.isAvailable ?? true,
         })
-        .select("*, images:product_images(*)")
+        .select("*, images:rw_product_images(*)")
         .single();
 
     if (error) return { success: false, error: error.message };
@@ -227,10 +227,10 @@ export async function updateVariant(
     if ("isAvailable" in input) patch.is_available = input.isAvailable;
 
     const { data, error } = await supabase
-        .from("product_variants")
+        .from("rw_product_variants")
         .update(patch)
         .eq("id", variantId)
-        .select("*, images:product_images(*)")
+        .select("*, images:rw_product_images(*)")
         .single();
 
     if (error) return { success: false, error: error.message };
@@ -242,7 +242,7 @@ export async function deleteVariant(variantId: string): Promise<ServiceResult> {
     const supabase = await createSupabaseAdminClient();
     // product_images are cascade deleted via FK
     const { error } = await supabase
-        .from("product_variants")
+        .from("rw_product_variants")
         .delete()
         .eq("id", variantId);
 
@@ -277,14 +277,14 @@ export async function upsertVariantImage(
     // If isPrimary: demote any existing primary on this variant first
     if (isPrimary) {
         await supabase
-            .from("product_images")
+            .from("rw_product_images")
             .update({ is_primary: false })
             .eq("variant_id", variantId)
             .eq("is_primary", true);
     }
 
     const { data, error } = await supabase
-        .from("product_images")
+        .from("rw_product_images")
         .upsert(
             {
                 variant_id: variantId,
@@ -316,7 +316,7 @@ export async function upsertVariantImage(
 
 export async function deleteVariantImage(imageId: string): Promise<ServiceResult> {
     const supabase = await createSupabaseAdminClient();
-    const { error } = await supabase.from("product_images").delete().eq("id", imageId);
+    const { error } = await supabase.from("rw_product_images").delete().eq("id", imageId);
     if (error) return { success: false, error: error.message };
     revalidateTag("products", "max");
     return { success: true };

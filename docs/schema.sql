@@ -78,7 +78,7 @@ $$ LANGUAGE plpgsql;
 -- 1. CATEGORIES
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE TABLE IF NOT EXISTS categories (
+CREATE TABLE IF NOT EXISTS rw_categories (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     slug        TEXT NOT NULL UNIQUE,       -- url-safe e.g. "tshirt", "hoodie"
     label       TEXT NOT NULL,              -- display name e.g. "T-Shirt"
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS categories (
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE categories IS 'DB-managed product categories. Managed from the admin panel.';
+COMMENT ON TABLE rw_categories IS 'DB-managed product categories. Managed from the admin panel.';
 
 
 
@@ -96,9 +96,9 @@ COMMENT ON TABLE categories IS 'DB-managed product categories. Managed from the 
 -- 2. PRODUCTS
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE TABLE IF NOT EXISTS products (
+CREATE TABLE IF NOT EXISTS rw_products (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    category_id  UUID NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
+    category_id  UUID NOT NULL REFERENCES rw_categories(id) ON DELETE RESTRICT,
     name         TEXT NOT NULL,
     description  TEXT NOT NULL DEFAULT '',
     base_price   INTEGER NOT NULL CHECK (base_price >= 0),  -- in Naira kobo (multiply by 100) or whole Naira — pick one convention
@@ -108,24 +108,24 @@ CREATE TABLE IF NOT EXISTS products (
     updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE products IS 'Core product records. Pre-order model: no stock tracking.';
+COMMENT ON TABLE rw_products IS 'Core product records. Pre-order model: no stock tracking.';
 COMMENT ON COLUMN products.base_price IS 'Price in Naira. Variants may override via price_override.';
 
 CREATE OR REPLACE TRIGGER products_set_updated_at
-    BEFORE UPDATE ON products
+    BEFORE UPDATE ON rw_products
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
-CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
-CREATE INDEX IF NOT EXISTS idx_products_available ON products(is_available) WHERE is_available = TRUE;
+CREATE INDEX IF NOT EXISTS idx_products_category ON rw_products(category_id);
+CREATE INDEX IF NOT EXISTS idx_products_available ON rw_products(is_available) WHERE is_available = TRUE;
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 3. PRODUCT VARIANTS
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE TABLE IF NOT EXISTS product_variants (
+CREATE TABLE IF NOT EXISTS rw_product_variants (
     id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    product_id     UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    product_id     UUID NOT NULL REFERENCES rw_products(id) ON DELETE CASCADE,
     size           TEXT,                    -- 'XS','S','M','L','XL','XXL','One Size', or NULL
     color          TEXT,                    -- e.g. 'Black', 'White', 'Burgundy'
     color_hex      TEXT,                    -- e.g. '#000000', custom hex color from admin
@@ -137,20 +137,20 @@ CREATE TABLE IF NOT EXISTS product_variants (
     -- No stock column: this is a pre-order site. People order → we produce → deliver.
 );
 
-COMMENT ON TABLE product_variants IS 'Size × color × design combinations. No stock tracking (pre-order model).';
+COMMENT ON TABLE rw_product_variants IS 'Size × color × design combinations. No stock tracking (pre-order model).';
 COMMENT ON COLUMN product_variants.price_override IS 'When NULL, the parent product.base_price applies.';
 
-CREATE INDEX IF NOT EXISTS idx_variants_product ON product_variants(product_id);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_variants_sku ON product_variants(sku) WHERE sku IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_variants_product ON rw_product_variants(product_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_variants_sku ON rw_product_variants(sku) WHERE sku IS NOT NULL;
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 4. PRODUCT IMAGES
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE TABLE IF NOT EXISTS product_images (
+CREATE TABLE IF NOT EXISTS rw_product_images (
     id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    variant_id            UUID NOT NULL REFERENCES product_variants(id) ON DELETE CASCADE,
+    variant_id            UUID NOT NULL REFERENCES rw_product_variants(id) ON DELETE CASCADE,
     cloudinary_public_id  TEXT NOT NULL UNIQUE,
     cloudinary_url        TEXT NOT NULL,
     -- Dimensions are fixed at 360×480 — no width/height columns needed.
@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS product_images (
     created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE product_images IS 'Cloudinary image refs. One image per variant, fixed 360×480.';
+COMMENT ON TABLE rw_product_images IS 'Cloudinary image refs. One image per variant, fixed 360×480.';
 COMMENT ON COLUMN product_images.is_primary IS 'Marks the canonical image shown for this variant.';
 
 CREATE INDEX IF NOT EXISTS idx_images_variant ON product_images(variant_id);
@@ -174,7 +174,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_images_primary_per_variant
 -- 5. ORDERS
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE TABLE IF NOT EXISTS orders (
+CREATE TABLE IF NOT EXISTS rw_orders (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     order_ref       TEXT NOT NULL UNIQUE,       -- short code shown to customer e.g. 'FF3A9C'
     customer_name   TEXT NOT NULL,
@@ -192,16 +192,16 @@ CREATE TABLE IF NOT EXISTS orders (
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE orders IS 'Customer pre-orders. Status manually updated by moderators.';
+COMMENT ON TABLE rw_orders IS 'Customer pre-orders. Status manually updated by moderators.';
 COMMENT ON COLUMN orders.amount_paid IS 'Cached sum of approved payments. Derived via order_payment_summary view.';
 
 CREATE OR REPLACE TRIGGER orders_set_updated_at
-    BEFORE UPDATE ON orders
+    BEFORE UPDATE ON rw_orders
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
-CREATE INDEX IF NOT EXISTS idx_orders_ref   ON orders(order_ref);
-CREATE INDEX IF NOT EXISTS idx_orders_email ON orders(customer_email);
-CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_orders_ref   ON rw_orders(order_ref);
+CREATE INDEX IF NOT EXISTS idx_orders_email ON rw_orders(customer_email);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON rw_orders(status);
 
 
 -- ─── Order ref generator ──────────────────────────────────────────────────────
@@ -216,7 +216,7 @@ DECLARE
 BEGIN
     LOOP
         ref := UPPER(SUBSTRING(encode(gen_random_bytes(3), 'hex') FROM 1 FOR 6));
-        SELECT COUNT(*) > 0 INTO exists FROM orders WHERE order_ref = ref;
+        SELECT COUNT(*) > 0 INTO exists FROM rw_orders WHERE order_ref = ref;
         EXIT WHEN NOT exists;
     END LOOP;
     RETURN ref;
@@ -228,10 +228,10 @@ $$ LANGUAGE plpgsql;
 -- 6. ORDER ITEMS
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE TABLE IF NOT EXISTS order_items (
+CREATE TABLE IF NOT EXISTS rw_order_items (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    order_id      UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-    variant_id    UUID NOT NULL REFERENCES product_variants(id) ON DELETE RESTRICT,
+    order_id      UUID NOT NULL REFERENCES rw_orders(id) ON DELETE CASCADE,
+    variant_id    UUID NOT NULL REFERENCES rw_product_variants(id) ON DELETE RESTRICT,
     -- Snapshot fields — immutable after order creation
     product_name  TEXT NOT NULL,    -- snapshot: product name at order time
     variant_label TEXT NOT NULL,    -- snapshot: e.g. "Black · L · Holy Spirit"
@@ -241,7 +241,7 @@ CREATE TABLE IF NOT EXISTS order_items (
     created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE order_items IS 'Line items per order. product_name, variant_label, unit_price, image_url are snapshots and immutable.';
+COMMENT ON TABLE rw_order_items IS 'Line items per order. product_name, variant_label, unit_price, image_url are snapshots and immutable.';
 
 CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
 
@@ -250,9 +250,9 @@ CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
 -- 7. PAYMENTS
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE TABLE IF NOT EXISTS payments (
+CREATE TABLE IF NOT EXISTS rw_payments (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    order_id        UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    order_id        UUID NOT NULL REFERENCES rw_orders(id) ON DELETE CASCADE,
 
     -- Cloudinary receipt storage
     cloudinary_receipt_public_id  TEXT UNIQUE,
@@ -284,12 +284,12 @@ CREATE TABLE IF NOT EXISTS payments (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE payments IS 'Customer payment receipts. Multiple per order (installments). Moderator action is recorded via moderator_name/moderator_email.';
+COMMENT ON TABLE rw_payments IS 'Customer payment receipts. Multiple per order (installments). Moderator action is recorded via moderator_name/moderator_email.';
 COMMENT ON COLUMN payments.moderator_name  IS 'Name of the admin/moderator who last reviewed this payment.';
 COMMENT ON COLUMN payments.moderator_email IS 'Email of the admin/moderator who last reviewed this payment.';
 
 CREATE OR REPLACE TRIGGER payments_set_updated_at
-    BEFORE UPDATE ON payments
+    BEFORE UPDATE ON rw_payments
     FOR EACH ROW
     EXECUTE FUNCTION set_updated_at();
 
@@ -300,12 +300,12 @@ BEGIN
         SELECT 1 FROM information_schema.columns
         WHERE table_name = 'payments' AND column_name = 'updated_at'
     ) THEN
-        ALTER TABLE payments ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+        ALTER TABLE rw_payments ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
     END IF;
 END $$;
 
-CREATE INDEX IF NOT EXISTS idx_payments_order  ON payments(order_id);
-CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status);
+CREATE INDEX IF NOT EXISTS idx_payments_order  ON rw_payments(order_id);
+CREATE INDEX IF NOT EXISTS idx_payments_status ON rw_payments(status);
 
 
 -- ─── Trigger: sync orders.amount_paid after payment approval ─────────────────
@@ -326,7 +326,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE TRIGGER payments_sync_amount_paid
-    AFTER INSERT OR UPDATE OF status OR DELETE ON payments
+    AFTER INSERT OR UPDATE OF status OR DELETE ON rw_payments
     FOR EACH ROW EXECUTE FUNCTION sync_order_amount_paid();
 
 
@@ -358,7 +358,7 @@ COMMENT ON TABLE public.rw_admin_moderators IS 'Admin/moderator access roles for
 -- Mirrors the computeOrderPaymentSummary() TypeScript helper on the client.
 -- Use this view in queries instead of summing payments manually.
 
-CREATE OR REPLACE VIEW order_payment_summary AS
+CREATE OR REPLACE VIEW rw_order_payment_summary AS
 SELECT
     o.id                                                        AS order_id,
     o.total_amount,
@@ -370,11 +370,11 @@ SELECT
     COUNT(p.id) FILTER (WHERE p.status = 'pending')             AS pending_count,
     COUNT(p.id) FILTER (WHERE p.status = 'flagged')             AS flagged_count,
     COUNT(p.id) FILTER (WHERE p.status = 'rejected')            AS rejected_count
-FROM orders o
-LEFT JOIN payments p ON p.order_id = o.id
+FROM rw_orders o
+LEFT JOIN rw_payments p ON p.order_id = o.id
 GROUP BY o.id, o.total_amount;
 
-COMMENT ON VIEW order_payment_summary IS
+COMMENT ON VIEW rw_order_payment_summary IS
     'Derived payment state per order. Use instead of summing payments manually. '
     'is_fully_paid is TRUE when approved payments >= total_amount.';
 
@@ -398,3 +398,16 @@ COMMENT ON VIEW order_payment_summary IS
 --
 --   2. Set DEMO_MODE = false in src/lib/config.ts when ready to go live.
 --
+
+-- Enable Row Level Security on all tables. 
+-- Since there are no policies defined, all tables are closed to the anon key and authenticated users by default.
+-- Only the service_role key (Admin) can access these tables.
+ALTER TABLE public.rw_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_product_variants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_product_images ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_order_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_payments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_admin_moderators ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_audit_logs ENABLE ROW LEVEL SECURITY;

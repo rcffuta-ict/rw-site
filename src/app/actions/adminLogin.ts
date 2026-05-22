@@ -3,6 +3,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { resolveAdminRole } from "@/lib/auth/roles";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 export type LoginState = {
     error?: string;
@@ -50,6 +51,8 @@ export async function adminLogin(
             error: "You do not have permission to access the admin panel.",
         };
     }
+
+    revalidatePath("/admin", "layout");
 
     // Successful login — redirect to admin dashboard (or original destination)
     redirect(next);

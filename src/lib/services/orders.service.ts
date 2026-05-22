@@ -2,8 +2,7 @@
 
 // ─── Orders Service — Supabase ────────────────────────────────────────────────
 import {
-    createSupabaseAdminClient,
-    createSupabaseServerClient,
+    createSupabaseAdminClient
 } from "@/lib/supabase/server";
 import { mapOrderFromDb, mapPaymentFromDb } from "@/lib/supabase/mappers";
 import type {
@@ -20,8 +19,8 @@ import { unstable_cache, revalidateTag } from "next/cache";
 
 const ORDER_SELECT = `
     *,
-    items:order_items ( * ),
-    payments ( * )
+    items:rw_order_items ( * ),
+    payments:rw_payments ( * )
 ` as const;
 
 // ─── Input types ──────────────────────────────────────────────────────────────
@@ -70,7 +69,7 @@ export async function listOrders(): Promise<Order[]> {
         async () => {
             const supabase = await createSupabaseAdminClient();
             const { data, error } = await supabase
-                .from("orders")
+                .from("rw_orders")
                 .select(ORDER_SELECT)
                 .order("created_at", { ascending: false });
 
@@ -87,7 +86,7 @@ export async function getOrderByRef(ref: string): Promise<Order | undefined> {
         async () => {
             const supabase = await createSupabaseAdminClient();
             const { data } = await supabase
-                .from("orders")
+                .from("rw_orders")
                 .select(ORDER_SELECT)
                 .eq("order_ref", ref.toUpperCase())
                 .single();
@@ -103,7 +102,7 @@ export async function getOrderById(id: string): Promise<Order | undefined> {
         async () => {
             const supabase = await createSupabaseAdminClient();
             const { data } = await supabase
-                .from("orders")
+                .from("rw_orders")
                 .select(ORDER_SELECT)
                 .eq("id", id)
                 .single();
@@ -121,7 +120,7 @@ export async function getOrderPaymentSummary(
         async () => {
             const supabase = await createSupabaseAdminClient();
             const { data } = await supabase
-                .from("order_payment_summary")
+                .from("rw_order_payment_summary")
                 .select("*")
                 .eq("order_id", orderId)
                 .single();
@@ -151,7 +150,7 @@ export async function getOrderPaymentSummary(
 export async function createOrder(
     input: CreateOrderInput
 ): Promise<ServiceResult<Order>> {
-    const supabase = await createSupabaseServerClient();
+    const supabase = await createSupabaseAdminClient();
 
     // 1. Generate a unique order ref
     const { data: refData, error: refError } = await supabase.rpc("generate_order_ref");
@@ -164,7 +163,7 @@ export async function createOrder(
 
     // 2. Insert the order
     const { data: order, error: orderError } = await supabase
-        .from("orders")
+        .from("rw_orders")
         .insert({
             order_ref: refData as string,
             customer_name: input.customerName,
@@ -186,7 +185,7 @@ export async function createOrder(
     }
 
     // 3. Insert all line items
-    const { error: itemsError } = await supabase.from("order_items").insert(
+    const { error: itemsError } = await supabase.from("rw_order_items").insert(
         input.lines.map((l) => ({
             order_id: order.id,
             variant_id: l.variantId,
@@ -219,7 +218,7 @@ export async function updateOrderStatus(
 ): Promise<ServiceResult<Order>> {
     const supabase = await createSupabaseAdminClient();
 
-    const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
+    const { error } = await supabase.from("rw_orders").update({ status }).eq("id", orderId);
 
     if (error) return { success: false, error: error.message };
 
@@ -234,13 +233,13 @@ export async function updateOrderStatus(
 export async function attachPayment(
     input: AttachPaymentInput
 ): Promise<ServiceResult<Order>> {
-    const supabase = await createSupabaseServerClient();
+    const supabase = await createSupabaseAdminClient();
 
     // Compute percent of total
     const order = await getOrderById(input.orderId);
     if (!order) return { success: false, error: "Order not found." };
 
-    const { error } = await supabase.from("payments").insert({
+    const { error } = await supabase.from("rw_payments").insert({
         order_id: input.orderId,
         extracted_amount: input.extractedAmount,
         extracted_transaction_ref: input.extractedTransactionRef ?? null,
@@ -268,7 +267,7 @@ export async function reviewPayment(
     const supabase = await createSupabaseAdminClient();
 
     const { data, error } = await supabase
-        .from("payments")
+        .from("rw_payments")
         .update({
             status: input.decision,
             review_note: input.reviewNote ?? null,
@@ -289,7 +288,7 @@ export async function deletePaymentReceipt(paymentId: string): Promise<ServiceRe
     const supabase = await createSupabaseAdminClient();
 
     const { error } = await supabase
-        .from("payments")
+        .from("rw_payments")
         .update({
             cloudinary_receipt_public_id: null,
             receipt_url: null,

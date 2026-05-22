@@ -78,7 +78,7 @@ function AdminStatusIndicator() {
 
 function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const isLoginPage = pathname === "/admin/login";
+    const isLoginPage = pathname?.includes("/admin/login");
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Close mobile menu on route change

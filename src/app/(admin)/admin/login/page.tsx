@@ -6,6 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { adminLogin, type LoginState } from "@/app/actions/adminLogin";
 import { AdminLogo } from "@/components/admin/AdminLogo";
 import Link from "next/link";
+import { Input } from "@/components/ui/forms/Input";
+import { Button } from "@/components/ui/forms/Button";
 
 // ─── Inner form — uses useSearchParams, must be inside <Suspense> ─────────────
 
@@ -30,35 +32,25 @@ function LoginForm() {
             {/* Pass `next` redirect target through the form */}
             <input type="hidden" name="next" value={next} />
 
-            <div>
-                <label htmlFor="email" className="block text-sm font-medium text-rw-ink mb-2">
-                    Email
-                </label>
-                <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    placeholder="you@rcffuta.com"
-                    required
-                    className="rw-input"
-                />
-            </div>
+            <Input
+                id="email"
+                name="email"
+                type="email"
+                label="Email"
+                autoComplete="email"
+                placeholder="you@rcffuta.com"
+                required
+            />
 
-            <div>
-                <label htmlFor="password" className="block text-sm font-medium text-rw-ink mb-2">
-                    Password
-                </label>
-                <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    placeholder="••••••••"
-                    required
-                    className="rw-input"
-                />
-            </div>
+            <Input
+                id="password"
+                name="password"
+                type="password"
+                label="Password"
+                autoComplete="current-password"
+                placeholder="••••••••"
+                required
+            />
 
             {errorMessage && (
                 <p className="text-sm text-rw-crimson bg-rw-crimson/5 border border-rw-crimson/20 rounded-xl px-4 py-3">
@@ -66,13 +58,14 @@ function LoginForm() {
                 </p>
             )}
 
-            <button
+            <Button
                 type="submit"
                 disabled={isPending}
-                className="btn-primary w-full !h-12 mt-2"
+                loading={isPending}
+                className="w-full !h-12 mt-2"
             >
                 {isPending ? "Signing in…" : "Sign in"}
-            </button>
+            </Button>
         </form>
     );
 }
