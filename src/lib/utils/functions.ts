@@ -26,3 +26,5 @@ export function productImageUrl(
 export function fmtNaira(n: number) {
     return `₦${Math.round(n).toLocaleString()}`;
 }
+
+export const formatNaira = fmtNaira;

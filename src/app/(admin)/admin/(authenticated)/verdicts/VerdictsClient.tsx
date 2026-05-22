@@ -5,8 +5,8 @@ import Link from "next/link";
 import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { VerdictDownloadButton, VerdictDocument } from "./component";
 import { useAdminModal } from "@/context/AdminModalContext";
-import { DEMO_ORDERS } from "@/lib/data/orders";
 import { AdminStats, AdminStatItem } from "@/components/admin/AdminStats";
+import type { Order } from "@/lib/data/types";
 
 const MOCK_VERDICTS = [
     {
@@ -32,16 +32,16 @@ const MOCK_VERDICTS = [
     },
 ];
 
-export default function VerdictsClient() {
+export default function VerdictsClient({ orders }: { orders: Order[] }) {
     const { openModal } = useAdminModal();
 
     const handleViewVerdict = (v: (typeof MOCK_VERDICTS)[0]) => {
-        const orders = DEMO_ORDERS.filter((o) => v.orderRefs.includes(o.orderRef));
+        const orderMatches = orders.filter((o) => v.orderRefs.includes(o.orderRef));
         openModal(
             <div className="pb-10">
                 <VerdictDocument
                     id={v.id}
-                    orders={orders}
+                    orders={orderMatches}
                     generatedBy={v.generatedBy}
                     generatedAt={v.generatedAt}
                 />

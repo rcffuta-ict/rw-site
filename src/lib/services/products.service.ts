@@ -30,73 +30,49 @@ const PRODUCT_SELECT = `
 
 /** Public storefront — returns only available products. */
 export async function getProducts(): Promise<Product[]> {
-    return unstable_cache(
-        async () => {
-            const supabase = await createSupabaseAdminClient();
-            const { data, error } = await supabase
-                .from("rw_products")
-                .select(PRODUCT_SELECT)
-                .eq("is_available", true)
-                .order("created_at", { ascending: true });
+    const supabase = await createSupabaseAdminClient();
+    const { data, error } = await supabase
+        .from("rw_products")
+        .select(PRODUCT_SELECT)
+        .eq("is_available", true)
+        .order("created_at", { ascending: true });
 
-            if (error) throw new Error(`Failed to load products: ${error.message}`);
-            return (data ?? []).map(mapProductFromDb);
-        },
-        ["storefront-products"],
-        { tags: ["products"], revalidate: 3600 }
-    )();
+    if (error) throw new Error(`Failed to load products: ${error.message}`);
+    return (data ?? []).map(mapProductFromDb);
 }
 
 /** Admin — returns ALL products (including hidden). */
 export async function getAllProducts(): Promise<Product[]> {
-    return unstable_cache(
-        async () => {
-            const supabase = await createSupabaseAdminClient();
-            const { data, error } = await supabase
-                .from("rw_products")
-                .select(PRODUCT_SELECT)
-                .order("created_at", { ascending: true });
+    const supabase = await createSupabaseAdminClient();
+    const { data, error } = await supabase
+        .from("rw_products")
+        .select(PRODUCT_SELECT)
+        .order("created_at", { ascending: true });
 
-            if (error) throw new Error(`Failed to load products: ${error.message}`);
-            return (data ?? []).map(mapProductFromDb);
-        },
-        ["admin-all-products"],
-        { tags: ["products"], revalidate: 3600 }
-    )();
+    if (error) throw new Error(`Failed to load products: ${error.message}`);
+    return (data ?? []).map(mapProductFromDb);
 }
 
 export async function getProductById(id: string): Promise<Product | undefined> {
-    return unstable_cache(
-        async () => {
-            const supabase = await createSupabaseAdminClient();
-            const { data } = await supabase
-                .from("rw_products")
-                .select(PRODUCT_SELECT)
-                .eq("id", id)
-                .single();
-            return data ? mapProductFromDb(data) : undefined;
-        },
-        [`product-${id}`],
-        { tags: ["products"], revalidate: 3600 }
-    )();
+    const supabase = await createSupabaseAdminClient();
+    const { data } = await supabase
+        .from("rw_products")
+        .select(PRODUCT_SELECT)
+        .eq("id", id)
+        .single();
+    return data ? mapProductFromDb(data) : undefined;
 }
 
 export async function getVariantById(
     variantId: string
 ): Promise<ProductVariant | undefined> {
-    return unstable_cache(
-        async () => {
-            const supabase = await createSupabaseAdminClient();
-            const { data } = await supabase
-                .from("rw_product_variants")
-                .select("*, images:rw_product_images(*)")
-                .eq("id", variantId)
-                .single();
-            return data ? mapVariantFromDb(data) : undefined;
-        },
-        [`variant-${variantId}`],
-        { tags: ["products"], revalidate: 3600 }
-    )();
+    const supabase = await createSupabaseAdminClient();
+    const { data } = await supabase
+        .from("rw_product_variants")
+        .select("*, images:rw_product_images(*)")
+        .eq("id", variantId)
+        .single();
+    return data ? mapVariantFromDb(data) : undefined;
 }
 
 // ─── Product CRUD ─────────────────────────────────────────────────────────────

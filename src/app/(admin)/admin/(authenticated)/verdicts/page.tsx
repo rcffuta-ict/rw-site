@@ -6,6 +6,9 @@ export const metadata: Metadata = {
     description: "Manage and download production manifests and fulfillment permits for Redemption Week '26."
 };
 
-export default function VerdictsPage() {
-    return <VerdictsClient />;
+import { listOrders } from "@/lib/services/orders.service";
+
+export default async function VerdictsPage() {
+    const orders = await listOrders();
+    return <VerdictsClient orders={orders} />;
 }

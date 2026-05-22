@@ -1,20 +1,18 @@
 "use client";
 
-import { DEMO_ORDERS } from "@/lib/data/orders";
+import type { PaymentWithOrder } from "@/lib/services/finance.service";
 
-export function BankDistribution() {
+export function BankDistribution({ payments }: { payments: PaymentWithOrder[] }) {
     // Calculate revenue by bank
     const bankRevenue: Record<string, number> = {};
     let totalCollected = 0;
 
-    DEMO_ORDERS.forEach(order => {
-        order.payments.forEach(payment => {
-            if (payment.status === "approved") {
-                const bank = payment.extractedBank || "Unknown/Other";
-                bankRevenue[bank] = (bankRevenue[bank] || 0) + (payment.amountConfirmed ?? payment.extractedAmount);
-                totalCollected += (payment.amountConfirmed ?? payment.extractedAmount);
-            }
-        });
+    payments.forEach(payment => {
+        if (payment.status === "approved") {
+            const bank = payment.extractedBank || "Unknown/Other";
+            bankRevenue[bank] = (bankRevenue[bank] || 0) + (payment.amountConfirmed ?? payment.extractedAmount);
+            totalCollected += (payment.amountConfirmed ?? payment.extractedAmount);
+        }
     });
 
     const sortedBanks = Object.entries(bankRevenue)
@@ -23,7 +21,7 @@ export function BankDistribution() {
     function fmt(n: number) { return `₦${n.toLocaleString()}`; }
 
     return (
-        <div className="rw-card p-6 shadow-sm border border-[var(--rw-border)] bg-white animate-scale-in">
+        <div className="bg-white animate-scale-in">
             <h3 className="text-[10px] font-bold text-rw-muted uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson" />
                 Revenue by Bank

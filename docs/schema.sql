@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS rw_products (
 );
 
 COMMENT ON TABLE rw_products IS 'Core product records. Pre-order model: no stock tracking.';
-COMMENT ON COLUMN products.base_price IS 'Price in Naira. Variants may override via price_override.';
+COMMENT ON COLUMN rw_products.base_price IS 'Price in Naira. Variants may override via price_override.';
 
 CREATE OR REPLACE TRIGGER products_set_updated_at
     BEFORE UPDATE ON rw_products
@@ -138,7 +138,7 @@ CREATE TABLE IF NOT EXISTS rw_product_variants (
 );
 
 COMMENT ON TABLE rw_product_variants IS 'Size × color × design combinations. No stock tracking (pre-order model).';
-COMMENT ON COLUMN product_variants.price_override IS 'When NULL, the parent product.base_price applies.';
+COMMENT ON COLUMN rw_product_variants.price_override IS 'When NULL, the parent product.base_price applies.';
 
 CREATE INDEX IF NOT EXISTS idx_variants_product ON rw_product_variants(product_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_variants_sku ON rw_product_variants(sku) WHERE sku IS NOT NULL;
@@ -160,13 +160,13 @@ CREATE TABLE IF NOT EXISTS rw_product_images (
 );
 
 COMMENT ON TABLE rw_product_images IS 'Cloudinary image refs. One image per variant, fixed 360×480.';
-COMMENT ON COLUMN product_images.is_primary IS 'Marks the canonical image shown for this variant.';
+COMMENT ON COLUMN rw_product_images.is_primary IS 'Marks the canonical image shown for this variant.';
 
-CREATE INDEX IF NOT EXISTS idx_images_variant ON product_images(variant_id);
+CREATE INDEX IF NOT EXISTS idx_images_variant ON rw_product_images(variant_id);
 
 -- Enforce only one primary image per variant
 CREATE UNIQUE INDEX IF NOT EXISTS idx_images_primary_per_variant
-    ON product_images(variant_id)
+    ON rw_product_images(variant_id)
     WHERE is_primary = TRUE;
 
 
@@ -193,7 +193,7 @@ CREATE TABLE IF NOT EXISTS rw_orders (
 );
 
 COMMENT ON TABLE rw_orders IS 'Customer pre-orders. Status manually updated by moderators.';
-COMMENT ON COLUMN orders.amount_paid IS 'Cached sum of approved payments. Derived via order_payment_summary view.';
+COMMENT ON COLUMN rw_orders.amount_paid IS 'Cached sum of approved payments. Derived via order_payment_summary view.';
 
 CREATE OR REPLACE TRIGGER orders_set_updated_at
     BEFORE UPDATE ON rw_orders
@@ -243,7 +243,7 @@ CREATE TABLE IF NOT EXISTS rw_order_items (
 
 COMMENT ON TABLE rw_order_items IS 'Line items per order. product_name, variant_label, unit_price, image_url are snapshots and immutable.';
 
-CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_order ON rw_order_items(order_id);
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -285,8 +285,8 @@ CREATE TABLE IF NOT EXISTS rw_payments (
 );
 
 COMMENT ON TABLE rw_payments IS 'Customer payment receipts. Multiple per order (installments). Moderator action is recorded via moderator_name/moderator_email.';
-COMMENT ON COLUMN payments.moderator_name  IS 'Name of the admin/moderator who last reviewed this payment.';
-COMMENT ON COLUMN payments.moderator_email IS 'Email of the admin/moderator who last reviewed this payment.';
+COMMENT ON COLUMN rw_payments.moderator_name  IS 'Name of the admin/moderator who last reviewed this payment.';
+COMMENT ON COLUMN rw_payments.moderator_email IS 'Email of the admin/moderator who last reviewed this payment.';
 
 CREATE OR REPLACE TRIGGER payments_set_updated_at
     BEFORE UPDATE ON rw_payments
@@ -298,7 +298,7 @@ DO $$
 BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns
-        WHERE table_name = 'payments' AND column_name = 'updated_at'
+        WHERE table_name = 'rw_payments' AND column_name = 'updated_at'
     ) THEN
         ALTER TABLE rw_payments ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
     END IF;
@@ -313,10 +313,10 @@ CREATE INDEX IF NOT EXISTS idx_payments_status ON rw_payments(status);
 CREATE OR REPLACE FUNCTION sync_order_amount_paid()
 RETURNS TRIGGER AS $$
 BEGIN
-    UPDATE orders
+    UPDATE rw_orders
     SET amount_paid = (
         SELECT COALESCE(SUM(amount_confirmed), 0)
-        FROM payments
+        FROM rw_payments
         WHERE order_id = COALESCE(NEW.order_id, OLD.order_id)
           AND status = 'approved'
     )

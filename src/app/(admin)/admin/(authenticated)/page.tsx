@@ -1,34 +1,41 @@
 import Link from "next/link";
-import { DEMO_ORDERS, getDemoStats } from "@/lib/data/orders";
 import { OrderStatusBadge } from "@/components/ui/Badge";
 import { AdminStats } from "@/components/admin/AdminStats";
-
 import { RevenueBreakdown } from "@/components/admin/finance/RevenueBreakdown";
+import { listOrders } from "@/lib/services/orders.service";
+import { formatNaira } from "@/lib/utils/functions";
 
 export const metadata = { title: "Admin Dashboard — RW'26" };
 
-function fmt(n: number) {
-    return `₦${n.toLocaleString()}`;
-}
+export default async function AdminDashboard() {
+    const orders = await listOrders();
 
-export default function AdminDashboard() {
-    const stats = getDemoStats();
-    const totalPossibleRevenue = DEMO_ORDERS.reduce((s, o) => s + o.totalAmount, 0);
-    const actualCollected = DEMO_ORDERS.reduce((s, o) => s + o.amountPaid, 0);
+    const totalPossibleRevenue = orders.reduce((s, o) => s + o.totalAmount, 0);
+    const actualCollected = orders.reduce((s, o) => s + o.amountPaid, 0);
     const collectionRate =
         totalPossibleRevenue > 0
             ? Math.round((actualCollected / totalPossibleRevenue) * 100)
             : 0;
     const outstandingBalance = totalPossibleRevenue - actualCollected;
 
-    // Status distribution for chart
-    const statusCounts: Record<string, number> = {};
-    DEMO_ORDERS.forEach((o) => {
-        statusCounts[o.status] = (statusCounts[o.status] || 0) + 1;
+    // Calculate pending/flagged from payments attached to orders
+    let pendingCount = 0;
+    let flaggedCount = 0;
+
+    orders.forEach((o) => {
+        o.payments.forEach((p) => {
+            if (p.status === "pending") pendingCount++;
+            if (p.status === "flagged") flaggedCount++;
+        });
     });
 
+    // Recent orders to show in the table
+    const recentOrders = [...orders]
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 6);
+
     return (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-8 animate-fade-in-up">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
                 <div>
@@ -57,8 +64,8 @@ export default function AdminDashboard() {
                 stats={[
                     {
                         label: "Total Orders",
-                        value: stats.total,
-                        trend: { value: 12, isUp: true },
+                        value: orders.length,
+                        trend: { value: 0, isUp: true },
                         icon: (
                             <svg
                                 className="h-6 w-6"
@@ -78,8 +85,8 @@ export default function AdminDashboard() {
                     {
                         label: "Collection Rate",
                         value: `${collectionRate}%`,
-                        sub: `${fmt(actualCollected)} of ${fmt(totalPossibleRevenue)}`,
-                        trend: { value: 5, isUp: true },
+                        sub: `${formatNaira(actualCollected)} of ${formatNaira(totalPossibleRevenue)}`,
+                        trend: { value: 0, isUp: true },
                         icon: (
                             <svg
                                 className="h-6 w-6"
@@ -98,7 +105,7 @@ export default function AdminDashboard() {
                     },
                     {
                         label: "Outstanding",
-                        value: fmt(outstandingBalance),
+                        value: formatNaira(outstandingBalance),
                         sub: "Remaining to be collected",
                         icon: (
                             <svg
@@ -118,7 +125,7 @@ export default function AdminDashboard() {
                     },
                     {
                         label: "Pending Review",
-                        value: stats.pending,
+                        value: pendingCount,
                         sub: "Payments awaiting approval",
                         icon: (
                             <svg
@@ -138,7 +145,7 @@ export default function AdminDashboard() {
                     },
                     {
                         label: "Flagged Orders",
-                        value: stats.flagged,
+                        value: flaggedCount,
                         sub: "Require attention",
                         icon: (
                             <svg
@@ -169,7 +176,7 @@ export default function AdminDashboard() {
                                 Revenue Trend (Weekly)
                             </p>
                             <p className="font-display font-bold text-2xl text-rw-ink mt-1">
-                                {fmt(actualCollected)}
+                                {formatNaira(actualCollected)}
                             </p>
                         </div>
                         <span className="text-xs font-bold px-2 py-1 rounded-lg bg-green-50 text-green-600">
@@ -196,7 +203,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Revenue Breakdown */}
-                <RevenueBreakdown />
+                <RevenueBreakdown orders={orders} />
             </div>
 
             {/* Recent orders */}
@@ -235,38 +242,49 @@ export default function AdminDashboard() {
                             </tr>
                         </thead>
                         <tbody>
-                            {DEMO_ORDERS.slice(0, 6).map((o) => (
-                                <tr
-                                    key={o.id}
-                                    className="border-b border-[var(--rw-border)] last:border-0 hover:bg-rw-bg-alt/50 transition-colors"
-                                >
-                                    <td className="px-5 py-4">
-                                        <Link
-                                            href={`/admin/orders/${o.orderRef}`}
-                                            className="font-mono font-bold text-rw-crimson hover:underline"
-                                        >
-                                            {o.orderRef}
-                                        </Link>
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        <p className="font-medium text-rw-ink">
-                                            {o.customerName}
-                                        </p>
-                                        <p className="text-xs text-rw-muted">
-                                            {o.customerEmail}
-                                        </p>
-                                    </td>
-                                    <td className="px-5 py-4 text-right font-semibold text-rw-ink">
-                                        {fmt(o.totalAmount)}
-                                    </td>
-                                    <td className="px-5 py-4 text-right text-rw-text-2">
-                                        {fmt(o.amountPaid)}
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        <OrderStatusBadge status={o.status} />
+                            {recentOrders.length === 0 ? (
+                                <tr>
+                                    <td
+                                        colSpan={5}
+                                        className="px-5 py-8 text-center text-rw-muted opacity-60"
+                                    >
+                                        No orders found
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                recentOrders.map((o) => (
+                                    <tr
+                                        key={o.id}
+                                        className="border-b border-[var(--rw-border)] last:border-0 hover:bg-rw-bg-alt/50 transition-colors"
+                                    >
+                                        <td className="px-5 py-4">
+                                            <Link
+                                                href={`/admin/orders/${o.orderRef}`}
+                                                className="font-mono font-bold text-rw-crimson hover:underline"
+                                            >
+                                                {o.orderRef}
+                                            </Link>
+                                        </td>
+                                        <td className="px-5 py-4">
+                                            <p className="font-medium text-rw-ink">
+                                                {o.customerName}
+                                            </p>
+                                            <p className="text-xs text-rw-muted">
+                                                {o.customerEmail}
+                                            </p>
+                                        </td>
+                                        <td className="px-5 py-4 text-right font-semibold text-rw-ink">
+                                            {formatNaira(o.totalAmount)}
+                                        </td>
+                                        <td className="px-5 py-4 text-right text-rw-text-2">
+                                            {formatNaira(o.amountPaid)}
+                                        </td>
+                                        <td className="px-5 py-4">
+                                            <OrderStatusBadge status={o.status} />
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -276,10 +294,10 @@ export default function AdminDashboard() {
             <div className="grid sm:grid-cols-3 gap-4">
                 <Link
                     href="/admin/orders"
-                    className="rw-card p-6 hover:border-rw-crimson/30 hover:-translate-y-0.5 transition-all flex flex-col gap-2"
+                    className="rw-card p-6 hover:border-rw-crimson/30 hover:-translate-y-0.5 transition-all flex flex-col gap-2 group"
                 >
                     <svg
-                        className="h-6 w-6 text-rw-crimson"
+                        className="h-6 w-6 text-rw-crimson group-hover:scale-110 transition-transform"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth={1.5}
@@ -298,10 +316,10 @@ export default function AdminDashboard() {
                 </Link>
                 <Link
                     href="/admin/finance"
-                    className="rw-card p-6 hover:border-rw-crimson/30 hover:-translate-y-0.5 transition-all flex flex-col gap-2"
+                    className="rw-card p-6 hover:border-rw-crimson/30 hover:-translate-y-0.5 transition-all flex flex-col gap-2 group"
                 >
                     <svg
-                        className="h-6 w-6 text-rw-crimson"
+                        className="h-6 w-6 text-rw-crimson group-hover:scale-110 transition-transform"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth={1.5}
@@ -320,10 +338,10 @@ export default function AdminDashboard() {
                 </Link>
                 <Link
                     href="/admin/settings"
-                    className="rw-card p-6 hover:border-rw-crimson/30 hover:-translate-y-0.5 transition-all flex flex-col gap-2"
+                    className="rw-card p-6 hover:border-rw-crimson/30 hover:-translate-y-0.5 transition-all flex flex-col gap-2 group"
                 >
                     <svg
-                        className="h-6 w-6 text-rw-crimson"
+                        className="h-6 w-6 text-rw-crimson group-hover:rotate-45 transition-transform"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth={1.5}

@@ -65,84 +65,60 @@ export interface ReviewPaymentInput {
 // ─── Read ─────────────────────────────────────────────────────────────────────
 
 export async function listOrders(): Promise<Order[]> {
-    return unstable_cache(
-        async () => {
-            const supabase = await createSupabaseAdminClient();
-            const { data, error } = await supabase
-                .from("rw_orders")
-                .select(ORDER_SELECT)
-                .order("created_at", { ascending: false });
+    const supabase = await createSupabaseAdminClient();
+    const { data, error } = await supabase
+        .from("rw_orders")
+        .select(ORDER_SELECT)
+        .order("created_at", { ascending: false });
 
-            if (error) throw new Error(`Failed to load orders: ${error.message}`);
-            return (data ?? []).map(mapOrderFromDb);
-        },
-        ["admin-list-orders"],
-        { tags: ["orders"], revalidate: 3600 }
-    )();
+    if (error) throw new Error(`Failed to load orders: ${error.message}`);
+    return (data ?? []).map(mapOrderFromDb);
 }
 
 export async function getOrderByRef(ref: string): Promise<Order | undefined> {
-    return unstable_cache(
-        async () => {
-            const supabase = await createSupabaseAdminClient();
-            const { data } = await supabase
-                .from("rw_orders")
-                .select(ORDER_SELECT)
-                .eq("order_ref", ref.toUpperCase())
-                .single();
-            return data ? mapOrderFromDb(data) : undefined;
-        },
-        [`order-ref-${ref.toUpperCase()}`],
-        { tags: ["orders"], revalidate: 3600 }
-    )();
+    const supabase = await createSupabaseAdminClient();
+    const { data } = await supabase
+        .from("rw_orders")
+        .select(ORDER_SELECT)
+        .eq("order_ref", ref.toUpperCase())
+        .single();
+    return data ? mapOrderFromDb(data) : undefined;
 }
 
 export async function getOrderById(id: string): Promise<Order | undefined> {
-    return unstable_cache(
-        async () => {
-            const supabase = await createSupabaseAdminClient();
-            const { data } = await supabase
-                .from("rw_orders")
-                .select(ORDER_SELECT)
-                .eq("id", id)
-                .single();
-            return data ? mapOrderFromDb(data) : undefined;
-        },
-        [`order-id-${id}`],
-        { tags: ["orders"], revalidate: 3600 }
-    )();
+    const supabase = await createSupabaseAdminClient();
+    const { data } = await supabase
+        .from("rw_orders")
+        .select(ORDER_SELECT)
+        .eq("id", id)
+        .single();
+    return data ? mapOrderFromDb(data) : undefined;
 }
 
 export async function getOrderPaymentSummary(
     orderId: string
 ): Promise<OrderPaymentSummary | undefined> {
-    return unstable_cache(
-        async () => {
-            const supabase = await createSupabaseAdminClient();
-            const { data } = await supabase
-                .from("rw_order_payment_summary")
-                .select("*")
-                .eq("order_id", orderId)
-                .single();
+    const supabase = await createSupabaseAdminClient();
+    const { data } = await supabase
+        .from("rw_order_payment_summary")
+        .select("*")
+        .eq("order_id", orderId)
+        .single();
 
-            if (!data) return undefined;
+    if (!data) return undefined;
 
-            return {
-                orderId: data.order_id,
-                totalAmount: data.total_amount,
-                amountPaid: Number(data.amount_paid),
-                amountPending: Number(data.amount_pending),
-                balance: Number(data.balance),
-                isFullyPaid: data.is_fully_paid,
-                approvedCount: Number(data.approved_count),
-                pendingCount: Number(data.pending_count),
-                flaggedCount: Number(data.flagged_count),
-                rejectedCount: Number(data.rejected_count),
-            };
-        },
-        [`order-payment-summary-${orderId}`],
-        { tags: ["orders"], revalidate: 3600 }
-    )();
+    return {
+        orderId: data.order_id,
+        totalAmount: data.total_amount,
+        amountPaid: Number(data.amount_paid),
+        amountPending: Number(data.amount_pending),
+        balance: Number(data.balance),
+        isFullyPaid: data.is_fully_paid,
+        approvedCount: Number(data.approved_count),
+        pendingCount: Number(data.pending_count),
+        flaggedCount: Number(data.flagged_count),
+        rejectedCount: Number(data.rejected_count),
+    };
 }
 
 // ─── Create ───────────────────────────────────────────────────────────────────
