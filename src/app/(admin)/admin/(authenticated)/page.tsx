@@ -29,6 +29,33 @@ export default async function AdminDashboard() {
         });
     });
 
+    // Calculate actual daily revenue for the past 7 days dynamically
+    const past7Days = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (6 - i));
+        return d;
+    });
+
+    const dailyRevenue = past7Days.map((date) => {
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const dayOrders = orders.filter((o) => {
+            const created = new Date(o.createdAt).getTime();
+            return created >= startOfDay.getTime() && created <= endOfDay.getTime();
+        });
+
+        const amount = dayOrders.reduce((s, o) => s + o.amountPaid, 0);
+        return {
+            amount,
+            dayName: date.toLocaleDateString("en-US", { weekday: "short" }),
+        };
+    });
+
+    const maxDailyRevenue = Math.max(...dailyRevenue.map((d) => d.amount), 0);
+
     // Recent orders to show in the table
     const recentOrders = [...orders]
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -184,20 +211,29 @@ export default async function AdminDashboard() {
                         </span>
                     </div>
                     <div className="chart-placeholder h-48 flex items-end justify-around px-4 pb-4 gap-2">
-                        {[35, 55, 45, 70, 60, 85, 75].map((h, i) => (
-                            <div
-                                key={i}
-                                className="flex-1 rounded-t-lg relative z-10 transition-all hover:opacity-80"
-                                style={{
-                                    height: `${h}%`,
-                                    background: i === 6 ? "#c41230" : "#e5e7eb",
-                                }}
-                            />
-                        ))}
+                        {dailyRevenue.map((d, i) => {
+                            const pct = maxDailyRevenue > 0 ? (d.amount / maxDailyRevenue) * 100 : 0;
+                            return (
+                                <div
+                                    key={i}
+                                    className="flex-1 rounded-t-lg relative z-10 transition-all hover:opacity-80 group cursor-pointer"
+                                    style={{
+                                        height: `${Math.max(4, pct)}%`,
+                                        background: i === 6 ? "#c41230" : "#e5e7eb",
+                                    }}
+                                    title={`${d.dayName}: ${formatNaira(d.amount)}`}
+                                >
+                                    {/* Dynamic hover bubble */}
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-rw-ink text-white text-[9px] font-bold py-1 px-1.5 rounded whitespace-nowrap z-30 shadow-md">
+                                        {formatNaira(d.amount)}
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                     <div className="flex justify-between text-[10px] text-rw-muted mt-2 px-4 font-bold uppercase tracking-widest">
-                        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
-                            <span key={d}>{d}</span>
+                        {dailyRevenue.map((d, i) => (
+                            <span key={i}>{d.dayName}</span>
                         ))}
                     </div>
                 </div>
