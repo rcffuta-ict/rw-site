@@ -12,53 +12,35 @@ import { unstable_cache, revalidateTag } from "next/cache";
 // ─── Read ─────────────────────────────────────────────────────────────────────
 
 export async function listCategories(includeInactive = false): Promise<Category[]> {
-    return unstable_cache(
-        async () => {
-            const supabase = await createSupabaseAdminClient();
-            let query = supabase
-                .from("rw_categories")
-                .select("*")
-                .order("sort_order", { ascending: true });
+    const supabase = await createSupabaseAdminClient();
+    let query = supabase
+        .from("rw_categories")
+        .select("*")
+        .order("sort_order", { ascending: true });
 
-            if (!includeInactive) {
-                query = query.eq("is_active", true);
-            }
+    if (!includeInactive) {
+        query = query.eq("is_active", true);
+    }
 
-            const { data, error } = await query;
-            if (error) throw new Error(`Failed to load categories: ${error.message}`);
-            return (data ?? []).map(mapCategoryFromDb);
-        },
-        [`categories-list-${includeInactive}`],
-        { tags: ["categories"], revalidate: 3600 }
-    )();
+    const { data, error } = await query;
+    if (error) throw new Error(`Failed to load categories: ${error.message}`);
+    return (data ?? []).map(mapCategoryFromDb);
 }
 
 export async function getCategoryById(id: string): Promise<Category | undefined> {
-    return unstable_cache(
-        async () => {
-            const supabase = await createSupabaseAdminClient();
-            const { data } = await supabase.from("rw_categories").select("*").eq("id", id).single();
-            return data ? mapCategoryFromDb(data) : undefined;
-        },
-        [`category-${id}`],
-        { tags: ["categories"], revalidate: 3600 }
-    )();
+    const supabase = await createSupabaseAdminClient();
+    const { data } = await supabase.from("rw_categories").select("*").eq("id", id).single();
+    return data ? mapCategoryFromDb(data) : undefined;
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | undefined> {
-    return unstable_cache(
-        async () => {
-            const supabase = await createSupabaseAdminClient();
-            const { data } = await supabase
-                .from("rw_categories")
-                .select("*")
-                .eq("slug", slug)
-                .single();
-            return data ? mapCategoryFromDb(data) : undefined;
-        },
-        [`category-slug-${slug}`],
-        { tags: ["categories"], revalidate: 3600 }
-    )();
+    const supabase = await createSupabaseAdminClient();
+    const { data } = await supabase
+        .from("rw_categories")
+        .select("*")
+        .eq("slug", slug)
+        .single();
+    return data ? mapCategoryFromDb(data) : undefined;
 }
 
 // ─── Create ───────────────────────────────────────────────────────────────────

@@ -281,7 +281,8 @@ CREATE TABLE IF NOT EXISTS rw_payments (
     moderator_name  TEXT,
     moderator_email TEXT,
 
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 COMMENT ON TABLE rw_payments IS 'Customer payment receipts. Multiple per order (installments). Moderator action is recorded via moderator_name/moderator_email.';
@@ -292,17 +293,6 @@ CREATE OR REPLACE TRIGGER payments_set_updated_at
     BEFORE UPDATE ON rw_payments
     FOR EACH ROW
     EXECUTE FUNCTION set_updated_at();
-
--- Add updated_at to payments for trigger use
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.columns
-        WHERE table_name = 'rw_payments' AND column_name = 'updated_at'
-    ) THEN
-        ALTER TABLE rw_payments ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
-    END IF;
-END $$;
 
 CREATE INDEX IF NOT EXISTS idx_payments_order  ON rw_payments(order_id);
 CREATE INDEX IF NOT EXISTS idx_payments_status ON rw_payments(status);

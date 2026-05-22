@@ -232,7 +232,6 @@ export default function FinanceClient({
                 {activeTab === "payments" && (
                     <FinancePayments
                         allPayments={payments}
-                        fmt={fmt}
                         PaymentStatusPill={PaymentStatusPill}
                     />
                 )}

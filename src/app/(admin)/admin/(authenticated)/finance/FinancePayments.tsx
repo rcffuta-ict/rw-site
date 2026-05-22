@@ -10,20 +10,21 @@ import type { PaymentWithOrder } from "@/lib/services/finance.service";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { toast } from "sonner";
 import { reviewPayment } from "@/lib/services/orders.service";
+import { formatNaira } from "@/lib/utils/functions";
+import { useRouter } from "next/navigation";
 
 interface FinancePaymentsProps {
     allPayments: PaymentWithOrder[];
-    fmt: (n: number) => string;
     PaymentStatusPill: (props: { status: string }) => React.ReactNode;
 }
 
 export function FinancePayments({
     allPayments,
-    fmt,
     PaymentStatusPill,
 }: FinancePaymentsProps) {
     const { openModal, closeModal } = useAdminModal();
     const { user } = useAdminAuth();
+    const router = useRouter();
     const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
     const [filter, setFilter] = useState<string>("pending");
     const [searchTerm, setSearchTerm] = useState("");
@@ -92,6 +93,8 @@ export function FinancePayments({
 
         if (res.success) {
             toast.success(`Payment ${decision} successfully`);
+            setSelectedPaymentId(null);
+            router.refresh();
         } else {
             toast.error(res.error || "Failed to update payment");
         }
@@ -104,7 +107,7 @@ export function FinancePayments({
                 initialAmount={(
                     selectedPayment.amountConfirmed ?? selectedPayment.extractedAmount
                 ).toString()}
-                orderRef={selectedPayment.order.orderRef}
+                // orderRef={selectedPayment.order.orderRef}
                 onCancel={closeModal}
                 onConfirm={(amount) => handleDecision("approved", Number(amount))}
             />,
@@ -240,7 +243,7 @@ export function FinancePayments({
                                         </div>
                                         <div className="text-right">
                                             <p className="font-display font-black text-rw-ink text-lg">
-                                                {fmt(
+                                                {formatNaira(
                                                     p.amountConfirmed ?? p.extractedAmount
                                                 )}
                                             </p>
@@ -327,7 +330,7 @@ export function FinancePayments({
                                                     Order Total
                                                 </span>
                                                 <span className="font-medium">
-                                                    {fmt(
+                                                    {formatNaira(
                                                         selectedPayment.order.totalAmount
                                                     )}
                                                 </span>
@@ -337,7 +340,7 @@ export function FinancePayments({
                                                     Previously Paid
                                                 </span>
                                                 <span className="font-medium text-green-600">
-                                                    {fmt(
+                                                    {formatNaira(
                                                         selectedPayment.order.amountPaid
                                                     )}
                                                 </span>
@@ -347,7 +350,7 @@ export function FinancePayments({
                                                     Claimed Deposit
                                                 </span>
                                                 <span className="font-display font-black text-2xl text-blue-600">
-                                                    {fmt(
+                                                    {formatNaira(
                                                         selectedPayment.amountConfirmed ??
                                                             selectedPayment.extractedAmount
                                                     )}

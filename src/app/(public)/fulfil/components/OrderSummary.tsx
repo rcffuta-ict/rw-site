@@ -1,26 +1,78 @@
 import { ph } from "@/lib/utils/functions";
 import type { Order } from "@/lib/data/types";
 
-function ProgressBar({ paid, total }: { paid: number; total: number }) {
-    const pct = total > 0 ? Math.min(100, Math.round((paid / total) * 100)) : 0;
+function ProgressBar({ 
+    approved, 
+    pending, 
+    total 
+}: { 
+    approved: number; 
+    pending: number; 
+    total: number; 
+}) {
+    const approvedPct = total > 0 ? Math.min(100, Math.round((approved / total) * 100)) : 0;
+    const pendingPct = total > 0 ? Math.min(100 - approvedPct, Math.round((pending / total) * 100)) : 0;
+    
     return (
-        <div>
-            <div className="flex justify-between text-sm mb-2">
-                <span className="font-medium text-rw-ink">Payment Progress</span>
-                <span className="font-bold text-rw-crimson">{pct}%</span>
+        <div className="flex flex-col gap-3">
+            <div className="flex justify-between items-end">
+                <div>
+                    <span className="font-display font-black text-sm text-rw-ink uppercase tracking-wider block">
+                        Payment Progress
+                    </span>
+                    <span className="text-[10px] text-rw-muted font-bold uppercase tracking-wider block mt-0.5">
+                        ₦{approved.toLocaleString()} approved {pending > 0 && `· ₦${pending.toLocaleString()} pending`}
+                    </span>
+                </div>
+                <div className="text-right">
+                    <span className="font-display font-black text-xl text-rw-crimson">
+                        {approvedPct}%
+                    </span>
+                    {pendingPct > 0 && (
+                        <span className="text-xs font-bold text-amber-500 block">
+                            +{pendingPct}% pending
+                        </span>
+                    )}
+                </div>
             </div>
-            <div className="progress-bar-track">
-                <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
+
+            {/* Premium Dual Segment Bar */}
+            <div className="h-3 w-full bg-rw-bg-alt rounded-full overflow-hidden flex border border-[var(--rw-border)] relative">
+                {/* Approved segment */}
+                <div 
+                    className="h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-500 rounded-l-full"
+                    style={{ width: `${approvedPct}%` }}
+                />
+                {/* Pending segment (amber striped / pulse) */}
+                <div 
+                    className="h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500 animate-pulse relative overflow-hidden"
+                    style={{ 
+                        width: `${pendingPct}%`,
+                        backgroundImage: `linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent)`,
+                        backgroundSize: '1rem 1rem'
+                    }}
+                />
             </div>
-            <div className="flex justify-between text-xs text-rw-muted mt-2">
-                <span>₦{paid.toLocaleString()} paid</span>
-                <span>₦{(total - paid).toLocaleString()} remaining</span>
+
+            <div className="flex justify-between text-xs font-medium text-rw-muted">
+                <span>₦{approved.toLocaleString()} confirmed</span>
+                <span>₦{Math.max(0, total - approved - pending).toLocaleString()} remaining</span>
             </div>
         </div>
     );
 }
 
 export function OrderSummary({ order }: { order: Order }) {
+    const payments = order.payments || [];
+    
+    const approvedSum = payments
+        .filter((p) => p.status === "approved")
+        .reduce((sum, p) => sum + (p.amountConfirmed ?? p.extractedAmount), 0);
+
+    const pendingSum = payments
+        .filter((p) => p.status === "pending")
+        .reduce((sum, p) => sum + p.extractedAmount, 0);
+
     return (
         <div className="rw-card overflow-hidden border-t-[3px] border-t-rw-crimson shadow-rw-shadow-md">
             <div className="bg-gradient-to-r from-rw-crimson/5 to-transparent px-6 py-5 border-b border-rw-crimson/10 flex items-center justify-between">
@@ -79,7 +131,7 @@ export function OrderSummary({ order }: { order: Order }) {
                     ))}
                 </div>
 
-                <ProgressBar paid={order.amountPaid} total={order.totalAmount} />
+                <ProgressBar approved={approvedSum} pending={pendingSum} total={order.totalAmount} />
             </div>
         </div>
     );

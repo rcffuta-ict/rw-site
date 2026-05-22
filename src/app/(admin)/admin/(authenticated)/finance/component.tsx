@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/forms/Button";
 import { Textarea } from "@/components/ui/forms/Textarea";
 import { useState } from "react";
+import { PriceInput } from "@/components/ui/forms/PriceInput";
 
 export function ExportCsvButton() {
     const handleClick = () => {
@@ -118,16 +119,16 @@ const StatusView = ({ status, error }: { status: ModerationStatus; error?: strin
 
 export const ApprovalForm = ({
     initialAmount,
-    orderRef,
     onConfirm,
     onCancel,
 }: {
     initialAmount: string;
-    orderRef: string;
     onConfirm: (amt: string) => void;
     onCancel: () => void;
 }) => {
-    const [amount, setAmount] = useState(initialAmount);
+    const [amount, setAmount] = useState<number | "">(
+        initialAmount ? Number(initialAmount) : ""
+    );
     const [status, setStatus] = useState<ModerationStatus>("idle");
 
     const handleConfirm = async () => {
@@ -138,7 +139,7 @@ export const ApprovalForm = ({
             // 90% success rate for demo
             if (Math.random() > 0.1) {
                 setStatus("success");
-                setTimeout(() => onConfirm(amount), 1800);
+                setTimeout(() => onConfirm(amount.toString()), 1800);
             } else {
                 setStatus("error");
                 setTimeout(() => setStatus("idle"), 2500);
@@ -150,34 +151,68 @@ export const ApprovalForm = ({
         <div className="flex flex-col gap-6 p-2 relative overflow-hidden min-h-[300px] justify-center">
             <StatusView status={status} />
 
+            <style
+                dangerouslySetInnerHTML={{
+                    __html: `
+                .scale-up-input div.relative.flex {
+                    height: 72px !important;
+                }
+                .scale-up-input input {
+                    font-size: 28px !important;
+                    padding-left: 54px !important;
+                    border-radius: 16px !important;
+                }
+                .scale-up-input div.absolute {
+                    left: 20px !important;
+                }
+                .scale-up-input div.absolute span {
+                    font-size: 24px !important;
+                }
+                .scale-up-input p {
+                    font-size: 13px !important;
+                    margin-top: 6px !important;
+                }
+                .scale-up-input p span {
+                    font-size: 13px !important;
+                }
+            `,
+                }}
+            />
+
             <div className="flex flex-col gap-4">
                 <label className="text-[10px] font-bold text-rw-muted uppercase tracking-[0.2em] block text-center opacity-70">
-                    Amount to Register (₦)
+                    Amount to Register
                 </label>
 
-                <div className="relative group">
-                    <div className="relative h-20 flex items-center justify-center bg-rw-bg-alt/30 rounded-2xl border-2 border-transparent focus-within:border-green-500/50 focus-within:bg-white transition-all shadow-inner">
-                        <span className="absolute left-6 font-bold text-2xl text-rw-muted opacity-30">
-                            ₦
-                        </span>
-                        <input
-                            type="number"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                            autoFocus
-                            placeholder="0"
-                            className="w-full h-full bg-transparent text-center font-display font-bold text-4xl text-rw-ink outline-none px-12"
-                        />
-                    </div>
+                <div className="relative group text-left scale-up-input">
+                    <PriceInput
+                        value={amount}
+                        onChange={(val) => setAmount(val)}
+                        autoFocus
+                        placeholder="0"
+                        className="text-left font-display font-bold text-rw-ink outline-none"
+                    />
                 </div>
 
-                {Number(amount) > Number(initialAmount) && (
+                {Number(amount || 0) > Number(initialAmount) && (
                     <div className="flex items-start gap-2 bg-amber-50 p-3 rounded-xl border border-amber-200 animate-fade-in text-left">
-                        <svg className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        <svg
+                            className="h-5 w-5 text-amber-500 shrink-0 mt-0.5"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                            />
                         </svg>
                         <p className="text-xs text-amber-800 font-medium">
-                            Warning: The confirmed amount is higher than what was extracted/claimed (₦{Number(initialAmount).toLocaleString()}). This is allowed but please double-check.
+                            Warning: The confirmed amount is higher than what was
+                            extracted/claimed (₦{Number(initialAmount).toLocaleString()}).
+                            This is allowed but please double-check.
                         </p>
                     </div>
                 )}
@@ -188,9 +223,9 @@ export const ApprovalForm = ({
                     size="lg"
                     className="h-14 text-sm font-bold uppercase tracking-widest bg-green-600 hover:bg-green-700 !rounded-xl"
                     onClick={handleConfirm}
-                    disabled={status !== "idle"}
+                    disabled={status !== "idle" || amount === ""}
                 >
-                    Confirm & Approve ₦{Number(amount).toLocaleString()}
+                    Confirm & Approve ₦{Number(amount || 0).toLocaleString()}
                 </Button>
                 <Button
                     variant="ghost"
