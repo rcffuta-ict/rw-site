@@ -1,13 +1,12 @@
-// ─── Categories Service — Supabase ────────────────────────────────────────────
+"use server";
 
+// ─── Categories Service — Supabase ────────────────────────────────────────────
 import {
     createSupabaseAdminClient,
     createSupabaseServerClient,
 } from "@/lib/supabase/server";
 import { mapCategoryFromDb } from "@/lib/supabase/mappers";
 import type { Category, CategoryInput, ServiceResult } from "@/lib/data/types";
-
-export type { Category, CategoryInput };
 
 // ─── Read ─────────────────────────────────────────────────────────────────────
 

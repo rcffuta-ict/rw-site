@@ -1,5 +1,6 @@
-// ─── Products Service — Supabase ──────────────────────────────────────────────
+"use server";
 
+// ─── Products Service — Supabase ──────────────────────────────────────────────
 import {
     createSupabaseAdminClient,
     createSupabaseServerClient,
@@ -14,8 +15,6 @@ import type {
     ServiceResult,
 } from "@/lib/data/types";
 
-export type { Product, ProductVariant, ProductInput, ProductVariantInput, ProductImage };
-
 // ─── Shared select fragment ───────────────────────────────────────────────────
 
 const PRODUCT_SELECT = `
@@ -26,28 +25,6 @@ const PRODUCT_SELECT = `
         images:product_images ( * )
     )
 ` as const;
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-/** Effective price for a variant — variant priceOverride takes precedence over product basePrice. */
-export function getEffectivePrice(product: Product, variantId: string): number {
-    const variant = product.variants.find((v) => v.id === variantId);
-    return variant?.priceOverride ?? product.basePrice;
-}
-
-/** Build a human-readable variant label e.g. "Black · L · Holy Spirit". */
-export function buildVariantLabel(
-    variant: Pick<ProductVariant, "color" | "size" | "design">
-): string {
-    return [variant.color, variant.size, variant.design].filter(Boolean).join(" · ");
-}
-
-/** Returns the primary image for a variant, falling back to the first image. */
-export function getVariantPrimaryImage(
-    variant: ProductVariant
-): ProductImage | undefined {
-    return variant.images.find((img) => img.isPrimary) ?? variant.images[0];
-}
 
 // ─── Read ─────────────────────────────────────────────────────────────────────
 

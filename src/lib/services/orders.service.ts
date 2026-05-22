@@ -1,5 +1,6 @@
-// ─── Orders Service — Supabase ────────────────────────────────────────────────
+"use server";
 
+// ─── Orders Service — Supabase ────────────────────────────────────────────────
 import {
     createSupabaseAdminClient,
     createSupabaseServerClient,
@@ -13,8 +14,6 @@ import type {
     OrderPaymentSummary,
     ServiceResult,
 } from "@/lib/data/types";
-
-export type { Order, OrderStatus, Payment, PaymentStatus, OrderPaymentSummary };
 
 // ─── Shared select fragment ───────────────────────────────────────────────────
 

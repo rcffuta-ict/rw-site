@@ -1,4 +1,4 @@
-import type { Product } from "./types";
+import type { Product, ProductImage, ProductVariant } from "./types";
 
 // ─── Demo product catalog ─────────────────────────────────────────────────────
 // Used when DEMO_MODE = true (see src/lib/config.ts).
@@ -31,7 +31,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "tee-hs-m-blk",
@@ -43,7 +43,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "tee-hs-l-blk",
@@ -55,7 +55,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "tee-hs-xl-blk",
@@ -67,7 +67,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "tee-hs-xxl-blk",
@@ -79,7 +79,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "tee-hs-s-wht",
@@ -91,7 +91,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "tee-hs-m-wht",
@@ -103,7 +103,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "tee-hs-l-wht",
@@ -115,7 +115,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "tee-hs-xl-wht",
@@ -127,7 +127,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "tee-hs-xxl-wht",
@@ -139,7 +139,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: false,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "tee-hs-s-burg",
@@ -151,7 +151,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "tee-hs-m-burg",
@@ -163,7 +163,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "tee-hs-l-burg",
@@ -175,7 +175,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "tee-hs-xl-burg",
@@ -187,7 +187,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: false,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
         ],
     },
@@ -215,7 +215,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "hd-l-blk",
@@ -227,7 +227,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "hd-xl-blk",
@@ -239,7 +239,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "hd-xxl-blk",
@@ -251,7 +251,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "hd-m-burg",
@@ -263,7 +263,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "hd-l-burg",
@@ -275,7 +275,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "hd-xl-burg",
@@ -287,7 +287,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: false,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "hd-m-wine",
@@ -299,7 +299,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "hd-l-wine",
@@ -311,7 +311,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "hd-xl-wine",
@@ -323,7 +323,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
         ],
     },
@@ -351,7 +351,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "cap-wht",
@@ -363,7 +363,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
             {
                 id: "cap-wine",
@@ -375,7 +375,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
         ],
     },
@@ -403,7 +403,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 priceOverride: null,
                 isAvailable: true,
                 images: [],
-                colorHex:'',
+                colorHex: "",
             },
         ],
     },
@@ -429,28 +429,48 @@ export function getVariantById(productId: string, variantId: string) {
     return product?.variants.find((v) => v.id === variantId);
 }
 
+// export function getEffectivePrice(product: Product, variantId: string): number {
+//     const variant = product.variants.find((v) => v.id === variantId);
+//     return variant?.priceOverride ?? product.basePrice;
+// }
+
+// export function buildVariantLabel(variant: {
+//     size: string | null;
+//     color: string | null;
+//     design: string | null;
+// }): string {
+//     return [variant.color, variant.size, variant.design].filter(Boolean).join(" · ");
+// }
+
+/** Returns the primary Cloudinary image URL for a variant, or null if none uploaded yet. */
+// export function getVariantPrimaryImage(
+//     variantId: string,
+//     productId: string
+// ): string | null {
+//     const product = getProductById(productId);
+//     if (!product) return null;
+//     const variant = product.variants.find((v) => v.id === variantId);
+//     if (!variant) return null;
+//     const primary = variant.images.find((img) => img.isPrimary) ?? variant.images[0];
+//     return primary?.cloudinaryUrl ?? null;
+// }
+
+/** Returns the primary image for a variant, falling back to the first image. */
+export function getVariantPrimaryImage(
+    variant: ProductVariant
+): ProductImage | undefined {
+    return variant.images.find((img) => img.isPrimary) ?? variant.images[0];
+}
+
+/** Effective price for a variant — variant priceOverride takes precedence over product basePrice. */
 export function getEffectivePrice(product: Product, variantId: string): number {
     const variant = product.variants.find((v) => v.id === variantId);
     return variant?.priceOverride ?? product.basePrice;
 }
 
-export function buildVariantLabel(variant: {
-    size: string | null;
-    color: string | null;
-    design: string | null;
-}): string {
+/** Build a human-readable variant label e.g. "Black · L · Holy Spirit". */
+export function buildVariantLabel(
+    variant: Pick<ProductVariant, "color" | "size" | "design">
+): string {
     return [variant.color, variant.size, variant.design].filter(Boolean).join(" · ");
-}
-
-/** Returns the primary Cloudinary image URL for a variant, or null if none uploaded yet. */
-export function getVariantPrimaryImage(
-    variantId: string,
-    productId: string
-): string | null {
-    const product = getProductById(productId);
-    if (!product) return null;
-    const variant = product.variants.find((v) => v.id === variantId);
-    if (!variant) return null;
-    const primary = variant.images.find((img) => img.isPrimary) ?? variant.images[0];
-    return primary?.cloudinaryUrl ?? null;
 }

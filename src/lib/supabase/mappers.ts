@@ -24,11 +24,15 @@ import type {
     AdminRole,
 } from "@/lib/data/types";
 
+function toPlain<T>(obj: T): T {
+    return JSON.parse(JSON.stringify(obj));
+}
+
 // ─── Category ─────────────────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapCategoryFromDb(row: any): Category {
-    return {
+    return toPlain({
         id: row.id,
         slug: row.slug,
         label: row.label,
@@ -36,28 +40,28 @@ export function mapCategoryFromDb(row: any): Category {
         sortOrder: row.sort_order,
         isActive: row.is_active,
         createdAt: row.created_at,
-    };
+    });
 }
 
 // ─── Product Image ─────────────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapProductImageFromDb(row: any): ProductImage {
-    return {
+    return toPlain({
         id: row.id,
         variantId: row.variant_id,
         cloudinaryPublicId: row.cloudinary_public_id,
         cloudinaryUrl: row.cloudinary_url,
         altText: row.alt_text ?? null,
         isPrimary: row.is_primary,
-    };
+    });
 }
 
 // ─── Product Variant ─────────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapVariantFromDb(row: any): ProductVariant {
-    return {
+    return toPlain({
         id: row.id,
         productId: row.product_id,
         size: row.size ?? null,
@@ -68,7 +72,7 @@ export function mapVariantFromDb(row: any): ProductVariant {
         priceOverride: row.price_override ?? null,
         isAvailable: row.is_available,
         images: Array.isArray(row.images) ? row.images.map(mapProductImageFromDb) : [],
-    };
+    });
 }
 
 // ─── Product ──────────────────────────────────────────────────────────────────
@@ -76,7 +80,7 @@ export function mapVariantFromDb(row: any): ProductVariant {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapProductFromDb(row: any): Product {
     const category = row.category ?? {};
-    return {
+    return toPlain({
         id: row.id,
         categoryId: row.category_id,
         categorySlug: category.slug ?? "",
@@ -89,14 +93,14 @@ export function mapProductFromDb(row: any): Product {
         variants: Array.isArray(row.variants) ? row.variants.map(mapVariantFromDb) : [],
         createdAt: row.created_at,
         updatedAt: row.updated_at,
-    };
+    });
 }
 
 // ─── Order Item ───────────────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapOrderItemFromDb(row: any): OrderItem {
-    return {
+    return toPlain({
         id: row.id,
         orderId: row.order_id,
         variantId: row.variant_id,
@@ -104,14 +108,14 @@ export function mapOrderItemFromDb(row: any): OrderItem {
         variantLabel: row.variant_label,
         quantity: row.quantity,
         unitPrice: row.unit_price,
-    };
+    });
 }
 
 // ─── Payment ─────────────────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapPaymentFromDb(row: any): Payment {
-    return {
+    return toPlain({
         id: row.id,
         orderId: row.order_id,
         cloudinaryReceiptPublicId: row.cloudinary_receipt_public_id ?? null,
@@ -130,14 +134,14 @@ export function mapPaymentFromDb(row: any): Payment {
         moderatorName: row.moderator_name ?? null,
         moderatorEmail: row.moderator_email ?? null,
         createdAt: row.created_at,
-    };
+    });
 }
 
 // ─── Order ───────────────────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapOrderFromDb(row: any): Order {
-    return {
+    return toPlain({
         id: row.id,
         orderRef: row.order_ref,
         customerName: row.customer_name,
@@ -151,18 +155,18 @@ export function mapOrderFromDb(row: any): Order {
         payments: Array.isArray(row.payments) ? row.payments.map(mapPaymentFromDb) : [],
         createdAt: row.created_at,
         updatedAt: row.updated_at,
-    };
+    });
 }
 
 // ─── Admin User ───────────────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapAdminUserFromDb(row: any): AdminUser {
-    return {
+    return toPlain({
         id: row.id,
         email: row.email,
         name: row.name,
         role: row.role as AdminRole,
         createdAt: row.created_at,
-    };
+    });
 }

@@ -23,4 +23,6 @@ export function productImageUrl(
     return ph(width, height, label, bg, fg);
 }
 
-export function fmtNaira(n: number) { return `₦${Math.round(n).toLocaleString()}`; }
+export function fmtNaira(n: number) {
+    return `₦${Math.round(n).toLocaleString()}`;
+}
