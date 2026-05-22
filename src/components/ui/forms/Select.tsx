@@ -1,16 +1,17 @@
 import React, { forwardRef } from "react";
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
     label?: React.ReactNode;
     error?: string;
     description?: React.ReactNode;
     containerClassName?: string;
-    icon?: React.ReactNode;
     required?: boolean;
     infoTooltip?: React.ReactNode;
+    options: { label: string; value: string | number }[];
+    placeholder?: string;
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
+export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     (
         {
             label,
@@ -18,9 +19,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             description,
             containerClassName = "",
             className = "",
-            icon,
             required,
             infoTooltip,
+            options,
+            placeholder,
             disabled,
             ...props
         },
@@ -33,7 +35,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                 {label && (
                     <div className="flex items-center gap-2 h-4">
                         <label
-                            htmlFor={props.id}
                             className={`text-[11px] font-bold uppercase tracking-widest leading-none ${disabled ? "text-rw-muted/70" : "text-rw-muted"}`}
                         >
                             {label}{" "}
@@ -63,29 +64,49 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                 )}
 
                 <div className="relative flex items-center w-full h-[46px]">
-                    {icon && (
-                        <div
-                            className={`absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none z-10 ${disabled ? "text-rw-muted/50" : "text-rw-muted"}`}
-                        >
-                            {icon}
-                        </div>
-                    )}
-                    <input
+                    <select
                         ref={ref}
                         disabled={disabled}
-                        className={`w-full h-full rounded-xl border text-sm transition-all focus:outline-none shadow-sm font-medium
-                            ${icon ? "pl-11 pr-4" : "px-4"}
+                        className={`w-full h-full rounded-xl border pl-4 pr-11 text-sm font-medium transition-all focus:outline-none shadow-sm appearance-none cursor-pointer
                             ${disabled ? "bg-gray-100/50 border-gray-200 text-rw-muted/70 cursor-not-allowed select-none shadow-none" : ""}
                             ${
                                 !disabled && error
-                                    ? "border-rw-crimson bg-rw-crimson/5 text-rw-crimson placeholder:text-rw-crimson/30 focus:border-rw-crimson focus:ring-4 focus:ring-rw-crimson/12"
+                                    ? "border-rw-crimson bg-rw-crimson/5 text-rw-crimson focus:border-rw-crimson focus:ring-4 focus:ring-rw-crimson/12"
                                     : !disabled
-                                      ? "border-[var(--rw-border)] bg-rw-bg-alt/20 text-rw-ink placeholder:text-rw-muted/50 hover:bg-white focus:bg-white focus:border-rw-crimson focus:ring-4 focus:ring-rw-crimson/12"
+                                      ? "border-[var(--rw-border)] bg-rw-bg-alt/20 text-rw-ink hover:bg-white focus:bg-white focus:border-rw-crimson focus:ring-4 focus:ring-rw-crimson/12"
                                       : ""
                             }
                             ${className}`}
                         {...props}
-                    />
+                    >
+                        {placeholder && (
+                            <option value="" disabled selected hidden>
+                                {placeholder}
+                            </option>
+                        )}
+                        {options.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </option>
+                        ))}
+                    </select>
+                    <div
+                        className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none z-10 ${disabled ? "text-rw-muted/40" : "text-rw-muted"}`}
+                    >
+                        <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2.5}
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M19 9l-7 7-7-7"
+                            />
+                        </svg>
+                    </div>
                 </div>
 
                 {description && !error && (
@@ -103,4 +124,4 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     }
 );
 
-Input.displayName = "Input";
+Select.displayName = "Select";
