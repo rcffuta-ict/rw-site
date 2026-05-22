@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/forms/Button";
 import type { Order } from "@/lib/data/types";
 import { PAYMENT_CONFIG } from "./constants";
-import { analyzeReceipt } from "@/app/actions/receipt";
+import { analyzeReceipt, deleteReceiptImage } from "@/app/actions/receipt";
 import { attachPayment } from "@/lib/services/orders.service";
 import { toast } from "sonner";
 
@@ -64,6 +64,8 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
     const [extractionError, setExtractionError] = useState<string | null>(null);
     const [accurate, setAccurate] = useState<boolean | null>(null);
     const [submitting, setSubmitting] = useState(false);
+    const [uploadedCloudData, setUploadedCloudData] = useState<{ public_id: string; secure_url: string } | null>(null);
+    const [saveRetries, setSaveRetries] = useState(0);
 
     const remaining = order.totalAmount - order.amountPaid;
     const payAmount =
@@ -196,33 +198,41 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
         try {
             if (!file) throw new Error("Receipt file is missing.");
 
-            const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-            const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+            let cloudData = uploadedCloudData;
 
-            if (!cloudName || !uploadPreset) {
-                throw new Error("Cloudinary configuration is missing. Contact support.");
-            }
+            if (!cloudData) {
+                const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+                const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("upload_preset", uploadPreset);
-
-            const uploadRes = await fetch(
-                `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-                {
-                    method: "POST",
-                    body: formData,
+                if (!cloudName || !uploadPreset) {
+                    throw new Error("Cloudinary configuration is missing. Contact support.");
                 }
-            );
 
-            if (!uploadRes.ok) {
-                const errorData = await uploadRes.json();
-                throw new Error(
-                    errorData.error?.message || "Failed to upload receipt image."
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("upload_preset", uploadPreset);
+
+                const uploadRes = await fetch(
+                    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+                    {
+                        method: "POST",
+                        body: formData,
+                    }
                 );
+
+                if (!uploadRes.ok) {
+                    const errorData = await uploadRes.json();
+                    throw new Error(
+                        errorData.error?.message || "Failed to upload receipt image."
+                    );
+                }
+
+                const parsedData = await uploadRes.json();
+                cloudData = { public_id: parsedData.public_id, secure_url: parsedData.secure_url };
+                setUploadedCloudData(cloudData);
             }
 
-            const cloudData = await uploadRes.json();
+            if (!cloudData) throw new Error("Failed to resolve cloud upload data.");
 
             const res = await attachPayment({
                 orderId: order.id,
@@ -243,23 +253,48 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
             }
 
             toast.success("Payment submitted successfully!");
+            setUploadedCloudData(null);
+            setSaveRetries(0);
             updateStage("done");
         } catch (error: any) {
             console.error("Payment confirmation error:", error);
-            toast.error(
-                error.message || "An unexpected error occurred. Please try again."
-            );
+            
+            if (uploadedCloudData) {
+                const nextRetries = saveRetries + 1;
+                setSaveRetries(nextRetries);
+                
+                if (nextRetries >= 3) {
+                    toast.error("Maximum retries reached. Payment submission is being reset.");
+                    if (uploadedCloudData.public_id) {
+                        await deleteReceiptImage(uploadedCloudData.public_id);
+                    }
+                    resetUpload();
+                } else {
+                    toast.error(
+                        error.message || `Database error. Retrying ${nextRetries}/3. Please try again.`
+                    );
+                }
+            } else {
+                toast.error(
+                    error.message || "An unexpected error occurred. Please try again."
+                );
+            }
         } finally {
             setSubmitting(false);
         }
     }
 
     function resetUpload() {
+        if (uploadedCloudData?.public_id) {
+            deleteReceiptImage(uploadedCloudData.public_id).catch(console.error);
+        }
         setFile(null);
         updateStage("idle");
         setExtraction(null);
         setExtractionError(null);
         setAccurate(null);
+        setUploadedCloudData(null);
+        setSaveRetries(0);
     }
 
     // Done state

@@ -37,3 +37,14 @@ export async function analyzeReceipt(base64Image: string, mimeType: string) {
         };
     }
 }
+
+export async function deleteReceiptImage(publicId: string) {
+    const { deleteCloudinaryAsset } = await import("@/lib/cloudinary/server");
+    try {
+        await deleteCloudinaryAsset(publicId);
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error deleting receipt image:", error);
+        return { success: false, error: error.message };
+    }
+}
