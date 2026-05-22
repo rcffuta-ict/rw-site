@@ -1,6 +1,9 @@
 import { MemoryStore } from "@/lib/data/memoryStore";
 import { Audit } from "@/lib/data/audit";
-import type { OrderLineInput } from "@/lib/data/types";
+
+// Local line input shape for the MemoryStore (legacy API route)
+type OrderLineInput = { merchItemId: string; size: string; qty: number };
+
 
 function badRequest(message: string) {
     return Response.json({ error: message }, { status: 400 });

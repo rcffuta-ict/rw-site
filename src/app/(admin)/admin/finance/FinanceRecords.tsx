@@ -70,11 +70,11 @@ export function FinanceRecords({ allPayments, fmt }: FinanceRecordsProps) {
                     },
                     {
                         label: "Value",
-                        key: "amountClaimed",
+                        key: "amount",
                         align: "right",
                         render: (p) => (
                             <span className="font-display font-black text-rw-ink">
-                                {fmt(p.amountClaimed)}
+                                {fmt(p.amountConfirmed ?? p.extractedAmount)}
                             </span>
                         ),
                     },

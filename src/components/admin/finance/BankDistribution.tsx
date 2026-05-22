@@ -10,9 +10,9 @@ export function BankDistribution() {
     DEMO_ORDERS.forEach(order => {
         order.payments.forEach(payment => {
             if (payment.status === "approved") {
-                const bank = payment.extractedBank || "Other / Unknown";
-                bankRevenue[bank] = (bankRevenue[bank] || 0) + payment.amountClaimed;
-                totalCollected += payment.amountClaimed;
+                const bank = payment.extractedBank || "Unknown/Other";
+                bankRevenue[bank] = (bankRevenue[bank] || 0) + (payment.amountConfirmed ?? payment.extractedAmount);
+                totalCollected += (payment.amountConfirmed ?? payment.extractedAmount);
             }
         });
     });

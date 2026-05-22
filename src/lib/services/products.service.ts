@@ -1,42 +1,289 @@
-// ─── Products Service ─────────────────────────────────────────────────────────
-// Swap DEMO_MODE in src/lib/config.ts to toggle demo vs. live data.
-// In live mode, replace the stubs below with your ICT team's Supabase library calls.
+// ─── Products Service — Supabase ──────────────────────────────────────────────
 
-import { DEMO_MODE } from "@/lib/config";
-import { DEMO_PRODUCTS, getProductById as getById, getVariantById as getVarById, getEffectivePrice as getPrice, buildVariantLabel } from "@/lib/data/products";
-import type { Product, ProductVariant } from "@/lib/data/types";
+import {
+    createSupabaseAdminClient,
+    createSupabaseServerClient,
+} from "@/lib/supabase/server";
+import { mapProductFromDb, mapVariantFromDb } from "@/lib/supabase/mappers";
+import type {
+    Product,
+    ProductVariant,
+    ProductInput,
+    ProductVariantInput,
+    ProductImage,
+    ServiceResult,
+} from "@/lib/data/types";
 
-// ─── Re-export helpers (unchanged regardless of mode) ─────────────────────────
-export { buildVariantLabel, getEffectivePrice } from "@/lib/data/products";
-export type { Product, ProductVariant };
+export type { Product, ProductVariant, ProductInput, ProductVariantInput, ProductImage };
 
-// ─── Core functions ───────────────────────────────────────────────────────────
+// ─── Shared select fragment ───────────────────────────────────────────────────
 
+const PRODUCT_SELECT = `
+    *,
+    category:categories ( id, slug, label ),
+    variants:product_variants (
+        *,
+        images:product_images ( * )
+    )
+` as const;
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/** Effective price for a variant — variant priceOverride takes precedence over product basePrice. */
+export function getEffectivePrice(product: Product, variantId: string): number {
+    const variant = product.variants.find((v) => v.id === variantId);
+    return variant?.priceOverride ?? product.basePrice;
+}
+
+/** Build a human-readable variant label e.g. "Black · L · Holy Spirit". */
+export function buildVariantLabel(
+    variant: Pick<ProductVariant, "color" | "size" | "design">
+): string {
+    return [variant.color, variant.size, variant.design].filter(Boolean).join(" · ");
+}
+
+/** Returns the primary image for a variant, falling back to the first image. */
+export function getVariantPrimaryImage(
+    variant: ProductVariant
+): ProductImage | undefined {
+    return variant.images.find((img) => img.isPrimary) ?? variant.images[0];
+}
+
+// ─── Read ─────────────────────────────────────────────────────────────────────
+
+/** Public storefront — returns only available products. */
 export async function getProducts(): Promise<Product[]> {
-    if (DEMO_MODE) {
-        return DEMO_PRODUCTS.filter((p) => p.isAvailable);
-    }
-    // TODO: replace with ICT team's Supabase library call
-    // e.g. return await db.from("products").select("*").eq("is_available", true)
-    throw new Error("Live product fetch not yet implemented");
+    const supabase = await createSupabaseServerClient();
+    const { data, error } = await supabase
+        .from("products")
+        .select(PRODUCT_SELECT)
+        .eq("is_available", true)
+        .order("created_at", { ascending: true });
+
+    if (error) throw new Error(`Failed to load products: ${error.message}`);
+    return (data ?? []).map(mapProductFromDb);
+}
+
+/** Admin — returns ALL products (including hidden). */
+export async function getAllProducts(): Promise<Product[]> {
+    const supabase = await createSupabaseAdminClient();
+    const { data, error } = await supabase
+        .from("products")
+        .select(PRODUCT_SELECT)
+        .order("created_at", { ascending: true });
+
+    if (error) throw new Error(`Failed to load products: ${error.message}`);
+    return (data ?? []).map(mapProductFromDb);
 }
 
 export async function getProductById(id: string): Promise<Product | undefined> {
-    if (DEMO_MODE) {
-        return getById(id);
-    }
-    // TODO: replace with ICT team's Supabase library call
-    throw new Error("Live product fetch not yet implemented");
+    const supabase = await createSupabaseAdminClient();
+    const { data } = await supabase
+        .from("products")
+        .select(PRODUCT_SELECT)
+        .eq("id", id)
+        .single();
+    return data ? mapProductFromDb(data) : undefined;
 }
 
-export async function getVariantById(productId: string, variantId: string): Promise<ProductVariant | undefined> {
-    if (DEMO_MODE) {
-        return getVarById(productId, variantId);
-    }
-    // TODO: replace with ICT team's Supabase library call
-    throw new Error("Live variant fetch not yet implemented");
+export async function getVariantById(
+    variantId: string
+): Promise<ProductVariant | undefined> {
+    const supabase = await createSupabaseAdminClient();
+    const { data } = await supabase
+        .from("product_variants")
+        .select("*, images:product_images(*)")
+        .eq("id", variantId)
+        .single();
+    return data ? mapVariantFromDb(data) : undefined;
 }
 
-export function getEffectivePriceSync(product: Product, variantId: string): number {
-    return getPrice(product, variantId);
+// ─── Product CRUD ─────────────────────────────────────────────────────────────
+
+export async function createProduct(
+    input: ProductInput
+): Promise<ServiceResult<Product>> {
+    const supabase = await createSupabaseAdminClient();
+
+    const { data, error } = await supabase
+        .from("products")
+        .insert({
+            category_id: input.categoryId,
+            name: input.name,
+            description: input.description,
+            base_price: input.basePrice,
+            tags: input.tags ?? [],
+            is_available: input.isAvailable ?? true,
+        })
+        .select(PRODUCT_SELECT)
+        .single();
+
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: mapProductFromDb(data) };
+}
+
+export async function updateProduct(
+    id: string,
+    input: Partial<ProductInput>
+): Promise<ServiceResult<Product>> {
+    const supabase = await createSupabaseAdminClient();
+
+    const patch: Record<string, unknown> = {};
+    if (input.categoryId !== undefined) patch.category_id = input.categoryId;
+    if (input.name !== undefined) patch.name = input.name;
+    if (input.description !== undefined) patch.description = input.description;
+    if (input.basePrice !== undefined) patch.base_price = input.basePrice;
+    if (input.tags !== undefined) patch.tags = input.tags;
+    if (input.isAvailable !== undefined) patch.is_available = input.isAvailable;
+
+    const { data, error } = await supabase
+        .from("products")
+        .update(patch)
+        .eq("id", id)
+        .select(PRODUCT_SELECT)
+        .single();
+
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: mapProductFromDb(data) };
+}
+
+export async function deleteProduct(id: string): Promise<ServiceResult> {
+    const supabase = await createSupabaseAdminClient();
+    const { error } = await supabase.from("products").delete().eq("id", id);
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+}
+
+// ─── Variant CRUD ─────────────────────────────────────────────────────────────
+
+export async function addVariant(
+    productId: string,
+    input: ProductVariantInput
+): Promise<ServiceResult<ProductVariant>> {
+    const supabase = await createSupabaseAdminClient();
+
+    const { data, error } = await supabase
+        .from("product_variants")
+        .insert({
+            product_id: productId,
+            size: input.size ?? null,
+            color: input.color ?? null,
+            color_hex: input.colorHex ?? null,
+            design: input.design ?? null,
+            sku: input.sku ?? null,
+            price_override: input.priceOverride ?? null,
+            is_available: input.isAvailable ?? true,
+        })
+        .select("*, images:product_images(*)")
+        .single();
+
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: mapVariantFromDb(data) };
+}
+
+export async function updateVariant(
+    variantId: string,
+    input: Partial<ProductVariantInput>
+): Promise<ServiceResult<ProductVariant>> {
+    const supabase = await createSupabaseAdminClient();
+
+    const patch: Record<string, unknown> = {};
+    if ("size" in input) patch.size = input.size ?? null;
+    if ("color" in input) patch.color = input.color ?? null;
+    if ("colorHex" in input) patch.color_hex = input.colorHex ?? null;
+    if ("design" in input) patch.design = input.design ?? null;
+    if ("sku" in input) patch.sku = input.sku ?? null;
+    if ("priceOverride" in input) patch.price_override = input.priceOverride ?? null;
+    if ("isAvailable" in input) patch.is_available = input.isAvailable;
+
+    const { data, error } = await supabase
+        .from("product_variants")
+        .update(patch)
+        .eq("id", variantId)
+        .select("*, images:product_images(*)")
+        .single();
+
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: mapVariantFromDb(data) };
+}
+
+export async function deleteVariant(variantId: string): Promise<ServiceResult> {
+    const supabase = await createSupabaseAdminClient();
+    // product_images are cascade deleted via FK
+    const { error } = await supabase
+        .from("product_variants")
+        .delete()
+        .eq("id", variantId);
+
+    if (error) {
+        if (error.code === "23503") {
+            return {
+                success: false,
+                error: "This variant is referenced in existing orders and cannot be deleted.",
+            };
+        }
+        return { success: false, error: error.message };
+    }
+    return { success: true };
+}
+
+// ─── Variant Image ────────────────────────────────────────────────────────────
+
+/**
+ * Register a Cloudinary image for a variant in the DB.
+ * Call this after a successful Cloudinary upload.
+ */
+export async function upsertVariantImage(
+    variantId: string,
+    cloudinaryPublicId: string,
+    cloudinaryUrl: string,
+    altText: string | null = null,
+    isPrimary = true
+): Promise<ServiceResult<ProductImage>> {
+    const supabase = await createSupabaseAdminClient();
+
+    // If isPrimary: demote any existing primary on this variant first
+    if (isPrimary) {
+        await supabase
+            .from("product_images")
+            .update({ is_primary: false })
+            .eq("variant_id", variantId)
+            .eq("is_primary", true);
+    }
+
+    const { data, error } = await supabase
+        .from("product_images")
+        .upsert(
+            {
+                variant_id: variantId,
+                cloudinary_public_id: cloudinaryPublicId,
+                cloudinary_url: cloudinaryUrl,
+                alt_text: altText,
+                is_primary: isPrimary,
+            },
+            { onConflict: "cloudinary_public_id" }
+        )
+        .select()
+        .single();
+
+    if (error) return { success: false, error: error.message };
+
+    return {
+        success: true,
+        data: {
+            id: data.id,
+            variantId: data.variant_id,
+            cloudinaryPublicId: data.cloudinary_public_id,
+            cloudinaryUrl: data.cloudinary_url,
+            altText: data.alt_text ?? null,
+            isPrimary: data.is_primary,
+        },
+    };
+}
+
+export async function deleteVariantImage(imageId: string): Promise<ServiceResult> {
+    const supabase = await createSupabaseAdminClient();
+    const { error } = await supabase.from("product_images").delete().eq("id", imageId);
+    if (error) return { success: false, error: error.message };
+    return { success: true };
 }

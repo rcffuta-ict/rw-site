@@ -15,7 +15,7 @@ export function ProductDistribution() {
             order.items.forEach(item => {
                 // Find product to get category
                 const product = DEMO_PRODUCTS.find(p => p.name === item.productName);
-                const category = product?.category || "Other";
+                const category = product?.categorySlug || "Other";
 
                 // For simplicity in this demo, we'll attribute revenue based on item valuation
                 // scaled by the order's payment progress

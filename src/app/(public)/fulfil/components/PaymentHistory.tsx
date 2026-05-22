@@ -16,7 +16,7 @@ export function PaymentHistory({ payments }: { payments: Order["payments"] }) {
                     >
                         <div>
                             <p className="font-bold text-rw-ink">
-                                ₦{p.amountClaimed.toLocaleString()}
+                                ₦{(p.amountConfirmed ?? p.extractedAmount).toLocaleString()}
                             </p>
                             <p className="text-xs text-rw-muted mt-1 font-medium">
                                 {new Date(p.createdAt).toLocaleDateString("en-NG", { dateStyle: "medium" })}

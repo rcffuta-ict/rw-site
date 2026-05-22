@@ -1,8 +1,17 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
 import type { CartItem } from "@/lib/data/types";
-import { createOrder, type OrderResult } from "@/lib/services/orders.service";
+import { createOrder } from "@/lib/services/orders.service";
+import type { ServiceResult, Order } from "@/lib/data/types";
+
+type OrderResult = ServiceResult<Order>;
 
 const CART_KEY = "rw_cart";
 
@@ -42,11 +51,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     // Hydrate from localStorage
     useEffect(() => {
-        try {
-            const stored = localStorage.getItem(CART_KEY);
-            if (stored) setItems(JSON.parse(stored));
-        } catch {}
-        setHydrated(true);
+        (() => {
+            try {
+                const stored = localStorage.getItem(CART_KEY);
+                if (stored) setItems(JSON.parse(stored));
+            } catch {}
+            setHydrated(true);
+        })();
     }, []);
 
     // Persist on change
@@ -79,49 +90,59 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const updateQuantity = useCallback((variantId: string, qty: number) => {
         setItems((prev) => {
             if (qty <= 0) return prev.filter((i) => i.variantId !== variantId);
-            return prev.map((i) => (i.variantId === variantId ? { ...i, quantity: qty } : i));
+            return prev.map((i) =>
+                i.variantId === variantId ? { ...i, quantity: qty } : i
+            );
         });
     }, []);
 
     const clearCart = useCallback(() => {
         setItems([]);
-        try { localStorage.removeItem(CART_KEY); } catch {}
+        try {
+            localStorage.removeItem(CART_KEY);
+        } catch {}
     }, []);
 
     const clearError = useCallback(() => setSubmitError(null), []);
 
-    const submitOrder = useCallback(async (customer: CustomerInfo): Promise<OrderResult> => {
-        setIsSubmitting(true);
-        setSubmitError(null);
-        try {
-            const result = await createOrder({
-                customerName: customer.name,
-                customerEmail: customer.email,
-                customerPhone: customer.phone,
-                customerNote: customer.note ?? null,
-                lines: items.map((i) => ({
-                    variantId: i.variantId,
-                    productId: i.productId,
-                    productName: i.productName,
-                    variantLabel: i.variantLabel,
-                    unitPrice: i.unitPrice,
-                    quantity: i.quantity,
-                })),
-            });
-            if (result.success) {
-                clearCart();
-            } else {
-                setSubmitError(result.error ?? "Something went wrong. Please try again.");
+    const submitOrder = useCallback(
+        async (customer: CustomerInfo): Promise<OrderResult> => {
+            setIsSubmitting(true);
+            setSubmitError(null);
+            try {
+                const result = await createOrder({
+                    customerName: customer.name,
+                    customerEmail: customer.email,
+                    customerPhone: customer.phone,
+                    customerNote: customer.note ?? null,
+                    lines: items.map((i) => ({
+                        variantId: i.variantId,
+                        productId: i.productId,
+                        productName: i.productName,
+                        variantLabel: i.variantLabel,
+                        unitPrice: i.unitPrice,
+                        quantity: i.quantity,
+                    })),
+                });
+                if (result.success) {
+                    clearCart();
+                } else {
+                    setSubmitError(
+                        result.error ?? "Something went wrong. Please try again."
+                    );
+                }
+                return result;
+            } catch (e) {
+                const msg =
+                    e instanceof Error ? e.message : "Network error — please try again.";
+                setSubmitError(msg);
+                return { success: false, error: msg };
+            } finally {
+                setIsSubmitting(false);
             }
-            return result;
-        } catch (e) {
-            const msg = e instanceof Error ? e.message : "Network error — please try again.";
-            setSubmitError(msg);
-            return { success: false, error: msg };
-        } finally {
-            setIsSubmitting(false);
-        }
-    }, [items, clearCart]);
+        },
+        [items, clearCart]
+    );
 
     const total = items.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
     const itemCount = items.reduce((s, i) => s + i.quantity, 0);

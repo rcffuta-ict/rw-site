@@ -4,7 +4,7 @@
 
 // ─── Demo / Live Switch ───────────────────────────────────────────────────────
 // Set to false when integrating Supabase. All services check this flag.
-export const DEMO_MODE = true;
+export const DEMO_MODE = false;
 
 // ─── Tenure Details ───────────────────────────────────────────────────────────
 export const TENURE = {

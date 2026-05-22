@@ -20,13 +20,13 @@ export default function FinanceClient() {
     );
     const collected = allPayments
         .filter((p) => p.status === "approved")
-        .reduce((s, p) => s + p.amountClaimed, 0);
+        .reduce((s, p) => s + (p.amountConfirmed ?? p.extractedAmount), 0);
     const pending = allPayments
         .filter((p) => p.status === "pending")
-        .reduce((s, p) => s + p.amountClaimed, 0);
+        .reduce((s, p) => s + p.extractedAmount, 0);
     const flagged = allPayments
         .filter((p) => p.status === "flagged")
-        .reduce((s, p) => s + p.amountClaimed, 0);
+        .reduce((s, p) => s + p.extractedAmount, 0);
     const totalOrdered = DEMO_ORDERS.reduce((s, o) => s + o.totalAmount, 0);
     const outstanding = totalOrdered - collected;
 

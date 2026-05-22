@@ -2,12 +2,45 @@
 
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { Toaster } from "sonner";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminNotification } from "./AdminNotification";
 import { MobileAdviceModal } from "./MobileAdviceModal";
 import { AdminHeader } from "./common/AdminHeader";
 import { AdminAuthProvider, useAdminAuth } from "@/context/AdminAuthContext";
 import { DEMO_MODE } from "@/lib/config";
+
+// ─── Themed Toaster ──────────────────────────────────────────────────────────
+// Sonner toast notifications, styled to match the RW admin design system.
+// Position: bottom-right to avoid collision with the status indicator (bottom-left offset).
+function RwToaster() {
+    return (
+        <Toaster
+            position="bottom-right"
+            richColors
+            closeButton
+            toastOptions={{
+                style: {
+                    background:  "var(--rw-bg, #fff)",
+                    color:       "var(--rw-ink, #1C0003)",
+                    border:      "1px solid var(--rw-border, #e4dcd9)",
+                    borderRadius: "0.875rem",
+                    fontFamily:  "var(--font-body, inherit)",
+                    fontSize:    "0.8125rem",
+                    boxShadow:   "0 8px 32px rgba(28,0,3,0.12), 0 2px 8px rgba(28,0,3,0.06)",
+                },
+                classNames: {
+                    error:       "!border-red-200 !text-red-700",
+                    success:     "!border-green-200 !text-green-700",
+                    warning:     "!border-amber-200 !text-amber-700",
+                    info:        "!border-blue-200 !text-blue-700",
+                    description: "!text-rw-muted",
+                    closeButton: "!bg-white !border-[var(--rw-border)]",
+                },
+            }}
+        />
+    );
+}
 
 /** Role/demo status indicator — shown in the bottom-right corner when in the admin panel */
 function AdminStatusIndicator() {
@@ -58,6 +91,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
             <div className="h-screen flex flex-col bg-rw-bg-alt relative overflow-hidden">
                 <AdminNotification />
                 <div className="flex-1 overflow-y-auto">{children}</div>
+                <RwToaster />
             </div>
         );
     }
@@ -98,6 +132,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                     </div>
                 </main>
             </div>
+            <RwToaster />
         </div>
     );
 }

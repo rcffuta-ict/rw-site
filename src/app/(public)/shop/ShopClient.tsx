@@ -131,7 +131,7 @@ export function ShopClient({ products }: { products: Product[] }) {
     const { isOpen, closeCart } = useCart();
 
     const filtered =
-        category === "all" ? products : products.filter((p) => p.category === category);
+        category === "all" ? products : products.filter((p) => p.categorySlug === category);
 
     return (
         <div className="mb-20">

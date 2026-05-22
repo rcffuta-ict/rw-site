@@ -73,7 +73,7 @@ export function FinancePayments({
 
         openModal(
             <ApprovalForm
-                initialAmount={selectedPayment.amountClaimed.toString()}
+                initialAmount={(selectedPayment.amountConfirmed ?? selectedPayment.extractedAmount).toString()}
                 orderRef={selectedPayment.order.orderRef}
                 onCancel={closeModal}
                 onConfirm={(finalAmount) => {
@@ -263,7 +263,7 @@ export function FinancePayments({
                                             </p>
                                         </div>
                                         <p className="font-display font-black text-rw-ink text-xl">
-                                            {fmt(p.amountClaimed)}
+                                            {fmt(p.amountConfirmed ?? p.extractedAmount)}
                                         </p>
                                     </div>
 
@@ -367,11 +367,7 @@ export function FinancePayments({
                                                 Claimed Value
                                             </span>
                                             <p className="font-display font-black text-3xl text-rw-ink">
-                                                {fmt(selectedPayment.amountClaimed)}
-                                            </p>
-                                            <p className="text-[10px] font-bold text-rw-muted uppercase mt-1">
-                                                {selectedPayment.percentOfTotal}% of total
-                                                order valuation
+                                                {fmt(selectedPayment.amountConfirmed ?? selectedPayment.extractedAmount)}
                                             </p>
                                         </div>
 

@@ -67,7 +67,7 @@ function ProductCard({ product, onOpen }: { product: Product; onOpen: () => void
 
                 {/* Category pill */}
                 <span className="absolute bottom-3 right-3 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-[#1C0003] px-2.5 py-1 rounded-full">
-                    {product.category}
+                    {product.categoryLabel}
                 </span>
             </div>
 
