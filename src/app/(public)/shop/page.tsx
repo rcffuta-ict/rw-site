@@ -27,8 +27,14 @@ function ShopBanner() {
     return (
         <div className="relative overflow-hidden bg-[#1C0003]">
             <picture>
-                <source media="(max-width: 640px)" srcSet={ph(640, 320, "Official Merch · RW'26", "1C0003", "FF6A00")} />
-                <source media="(max-width: 1024px)" srcSet={ph(1024, 300, "Official Merch · RW'26", "1C0003", "FF6A00")} />
+                <source
+                    media="(max-width: 640px)"
+                    srcSet={ph(640, 320, "Official Merch · RW'26", "1C0003", "FF6A00")}
+                />
+                <source
+                    media="(max-width: 1024px)"
+                    srcSet={ph(1024, 300, "Official Merch · RW'26", "1C0003", "FF6A00")}
+                />
                 <img
                     src={ph(1600, 360, "Official Merch · RW'26", "1C0003", "FF6A00")}
                     alt=""
@@ -48,16 +54,15 @@ function ShopBanner() {
                     className="font-display font-extrabold text-white leading-tight tracking-tight"
                     style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)" }}
                 >
-                    RW&apos;{TENURE.year.slice(2)} Merch Shop
+                    RW&apos;{TENURE.year.slice(2)} Merch Sales
                 </h1>
                 <p className="mt-4 text-white/60 text-base leading-relaxed max-w-[50ch]">
-                    Pre-order your {TENURE.anniversaryLabel} anniversary merch. Items will
-                    be ready for pickup during the Handing Over ceremony on Sunday, July
-                    12.
+                    Pre-order your {TENURE.anniversaryLabel} anniversary merch. Order
+                    information will be communicated to you as you engage with sales.
                 </p>
 
                 {/* Info pills */}
-                <div className="mt-6 flex flex-wrap gap-2">
+                {/* <div className="mt-6 flex flex-wrap gap-2">
                     {[
                         "Free pickup at venue",
                         "Limited quantities",
@@ -73,7 +78,7 @@ function ShopBanner() {
                             {tag}
                         </span>
                     ))}
-                </div>
+                </div> */}
             </div>
         </div>
     );
