@@ -87,7 +87,7 @@ function FulfilContent() {
                 {/* RIGHT COLUMN: Transfer & Submit */}
                 <div className="flex flex-col gap-6 animate-slide-in-right">
                     {/* Bank details */}
-                    <TransferDetails />
+                    <TransferDetails orderRef={order.orderRef} />
 
                     {/* Payment form */}
                     <PaymentFlow

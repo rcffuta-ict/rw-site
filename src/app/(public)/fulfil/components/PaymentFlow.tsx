@@ -1,26 +1,44 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/forms/Button";
 import type { Order } from "@/lib/data/types";
-import { PAYMENT_CONFIG, MOCK_EXTRACTION } from "./constants";
+import { PAYMENT_CONFIG } from "./constants";
+import { analyzeReceipt } from "@/app/actions/receipt";
+import { attachPayment } from "@/lib/services/orders.service";
+import { toast } from "sonner";
+
+interface ExtractionResult {
+    senderName: string | null;
+    amount: number | null;
+    date: string | null;
+    time: string | null;
+    bank: string | null;
+    transactionRef: string | null;
+    narration: string | null;
+    confidence: "high" | "medium" | "low";
+}
 
 function RadioCard({
     selected,
     onClick,
     title,
     desc,
+    disabled = false,
 }: {
     selected: boolean;
     onClick: () => void;
     title: string;
     desc: string;
+    disabled?: boolean;
 }) {
     return (
         <button
             type="button"
-            onClick={onClick}
-            className={`radio-card text-left w-full ${selected ? "selected" : ""}`}
+            onClick={disabled ? undefined : onClick}
+            disabled={disabled}
+            className={`radio-card text-left w-full ${selected ? "selected" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
         >
             <span className="radio-dot" />
             <div>
@@ -38,11 +56,12 @@ interface PaymentFlowProps {
 }
 
 export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowProps) {
-    const [paymentType, setPaymentType] = useState<"full" | "partial" | null>(null);
+    const [paymentType, setPaymentType] = useState<"full" | "partial" | null>("full");
     const [partialPercent, setPartialPercent] = useState(PAYMENT_CONFIG.minPercent);
     const [file, setFile] = useState<File | null>(null);
     const [stage, setStage] = useState<"idle" | "analysing" | "preview" | "done">("idle");
-    const [extraction, setExtraction] = useState<typeof MOCK_EXTRACTION | null>(null);
+    const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
+    const [extractionError, setExtractionError] = useState<string | null>(null);
     const [accurate, setAccurate] = useState<boolean | null>(null);
     const [submitting, setSubmitting] = useState(false);
 
@@ -63,26 +82,183 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
         onStageChange?.(newStage);
     }
 
-    async function handleUpload() {
-        if (!file) return;
+    async function handleUpload(selectedFile: File) {
         updateStage("analysing");
-        await new Promise((r) => setTimeout(r, 1800));
-        setExtraction({ ...MOCK_EXTRACTION, amount: payAmount || null });
-        updateStage("preview");
+        setExtractionError(null);
+
+        try {
+            let base64String = "";
+            let finalType = selectedFile.type;
+
+            if (selectedFile.type.startsWith("image/")) {
+                base64String = await new Promise<string>((resolve, reject) => {
+                    const img = new Image();
+                    const url = URL.createObjectURL(selectedFile);
+                    img.onload = () => {
+                        URL.revokeObjectURL(url);
+                        const canvas = document.createElement("canvas");
+                        let { width, height } = img;
+
+                        const maxDim = 1200;
+                        if (width > maxDim || height > maxDim) {
+                            if (width > height) {
+                                height = Math.round((height * maxDim) / width);
+                                width = maxDim;
+                            } else {
+                                width = Math.round((width * maxDim) / height);
+                                height = maxDim;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext("2d");
+                        if (!ctx)
+                            return reject(new Error("Failed to get canvas context"));
+
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+                        finalType = "image/jpeg";
+                        resolve(dataUrl.split(",")[1]);
+                    };
+                    img.onerror = () =>
+                        reject(new Error("Failed to load image for compression"));
+                    img.src = url;
+                });
+            } else {
+                base64String = await new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(selectedFile);
+                    reader.onload = () =>
+                        resolve((reader.result as string).split(",")[1]);
+                    reader.onerror = (error) => reject(error);
+                });
+            }
+
+            const res = await analyzeReceipt(base64String, finalType);
+
+            if (res.success && res.transaction) {
+                const tx = res.transaction;
+
+                let formattedDate = "—";
+                let formattedTime = "—";
+                if (tx.transaction_date) {
+                    const d = new Date(tx.transaction_date);
+                    if (!isNaN(d.getTime())) {
+                        formattedDate = d.toLocaleDateString("en-US", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                        });
+                        formattedTime = d.toLocaleTimeString("en-US", {
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
+                        });
+                    } else {
+                        formattedDate = tx.transaction_date.split("T")[0] || "—";
+                        formattedTime =
+                            tx.transaction_date.split("T")[1]?.slice(0, 5) || "—";
+                    }
+                }
+
+                setExtraction({
+                    senderName: tx.sender || "Unknown",
+                    amount: tx.amount || null,
+                    date: formattedDate,
+                    time: formattedTime,
+                    bank: tx.bank || "Unknown",
+                    transactionRef: tx.reference || "—",
+                    narration: (tx as any).narration || (tx as any).description || null,
+                    confidence: "high" as const,
+                });
+                updateStage("preview");
+            } else {
+                console.error("Extraction failed:", res.error);
+                setExtractionError(
+                    res.error || "Failed to extract details from the receipt."
+                );
+                updateStage("preview");
+            }
+        } catch (err: any) {
+            console.error("Error analyzing:", err);
+            setExtractionError(
+                err.message || "An unexpected error occurred while analyzing the receipt."
+            );
+            updateStage("preview");
+        }
     }
 
     async function handleConfirm() {
-        if (accurate === null) return;
+        if (accurate === null || !extraction) return;
         setSubmitting(true);
-        await new Promise((r) => setTimeout(r, 1200));
-        setSubmitting(false);
-        updateStage("done");
+
+        try {
+            if (!file) throw new Error("Receipt file is missing.");
+
+            const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+            const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+            if (!cloudName || !uploadPreset) {
+                throw new Error("Cloudinary configuration is missing. Contact support.");
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", uploadPreset);
+
+            const uploadRes = await fetch(
+                `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+                {
+                    method: "POST",
+                    body: formData,
+                }
+            );
+
+            if (!uploadRes.ok) {
+                const errorData = await uploadRes.json();
+                throw new Error(
+                    errorData.error?.message || "Failed to upload receipt image."
+                );
+            }
+
+            const cloudData = await uploadRes.json();
+
+            const res = await attachPayment({
+                orderId: order.id,
+                extractedAmount: extraction.amount ?? payAmount,
+                extractedSenderName: extraction.senderName,
+                extractedBank: extraction.bank,
+                extractedDate: extraction.date,
+                extractedTime: extraction.time,
+                extractedTransactionRef:
+                    extraction.transactionRef !== "—" ? extraction.transactionRef : null,
+                cloudinaryReceiptPublicId: cloudData.public_id,
+                receiptUrl: cloudData.secure_url,
+                userConfirmedAccuracy: accurate,
+            });
+
+            if (!res.success) {
+                throw new Error(res.error || "Failed to save payment record.");
+            }
+
+            toast.success("Payment submitted successfully!");
+            updateStage("done");
+        } catch (error: any) {
+            console.error("Payment confirmation error:", error);
+            toast.error(
+                error.message || "An unexpected error occurred. Please try again."
+            );
+        } finally {
+            setSubmitting(false);
+        }
     }
 
     function resetUpload() {
         setFile(null);
         updateStage("idle");
         setExtraction(null);
+        setExtractionError(null);
         setAccurate(null);
     }
 
@@ -126,7 +302,16 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
     }
 
     // Preview state
-    if (stage === "preview" && extraction) {
+    if (stage === "preview") {
+        const isMissingInfo =
+            !extraction?.senderName ||
+            extraction.senderName === "Unknown" ||
+            !extraction?.amount ||
+            extraction.date === "—";
+
+        const prescribedNarration = `RW26-${order.orderRef}`;
+        const isNarrationMismatch = extraction && (!extraction.narration || !extraction.narration.toLowerCase().includes(prescribedNarration.toLowerCase()));
+
         return (
             <div className="rw-card p-8 flex flex-col gap-8 animate-fade-in-up shadow-rw-shadow-md border-t-[3px] border-t-rw-crimson">
                 <div className="flex items-center justify-between pb-5 border-b border-[var(--rw-border)]">
@@ -135,102 +320,251 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                             Extraction Result
                         </h2>
                         <p className="text-sm text-rw-muted mt-1">
-                            Please verify the details below
+                            {extractionError
+                                ? "Failed to extract details"
+                                : "Please verify the details below"}
                         </p>
                     </div>
-                    <span
-                        className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold border ${
-                            extraction.confidence === "high"
-                                ? "bg-green-50 text-green-700 border-green-200"
-                                : extraction.confidence === "medium"
-                                  ? "bg-amber-50 text-amber-700 border-amber-200"
-                                  : "bg-red-50 text-red-700 border-red-200"
-                        }`}
-                    >
-                        <span className="h-2 w-2 rounded-full bg-current animate-pulse" />
-                        {extraction.confidence.toUpperCase()} CONFIDENCE
-                    </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    {[
-                        ["Sender Name", extraction.senderName ?? "—"],
-                        [
-                            "Amount Found",
-                            extraction.amount
-                                ? `₦${extraction.amount.toLocaleString()}`
-                                : "—",
-                        ],
-                        ["Date of Tx", extraction.date ?? "—"],
-                        ["Time of Tx", extraction.time ?? "—"],
-                        ["Bank Name", extraction.bank ?? "—"],
-                    ].map(([k, v]) => (
-                        <div
-                            key={k}
-                            className="p-4 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)]"
+                    {extraction && (
+                        <span
+                            className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold border ${
+                                extraction.confidence === "high"
+                                    ? "bg-green-50 text-green-700 border-green-200"
+                                    : extraction.confidence === "medium"
+                                      ? "bg-amber-50 text-amber-700 border-amber-200"
+                                      : "bg-red-50 text-red-700 border-red-200"
+                            }`}
                         >
-                            <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">
-                                {k}
-                            </p>
-                            <p
-                                className="font-bold text-base text-rw-ink truncate"
-                                title={v as string}
-                            >
-                                {v}
-                            </p>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Accuracy check */}
-                <div className="bg-rw-surface-2 p-6 rounded-2xl border border-[var(--rw-border-mid)]">
-                    <p className="text-base font-bold text-rw-ink mb-4">
-                        Is this information accurate?
-                    </p>
-                    <div className="grid sm:grid-cols-2 gap-4">
-                        <RadioCard
-                            selected={accurate === true}
-                            onClick={() => setAccurate(true)}
-                            title="Yes, looks good"
-                            desc="Matches my payment"
-                        />
-                        <RadioCard
-                            selected={accurate === false}
-                            onClick={() => setAccurate(false)}
-                            title="No, it's incorrect"
-                            desc="Admin will review manually"
-                        />
-                    </div>
-
-                    {accurate === false && (
-                        <div className="mt-5 p-4 rounded-xl bg-amber-50 border border-amber-200 animate-fade-in-down">
-                            <p className="text-sm text-amber-800 font-medium mb-3">
-                                We&rsquo;ll flag this for manual review. You can also try
-                                uploading a clearer image.
-                            </p>
-                            <Button
-                                variant="outlined"
-                                size="sm"
-                                onClick={resetUpload}
-                                className="bg-white border-amber-200 text-amber-900 hover:bg-amber-100"
-                            >
-                                Re-upload Receipt
-                            </Button>
-                        </div>
+                            <span className="h-2 w-2 rounded-full bg-current animate-pulse" />
+                            {extraction.confidence.toUpperCase()} CONFIDENCE
+                        </span>
                     )}
                 </div>
 
-                <Button
-                    variant="primary"
-                    size="lg"
-                    onClick={handleConfirm}
-                    disabled={accurate === null || submitting}
-                    loading={submitting}
-                    id="confirm-receipt-btn"
-                    className="w-full !h-16 text-lg rounded-2xl"
-                >
-                    Confirm & Complete
-                </Button>
+                <div className="grid md:grid-cols-2 gap-6">
+                    {/* Image Preview */}
+                    {file && (
+                        <div className="rounded-2xl overflow-hidden border border-[var(--rw-border)] bg-rw-bg-alt flex items-center justify-center max-h-[300px]">
+                            {file.type.includes("image") ? (
+                                <img
+                                    src={URL.createObjectURL(file)}
+                                    alt="Receipt Preview"
+                                    className="object-contain w-full h-full"
+                                />
+                            ) : (
+                                <div className="p-8 text-center text-rw-muted">
+                                    <svg
+                                        className="w-12 h-12 mx-auto mb-2"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={1.5}
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                        />
+                                    </svg>
+                                    <p className="text-sm font-medium">
+                                        Document Preview Not Available
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {extractionError ? (
+                        <div className="flex flex-col justify-center h-full">
+                            <div className="p-6 rounded-2xl bg-red-50 border border-red-200 text-red-800">
+                                <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
+                                    <svg
+                                        className="w-5 h-5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        />
+                                    </svg>
+                                    Analysis Failed
+                                </h3>
+                                <p className="text-sm">{extractionError}</p>
+                            </div>
+                        </div>
+                    ) : extraction ? (
+                        <div className="flex flex-col gap-4">
+                            {/* Row 1 */}
+                            <div className="p-4 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)]">
+                                <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">
+                                    Sender Name
+                                </p>
+                                <p
+                                    className="font-bold text-base text-rw-ink truncate"
+                                    title={extraction.senderName || "—"}
+                                >
+                                    {extraction.senderName || "—"}
+                                </p>
+                            </div>
+
+                            {/* Row 2 */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)]">
+                                    <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">
+                                        Amount Found
+                                    </p>
+                                    <p className="font-bold text-base text-rw-ink truncate">
+                                        {extraction.amount
+                                            ? `₦${extraction.amount.toLocaleString()}`
+                                            : "—"}
+                                    </p>
+                                </div>
+                                <div className="p-4 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)]">
+                                    <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">
+                                        Date & Time
+                                    </p>
+                                    <p className="font-bold text-base text-rw-ink truncate">
+                                        {extraction.date !== "—"
+                                            ? `${extraction.date} • ${extraction.time}`
+                                            : "—"}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Row 3 */}
+                            <div className="p-4 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)]">
+                                <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">
+                                    Bank & Reference
+                                </p>
+                                <div className="flex flex-col">
+                                    <p
+                                        className="font-bold text-base text-rw-ink truncate"
+                                        title={extraction.bank || "—"}
+                                    >
+                                        {extraction.bank || "—"}
+                                    </p>
+                                    {extraction.transactionRef &&
+                                        extraction.transactionRef !== "—" && (
+                                            <p
+                                                className="text-sm text-rw-text-2 truncate font-mono mt-0.5"
+                                                title={extraction.transactionRef || ""}
+                                            >
+                                                Ref: {extraction.transactionRef}
+                                            </p>
+                                        )}
+                                </div>
+                            </div>
+
+                            {/* Row 4: Narration Warning */}
+                            {isNarrationMismatch && (
+                                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex gap-3 items-start animate-fade-in">
+                                    <svg className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                    <div>
+                                        <p className="text-sm font-bold text-amber-800">Narration Mismatch</p>
+                                        <p className="text-xs text-amber-700 mt-1">
+                                            The receipt does not match the prescribed narration <b className="font-mono">{prescribedNarration}</b>. This is a minor warning, but admins will trace the payment manually.
+                                        </p>
+                                        <p className="text-xs text-amber-600/80 font-mono mt-2 truncate max-w-[30ch]" title={extraction.narration || "None detected"}>
+                                            Found: {extraction.narration || "None detected"}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ) : null}
+                </div>
+
+                {/* Accuracy check */}
+                {!extractionError && (
+                    <div className="bg-rw-surface-2 p-6 rounded-2xl border border-[var(--rw-border-mid)]">
+                        <p className="text-base font-bold text-rw-ink mb-4">
+                            Is this information accurate?
+                        </p>
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            <RadioCard
+                                selected={accurate === true}
+                                onClick={() => setAccurate(true)}
+                                title="Yes, looks good"
+                                desc={
+                                    isMissingInfo
+                                        ? "Warning: Missing data"
+                                        : "Matches my payment"
+                                }
+                            />
+                            <RadioCard
+                                selected={accurate === false}
+                                onClick={() => setAccurate(false)}
+                                title="No, it's incorrect"
+                                desc="I want to re-upload"
+                            />
+                        </div>
+
+                        {accurate === false && (
+                            <div className="mt-5 p-4 rounded-xl bg-amber-50 border border-amber-200 animate-fade-in-down">
+                                <p className="text-sm text-amber-800 font-medium mb-3">
+                                    We&rsquo;ll discard this extraction. Please upload a
+                                    clearer image.
+                                </p>
+                                <Button
+                                    variant="outlined"
+                                    size="sm"
+                                    onClick={resetUpload}
+                                    className="bg-white border-amber-200 text-amber-900 hover:bg-amber-100"
+                                >
+                                    Re-upload Receipt
+                                </Button>
+                            </div>
+                        )}
+
+                        {accurate === true && isMissingInfo && (
+                            <div className="mt-5 p-4 rounded-xl bg-red-50 border border-red-200 animate-fade-in-down">
+                                <p className="text-sm text-red-800 font-medium mb-3">
+                                    <strong>Cannot Proceed:</strong> Important information
+                                    (Sender, Amount, or Date) is missing from the
+                                    extraction. We cannot accept this payment record
+                                    as-is. Please upload a clearer image.
+                                </p>
+                                <Button
+                                    variant="outlined"
+                                    size="sm"
+                                    onClick={resetUpload}
+                                    className="bg-white border-red-200 text-red-900 hover:bg-red-100"
+                                >
+                                    Re-upload Receipt
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {extractionError ? (
+                    <Button
+                        variant="outlined"
+                        size="lg"
+                        onClick={resetUpload}
+                        className="w-full !h-16 text-lg rounded-2xl border-red-200 text-red-700 hover:bg-red-50"
+                    >
+                        Re-upload Receipt
+                    </Button>
+                ) : (
+                    <Button
+                        variant="primary"
+                        size="lg"
+                        onClick={handleConfirm}
+                        disabled={accurate !== true || submitting || isMissingInfo}
+                        loading={submitting}
+                        id="confirm-receipt-btn"
+                        className="w-full !h-16 text-lg rounded-2xl"
+                    >
+                        Confirm & Complete
+                    </Button>
+                )}
             </div>
         );
     }
@@ -238,32 +572,56 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
     // Analysing state
     if (stage === "analysing") {
         return (
-            <div className="rw-card p-16 text-center flex flex-col items-center justify-center gap-6 min-h-[400px] shadow-rw-shadow-md border-t-[3px] border-t-rw-crimson">
-                <div className="relative">
-                    <span className="h-20 w-20 rounded-full border-4 border-rw-bg-alt border-t-rw-crimson animate-spin absolute inset-0" />
-                    <div className="h-20 w-20 flex items-center justify-center">
-                        <svg
-                            className="h-8 w-8 text-rw-crimson animate-pulse"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                        </svg>
+            <div className="rw-card p-8 flex flex-col gap-8 animate-fade-in-up shadow-rw-shadow-md border-t-[3px] border-t-rw-crimson">
+                <div className="flex items-center justify-between pb-5 border-b border-[var(--rw-border)]">
+                    <div>
+                        <h2 className="font-display font-bold text-2xl text-rw-ink">
+                            Analysing Document
+                        </h2>
+                        <p className="text-sm text-rw-muted mt-1">
+                            Extracting payment data using AI...
+                        </p>
                     </div>
                 </div>
-                <div>
-                    <h3 className="font-display font-bold text-2xl text-rw-ink">
-                        Analysing Document
-                    </h3>
-                    <p className="text-rw-muted mt-2 text-lg">
-                        Extracting payment data using AI...
-                    </p>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                    {/* Image Preview with spinner overlay */}
+                    {file && (
+                        <div className="rounded-2xl overflow-hidden border border-[var(--rw-border)] bg-rw-bg-alt flex items-center justify-center max-h-[300px] relative">
+                            {file.type.includes("image") ? (
+                                <>
+                                    <img
+                                        src={URL.createObjectURL(file)}
+                                        alt="Receipt Preview"
+                                        className="object-contain w-full h-full opacity-40 blur-[2px]"
+                                    />
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="h-16 w-16 rounded-full border-4 border-rw-bg-alt border-t-rw-crimson animate-spin shadow-lg" />
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="p-8 text-center text-rw-muted flex flex-col items-center">
+                                    <span className="h-12 w-12 rounded-full border-4 border-rw-bg-alt border-t-rw-crimson animate-spin mb-4" />
+                                    <p className="text-sm font-medium">
+                                        Processing Document...
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Skeleton loaders */}
+                    <div className="grid grid-cols-2 gap-4">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                            <div
+                                key={i}
+                                className="p-4 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)] animate-pulse"
+                            >
+                                <div className="h-3 bg-gray-200 rounded w-1/2 mb-3"></div>
+                                <div className="h-5 bg-gray-300 rounded w-3/4"></div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         );
@@ -295,9 +653,10 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                     />
                     <RadioCard
                         selected={paymentType === "partial"}
-                        onClick={() => setPaymentType("partial")}
-                        title="Pay in Part"
+                        onClick={() => {}}
+                        title="Pay in Part (Disabled)"
                         desc={`Min ${PAYMENT_CONFIG.minPercent}%`}
+                        disabled={true}
                     />
                 </div>
             </div>
@@ -399,33 +758,25 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                                     </p>
                                 </div>
                                 <p className="text-xs font-medium px-3 py-1 bg-white rounded-md text-rw-muted border border-[var(--rw-border)]">
-                                    JPG, PNG, PDF (Max 6MB)
+                                    JPG, PNG, etc (Max 6MB)
                                 </p>
                             </>
                         )}
                         <input
                             id="receipt-upload"
                             type="file"
-                            accept="image/*,application/pdf"
+                            accept="image/*"
                             className="sr-only"
-                            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                            onChange={(e) => {
+                                const selected = e.target.files?.[0];
+                                if (selected) {
+                                    setFile(selected);
+                                    handleUpload(selected);
+                                }
+                                e.target.value = "";
+                            }}
                         />
                     </label>
-                </div>
-            )}
-
-            {paymentType && (
-                <div className="pt-4 border-t border-[var(--rw-border)] animate-fade-in-down">
-                    <Button
-                        variant="primary"
-                        size="lg"
-                        onClick={handleUpload}
-                        disabled={!file}
-                        id="submit-receipt-btn"
-                        className="w-full !h-16 text-lg rounded-2xl shadow-rw-shadow-crimson"
-                    >
-                        Analyse & Submit Receipt
-                    </Button>
                 </div>
             )}
         </div>
