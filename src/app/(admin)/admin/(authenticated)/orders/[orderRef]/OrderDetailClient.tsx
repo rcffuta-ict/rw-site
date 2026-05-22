@@ -7,6 +7,11 @@ import { ph } from "@/lib/utils/functions";
 import { OrderStatusBadge } from "@/components/ui/Badge";
 import { PaymentHistory } from "@/components/admin/orders/PaymentHistory";
 import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { updateOrderStatus } from "@/lib/services/orders.service";
+import { StatusTimeline } from "@/components/ui/StatusTimeline";
+import type { OrderStatus } from "@/lib/data/types";
 
 interface OrderDetailClientProps {
     order: Order;
@@ -18,8 +23,22 @@ function fmt(n: number) {
 
 import { AdminStats, AdminStatItem } from "@/components/admin/AdminStats";
 
+const ORDER_STATUSES: { key: OrderStatus; label: string }[] = [
+    { key: "pending", label: "Pending" },
+    { key: "partially_paid", label: "Partial" },
+    { key: "paid", label: "Paid" },
+    { key: "confirmed", label: "Queued" },
+    { key: "in_production", label: "In Production" },
+    { key: "delivered", label: "Delivered" },
+    { key: "flagged", label: "Flagged" },
+    { key: "cancelled", label: "Cancelled" },
+];
+
 export default function OrderDetailClient({ order: initialOrder }: OrderDetailClientProps) {
     const [order, setOrder] = useState(initialOrder);
+    const [selectedStatus, setSelectedStatus] = useState<OrderStatus>(order.status);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const router = useRouter();
 
     const pct = order.totalAmount > 0 ? Math.round((order.amountPaid / order.totalAmount) * 100) : 0;
     const remaining = order.totalAmount - order.amountPaid;
@@ -51,8 +70,18 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
         }
     ];
 
-    function handleUpdateStatus() {
-        alert("Status update stub — would trigger API call in production");
+    async function handleStatusChange(status: OrderStatus) {
+        setIsUpdating(true);
+        const res = await updateOrderStatus(order.id, status);
+        setIsUpdating(false);
+        if (res.success && res.data) {
+            setOrder(res.data);
+            setSelectedStatus(res.data.status);
+            toast.success(`Order status updated to ${status}`);
+            router.refresh();
+        } else {
+            toast.error(res.error || "Failed to update order status");
+        }
     }
 
     return (
@@ -82,7 +111,7 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
                         <span className="text-rw-crimson font-bold uppercase tracking-tight shrink-0">ID: {order.id.split("-")[1].toUpperCase()}</span>
                     </div>
                 </div>
-                <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                     <Link
                         href={`/admin/orders/${order.orderRef}/details`}
                         className="btn-secondary !h-12 px-6 text-[11px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 w-full md:w-auto"
@@ -90,22 +119,38 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
                         Full Info
                     </Link>
-                    <button 
-                        onClick={handleUpdateStatus}
-                        className="btn-secondary !h-12 px-6 text-[11px] font-bold uppercase tracking-widest w-full md:w-auto"
-                    >
-                        Confirm
-                    </button>
-                    <button 
-                        onClick={handleUpdateStatus}
-                        className="btn-primary !h-12 px-8 text-[11px] font-bold uppercase tracking-widest !bg-rw-ink hover:!bg-black shadow-lg w-full md:w-auto"
-                    >
-                        Update
-                    </button>
+                    <div className="relative w-full sm:w-60">
+                        <select
+                            value={selectedStatus}
+                            disabled={isUpdating}
+                            onChange={(e) => handleStatusChange(e.target.value as OrderStatus)}
+                            className="w-full h-12 pl-4 pr-10 text-[11px] font-bold uppercase tracking-widest bg-white border border-[var(--rw-border)] rounded-xl appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-rw-crimson/20 focus:border-rw-crimson transition-all disabled:opacity-50"
+                        >
+                            {ORDER_STATUSES.map((s) => (
+                                <option key={s.key} value={s.key} className="text-rw-ink bg-white font-sans font-semibold py-2">
+                                    {s.label}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-rw-muted">
+                            {isUpdating ? (
+                                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            ) : (
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <AdminStats stats={stats} />
+
+            <StatusTimeline status={order.status} />
 
             <div className="grid lg:grid-cols-[1fr_320px] gap-8 items-start">
                 <div className="flex flex-col gap-6">

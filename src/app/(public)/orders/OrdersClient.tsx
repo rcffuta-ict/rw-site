@@ -7,6 +7,7 @@ import { OrderStatusBadge } from "@/components/ui/Badge";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { searchOrdersAction, getOrdersByRefsAction } from "@/app/actions/orders";
 import { ph } from "@/lib/utils/functions";
+import { StatusTimeline } from "@/components/ui/StatusTimeline";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -49,7 +50,7 @@ const STATUS_CONFIG: Record<
         message: "Your order is registered. Please make payment to proceed.",
     },
     partially_paid: {
-        label: "Partially Paid",
+        label: "Partial",
         icon: "💳",
         color: "#b84500",
         bg: "#fff5ee",
@@ -63,7 +64,7 @@ const STATUS_CONFIG: Record<
         message: "Payment confirmed! Your order is being processed.",
     },
     confirmed: {
-        label: "Confirmed",
+        label: "Queued",
         icon: "📋",
         color: "#004cb8",
         bg: "#f0f4ff",
@@ -121,10 +122,16 @@ function OrderListItem({
     onClick: () => void;
     isDevice: boolean;
 }) {
-    const paidPct =
-        order.totalAmount > 0
-            ? Math.min(100, Math.round((order.amountPaid / order.totalAmount) * 100))
-            : 0;
+    const payments = order.payments || [];
+    const approvedSum = payments
+        .filter((p) => p.status === "approved")
+        .reduce((sum, p) => sum + (p.amountConfirmed ?? p.extractedAmount), 0);
+    const pendingSum = payments
+        .filter((p) => p.status === "pending")
+        .reduce((sum, p) => sum + p.extractedAmount, 0);
+
+    const approvedPct = order.totalAmount > 0 ? Math.min(100, Math.round((approvedSum / order.totalAmount) * 100)) : 0;
+    const pendingPct = order.totalAmount > 0 ? Math.min(100 - approvedPct, Math.round((pendingSum / order.totalAmount) * 100)) : 0;
     const cfg = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.pending;
 
     return (
@@ -165,129 +172,46 @@ function OrderListItem({
 
             <div className="mt-3">
                 <div className="flex justify-between items-center mb-1.5">
-                    <span className="text-xs text-[#9a8085]">{cfg.label}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#9a8085]">{cfg.label}</span>
                     <span className="text-xs font-semibold text-[#1C0003]">
-                        {fmtNgn(order.amountPaid)} / {fmtNgn(order.totalAmount)}
+                        {fmtNgn(approvedSum)} {pendingSum > 0 && <span className="text-amber-600 font-bold">({fmtNgn(pendingSum)} pending)</span>} / {fmtNgn(order.totalAmount)}
                     </span>
                 </div>
-                <div className="progress-bar-track" style={{ height: "5px" }}>
-                    <div className="progress-bar-fill" style={{ width: `${paidPct}%` }} />
+                <div className="h-1.5 w-full bg-[#f4e6e8] rounded-full overflow-hidden flex border border-[#f0dedf]/55 relative">
+                    <div 
+                        className="h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-300" 
+                        style={{ width: `${approvedPct}%` }} 
+                    />
+                    <div 
+                        className="h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-300 animate-pulse" 
+                        style={{ 
+                            width: `${pendingPct}%`,
+                            backgroundImage: `linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent)`,
+                            backgroundSize: '0.5rem 0.5rem'
+                        }} 
+                    />
                 </div>
             </div>
         </button>
     );
 }
 
-// ─── Order Status Timeline ────────────────────────────────────────────────────
 
-function StatusTimeline({ status }: { status: string }) {
-    const currentIdx = STATUS_STEPS.indexOf(status);
-    const isCancelled = status === "cancelled";
-    const isFlagged = status === "flagged";
-
-    if (isCancelled || isFlagged) {
-        const cfg = STATUS_CONFIG[status];
-        return (
-            <div
-                className="rounded-2xl p-4 text-sm font-medium flex items-center gap-3"
-                style={{ background: cfg.bg, color: cfg.color }}
-            >
-                <span className="text-xl">{cfg.icon}</span>
-                {cfg.message}
-            </div>
-        );
-    }
-
-    const stepLabels = [
-        "Placed",
-        "Part-Paid",
-        "Paid",
-        "Confirmed",
-        "Production",
-        "Delivered",
-    ];
-
-    return (
-        <div className="rounded-2xl border border-[#e8d0d4] bg-white p-5">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-[#9a8085] mb-4">
-                Order Progress
-            </p>
-            <div className="flex items-center gap-0">
-                {STATUS_STEPS.map((step, i) => {
-                    const done = i <= currentIdx;
-                    const active = i === currentIdx;
-                    const isLast = i === STATUS_STEPS.length - 1;
-                    return (
-                        <div key={step} className="flex items-center flex-1">
-                            <div className="flex flex-col items-center gap-1.5">
-                                <div
-                                    className="h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
-                                    style={{
-                                        background: done
-                                            ? active
-                                                ? "#FF0015"
-                                                : "#FF0015"
-                                            : "#f9f0f0",
-                                        color: done ? "white" : "#d4a8b0",
-                                        boxShadow: active
-                                            ? "0 0 0 4px rgba(255,0,21,0.15)"
-                                            : undefined,
-                                        transform: active ? "scale(1.15)" : undefined,
-                                    }}
-                                >
-                                    {done && !active ? (
-                                        <svg
-                                            className="h-3.5 w-3.5"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth={3}
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="m4.5 12.75 6 6 9-13.5"
-                                            />
-                                        </svg>
-                                    ) : (
-                                        <span>{i + 1}</span>
-                                    )}
-                                </div>
-                                <span
-                                    className="text-[9px] font-bold uppercase tracking-wide text-center"
-                                    style={{
-                                        color: done ? "#FF0015" : "#c4a0a8",
-                                        maxWidth: "44px",
-                                    }}
-                                >
-                                    {stepLabels[i]}
-                                </span>
-                            </div>
-                            {!isLast && (
-                                <div
-                                    className="flex-1 h-0.5 mb-4 transition-all"
-                                    style={{
-                                        background:
-                                            i < currentIdx ? "#FF0015" : "#e8d0d4",
-                                    }}
-                                />
-                            )}
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-    );
-}
 
 // ─── Order Detail Panel ───────────────────────────────────────────────────────
 
 function OrderDetailPanel({ order }: { order: Order }) {
-    const paidPct =
-        order.totalAmount > 0
-            ? Math.min(100, Math.round((order.amountPaid / order.totalAmount) * 100))
-            : 0;
-    const remaining = order.totalAmount - order.amountPaid;
+    const payments = order.payments || [];
+    const approvedSum = payments
+        .filter((p) => p.status === "approved")
+        .reduce((sum, p) => sum + (p.amountConfirmed ?? p.extractedAmount), 0);
+    const pendingSum = payments
+        .filter((p) => p.status === "pending")
+        .reduce((sum, p) => sum + p.extractedAmount, 0);
+
+    const approvedPct = order.totalAmount > 0 ? Math.min(100, Math.round((approvedSum / order.totalAmount) * 100)) : 0;
+    const pendingPct = order.totalAmount > 0 ? Math.min(100 - approvedPct, Math.round((pendingSum / order.totalAmount) * 100)) : 0;
+    const remaining = Math.max(0, order.totalAmount - approvedSum - pendingSum);
     const cfg = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.pending;
 
     return (
@@ -417,11 +341,19 @@ function OrderDetailPanel({ order }: { order: Order }) {
                         </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                        <span className="text-[#5c4048]">Amount paid</span>
+                        <span className="text-[#5c4048]">Amount confirmed</span>
                         <span className="font-semibold text-green-600">
-                            {fmtNgn(order.amountPaid)}
+                            {fmtNgn(approvedSum)}
                         </span>
                     </div>
+                    {pendingSum > 0 && (
+                        <div className="flex justify-between text-sm">
+                            <span className="text-[#5c4048]">Amount pending review</span>
+                            <span className="font-semibold text-amber-600 animate-pulse">
+                                {fmtNgn(pendingSum)}
+                            </span>
+                        </div>
+                    )}
                     {remaining > 0 && (
                         <div className="flex justify-between text-sm border-t border-[#e8d0d4] pt-3">
                             <span className="font-semibold text-[#1C0003]">
@@ -435,17 +367,26 @@ function OrderDetailPanel({ order }: { order: Order }) {
                 </div>
 
                 {/* Progress bar */}
-                <div>
-                    <div className="flex justify-between mb-2">
+                <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-center">
                         <span className="text-xs text-[#9a8085]">Payment progress</span>
-                        <span className="text-xs font-bold text-[#1C0003]">
-                            {paidPct}%
-                        </span>
+                        <div className="text-right">
+                            <span className="text-xs font-bold text-[#1C0003]">{approvedPct}%</span>
+                            {pendingPct > 0 && <span className="text-[10px] font-bold text-amber-500 ml-1">+{pendingPct}% pending</span>}
+                        </div>
                     </div>
-                    <div className="progress-bar-track">
-                        <div
-                            className="progress-bar-fill"
-                            style={{ width: `${paidPct}%` }}
+                    <div className="h-3 w-full bg-[#f4e6e8] rounded-full overflow-hidden flex border border-[#f0dedf] relative">
+                        <div 
+                            className="h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-500 rounded-l-full"
+                            style={{ width: `${approvedPct}%` }}
+                        />
+                        <div 
+                            className="h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500 animate-pulse relative overflow-hidden"
+                            style={{ 
+                                width: `${pendingPct}%`,
+                                backgroundImage: `linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent)`,
+                                backgroundSize: '1rem 1rem'
+                            }}
                         />
                     </div>
                 </div>

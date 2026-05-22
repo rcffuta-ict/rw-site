@@ -242,7 +242,7 @@ export async function reviewPayment(
 ): Promise<ServiceResult<Payment>> {
     const supabase = await createSupabaseAdminClient();
 
-    const { data, error } = await supabase
+    const { data: paymentData, error: paymentError } = await supabase
         .from("rw_payments")
         .update({
             status: input.decision,
@@ -255,9 +255,39 @@ export async function reviewPayment(
         .select()
         .single();
 
-    if (error) return { success: false, error: error.message };
+    if (paymentError) return { success: false, error: paymentError.message };
+
+    // Synchronize order status based on approved payments
+    const order = await getOrderById(paymentData.order_id);
+    if (order) {
+        let newStatus: OrderStatus = order.status;
+        if (["pending", "partially_paid", "paid"].includes(order.status)) {
+            const approvedPayments = order.payments.map(p => 
+                p.id === paymentData.id 
+                    ? { ...p, status: input.decision, amountConfirmed: input.amountConfirmed ?? p.extractedAmount } 
+                    : p
+            ).filter(p => p.status === "approved");
+
+            const approvedSum = approvedPayments.reduce((s, p) => 
+                s + (p.amountConfirmed ?? p.extractedAmount), 
+                0
+            );
+
+            if (approvedSum >= order.totalAmount) {
+                newStatus = "paid";
+            } else if (approvedSum > 0) {
+                newStatus = "partially_paid";
+            } else {
+                newStatus = "pending";
+            }
+        }
+        if (newStatus !== order.status) {
+            await supabase.from("rw_orders").update({ status: newStatus }).eq("id", order.id);
+        }
+    }
+
     revalidateTag("orders", "max");
-    return { success: true, data: mapPaymentFromDb(data) };
+    return { success: true, data: mapPaymentFromDb(paymentData) };
 }
 
 export async function deletePaymentReceipt(paymentId: string): Promise<ServiceResult> {

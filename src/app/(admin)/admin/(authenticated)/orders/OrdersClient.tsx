@@ -19,7 +19,7 @@ const STATUS_TABS: { key: OrderStatus | "all"; label: string }[] = [
     { key: "pending",        label: "Pending" },
     { key: "partially_paid", label: "Partial" },
     { key: "paid",           label: "Paid" },
-    { key: "confirmed",      label: "Confirmed" },
+    { key: "confirmed",      label: "Queued" },
     { key: "flagged",        label: "Flagged" },
 ];
 

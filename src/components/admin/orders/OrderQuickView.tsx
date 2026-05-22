@@ -13,10 +13,16 @@ interface OrderQuickViewProps {
 
 export function OrderQuickView({ order, onClose }: OrderQuickViewProps) {
     const totalUnits = order.items.reduce((acc, item) => acc + item.quantity, 0);
-    const paymentPercentage = Math.min(
-        Math.round((order.amountPaid / order.totalAmount) * 100),
-        100
-    );
+    const payments = order.payments || [];
+    const approvedSum = payments
+        .filter((p) => p.status === "approved")
+        .reduce((sum, p) => sum + (p.amountConfirmed ?? p.extractedAmount), 0);
+    const pendingSum = payments
+        .filter((p) => p.status === "pending")
+        .reduce((sum, p) => sum + p.extractedAmount, 0);
+
+    const approvedPct = order.totalAmount > 0 ? Math.min(100, Math.round((approvedSum / order.totalAmount) * 100)) : 0;
+    const pendingPct = order.totalAmount > 0 ? Math.min(100 - approvedPct, Math.round((pendingSum / order.totalAmount) * 100)) : 0;
 
     return (
         <div className="flex flex-col h-[70vh] md:h-[650px] animate-fade-in-up">
@@ -68,39 +74,55 @@ export function OrderQuickView({ order, onClose }: OrderQuickViewProps) {
                                         <span className="text-rw-muted">Coverage</span>
                                         <span
                                             className={
-                                                paymentPercentage === 100
-                                                    ? "text-green-600"
-                                                    : "text-rw-crimson"
+                                                approvedPct === 100
+                                                    ? "text-green-600 font-extrabold"
+                                                    : "text-rw-crimson font-extrabold"
                                             }
                                         >
-                                            {paymentPercentage}% Collected
+                                            {approvedPct}% {pendingPct > 0 && <span className="text-amber-500 font-bold">(+{pendingPct}% pending)</span>} Collected
                                         </span>
                                     </div>
-                                    <div className="progress-bar-track bg-white">
-                                        <div
-                                            className="progress-bar-fill shadow-sm"
-                                            style={{ width: `${paymentPercentage}%` }}
+                                    <div className="h-2 w-full bg-white rounded-full overflow-hidden flex border border-[var(--rw-border)] relative">
+                                        <div 
+                                            className="h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-300" 
+                                            style={{ width: `${approvedPct}%` }} 
+                                        />
+                                        <div 
+                                            className="h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-300 animate-pulse" 
+                                            style={{ 
+                                                width: `${pendingPct}%`,
+                                                backgroundImage: `linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent)`,
+                                                backgroundSize: '0.5rem 0.5rem'
+                                            }} 
                                         />
                                     </div>
                                     <div className="flex justify-between pt-2">
                                         <div className="flex flex-col">
                                             <span className="text-[9px] font-bold text-rw-muted uppercase">
-                                                Paid
+                                                Confirmed
                                             </span>
                                             <span className="text-sm font-bold text-rw-ink">
-                                                {fmt(order.amountPaid)}
+                                                {fmt(approvedSum)}
                                             </span>
                                         </div>
+                                        {pendingSum > 0 && (
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-[9px] font-bold text-amber-500 uppercase">
+                                                    Pending
+                                                </span>
+                                                <span className="text-sm font-bold text-amber-600 animate-pulse">
+                                                    {fmt(pendingSum)}
+                                                </span>
+                                            </div>
+                                        )}
                                         <div className="flex flex-col items-end">
                                             <span className="text-[9px] font-bold text-rw-muted uppercase">
-                                                Balance
+                                                Balance Due
                                             </span>
                                             <span
-                                                className={`text-sm font-black ${order.totalAmount > order.amountPaid ? "text-rw-crimson" : "text-rw-ink"}`}
+                                                className={`text-sm font-black ${order.totalAmount > approvedSum + pendingSum ? "text-rw-crimson" : "text-rw-ink"}`}
                                             >
-                                                {fmt(
-                                                    order.totalAmount - order.amountPaid
-                                                )}
+                                                {fmt(Math.max(0, order.totalAmount - approvedSum - pendingSum))}
                                             </span>
                                         </div>
                                     </div>

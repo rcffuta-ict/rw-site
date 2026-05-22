@@ -19,7 +19,7 @@ const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
     pending:         "Pending",
     partially_paid:  "Partial",
     paid:            "Paid",
-    confirmed:       "Confirmed",
+    confirmed:       "Queued",
     in_production:   "In Production",
     delivered:       "Delivered",
     flagged:         "Flagged",
