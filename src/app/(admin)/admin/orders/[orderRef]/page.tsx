@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getDemoOrder } from "@/lib/data/orders";
+import { getOrderByRef } from "@/lib/services/orders.service";
 import OrderDetailClient from "./OrderDetailClient";
 
 interface Props {
@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function AdminOrderDetailPage({ params }: Props) {
     const { orderRef } = await params;
-    const order = getDemoOrder(orderRef);
+    const order = await getOrderByRef(orderRef);
     if (!order) notFound();
 
     return <OrderDetailClient order={order} />;

@@ -119,18 +119,32 @@ export default function OrderInfoClient({ order }: OrderInfoClientProps) {
                         />
                     </div>
 
+                    {/* Production Manifest Preview */}
                     <div className="rw-card p-8 bg-rw-ink text-white/90 border-none shadow-2xl relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-8 opacity-5">
                             <svg className="h-32 w-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.45l8.27 14.3H3.73L12 5.45zM11 16h2v2h-2v-2zm0-7h2v5h-2V9z" /></svg>
                         </div>
-                        <h3 className="font-display font-bold text-xl mb-6 flex items-center gap-3">
+                        <h3 className="font-display font-bold text-xl mb-6 flex items-center gap-3 relative z-10">
                             <span className="h-1.5 w-1.5 rounded-full bg-rw-orange animate-pulse" />
-                            Raw System Response (v1)
+                            Production Manifest
                         </h3>
-                        <div className="bg-black/40 rounded-2xl p-6 overflow-x-auto border border-white/5 backdrop-blur-sm">
-                            <pre className="text-[11px] text-rw-orange/90 font-mono leading-relaxed custom-scrollbar">
-                                {JSON.stringify(order, null, 2)}
-                            </pre>
+                        <div className="flex flex-col gap-4 relative z-10">
+                            {order.items.map((item) => (
+                                <div key={item.id} className="flex justify-between items-center bg-white/5 border border-white/10 rounded-xl p-4 backdrop-blur-sm">
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-white text-sm">{item.productName}</span>
+                                        <span className="text-[10px] text-white/50 uppercase tracking-widest">{item.variantLabel}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-[10px] text-white/40 uppercase tracking-widest">Qty</span>
+                                        <span className="font-mono font-bold text-lg text-rw-orange">{item.quantity}</span>
+                                    </div>
+                                </div>
+                            ))}
+                            <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
+                                <span className="text-[10px] uppercase tracking-widest text-white/50 font-bold">Total Units for Production</span>
+                                <span className="font-mono font-black text-2xl text-white">{order.items.reduce((s, i) => s + i.quantity, 0)}</span>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/forms/Button";
-import { getDemoOrder } from "@/lib/data/orders";
+import { getOrderByRefAction } from "@/app/actions/orders";
 import type { Order } from "@/lib/data/types";
 
 interface LookupFormProps {
@@ -24,21 +24,7 @@ export function LookupForm({ initialRef, onOrderFound }: LookupFormProps) {
         // Artificial delay for elegant animation
         await new Promise((r) => setTimeout(r, 800));
 
-        try {
-            const stored = JSON.parse(
-                localStorage.getItem("rw_demo_orders") ?? "[]"
-            ) as Order[];
-            const local = stored.find(
-                (o: Order) => o.orderRef.toUpperCase() === cleanRef
-            );
-            if (local) {
-                setLoadingLookup(false);
-                onOrderFound(local, cleanRef);
-                return;
-            }
-        } catch {}
-
-        const found = getDemoOrder(cleanRef);
+        const found = await getOrderByRefAction(cleanRef);
         if (found) {
             onOrderFound(found, cleanRef);
         } else {
