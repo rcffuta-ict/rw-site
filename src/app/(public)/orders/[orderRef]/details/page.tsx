@@ -1,7 +1,8 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getOrderByRef } from "@/lib/services/orders.service";
-import OrderInfoClient from "./OrderInfoClient";
+import OrderDetailSheetClient from "./OrderDetailSheetClient";
+import { TENURE } from "@/lib/config";
 
 interface Props {
     params: Promise<{ orderRef: string }>;
@@ -9,13 +10,15 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { orderRef } = await params;
-    return { title: `Details: ${orderRef} — RW'26 Admin` };
+    return {
+        title: `Order Account: ${orderRef} — ${TENURE.eventName} ${TENURE.year} Merch Sales`,
+    };
 }
 
-export default async function OrderDetailsInfoPage({ params }: Props) {
+export default async function OrderDetailSheetPage({ params }: Props) {
     const { orderRef } = await params;
     const order = await getOrderByRef(orderRef);
     if (!order) notFound();
 
-    return <OrderInfoClient order={order} />;
+    return <OrderDetailSheetClient order={order} />;
 }

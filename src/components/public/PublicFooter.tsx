@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { LOGOS } from "@/lib/config";
 import { Identity } from "../ui/Identity";
 
@@ -72,8 +75,11 @@ const FELLOWSHIP_FACTS = [
 ];
 
 export function PublicFooter() {
+    const pathname = usePathname();
+    const isOrderDetailsPage = pathname?.startsWith("/orders/") && pathname?.endsWith("/details");
+
     return (
-        <footer className="bg-rw-bg-warm border-t border-[#e8d0d4] text-[#1C0003]">
+        <footer className="bg-rw-bg-warm border-t border-[#e8d0d4] text-[#1C0003] print:hidden">
             {/* ── Top brand band ─────────────────────────────────────────────── */}
             <div className="border-b border-[#e8d0d4]">
                 <div className="section-container !pt-6 lg:pt-16 !pb-10 !lg:pb-12 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-8 text-center lg:text-left">
@@ -101,7 +107,8 @@ export function PublicFooter() {
             </div>
 
             {/* ── Main columns ─────────────────────────────────────────────── */}
-            <div className="section-container !pt-20 lg:!pt-28 !pb-16">
+            {!isOrderDetailsPage && (
+                <div className="section-container !pt-20 lg:!pt-28 !pb-16">
                 <div className="grid gap-12 lg:gap-16 xl:gap-20 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
                     {/* Col 1 — About */}
                     <div className="text-center sm:text-left">
@@ -237,6 +244,7 @@ export function PublicFooter() {
                     </div>
                 </div>
             </div>
+            )}
 
             {/* ── Bottom bar ─────────────────────────────────────────────────── */}
             <div className="border-t border-[#e8d0d4]">

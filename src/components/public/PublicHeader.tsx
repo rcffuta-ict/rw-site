@@ -14,6 +14,9 @@ const NAV = [
 
 export function PublicHeader() {
     const pathname = usePathname();
+    const isOrderDetailsPage =
+        pathname?.startsWith("/orders/") && pathname?.endsWith("/details");
+
     const { itemCount, openCart } = useCart();
     const [open, setOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
@@ -37,6 +40,7 @@ export function PublicHeader() {
 
     const isOrdersActive = pathname?.startsWith("/orders");
     const isCheckoutActive = pathname === "/checkout";
+    if (isOrderDetailsPage) return null;
 
     return (
         <header

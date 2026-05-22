@@ -113,7 +113,7 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
                 </div>
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
                     <Link
-                        href={`/admin/orders/${order.orderRef}/details`}
+                        href={`/orders/${order.orderRef}/details`}
                         className="btn-secondary !h-12 px-6 text-[11px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 w-full md:w-auto"
                     >
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
