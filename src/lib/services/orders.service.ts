@@ -128,6 +128,42 @@ export async function createOrder(
 ): Promise<ServiceResult<Order>> {
     const supabase = await createSupabaseAdminClient();
 
+    // 0. Validate that all variant IDs exist in the database and are valid UUIDs
+    const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const variantIds = Array.from(new Set(input.lines.map((l) => l.variantId)));
+    
+    // Check UUID format
+    const invalidFormatIds = variantIds.filter((id) => !UUID_REGEX.test(id));
+    if (invalidFormatIds.length > 0) {
+        return {
+            success: false,
+            error: "Some items in your cart are no longer available or are out of date. Please clear your cart and try adding them again.",
+        };
+    }
+
+    // Query database for existence
+    const { data: dbVariants, error: checkError } = await supabase
+        .from("rw_product_variants")
+        .select("id")
+        .in("id", variantIds);
+
+    if (checkError) {
+        return {
+            success: false,
+            error: "Failed to validate products in cart. Please try again.",
+        };
+    }
+
+    const foundIds = new Set((dbVariants ?? []).map((v) => v.id));
+    const missingIds = variantIds.filter((id) => !foundIds.has(id));
+
+    if (missingIds.length > 0) {
+        return {
+            success: false,
+            error: "Some items in your cart are no longer available or are out of date. Please clear your cart and try adding them again.",
+        };
+    }
+
     // 1. Generate a unique order ref
     const { data: refData, error: refError } = await supabase.rpc("generate_order_ref");
 

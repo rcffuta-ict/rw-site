@@ -156,7 +156,7 @@ function OrderSummaryPanel({
 }
 
 export function CheckoutClient() {
-    const { items, total, submitOrder, submitError } = useCart();
+    const { items, total, submitOrder, submitError, clearCart } = useCart();
     const [step, setStep] = useState<Step>(1);
     const [orderRef, setOrderRef] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
@@ -526,10 +526,23 @@ export function CheckoutClient() {
                                         </Button>
                                     </div>
                                     {submitError && (
-                                        <div className="p-4 bg-rw-crimson/10 border border-rw-crimson/20 rounded-xl">
-                                            <p className="text-sm text-rw-crimson font-medium text-center">
+                                        <div className="p-5 bg-rw-crimson/5 border border-rw-crimson/20 rounded-2xl flex flex-col items-center gap-4 animate-fade-in">
+                                            <p className="text-sm text-rw-crimson font-semibold text-center leading-relaxed">
                                                 {submitError}
                                             </p>
+                                            {submitError.includes("clear your cart") && (
+                                                <Button
+                                                    variant="primary"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        clearCart();
+                                                        window.location.href = "/shop";
+                                                    }}
+                                                    className="shadow-md shadow-rw-crimson/20"
+                                                >
+                                                    Clear Cart & Start Fresh
+                                                </Button>
+                                            )}
                                         </div>
                                     )}
                                 </div>
