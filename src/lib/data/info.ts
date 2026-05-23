@@ -13,19 +13,28 @@ export const SPONSORS = [
     {
         tier: "Gold",
         amount: "₦750,000",
-        perks: ["All-week logo placement", "Booth × 4 days", "Video and image ads × 4 days"],
+        perks: [
+            "All-week logo placement",
+            "Booth × 4 days",
+            "Video and image ads × 4 days",
+            "Vocal mentions nightly",
+        ],
         highlight: false,
     },
     {
         tier: "Silver",
         amount: "₦500,000",
-        perks: ["All-week logo placement", "Booth × 3 days", "Video and image ad × 3 days"],
+        perks: [
+            "All-week logo placement",
+            "Booth × 3 days",
+            "Video and image ads × 3 days",
+        ],
         highlight: false,
     },
     {
         tier: "Bronze",
         amount: "₦250,000",
-        perks: ["All-week logo placement", "Booth × 2 days", "Image ads daily"],
+        perks: ["All-week logo placement", "Booth × 2 days", "Image ads × 2 days"],
         highlight: false,
     },
 ];

@@ -30,7 +30,7 @@ const WHY_SUPPORT = [
     {
         icon: "📸",
         title: "Documentation",
-        desc: "Photography and film to preserve {TENURE.anniversaryLabel} for generations.",
+        desc: `Photography and film to preserve ${TENURE.anniversaryLabel} for generations.`,
     },
 ];
 
