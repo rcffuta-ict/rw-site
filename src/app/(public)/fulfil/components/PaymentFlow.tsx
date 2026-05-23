@@ -258,16 +258,16 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
             updateStage("done");
         } catch (error: any) {
             console.error("Payment confirmation error:", error);
-            
+
             let displayError = error.message || "An unexpected error occurred. Please try again.";
             if (displayError.includes('relation "orders" does not exist')) {
                 displayError = 'Database Trigger Error: The database trigger is referencing the old "orders" table instead of "rw_orders". Please apply the SQL trigger fix from docs/schema.sql.';
             }
-            
+
             if (uploadedCloudData) {
                 const nextRetries = saveRetries + 1;
                 setSaveRetries(nextRetries);
-                
+
                 if (nextRetries >= 3) {
                     toast.error("Maximum retries reached. Payment submission is being reset.");
                     if (uploadedCloudData.public_id) {
@@ -349,6 +349,11 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
 
         const prescribedNarration = `RW26-${order.orderRef}`;
         const isNarrationMismatch = extraction && (!extraction.narration || !extraction.narration.toLowerCase().includes(prescribedNarration.toLowerCase()));
+
+        // Validate bank and recipient name match defaults
+        const isBankMismatch = extraction && extraction.bank && extraction.bank.toLowerCase() !== PAYMENT_CONFIG.bank.toLowerCase();
+        const isRecipientMismatch = extraction && extraction.senderName && extraction.senderName.toLowerCase() !== PAYMENT_CONFIG.accountName.toLowerCase();
+        const hasAccountMismatch = isBankMismatch || isRecipientMismatch;
 
         return (
             <div className="rw-card p-8 flex flex-col gap-8 animate-fade-in-up shadow-rw-shadow-md border-t-[3px] border-t-rw-crimson">
@@ -497,7 +502,32 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                                 </div>
                             </div>
 
-                            {/* Row 4: Narration Warning */}
+                            {/* Row 4: Account Mismatch Warning */}
+                            {hasAccountMismatch && (
+                                <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex gap-3 items-start animate-fade-in">
+                                    <svg className="w-5 h-5 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                    <div>
+                                        <p className="text-sm font-bold text-red-800">Account Mismatch</p>
+                                        <p className="text-xs text-red-700 mt-1">
+                                            This payment does not match our expected account details. You cannot proceed with this receipt.
+                                        </p>
+                                        {isBankMismatch && (
+                                            <p className="text-xs text-red-600 font-mono mt-2 truncate max-w-xs" title={extraction.bank || ""}>
+                                                Expected Bank: <b>{PAYMENT_CONFIG.bank}</b> | Found: <b>{extraction.bank}</b>
+                                            </p>
+                                        )}
+                                        {isRecipientMismatch && (
+                                            <p className="text-xs text-red-600 font-mono mt-1 truncate max-w-xs" title={extraction.senderName || ""}>
+                                                Expected Recipient: <b>{PAYMENT_CONFIG.accountName}</b> | Found: <b>{extraction.senderName}</b>
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Row 5: Narration Warning */}
                             {isNarrationMismatch && (
                                 <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex gap-3 items-start animate-fade-in">
                                     <svg className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -595,7 +625,7 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                         variant="primary"
                         size="lg"
                         onClick={handleConfirm}
-                        disabled={accurate !== true || submitting || isMissingInfo}
+                        disabled={accurate !== true || submitting || isMissingInfo || Boolean(hasAccountMismatch)}
                         loading={submitting}
                         id="confirm-receipt-btn"
                         className="w-full !h-16 text-lg rounded-2xl"
