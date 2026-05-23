@@ -14,6 +14,7 @@ import type {
     ServiceResult,
 } from "@/lib/data/types";
 import { revalidateTag } from "next/cache";
+import { headers } from "next/headers";
 
 // ─── Shared select fragment ───────────────────────────────────────────────────
 
@@ -229,6 +230,17 @@ export async function updateOrderStatus(
     status: OrderStatus
 ): Promise<ServiceResult<Order>> {
     const supabase = await createSupabaseAdminClient();
+
+    const existingOrder = await getOrderById(orderId);
+    if (!existingOrder) return { success: false, error: "Order not found." };
+
+    if (existingOrder.status === "flagged") {
+        const hdrs = await headers();
+        const isAdmin = hdrs.get("x-admin-role") === "ADMIN";
+        if (!isAdmin) {
+            return { success: false, error: "Only administrators can restore a flagged order." };
+        }
+    }
 
     const { error } = await supabase.from("rw_orders").update({ status }).eq("id", orderId);
 

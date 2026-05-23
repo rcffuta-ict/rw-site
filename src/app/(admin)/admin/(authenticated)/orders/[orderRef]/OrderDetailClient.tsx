@@ -15,34 +15,28 @@ import type { OrderStatus } from "@/lib/data/types";
 
 interface OrderDetailClientProps {
     order: Order;
+    isAdmin?: boolean;
 }
 
 function fmt(n: number) {
     return `₦${n.toLocaleString()}`;
 }
 
-
-const ORDER_STATUSES: { key: OrderStatus; label: string }[] = [
-    { key: "pending", label: "Pending" },
-    { key: "partially_paid", label: "Partial" },
-    { key: "paid", label: "Paid" },
-    { key: "confirmed", label: "Queued" },
-    { key: "in_production", label: "In Production" },
-    { key: "delivered", label: "Delivered" },
-    { key: "flagged", label: "Flagged" },
-    { key: "cancelled", label: "Cancelled" },
-];
-
-export default function OrderDetailClient({ order: initialOrder }: OrderDetailClientProps) {
+export default function OrderDetailClient({
+    order: initialOrder,
+    isAdmin = false,
+}: OrderDetailClientProps) {
     const [order, setOrder] = useState(initialOrder);
     const [selectedStatus, setSelectedStatus] = useState<OrderStatus>(order.status);
     const [isUpdating, setIsUpdating] = useState(false);
     const router = useRouter();
 
-    const pct = order.totalAmount > 0 ? Math.round((order.amountPaid / order.totalAmount) * 100) : 0;
+    const pct =
+        order.totalAmount > 0
+            ? Math.round((order.amountPaid / order.totalAmount) * 100)
+            : 0;
     const remaining = order.totalAmount - order.amountPaid;
-    const units = order.items.reduce((s, i) => s + i.quantity, 0);
-
+    // const units = order.items.reduce((s, i) => s + i.quantity, 0);
 
     async function handleStatusChange(status: OrderStatus) {
         setIsUpdating(true);
@@ -63,7 +57,7 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
             <AdminBreadcrumb
                 items={[
                     { label: "Orders", href: "/admin/orders" },
-                    { label: order.orderRef }
+                    { label: order.orderRef },
                 ]}
             />
 
@@ -78,11 +72,28 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-[10px] sm:text-xs font-medium text-rw-muted">
                         <span className="flex items-center gap-1.5 shrink-0">
-                            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                            {new Date(order.createdAt).toLocaleString("en-NG", { dateStyle: "medium", timeStyle: "short" })}
+                            <svg
+                                className="h-3.5 w-3.5"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                />
+                            </svg>
+                            {new Date(order.createdAt).toLocaleString("en-NG", {
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                            })}
                         </span>
                         <span className="hidden sm:block h-1 w-1 rounded-full bg-rw-muted/30" />
-                        <span className="text-rw-crimson font-bold uppercase tracking-tight shrink-0">ID: {order.id.split("-")[1].toUpperCase()}</span>
+                        <span className="text-rw-crimson font-bold uppercase tracking-tight shrink-0">
+                            ID: {order.id.split("-")[1].toUpperCase()}
+                        </span>
                     </div>
                 </div>
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
@@ -90,7 +101,19 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
                         href={`/orders/${order.orderRef}/details`}
                         className="btn-secondary !h-12 px-6 text-[11px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 w-full md:w-auto"
                     >
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
+                        <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-9-3.75h.008v.008H12V8.25z"
+                            />
+                        </svg>
                         Full Info
                     </Link>
                     <div className="relative group w-full sm:w-auto">
@@ -100,22 +123,48 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
                         >
                             {isUpdating ? (
                                 <>
-                                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    <svg
+                                        className="animate-spin h-4 w-4"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle
+                                            className="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                        ></circle>
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        ></path>
                                     </svg>
                                     Updating...
                                 </>
                             ) : (
                                 <>
                                     Manage Status
-                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                    <svg
+                                        className="h-4 w-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth={2.5}
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                                        />
                                     </svg>
                                 </>
                             )}
                         </button>
-                        
+
                         <div className="absolute right-0 top-[calc(100%+0.5rem)] w-48 bg-white border border-[var(--rw-border)] rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 flex flex-col overflow-hidden">
                             {order.status !== "flagged" && (
                                 <button
@@ -133,14 +182,16 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
                                     Cancel Order
                                 </button>
                             )}
-                            {(order.status === "flagged" || order.status === "cancelled") && (
-                                <button
-                                    onClick={() => handleStatusChange("pending")}
-                                    className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-rw-ink hover:bg-rw-bg-alt transition-colors"
-                                >
-                                    Restore Order
-                                </button>
-                            )}
+                            {(order.status === "flagged" ||
+                                order.status === "cancelled") &&
+                                isAdmin && (
+                                    <button
+                                        onClick={() => handleStatusChange("pending")}
+                                        className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-rw-ink hover:bg-rw-bg-alt transition-colors"
+                                    >
+                                        Restore Order
+                                    </button>
+                                )}
                         </div>
                     </div>
                 </div>
@@ -164,20 +215,48 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
                         <div className="flex flex-col gap-3 mt-6">
                             <div className="flex items-center gap-3 text-sm text-rw-text-2 group">
                                 <div className="h-8 w-8 rounded-lg bg-rw-bg-alt border border-[var(--rw-border)] flex items-center justify-center group-hover:border-rw-crimson/30 group-hover:text-rw-crimson transition-all">
-                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
+                                    <svg
+                                        className="h-4 w-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth={2}
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+                                        />
+                                    </svg>
                                 </div>
                                 <span className="font-medium">{order.customerEmail}</span>
                             </div>
                             <div className="flex items-center gap-3 text-sm text-rw-text-2 group">
                                 <div className="h-8 w-8 rounded-lg bg-rw-bg-alt border border-[var(--rw-border)] flex items-center justify-center group-hover:border-rw-crimson/30 group-hover:text-rw-crimson transition-all">
-                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" /></svg>
+                                    <svg
+                                        className="h-4 w-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth={2}
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"
+                                        />
+                                    </svg>
                                 </div>
-                                <span className="font-medium font-mono">{order.customerPhone}</span>
+                                <span className="font-medium font-mono">
+                                    {order.customerPhone}
+                                </span>
                             </div>
                         </div>
                         {order.customerNote && (
                             <div className="mt-8 pt-6 border-t border-[var(--rw-border)] border-dashed">
-                                <p className="text-[9px] font-bold text-rw-muted uppercase tracking-[0.15em] mb-3">Customer Remark</p>
+                                <p className="text-[9px] font-bold text-rw-muted uppercase tracking-[0.15em] mb-3">
+                                    Customer Remark
+                                </p>
                                 <p className="text-sm italic text-rw-text-2 leading-relaxed bg-white rounded-2xl p-4 shadow-sm border border-[var(--rw-border)]">
                                     &ldquo;{order.customerNote}&rdquo;
                                 </p>
@@ -200,7 +279,10 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
                                 >
                                     <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-lg sm:rounded-xl bg-rw-bg-alt overflow-hidden shrink-0 border border-[var(--rw-border)]">
                                         <img
-                                            src={i.imageUrl || ph(56, 56, i.productName.slice(0, 6))}
+                                            src={
+                                                i.imageUrl ||
+                                                ph(56, 56, i.productName.slice(0, 6))
+                                            }
                                             alt={i.productName}
                                             className="h-full w-full object-cover"
                                         />
@@ -222,7 +304,9 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
                                 </div>
                             ))}
                             <div className="flex justify-between items-center px-6 py-6 bg-rw-bg-alt/50 border-t border-[var(--rw-border)]">
-                                <span className="text-[10px] sm:text-xs font-bold text-rw-muted uppercase tracking-widest">Total Valuation</span>
+                                <span className="text-[10px] sm:text-xs font-bold text-rw-muted uppercase tracking-widest">
+                                    Total Valuation
+                                </span>
                                 <span className="font-display font-black text-rw-crimson text-xl sm:text-2xl">
                                     {fmt(order.totalAmount)}
                                 </span>
@@ -236,8 +320,11 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
                             <span className="h-1 w-4 bg-rw-gold rounded-full" />
                             <p className="font-display font-extrabold text-xl text-rw-ink">
                                 Payment Submissions{" "}
-                                {order.payments.length > 0 &&
-                                    <span className="text-rw-muted text-sm ml-1">({order.payments.length})</span>}
+                                {order.payments.length > 0 && (
+                                    <span className="text-rw-muted text-sm ml-1">
+                                        ({order.payments.length})
+                                    </span>
+                                )}
                             </p>
                         </div>
                         <PaymentHistory payments={order.payments} />
@@ -256,8 +343,12 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
 
                         <div className="bg-rw-bg-alt p-5 rounded-2xl border border-[var(--rw-border)]">
                             <div className="flex justify-between items-end mb-3">
-                                <span className="text-[11px] font-bold text-rw-muted uppercase tracking-tight">Collection</span>
-                                <span className="font-display font-extrabold text-2xl text-rw-crimson">{pct}%</span>
+                                <span className="text-[11px] font-bold text-rw-muted uppercase tracking-tight">
+                                    Collection
+                                </span>
+                                <span className="font-display font-extrabold text-2xl text-rw-crimson">
+                                    {pct}%
+                                </span>
                             </div>
                             <div className="progress-bar-track !h-2.5 bg-white border border-[var(--rw-border)]">
                                 <div
@@ -268,20 +359,26 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
                         </div>
                         <dl className="flex flex-col gap-4 text-sm px-1">
                             <div className="flex justify-between">
-                                <dt className="font-bold text-rw-muted text-xs uppercase tracking-tight">Order Total</dt>
+                                <dt className="font-bold text-rw-muted text-xs uppercase tracking-tight">
+                                    Order Total
+                                </dt>
                                 <dd className="font-mono font-extrabold text-rw-ink">
                                     {fmt(order.totalAmount)}
                                 </dd>
                             </div>
                             <div className="flex justify-between">
-                                <dt className="font-bold text-rw-muted text-xs uppercase tracking-tight">Total Paid</dt>
+                                <dt className="font-bold text-rw-muted text-xs uppercase tracking-tight">
+                                    Total Paid
+                                </dt>
                                 <dd className="font-mono font-extrabold text-green-700">
                                     {fmt(order.amountPaid)}
                                 </dd>
                             </div>
                             <div className="pt-5 border-t border-[var(--rw-border)] border-dashed">
                                 <div className="flex justify-between items-center">
-                                    <dt className="font-bold text-rw-ink text-xs uppercase tracking-widest">Balance Due</dt>
+                                    <dt className="font-bold text-rw-ink text-xs uppercase tracking-widest">
+                                        Balance Due
+                                    </dt>
                                     <dd className="font-mono font-black text-xl text-rw-crimson bg-rw-crimson/5 px-3 py-1 rounded-xl">
                                         {fmt(remaining)}
                                     </dd>
