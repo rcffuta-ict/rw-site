@@ -167,6 +167,7 @@ export function CheckoutClient() {
     }
 
     async function handleSubmit() {
+        if (submitting) return; // Prevent double clicks
         if (!validate()) return;
         setSubmitting(true);
 
@@ -479,6 +480,7 @@ export function CheckoutClient() {
                                         <Button
                                             variant="primary"
                                             size="lg"
+                                            disabled={submitting}
                                             loading={submitting}
                                             onClick={handleSubmit}
                                             className="flex-1 h-16 text-xl font-display font-black uppercase tracking-wider shadow-2xl hover:shadow-rw-crimson/30"
@@ -489,6 +491,14 @@ export function CheckoutClient() {
                                                 : "Confirm & Place Order"}
                                         </Button>
                                     </div>
+                                    {submitting && (
+                                        <div className="flex items-center justify-center gap-2 mt-2">
+                                            <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson animate-ping" />
+                                            <p className="text-center text-xs text-rw-muted font-medium animate-pulse">
+                                                Please do not close this window or refresh the page while we process your order.
+                                            </p>
+                                        </div>
+                                    )}
                                     {submitError && (
                                         <div className="p-5 bg-rw-crimson/5 border border-rw-crimson/20 rounded-2xl flex flex-col items-center gap-4 animate-fade-in">
                                             <p className="text-sm text-rw-crimson font-semibold text-center leading-relaxed">
