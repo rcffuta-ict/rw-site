@@ -39,11 +39,14 @@ export default function OrdersClient({ initialOrders, isAdmin }: { initialOrders
     }, [statusFilter, searchQuery]);
 
     return (
-        <div className="flex flex-col gap-8 animate-fade-in">
+        <div className="flex flex-col gap-8 animate-fade-in-up">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-[var(--rw-border)] pb-8">
                 <div className="flex flex-col gap-2">
-                    <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-rw-ink tracking-tight">Orders</h1>
-                    <p className="text-xs sm:text-sm text-rw-muted font-medium">Manage fulfillment and track payments across the platform</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-rw-muted mb-0.5">
+                        Fulfillment Dashboard
+                    </p>
+                    <h1 className="font-display font-extrabold text-2xl lg:text-3xl text-rw-ink tracking-tight">Orders</h1>
+                    <p className="text-xs sm:text-sm text-rw-muted font-medium italic">Manage fulfillment and track payments across the platform</p>
                 </div>
                 <div className="w-full sm:w-auto animate-scale-in">
                     {isAdmin && <OrderVerdictActions />}

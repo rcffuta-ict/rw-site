@@ -50,11 +50,13 @@ function ImageSlot({
     productName,
     isActive,
     onUpload,
+    isAdmin,
 }: {
     variant: ProductVariant;
     productName: string;
     isActive: boolean;
     onUpload: (variantId: string, file: File) => void;
+    isAdmin: boolean;
 }) {
     const primaryImage =
         variant.images.find((img) => img.isPrimary) ?? variant.images[0] ?? null;
@@ -82,7 +84,7 @@ function ImageSlot({
                         Cloudinary ✓
                     </span>
                 </div>
-            ) : (
+            ) : isAdmin ? (
                 <div className="absolute inset-0 flex items-end justify-center p-2">
                     <input
                         type="file"
@@ -101,7 +103,7 @@ function ImageSlot({
                         + Upload Image
                     </button>
                 </div>
-            )}
+            ) : null}
             {isActive && (
                 <div className="absolute inset-0 ring-2 ring-inset ring-rw-crimson rounded-xl pointer-events-none" />
             )}
@@ -111,8 +113,10 @@ function ImageSlot({
 
 export default function ProductDetailClient({
     product: initialProduct,
+    isAdmin,
 }: {
     product: Product;
+    isAdmin: boolean;
 }) {
     const router = useRouter();
     const [product, setProduct] = useState(initialProduct);
@@ -313,13 +317,29 @@ export default function ProductDetailClient({
     }
 
     return (
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-8 animate-fade-in-up">
             <AdminBreadcrumb
                 items={[
                     { label: "Products", href: "/admin/products" },
                     { label: product.name },
                 ]}
             />
+
+            {!isAdmin && (
+                <div className="rw-card p-5 border-l-4 border-amber-500 bg-amber-50/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex gap-3">
+                        <div className="h-9 w-9 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p className="font-display font-bold text-sm text-rw-ink">Moderator Access — Read Only Mode</p>
+                            <p className="text-xs text-rw-muted mt-0.5">Only Administrators can modify product details, change price overrides, toggle variant availabilities, or delete products.</p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="grid lg:grid-cols-[380px_1fr] gap-8 items-start">
                 <div className="flex flex-col gap-3">
@@ -382,6 +402,7 @@ export default function ProductDetailClient({
                                             productName={product.name}
                                             isActive={activeColor === color}
                                             onUpload={handleUploadImage}
+                                            isAdmin={isAdmin}
                                         />
                                     </button>
                                 );
@@ -403,13 +424,15 @@ export default function ProductDetailClient({
                                 {product.description}
                             </p>
                         </div>
-                        <button
-                            onClick={handleDeleteProduct}
-                            disabled={isPending}
-                            className="btn-secondary !h-9 !px-4 text-[10px] font-bold uppercase tracking-widest text-red-600 hover:bg-red-50 hover:border-red-200"
-                        >
-                            Delete
-                        </button>
+                        {isAdmin && (
+                            <button
+                                onClick={handleDeleteProduct}
+                                disabled={isPending}
+                                className="btn-secondary !h-9 !px-4 text-[10px] font-bold uppercase tracking-widest text-red-600 hover:bg-red-50 hover:border-red-200"
+                            >
+                                Delete
+                            </button>
+                        )}
                     </div>
 
                     <div className="flex items-baseline gap-2">
@@ -552,26 +575,28 @@ export default function ProductDetailClient({
                                                         >
                                                             ₦{effPrice.toLocaleString()}
                                                         </span>
-                                                        <button
-                                                            onClick={() =>
-                                                                startPriceEdit(v)
-                                                            }
-                                                            className="opacity-0 group-hover:opacity-100 p-1 text-rw-muted hover:text-rw-ink transition-opacity"
-                                                        >
-                                                            <svg
-                                                                className="h-3 w-3"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                strokeWidth={2}
-                                                                viewBox="0 0 24 24"
+                                                        {isAdmin && (
+                                                            <button
+                                                                onClick={() =>
+                                                                    startPriceEdit(v)
+                                                                }
+                                                                className="opacity-0 group-hover:opacity-100 p-1 text-rw-muted hover:text-rw-ink transition-opacity"
                                                             >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487z"
-                                                                />
-                                                            </svg>
-                                                        </button>
+                                                                <svg
+                                                                    className="h-3 w-3"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    strokeWidth={2}
+                                                                    viewBox="0 0 24 24"
+                                                                >
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487z"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+                                                        )}
                                                     </>
                                                 )}
                                             </div>
@@ -584,12 +609,12 @@ export default function ProductDetailClient({
                                     render: (v: ProductVariant) => (
                                         <button
                                             onClick={() => toggleVariant(v)}
-                                            disabled={isPending}
+                                            disabled={!isAdmin || isPending}
                                             className={`relative inline-flex h-5 w-9 items-center rounded-full transition-all duration-300 ${
                                                 v.isAvailable
                                                     ? "bg-green-500"
                                                     : "bg-gray-200"
-                                            }`}
+                                            } ${!isAdmin ? "opacity-60 cursor-not-allowed" : ""}`}
                                         >
                                             <span
                                                 className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow-sm transition-transform duration-300 ${v.isAvailable ? "translate-x-4" : "translate-x-0.5"}`}
@@ -622,7 +647,7 @@ export default function ProductDetailClient({
                                         </button>
                                     ),
                                 },
-                            ]}
+                            ].filter((col) => isAdmin || col.key !== "actions")}
                             data={variants}
                             keyExtractor={(v) => v.id}
                         />

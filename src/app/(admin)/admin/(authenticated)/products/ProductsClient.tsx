@@ -39,9 +39,11 @@ function productImageUrl(
 function EmptyProducts({
     onClear,
     hasFilters,
+    isAdmin = false,
 }: {
     onClear: () => void;
     hasFilters: boolean;
+    isAdmin?: boolean;
 }) {
     if (hasFilters) {
         return (
@@ -105,25 +107,27 @@ function EmptyProducts({
                     catalog.
                 </p>
             </div>
-            <Link
-                href="/admin/products/new"
-                className="btn-primary !h-11 !px-8 text-sm font-bold flex items-center gap-2"
-            >
-                <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
-                    viewBox="0 0 24 24"
+            {isAdmin && (
+                <Link
+                    href="/admin/products/new"
+                    className="btn-primary !h-11 !px-8 text-sm font-bold flex items-center gap-2"
                 >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 4v16m8-8H4"
-                    />
-                </svg>
-                Add First Product
-            </Link>
+                    <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2.5}
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 4v16m8-8H4"
+                        />
+                    </svg>
+                    Add First Product
+                </Link>
+            )}
         </div>
     );
 }
@@ -134,10 +138,12 @@ function ProductCard({
     product,
     categoryLabel,
     onToggle,
+    isAdmin,
 }: {
     product: Product;
     categoryLabel: string;
     onToggle: (id: string, current: boolean) => void;
+    isAdmin: boolean;
 }) {
     const uniqueColors = [
         ...new Set(product.variants.map((v) => v.color).filter(Boolean)),
@@ -268,19 +274,24 @@ function ProductCard({
                         href={`/admin/products/${product.id}`}
                         className="btn-secondary flex-1 !h-9 !px-0 text-[10px] font-bold uppercase tracking-widest border-[var(--rw-border-mid)] shadow-sm text-center"
                     >
-                        Manage
+                        {isAdmin ? "Manage" : "View"}
                     </Link>
                     <button
-                        onClick={() => onToggle(product.id, product.isAvailable)}
+                        onClick={() =>
+                            isAdmin && onToggle(product.id, product.isAvailable)
+                        }
+                        disabled={!isAdmin}
                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${
                             product.isAvailable
                                 ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.25)]"
                                 : "bg-gray-200"
-                        }`}
+                        } ${!isAdmin ? "opacity-60 cursor-not-allowed" : ""}`}
                         title={
-                            product.isAvailable
-                                ? "Hide from storefront"
-                                : "Make available"
+                            !isAdmin
+                                ? "Only admins can change product visibility"
+                                : product.isAvailable
+                                  ? "Hide from storefront"
+                                  : "Make available"
                         }
                     >
                         <span
@@ -298,11 +309,13 @@ function ProductCard({
 interface ProductsClientProps {
     products: Product[];
     categories: Category[];
+    isAdmin: boolean;
 }
 
 export default function ProductsClient({
     products: initialProducts,
     categories: initialCategories,
+    isAdmin,
 }: ProductsClientProps) {
     const [products, setProducts] = useState(initialProducts);
     const [categories, setCategories] = useState(initialCategories);
@@ -455,39 +468,44 @@ export default function ProductsClient({
 
     return (
         <>
-            <div className="flex flex-col gap-10 animate-fade-in">
+            <div className="flex flex-col gap-8 animate-fade-in-up">
                 <AdminBreadcrumb items={[{ label: "Products" }]} />
 
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-[var(--rw-border)] pb-10">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-[var(--rw-border)] pb-8">
                     <div className="flex flex-col gap-2">
-                        <h1 className="font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl text-rw-ink tracking-tight">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-rw-muted mb-0.5">
+                            Inventory Management
+                        </p>
+                        <h1 className="font-display font-extrabold text-2xl lg:text-3xl text-rw-ink tracking-tight">
                             Products
                         </h1>
-                        <p className="text-sm text-rw-muted font-medium italic">
-                            Pre-order inventory — Redemption Week &apos;26
+                        <p className="text-xs sm:text-sm text-rw-muted font-medium italic">
+                            Pre-order inventory — Redemption Week &apos;26 catalog
                         </p>
                     </div>
-                    <Link
-                        href="/admin/products/new"
-                        id="btn-add-product"
-                        className="btn-primary !h-11 !px-6 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 shrink-0"
-                    >
-                        <svg
-                            className="h-4 w-4"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth={2.5}
-                            viewBox="0 0 24 24"
+                    {isAdmin && (
+                        <Link
+                            href="/admin/products/new"
+                            id="btn-add-product"
+                            className="btn-primary !h-11 !px-6 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 shrink-0 animate-scale-in"
                         >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 4v16m8-8H4"
-                            />
-                        </svg>
-                        Add Product
-                    </Link>
+                            <svg
+                                className="h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2.5}
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 4v16m8-8H4"
+                                />
+                            </svg>
+                            Add Product
+                        </Link>
+                    )}
                 </div>
 
                 {/* Stats */}
@@ -500,7 +518,7 @@ export default function ProductsClient({
                         <button
                             id="filter-all"
                             onClick={() => setActiveCategoryId("all")}
-                            className={`rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${
+                            className={`rounded-full px-5 py-2 text-[10px] font-bold uppercase tracking-widest transition-all duration-200 ${
                                 activeCategoryId === "all"
                                     ? "bg-rw-ink text-white shadow-md scale-105"
                                     : "bg-white text-rw-muted border border-[var(--rw-border)] hover:border-rw-ink hover:text-rw-ink"
@@ -516,7 +534,7 @@ export default function ProductsClient({
                                     key={cat.id}
                                     id={`filter-${cat.slug}`}
                                     onClick={() => setActiveCategoryId(cat.id)}
-                                    className={`rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${
+                                    className={`rounded-full px-5 py-2 text-[10px] font-bold uppercase tracking-widest transition-all duration-200 ${
                                         activeCategoryId === cat.id
                                             ? "bg-rw-ink text-white shadow-md scale-105"
                                             : "bg-white text-rw-muted border border-[var(--rw-border)] hover:border-rw-ink hover:text-rw-ink"
@@ -526,31 +544,33 @@ export default function ProductsClient({
                                 </button>
                             ))}
 
-                        <button
-                            id="btn-manage-categories"
-                            onClick={() => setDrawerOpen(true)}
-                            className="rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest bg-white border border-dashed border-rw-muted text-rw-muted hover:border-rw-ink hover:text-rw-ink transition-all flex items-center gap-1.5"
-                        >
-                            <svg
-                                className="h-3 w-3"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={2.5}
-                                viewBox="0 0 24 24"
+                        {isAdmin && (
+                            <button
+                                id="btn-manage-categories"
+                                onClick={() => setDrawerOpen(true)}
+                                className="rounded-full px-5 py-2 text-[10px] font-bold uppercase tracking-widest bg-white border border-dashed border-rw-muted text-rw-muted hover:border-rw-ink hover:text-rw-ink transition-all flex items-center gap-1.5"
                             >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"
-                                />
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                                />
-                            </svg>
-                            Manage
-                        </button>
+                                <svg
+                                    className="h-3 w-3"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={2.5}
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"
+                                    />
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                                    />
+                                </svg>
+                                Manage
+                            </button>
+                        )}
                     </div>
 
                     {/* Search */}
@@ -573,6 +593,7 @@ export default function ProductsClient({
                                 product={p}
                                 categoryLabel={getCategoryLabel(p.categoryId)}
                                 onToggle={handleToggle}
+                                isAdmin={isAdmin}
                             />
                         ))}
                     </div>
@@ -583,6 +604,7 @@ export default function ProductsClient({
                             setSearchQuery("");
                             setActiveCategoryId("all");
                         }}
+                        isAdmin={isAdmin}
                     />
                 )}
             </div>

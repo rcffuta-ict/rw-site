@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { getProductById } from "@/lib/services/products.service";
 import ProductDetailClient from "./ProductDetailClient";
 
@@ -18,6 +19,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProductDetailPage({ params }: Props) {
     const { id } = await params;
     const product = await getProductById(id);
-    if (!product) notFound();
-    return <ProductDetailClient product={product} />;
+    if (!product) redirect("/admin/products");
+
+    const hdrs = await headers();
+    const isAdmin = hdrs.get("x-admin-role") === "ADMIN";
+
+    return <ProductDetailClient product={product} isAdmin={isAdmin} />;
 }
+
