@@ -1,13 +1,10 @@
 "use server";
 
 // ─── Categories Service — Supabase ────────────────────────────────────────────
-import {
-    createSupabaseAdminClient,
-    createSupabaseServerClient,
-} from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { mapCategoryFromDb } from "@/lib/supabase/mappers";
 import type { Category, CategoryInput, ServiceResult } from "@/lib/data/types";
-import { unstable_cache, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 // ─── Read ─────────────────────────────────────────────────────────────────────
 
@@ -29,7 +26,11 @@ export async function listCategories(includeInactive = false): Promise<Category[
 
 export async function getCategoryById(id: string): Promise<Category | undefined> {
     const supabase = await createSupabaseAdminClient();
-    const { data } = await supabase.from("rw_categories").select("*").eq("id", id).single();
+    const { data } = await supabase
+        .from("rw_categories")
+        .select("*")
+        .eq("id", id)
+        .single();
     return data ? mapCategoryFromDb(data) : undefined;
 }
 

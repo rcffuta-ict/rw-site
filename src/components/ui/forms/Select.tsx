@@ -22,7 +22,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             required,
             infoTooltip,
             options,
-            placeholder,
+            placeholder = "Select an option",
             disabled,
             ...props
         },
@@ -67,6 +67,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                     <select
                         ref={ref}
                         disabled={disabled}
+                        // defaultValue={placeholder}
                         className={`w-full h-full rounded-xl border pl-4 pr-11 text-sm font-medium transition-all focus:outline-none shadow-sm appearance-none cursor-pointer
                             ${disabled ? "bg-gray-100/50 border-gray-200 text-rw-muted/70 cursor-not-allowed select-none shadow-none" : ""}
                             ${
@@ -80,7 +81,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                         {...props}
                     >
                         {placeholder && (
-                            <option value="" disabled selected hidden>
+                            <option value="" disabled hidden>
                                 {placeholder}
                             </option>
                         )}

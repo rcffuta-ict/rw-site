@@ -13,7 +13,7 @@ import type {
     OrderPaymentSummary,
     ServiceResult,
 } from "@/lib/data/types";
-import { unstable_cache, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 // ─── Shared select fragment ───────────────────────────────────────────────────
 
