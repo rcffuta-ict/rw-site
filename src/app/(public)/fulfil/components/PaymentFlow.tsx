@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/forms/Button";
 import type { Order } from "@/lib/data/types";
 import { PAYMENT_CONFIG } from "./constants";
 import { analyzeReceipt, deleteReceiptImage } from "@/app/actions/receipt";
+import { DEMO_MODE } from "@/lib/config";
 import { attachPayment } from "@/lib/services/orders.service";
 import { toast } from "sonner";
 
@@ -20,7 +21,7 @@ interface ExtractionResult {
     confidence: "high" | "medium" | "low";
 }
 
-const IS_REAL = false // Set to tru when going live, to disable fake extraction for testing
+const IS_REAL = !DEMO_MODE;
 
 function RadioCard({
     selected,
@@ -66,7 +67,10 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
     const [extractionError, setExtractionError] = useState<string | null>(null);
     const [accurate, setAccurate] = useState<boolean | null>(null);
     const [submitting, setSubmitting] = useState(false);
-    const [uploadedCloudData, setUploadedCloudData] = useState<{ public_id: string; secure_url: string } | null>(null);
+    const [uploadedCloudData, setUploadedCloudData] = useState<{
+        public_id: string;
+        secure_url: string;
+    } | null>(null);
     const [saveRetries, setSaveRetries] = useState(0);
 
     const remaining = order.totalAmount - order.amountPaid;
@@ -208,7 +212,9 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                 const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
                 if (!cloudName || !uploadPreset) {
-                    throw new Error("Cloudinary configuration is missing. Contact support.");
+                    throw new Error(
+                        "Cloudinary configuration is missing. Contact support."
+                    );
                 }
 
                 const formData = new FormData();
@@ -231,7 +237,10 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                 }
 
                 const parsedData = await uploadRes.json();
-                cloudData = { public_id: parsedData.public_id, secure_url: parsedData.secure_url };
+                cloudData = {
+                    public_id: parsedData.public_id,
+                    secure_url: parsedData.secure_url,
+                };
                 setUploadedCloudData(cloudData);
             }
 
@@ -262,9 +271,11 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
         } catch (error: any) {
             console.error("Payment confirmation error:", error);
 
-            let displayError = error.message || "An unexpected error occurred. Please try again.";
+            let displayError =
+                error.message || "An unexpected error occurred. Please try again.";
             if (displayError.includes('relation "orders" does not exist')) {
-                displayError = 'Database Trigger Error: The database trigger is referencing the old "orders" table instead of "rw_orders". Please apply the SQL trigger fix from docs/schema.sql.';
+                displayError =
+                    'Database Trigger Error: The database trigger is referencing the old "orders" table instead of "rw_orders". Please apply the SQL trigger fix from docs/schema.sql.';
             }
 
             if (uploadedCloudData) {
@@ -272,15 +283,15 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                 setSaveRetries(nextRetries);
 
                 if (nextRetries >= 3) {
-                    toast.error("Maximum retries reached. Payment submission is being reset.");
+                    toast.error(
+                        "Maximum retries reached. Payment submission is being reset."
+                    );
                     if (uploadedCloudData.public_id) {
                         await deleteReceiptImage(uploadedCloudData.public_id);
                     }
                     resetUpload();
                 } else {
-                    toast.error(
-                        `${displayError} (Retrying ${nextRetries}/3)`
-                    );
+                    toast.error(`${displayError} (Retrying ${nextRetries}/3)`);
                 }
             } else {
                 toast.error(displayError);
@@ -351,11 +362,23 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
             extraction.date === "—";
 
         const prescribedNarration = `RW26-${order.orderRef}`;
-        const isNarrationMismatch = extraction && (!extraction.narration || !extraction.narration.toLowerCase().includes(prescribedNarration.toLowerCase()));
+        const isNarrationMismatch =
+            extraction &&
+            (!extraction.narration ||
+                !extraction.narration
+                    .toLowerCase()
+                    .includes(prescribedNarration.toLowerCase()));
 
         // Validate bank and recipient name match defaults
-        const isBankMismatch = IS_REAL && extraction && extraction.bank && extraction.bank.toLowerCase() !== PAYMENT_CONFIG.bank.toLowerCase();
-        const isRecipientMismatch = IS_REAL && extraction && extraction.senderName && extraction.senderName.toLowerCase() !== PAYMENT_CONFIG.accountName.toLowerCase();
+        const isBankMismatch =
+            extraction &&
+            extraction.bank &&
+            extraction.bank.toLowerCase() !== PAYMENT_CONFIG.bank.toLowerCase();
+        const isRecipientMismatch =
+            extraction &&
+            extraction.senderName &&
+            extraction.senderName.toLowerCase() !==
+                PAYMENT_CONFIG.accountName.toLowerCase();
         const hasAccountMismatch = Boolean(isBankMismatch || isRecipientMismatch);
 
         return (
@@ -508,22 +531,46 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                             {/* Row 4: Account Mismatch Warning */}
                             {hasAccountMismatch && (
                                 <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex gap-3 items-start animate-fade-in">
-                                    <svg className="w-5 h-5 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    <svg
+                                        className="w-5 h-5 text-red-600 shrink-0 mt-0.5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                        />
                                     </svg>
                                     <div>
-                                        <p className="text-sm font-bold text-red-800">Account Mismatch</p>
+                                        <p className="text-sm font-bold text-red-800">
+                                            Account Mismatch
+                                        </p>
                                         <p className="text-xs text-red-700 mt-1">
-                                            This payment does not match our expected account details. You cannot proceed with this receipt.
+                                            This payment does not match our expected
+                                            account details. You cannot proceed with this
+                                            receipt.
                                         </p>
                                         {isBankMismatch && (
-                                            <p className="text-xs text-red-600 font-mono mt-2 truncate max-w-xs" title={extraction.bank || ""}>
-                                                Expected Bank: <b>{PAYMENT_CONFIG.bank}</b> | Found: <b>{extraction.bank}</b>
+                                            <p
+                                                className="text-xs text-red-600 font-mono mt-2 truncate max-w-xs"
+                                                title={extraction.bank || ""}
+                                            >
+                                                Expected Bank:{" "}
+                                                <b>{PAYMENT_CONFIG.bank}</b> | Found:{" "}
+                                                <b>{extraction.bank}</b>
                                             </p>
                                         )}
                                         {isRecipientMismatch && (
-                                            <p className="text-xs text-red-600 font-mono mt-1 truncate max-w-xs" title={extraction.senderName || ""}>
-                                                Expected Recipient: <b>{PAYMENT_CONFIG.accountName}</b> | Found: <b>{extraction.senderName}</b>
+                                            <p
+                                                className="text-xs text-red-600 font-mono mt-1 truncate max-w-xs"
+                                                title={extraction.senderName || ""}
+                                            >
+                                                Expected Recipient:{" "}
+                                                <b>{PAYMENT_CONFIG.accountName}</b> |
+                                                Found: <b>{extraction.senderName}</b>
                                             </p>
                                         )}
                                     </div>
@@ -533,16 +580,40 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                             {/* Row 5: Narration Warning */}
                             {isNarrationMismatch && (
                                 <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex gap-3 items-start animate-fade-in">
-                                    <svg className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    <svg
+                                        className="w-5 h-5 text-amber-600 shrink-0 mt-0.5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                        />
                                     </svg>
                                     <div>
-                                        <p className="text-sm font-bold text-amber-800">Narration Mismatch</p>
-                                        <p className="text-xs text-amber-700 mt-1">
-                                            The receipt does not match the prescribed narration <b className="font-mono">{prescribedNarration}</b>. This is a minor warning, but admins will trace the payment manually.
+                                        <p className="text-sm font-bold text-amber-800">
+                                            Narration Mismatch
                                         </p>
-                                        <p className="text-xs text-amber-600/80 font-mono mt-2 truncate max-w-[30ch]" title={extraction.narration || "None detected"}>
-                                            Found: {extraction.narration || "None detected"}
+                                        <p className="text-xs text-amber-700 mt-1">
+                                            The receipt does not match the prescribed
+                                            narration{" "}
+                                            <b className="font-mono">
+                                                {prescribedNarration}
+                                            </b>
+                                            . This is a minor warning, but admins will
+                                            trace the payment manually.
+                                        </p>
+                                        <p
+                                            className="text-xs text-amber-600/80 font-mono mt-2 truncate max-w-[30ch]"
+                                            title={
+                                                extraction.narration || "None detected"
+                                            }
+                                        >
+                                            Found:{" "}
+                                            {extraction.narration || "None detected"}
                                         </p>
                                     </div>
                                 </div>
@@ -628,7 +699,12 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                         variant="primary"
                         size="lg"
                         onClick={handleConfirm}
-                        disabled={accurate !== true || submitting || isMissingInfo || hasAccountMismatch}
+                        disabled={
+                            accurate !== true ||
+                            submitting ||
+                            isMissingInfo ||
+                            (hasAccountMismatch && IS_REAL)
+                        }
                         loading={submitting}
                         id="confirm-receipt-btn"
                         className="w-full !h-16 text-lg rounded-2xl"
@@ -640,7 +716,8 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                     <div className="flex items-center justify-center gap-2 mt-4 animate-fade-in">
                         <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson animate-ping" />
                         <p className="text-center text-xs text-rw-muted font-medium animate-pulse">
-                            Please do not close this window or refresh the page while we process your payment.
+                            Please do not close this window or refresh the page while we
+                            process your payment.
                         </p>
                     </div>
                 )}
