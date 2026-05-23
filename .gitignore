@@ -46,3 +46,6 @@ next-env.d.ts
 # Local SSL certificates
 localhost.pem
 localhost-key.pem
+
+# temporary
+temp
