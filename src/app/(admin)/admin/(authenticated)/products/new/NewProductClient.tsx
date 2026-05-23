@@ -127,6 +127,11 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
             return;
         }
 
+        if (!nvImageFile) {
+            toast.error("An image is required for the variant.");
+            return;
+        }
+
         const newVar: LocalVariant = {
             tempId: `tmp-${Date.now()}`,
             sizes: finalSizes,
@@ -176,6 +181,11 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
         }
         if (!categoryId) {
             toast.error("Please select a category.");
+            return;
+        }
+
+        if (variants.length === 0) {
+            toast.error("There must be at least one variant before a product is created.");
             return;
         }
 
@@ -393,6 +403,7 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                             value={tags}
                             onChange={setTags}
                             placeholder="e.g. bestseller, new (press enter)"
+                            upperCase
                         />
                     </div>
 
@@ -496,146 +507,62 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                         )}
 
                         {/* Add Variant Inline Form */}
-                        <div className="rounded-xl border border-dashed border-rw-muted/40 p-5 bg-white space-y-5">
-                            <div className="flex flex-col gap-3 rounded-xl bg-blue-50/50 border border-blue-100 p-4">
-                                <h3 className="font-bold text-sm text-rw-ink uppercase tracking-wider flex items-center gap-2">
-                                    <svg
-                                        className="h-4 w-4 text-blue-500"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        strokeWidth={2}
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                        />
+                        <div className="rounded-2xl border-2 border-[var(--rw-border)] p-6 bg-rw-bg-alt/30 space-y-6">
+                            <div className="flex items-center justify-between">
+                                <h3 className="font-display font-extrabold text-xl text-rw-ink tracking-tight flex items-center gap-2">
+                                    <svg className="h-5 w-5 text-rw-crimson" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                                     </svg>
-                                    Add a Variant
+                                    Add New Variant
                                 </h3>
-                                <p className="text-xs text-blue-800 font-medium leading-relaxed">
-                                    <strong className="font-bold">Important:</strong> The
-                                    first variant added will be used as the main display
-                                    image for the storefront preview.
-                                </p>
+                                {variants.length === 0 && (
+                                    <span className="text-[10px] font-bold px-2.5 py-1 bg-rw-crimson/10 text-rw-crimson rounded-full uppercase tracking-wider animate-fade-in">
+                                        First variant becomes preview
+                                    </span>
+                                )}
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <Input
-                                    label="Color Name"
-                                    required
-                                    value={nvColor}
-                                    onChange={(e) => setNvColor(e.target.value)}
-                                    placeholder="e.g. Space Grey"
-                                    className="!py-2"
-                                />
-                                <ColorInput
-                                    label="Color Hex (Optional)"
-                                    value={nvColorHex}
-                                    onChange={setNvColorHex}
-                                    placeholder="#333333"
-                                    className="!py-2"
-                                />
-                                <PillInput
-                                    label="Sizes (Separate by comma)"
-                                    required
-                                    value={nvSizes}
-                                    onChange={setNvSizes}
-                                    placeholder="e.g. S, M, L, XL"
-                                    upperCase
-                                />
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <Input
-                                    label="Design Text"
-                                    value={nvDesign}
-                                    onChange={(e) => setNvDesign(e.target.value)}
-                                    placeholder="e.g. Holy Spirit"
-                                    className="!py-2"
-                                />
-                                <Input
-                                    label="SKU"
-                                    value={nvSku}
-                                    onChange={(e) => {
-                                        setNvSku(e.target.value);
-                                        setIsSkuAuto(false);
-                                    }}
-                                    placeholder="e.g. RW-TEE-BLK-M"
-                                    className="!py-2"
-                                    disabled
-                                    infoTooltip="Stock Keeping Unit. A unique identifier for this specific variant used for internal tracking and manifests."
-                                />
-                                <PriceInput
-                                    label="Price Override"
-                                    value={
-                                        nvPriceOverride === ""
-                                            ? ""
-                                            : Number(nvPriceOverride)
-                                    }
-                                    onChange={(val) =>
-                                        setNvPriceOverride(
-                                            val === "" ? "" : val.toString()
-                                        )
-                                    }
-                                    placeholder="Base"
-                                    className="!py-2"
-                                />
-                            </div>
-                            <div className="space-y-1.5 flex flex-col items-start">
-                                <label className="text-[10px] font-bold text-rw-muted uppercase tracking-widest">
-                                    Variant Image (360x480){" "}
-                                    <span className="text-red-500">*</span>
-                                </label>
-                                <p className="text-[10px] text-rw-muted max-w-sm leading-tight mb-1">
-                                    Smaller image sizes (under 200KB) are highly
-                                    recommended so they load faster on the storefront.
-                                </p>
-                                <div className="flex items-center gap-4">
-                                    {nvImagePreview && (
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-16 w-12 rounded border border-[var(--rw-border)] overflow-hidden shrink-0 shadow-sm">
-                                                <img
-                                                    src={nvImagePreview}
-                                                    alt="Preview"
-                                                    className="h-full w-full object-cover"
-                                                />
+                            
+                            <div className="flex flex-col xl:flex-row gap-6 items-start">
+                                {/* Image Uploader */}
+                                <div className="w-full xl:w-48 shrink-0">
+                                    <label className="flex flex-col items-center justify-center w-full aspect-[3/4] rounded-2xl border-2 border-dashed border-[var(--rw-border-strong)] bg-white hover:border-rw-crimson hover:bg-rw-crimson/5 transition-all cursor-pointer overflow-hidden group relative">
+                                        {nvImagePreview ? (
+                                            <>
+                                                <img src={nvImagePreview} alt="Preview" className="w-full h-full object-cover group-hover:opacity-40 transition-opacity" />
+                                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <span className="bg-black/80 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full backdrop-blur-sm shadow-xl">Change Image</span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center p-4 text-center">
+                                                <div className="h-10 w-10 bg-rw-bg-alt rounded-full flex items-center justify-center text-rw-muted mb-2 group-hover:text-rw-crimson transition-colors shadow-inner">
+                                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                </div>
+                                                <span className="text-xs font-bold text-rw-ink">Upload Image</span>
+                                                <span className="text-[9px] font-medium text-rw-muted mt-1 uppercase tracking-widest">Required • &lt; 200KB</span>
                                             </div>
-                                            <div className="text-[10px] font-bold text-rw-ink bg-gray-100 px-2 py-1 rounded">
-                                                {nvImageFile
-                                                    ? `${(nvImageFile.size / 1024).toFixed(1)} KB`
-                                                    : ""}
-                                            </div>
-                                        </div>
-                                    )}
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        ref={fileInputRef}
-                                        onChange={handleImageChange}
-                                        className="text-xs text-rw-muted file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-rw-bg-alt file:text-rw-ink hover:file:bg-rw-border cursor-pointer transition-all"
-                                    />
+                                        )}
+                                        <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageChange} className="hidden" />
+                                    </label>
+                                </div>
+
+                                {/* Inputs */}
+                                <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
+                                    <Input label="Color Name" required value={nvColor} onChange={(e) => setNvColor(e.target.value)} placeholder="e.g. Space Grey" className="!bg-white" />
+                                    <ColorInput label="Color Hex (Optional)" value={nvColorHex} onChange={setNvColorHex} placeholder="#333333" className="!bg-white" />
+                                    <PillInput label="Sizes (Separate by comma)" required value={nvSizes} onChange={setNvSizes} placeholder="e.g. S, M, L, XL" upperCase className="!bg-white sm:col-span-2" />
+                                    <Input label="Design Text" value={nvDesign} onChange={(e) => setNvDesign(e.target.value)} placeholder="e.g. Holy Spirit" className="!bg-white" />
+                                    <PriceInput label="Price Override" value={nvPriceOverride === "" ? "" : Number(nvPriceOverride)} onChange={(val) => setNvPriceOverride(val === "" ? "" : val.toString())} placeholder="Base" className="!bg-white" />
+                                    <Input label="SKU" value={nvSku} onChange={(e) => { setNvSku(e.target.value); setIsSkuAuto(false); }} placeholder="Auto-generated" className="!bg-white sm:col-span-2" disabled infoTooltip="Stock Keeping Unit. Auto-generated based on product details." />
                                 </div>
                             </div>
-                            <div className="pt-2">
-                                <button
-                                    type="button"
-                                    onClick={handleAddVariant}
-                                    className="btn-secondary !h-9 text-xs flex items-center gap-2"
-                                >
-                                    <svg
-                                        className="h-4 w-4"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth={2.5}
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M12 4v16m8-8H4"
-                                        />
-                                    </svg>
-                                    Add This Variant
+                            
+                            <div className="flex justify-end pt-2 border-t border-[var(--rw-border)]">
+                                <button type="button" onClick={handleAddVariant} className="btn-primary !h-11 px-8 text-xs flex items-center gap-2 shadow-lg shadow-rw-crimson/20">
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                                    Save Variant
                                 </button>
                             </div>
                         </div>
@@ -703,8 +630,17 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                                 disabled={isPending}
                                 className="w-full btn-secondary !h-11 text-xs text-rw-muted hover:text-rw-ink border border-[var(--rw-border)]"
                             >
-                                Save as Draft (Hidden)
+                                {isPending ? "Saving..." : "Save as Draft (Hidden)"}
                             </button>
+
+                            {isPending && (
+                                <div className="flex items-center justify-center gap-2 mt-4 animate-fade-in">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson animate-ping" />
+                                    <p className="text-center text-[10px] text-rw-muted font-medium animate-pulse leading-snug">
+                                        Please do not close this window or refresh the page while we securely upload your images and create variants.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
 
