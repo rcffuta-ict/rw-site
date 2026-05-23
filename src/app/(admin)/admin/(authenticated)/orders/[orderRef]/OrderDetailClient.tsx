@@ -93,29 +93,53 @@ export default function OrderDetailClient({ order: initialOrder }: OrderDetailCl
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
                         Full Info
                     </Link>
-                    <div className="relative w-full sm:w-60">
-                        <select
-                            value={selectedStatus}
+                    <div className="relative group w-full sm:w-auto">
+                        <button
                             disabled={isUpdating}
-                            onChange={(e) => handleStatusChange(e.target.value as OrderStatus)}
-                            className="w-full h-12 pl-4 pr-10 text-[11px] font-bold uppercase tracking-widest bg-white border border-[var(--rw-border)] rounded-xl appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-rw-crimson/20 focus:border-rw-crimson transition-all disabled:opacity-50"
+                            className="!h-12 px-6 text-[11px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 w-full md:w-auto rounded-xl bg-white border border-[var(--rw-border)] hover:border-rw-ink hover:text-rw-ink transition-all disabled:opacity-50"
                         >
-                            {ORDER_STATUSES.map((s) => (
-                                <option key={s.key} value={s.key} className="text-rw-ink bg-white font-sans font-semibold py-2">
-                                    {s.label}
-                                </option>
-                            ))}
-                        </select>
-                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-rw-muted">
                             {isUpdating ? (
-                                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
+                                <>
+                                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Updating...
+                                </>
                             ) : (
-                                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                </svg>
+                                <>
+                                    Manage Status
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                    </svg>
+                                </>
+                            )}
+                        </button>
+                        
+                        <div className="absolute right-0 top-[calc(100%+0.5rem)] w-48 bg-white border border-[var(--rw-border)] rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 flex flex-col overflow-hidden">
+                            {order.status !== "flagged" && (
+                                <button
+                                    onClick={() => handleStatusChange("flagged")}
+                                    className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-orange-600 hover:bg-orange-50 border-b border-[var(--rw-border)] transition-colors"
+                                >
+                                    Flag Order
+                                </button>
+                            )}
+                            {order.status !== "cancelled" && (
+                                <button
+                                    onClick={() => handleStatusChange("cancelled")}
+                                    className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-rw-crimson hover:bg-red-50 transition-colors"
+                                >
+                                    Cancel Order
+                                </button>
+                            )}
+                            {(order.status === "flagged" || order.status === "cancelled") && (
+                                <button
+                                    onClick={() => handleStatusChange("pending")}
+                                    className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-rw-ink hover:bg-rw-bg-alt transition-colors"
+                                >
+                                    Restore Order
+                                </button>
                             )}
                         </div>
                     </div>

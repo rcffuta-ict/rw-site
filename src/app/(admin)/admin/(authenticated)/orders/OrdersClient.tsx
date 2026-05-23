@@ -28,12 +28,31 @@ function getRelativeTime(dateString: string) {
     return rtf.format(days, "day");
 }
 
-const STATUS_TABS: { key: OrderStatus | "all"; label: string }[] = [
+function getEffectiveStatus(o: Order) {
+    if (o.status === "flagged") return "flagged";
+    if (o.status === "cancelled") return "cancelled";
+    
+    if (o.amountPaid >= o.totalAmount) return "paid";
+    
+    const hasApproved = o.payments?.some(p => p.status === "approved");
+    if (hasApproved && o.amountPaid > 0 && o.amountPaid < o.totalAmount) {
+        return "partially_paid";
+    }
+    
+    if (o.payments && o.payments.length > 0 && !hasApproved) {
+        return "queued";
+    }
+    
+    return "pending";
+}
+
+
+const STATUS_TABS: { key: string; label: string }[] = [
     { key: "all", label: "All" },
     { key: "pending", label: "Pending" },
     { key: "partially_paid", label: "Partial" },
     { key: "paid", label: "Paid" },
-    { key: "confirmed", label: "Queued" },
+    { key: "queued", label: "Queued" },
     { key: "flagged", label: "Flagged" },
 ];
 
@@ -44,12 +63,13 @@ export default function OrdersClient({
     initialOrders: Order[];
     isAdmin: boolean;
 }) {
-    const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
+    const [statusFilter, setStatusFilter] = useState<string>("all");
     const [searchQuery, setSearchQuery] = useState("");
 
     const filteredOrders = useMemo(() => {
         return initialOrders.filter((o) => {
-            const matchesStatus = statusFilter === "all" || o.status === statusFilter;
+            const effectiveStatus = getEffectiveStatus(o);
+            const matchesStatus = statusFilter === "all" || effectiveStatus === statusFilter;
             const matchesSearch =
                 !searchQuery ||
                 o.orderRef.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -188,7 +208,15 @@ export default function OrdersClient({
                     {
                         label: "Status",
                         key: "status",
-                        render: (o: Order) => <OrderStatusBadge status={o.status} />,
+                        render: (o: Order) => {
+                            const effectiveStatus = getEffectiveStatus(o);
+                            // Convert string to OrderStatus format to reuse the badge or pass it explicitly
+                            // Or just map "queued" to a badge
+                            if (effectiveStatus === "queued") {
+                                return <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-purple-100 text-purple-700">Queued</span>;
+                            }
+                            return <OrderStatusBadge status={o.status} />;
+                        },
                     },
                     {
                         label: "Date",
