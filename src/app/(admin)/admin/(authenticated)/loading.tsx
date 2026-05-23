@@ -33,7 +33,7 @@ export default function AdminLoading() {
                     style={{ animationDelay: "150ms" }}
                 >
                     <p className="text-[11px] font-black text-rw-ink uppercase tracking-[0.25em] animate-pulse-soft">
-                        System Init
+                        Rw&#39;26 Admin Portal
                     </p>
                     <div className="flex items-center gap-1.5">
                         <div

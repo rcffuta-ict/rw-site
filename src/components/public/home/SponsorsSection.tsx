@@ -67,7 +67,7 @@ export function SponsorsSection() {
                     <p className="text-center text-[10px] font-bold uppercase tracking-[0.22em] text-[#9a8085] mb-8">
                         Presented by
                     </p>
-                    <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-14">
+                    <div className="flex items-center gap-6 sm:gap-14 overflow-x-auto scrollbar-hide pb-2 justify-start sm:justify-center flex-nowrap sm:flex-wrap px-2 sm:px-0">
                         {[
                             { src: LOGOS.rcfFuta, alt: "RCF FUTA", h: "h-10" },
                             { src: LOGOS.crm, alt: "Christ the Redeemers'", h: "h-9" },
@@ -237,7 +237,7 @@ export function SponsorsSection() {
                                                 Account Number
                                             </p>
                                             <div className="flex items-center gap-3">
-                                                <p className="font-mono font-bold text-white text-3xl tracking-[0.15em]">
+                                                <p className="font-mono font-bold text-white text-xl sm:text-3xl tracking-[0.15em]">
                                                     {SUPPORT_ACCOUNT.accountNumber}
                                                 </p>
                                                 <CopyButton
@@ -311,7 +311,7 @@ export function SponsorsSection() {
                         </button>
                     </div>
 
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-20">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-20">
                         {SPONSORS.map((s) => {
                             const style = TIER_STYLES[s.tier] ?? { accent: "#9a8085" };
                             return (
@@ -400,7 +400,7 @@ export function SponsorsSection() {
                             <h3 className="font-display font-bold text-white text-2xl sm:text-3xl mb-10">
                                 Contact our committee
                             </h3>
-                            <div className="grid sm:grid-cols-2 gap-5">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                 {CONTACTS.map((c) => (
                                     <div
                                         key={c.name}

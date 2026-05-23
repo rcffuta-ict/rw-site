@@ -98,7 +98,7 @@ export const SUPPORT_ACCOUNT = {
 } as const;
 
 // ─── Sponsorship Prospectus ────────────────────────────────────────────────────
-export const PROSPECTUS_URL: string | null = null; // e.g. "/docs/rw26-prospectus.pdf"
+export const PROSPECTUS_URL: string | null = "/files/RW-Prospectus.pdf";
 
 export const CONTACTS = [
     {

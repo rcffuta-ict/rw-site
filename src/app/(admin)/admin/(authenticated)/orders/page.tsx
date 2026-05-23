@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import OrdersClient from "./OrdersClient";
 import { listOrders } from "@/lib/services/orders.service";
 
@@ -8,7 +9,8 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminOrdersPage() {
-    const orders = await listOrders();
+    const [orders, hdrs] = await Promise.all([listOrders(), headers()]);
+    const isAdmin = hdrs.get("x-admin-role") === "ADMIN";
 
-    return <OrdersClient initialOrders={orders} />;
+    return <OrdersClient initialOrders={orders} isAdmin={isAdmin} />;
 }

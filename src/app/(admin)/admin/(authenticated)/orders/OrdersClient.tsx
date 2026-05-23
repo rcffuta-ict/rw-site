@@ -23,7 +23,7 @@ const STATUS_TABS: { key: OrderStatus | "all"; label: string }[] = [
     { key: "flagged",        label: "Flagged" },
 ];
 
-export default function OrdersClient({ initialOrders }: { initialOrders: Order[] }) {
+export default function OrdersClient({ initialOrders, isAdmin }: { initialOrders: Order[]; isAdmin: boolean }) {
     const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -46,7 +46,7 @@ export default function OrdersClient({ initialOrders }: { initialOrders: Order[]
                     <p className="text-xs sm:text-sm text-rw-muted font-medium">Manage fulfillment and track payments across the platform</p>
                 </div>
                 <div className="w-full sm:w-auto animate-scale-in">
-                    <OrderVerdictActions />
+                    {isAdmin && <OrderVerdictActions />}
                 </div>
             </div>
 

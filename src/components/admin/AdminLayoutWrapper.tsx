@@ -9,6 +9,7 @@ import { MobileAdviceModal } from "./MobileAdviceModal";
 import { AdminHeader } from "./common/AdminHeader";
 import { AdminAuthProvider, useAdminAuth } from "@/context/AdminAuthContext";
 import { DEMO_MODE } from "@/lib/config";
+import AdminLoading from "@/app/(admin)/admin/(authenticated)/loading";
 
 // ─── Themed Toaster ──────────────────────────────────────────────────────────
 // Sonner toast notifications, styled to match the RW admin design system.
@@ -63,10 +64,10 @@ function AdminStatusIndicator() {
 
     return (
         <div
-            className="fixed bottom-4 right-4 z-[9999] flex items-center gap-2 rounded-full
+            className="fixed top-4 right-4 z-[9999] flex items-center gap-2 rounded-full
                        bg-[#1C0003] text-white text-[11px] font-bold px-4 py-2 shadow-lg
                        border border-white/10 opacity-80 hover:opacity-100 transition-opacity
-                       select-none pointer-events-none"
+                       select-none"
             title={
                 DEMO_MODE ? "Running in demo mode — no real data" : `Logged in as ${role}`
             }
@@ -80,6 +81,7 @@ function AdminStatusIndicator() {
 function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const { loading } = useAdminAuth();
 
     // Close mobile menu on route change
     useEffect(() => {
@@ -87,6 +89,10 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
             setIsMobileMenuOpen(false);
         })();
     }, [pathname]);
+
+    if (loading) {
+        return <AdminLoading />;
+    }
 
     return (
         <div className="h-screen flex flex-col bg-rw-bg-alt relative overflow-hidden">

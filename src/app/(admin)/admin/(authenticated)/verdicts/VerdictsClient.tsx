@@ -32,7 +32,7 @@ const MOCK_VERDICTS = [
     },
 ];
 
-export default function VerdictsClient({ orders }: { orders: Order[] }) {
+export default function VerdictsClient({ orders, isAdmin }: { orders: Order[]; isAdmin: boolean }) {
     const { openModal } = useAdminModal();
 
     const handleViewVerdict = (v: (typeof MOCK_VERDICTS)[0]) => {
@@ -118,26 +118,41 @@ export default function VerdictsClient({ orders }: { orders: Order[] }) {
                         Official administrative documents for approved order bundles
                     </p>
                 </div>
-                <Link
-                    href="/admin/verdicts/new"
-                    className="h-14 px-10 rounded-2xl bg-rw-crimson text-white font-display font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 shadow-xl shadow-rw-crimson/20"
-                >
-                    <svg
-                        className="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={3}
-                        viewBox="0 0 24 24"
+                {isAdmin && (
+                    <Link
+                        href="/admin/verdicts/new"
+                        className="h-14 px-10 rounded-2xl bg-rw-crimson text-white font-display font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 shadow-xl shadow-rw-crimson/20"
                     >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M12 4v16m8-8H4"
-                        />
-                    </svg>
-                    New Verdict
-                </Link>
+                        <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={3}
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 4v16m8-8H4"
+                            />
+                        </svg>
+                        New Verdict
+                    </Link>
+                )}
             </div>
+
+            {/* Non-admin notice */}
+            {!isAdmin && (
+                <div className="flex items-center gap-4 rounded-2xl border border-amber-200 bg-amber-50 px-6 py-4">
+                    <svg className="h-5 w-5 text-amber-500 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                    </svg>
+                    <p className="text-sm font-medium text-amber-800">
+                        <span className="font-bold">Admin access required.</span>{" "}
+                        Only Admins can issue new production verdicts. Contact your admin to generate one.
+                    </p>
+                </div>
+            )}
 
             {/* <AdminStats stats={stats} /> */}
 
@@ -167,12 +182,14 @@ export default function VerdictsClient({ orders }: { orders: Order[] }) {
                             Start by generating a document for your recent orders
                         </p>
                     </div>
-                    <Link
-                        href="/admin/verdicts/new"
-                        className="btn-secondary !h-11 px-8 text-[11px] font-bold uppercase tracking-widest mt-4"
-                    >
-                        Generate Verdict
-                    </Link>
+                    {isAdmin && (
+                        <Link
+                            href="/admin/verdicts/new"
+                            className="btn-secondary !h-11 px-8 text-[11px] font-bold uppercase tracking-widest mt-4"
+                        >
+                            Generate Verdict
+                        </Link>
+                    )}
                 </div>
             ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 stagger-children">

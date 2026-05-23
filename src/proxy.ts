@@ -37,8 +37,9 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(loginUrl);
     }
 
-    // 5. Pass through — the `response` already has refreshed cookies baked in.
-    //    The proxy is the single gatekeeper; layouts trust it completely.
+    // 5. Forward the resolved role as a request header so server pages can gate
+    //    features (e.g. "Issue Production Verdict") without an extra DB call.
+    response.headers.set("x-admin-role", mod);
     return response;
 }
 
