@@ -199,6 +199,7 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
 
     async function handleConfirm() {
         if (submitting) return; // Prevent double clicks
+        if (submitting) return; // Prevent double clicks
         if (accurate === null || !extraction) return;
         setSubmitting(true);
 
@@ -711,6 +712,15 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                     >
                         Confirm & Complete
                     </Button>
+                )}
+                {submitting && (
+                    <div className="flex items-center justify-center gap-2 mt-4 animate-fade-in">
+                        <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson animate-ping" />
+                        <p className="text-center text-xs text-rw-muted font-medium animate-pulse">
+                            Please do not close this window or refresh the page while we
+                            process your payment.
+                        </p>
+                    </div>
                 )}
                 {submitting && (
                     <div className="flex items-center justify-center gap-2 mt-4 animate-fade-in">
