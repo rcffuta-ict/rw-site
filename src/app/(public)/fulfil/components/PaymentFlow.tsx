@@ -20,6 +20,8 @@ interface ExtractionResult {
     confidence: "high" | "medium" | "low";
 }
 
+const IS_REAL = false // Set to tru when going live, to disable fake extraction for testing
+
 function RadioCard({
     selected,
     onClick,
@@ -351,9 +353,9 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
         const isNarrationMismatch = extraction && (!extraction.narration || !extraction.narration.toLowerCase().includes(prescribedNarration.toLowerCase()));
 
         // Validate bank and recipient name match defaults
-        const isBankMismatch = extraction && extraction.bank && extraction.bank.toLowerCase() !== PAYMENT_CONFIG.bank.toLowerCase();
-        const isRecipientMismatch = extraction && extraction.senderName && extraction.senderName.toLowerCase() !== PAYMENT_CONFIG.accountName.toLowerCase();
-        const hasAccountMismatch = isBankMismatch || isRecipientMismatch;
+        const isBankMismatch = IS_REAL && extraction && extraction.bank && extraction.bank.toLowerCase() !== PAYMENT_CONFIG.bank.toLowerCase();
+        const isRecipientMismatch = IS_REAL && extraction && extraction.senderName && extraction.senderName.toLowerCase() !== PAYMENT_CONFIG.accountName.toLowerCase();
+        const hasAccountMismatch = Boolean(isBankMismatch || isRecipientMismatch);
 
         return (
             <div className="rw-card p-8 flex flex-col gap-8 animate-fade-in-up shadow-rw-shadow-md border-t-[3px] border-t-rw-crimson">
@@ -625,7 +627,7 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                         variant="primary"
                         size="lg"
                         onClick={handleConfirm}
-                        disabled={accurate !== true || submitting || isMissingInfo || Boolean(hasAccountMismatch)}
+                        disabled={accurate !== true || submitting || isMissingInfo || hasAccountMismatch}
                         loading={submitting}
                         id="confirm-receipt-btn"
                         className="w-full !h-16 text-lg rounded-2xl"
