@@ -11,26 +11,47 @@ import { OrderVerdictActions } from "@/components/admin/orders/OrderVerdictActio
 
 import { AdminTable } from "@/components/admin/AdminTable";
 import { Order } from "@/lib/data/types";
+import { formatNaira } from "@/lib/utils/functions";
 
-function fmt(n: number) { return `₦${n.toLocaleString()}`; }
+function getRelativeTime(dateString: string) {
+    const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+    const date = new Date(dateString);
+    const diffInMs = date.getTime() - Date.now();
+
+    const minutes = Math.round(diffInMs / (1000 * 60));
+    const hours = Math.round(diffInMs / (1000 * 60 * 60));
+    const days = Math.round(diffInMs / (1000 * 60 * 60 * 24));
+
+    if (Math.abs(minutes) < 1) return "Just now";
+    if (Math.abs(minutes) < 60) return rtf.format(minutes, "minute");
+    if (Math.abs(hours) < 24) return rtf.format(hours, "hour");
+    return rtf.format(days, "day");
+}
 
 const STATUS_TABS: { key: OrderStatus | "all"; label: string }[] = [
-    { key: "all",            label: "All" },
-    { key: "pending",        label: "Pending" },
+    { key: "all", label: "All" },
+    { key: "pending", label: "Pending" },
     { key: "partially_paid", label: "Partial" },
-    { key: "paid",           label: "Paid" },
-    { key: "confirmed",      label: "Queued" },
-    { key: "flagged",        label: "Flagged" },
+    { key: "paid", label: "Paid" },
+    { key: "confirmed", label: "Queued" },
+    { key: "flagged", label: "Flagged" },
 ];
 
-export default function OrdersClient({ initialOrders, isAdmin }: { initialOrders: Order[]; isAdmin: boolean }) {
+export default function OrdersClient({
+    initialOrders,
+    isAdmin,
+}: {
+    initialOrders: Order[];
+    isAdmin: boolean;
+}) {
     const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
     const [searchQuery, setSearchQuery] = useState("");
 
     const filteredOrders = useMemo(() => {
-        return initialOrders.filter(o => {
+        return initialOrders.filter((o) => {
             const matchesStatus = statusFilter === "all" || o.status === statusFilter;
-            const matchesSearch = !searchQuery || 
+            const matchesSearch =
+                !searchQuery ||
                 o.orderRef.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 o.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 o.customerEmail.toLowerCase().includes(searchQuery.toLowerCase());
@@ -45,8 +66,12 @@ export default function OrdersClient({ initialOrders, isAdmin }: { initialOrders
                     <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-rw-muted mb-0.5">
                         Fulfillment Dashboard
                     </p>
-                    <h1 className="font-display font-extrabold text-2xl lg:text-3xl text-rw-ink tracking-tight">Orders</h1>
-                    <p className="text-xs sm:text-sm text-rw-muted font-medium italic">Manage fulfillment and track payments across the platform</p>
+                    <h1 className="font-display font-extrabold text-2xl lg:text-3xl text-rw-ink tracking-tight">
+                        Orders
+                    </h1>
+                    <p className="text-xs sm:text-sm text-rw-muted font-medium italic">
+                        Manage fulfillment and track payments across the platform
+                    </p>
                 </div>
                 <div className="w-full sm:w-auto animate-scale-in">
                     {isAdmin && <OrderVerdictActions />}
@@ -60,10 +85,12 @@ export default function OrdersClient({ initialOrders, isAdmin }: { initialOrders
                 <div className="flex flex-col gap-4 w-full max-w-2xl">
                     <div className="flex items-center gap-2 ml-1">
                         <span className="h-1 w-4 bg-rw-crimson rounded-full" />
-                        <label className="text-[10px] font-bold text-rw-muted uppercase tracking-[0.2em]">Filter by Status</label>
+                        <label className="text-[10px] font-bold text-rw-muted uppercase tracking-[0.2em]">
+                            Filter by Status
+                        </label>
                     </div>
                     <div className="flex sm:flex-wrap gap-2 p-1.5 rounded-[18px] bg-rw-bg-alt border border-[var(--rw-border)] overflow-x-auto scrollbar-hide -mx-2 sm:mx-0">
-                        {STATUS_TABS.map(t => (
+                        {STATUS_TABS.map((t) => (
                             <button
                                 key={t.key}
                                 onClick={() => setStatusFilter(t.key)}
@@ -80,7 +107,7 @@ export default function OrdersClient({ initialOrders, isAdmin }: { initialOrders
                 </div>
 
                 <div className="w-full xl:max-w-md !mt-0 group">
-                    <SearchInput 
+                    <SearchInput
                         query={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onClear={() => setSearchQuery("")}
@@ -98,18 +125,27 @@ export default function OrdersClient({ initialOrders, isAdmin }: { initialOrders
                         label: "Ref",
                         key: "orderRef",
                         render: (o: Order) => (
-                            <Link href={`/admin/orders/${o.orderRef}`} className="font-mono font-bold text-rw-crimson hover:text-rw-crimson-dk transition-colors border-b border-rw-crimson/20 pb-0.5">{o.orderRef}</Link>
-                        )
+                            <Link
+                                href={`/admin/orders/${o.orderRef}`}
+                                className="font-mono font-bold text-rw-crimson hover:text-rw-crimson-dk transition-colors border-b border-rw-crimson/20 pb-0.5"
+                            >
+                                {o.orderRef}
+                            </Link>
+                        ),
                     },
                     {
                         label: "Customer",
                         key: "customerName",
                         render: (o: Order) => (
                             <div className="flex flex-col">
-                                <span className="font-bold text-rw-ink group-hover:text-rw-crimson transition-colors">{o.customerName}</span>
-                                <span className="text-xs text-rw-muted">{o.customerEmail}</span>
+                                <span className="font-bold text-rw-ink group-hover:text-rw-crimson transition-colors">
+                                    {o.customerName}
+                                </span>
+                                <span className="text-xs text-rw-muted">
+                                    {o.customerEmail}
+                                </span>
                             </div>
-                        )
+                        ),
                     },
                     {
                         label: "Items",
@@ -117,14 +153,20 @@ export default function OrdersClient({ initialOrders, isAdmin }: { initialOrders
                         align: "right",
                         className: "hidden sm:table-cell",
                         render: (o: Order) => (
-                            <span className="px-2 py-1 rounded-md bg-rw-bg-alt text-[11px] font-bold">{o.items.length} items</span>
-                        )
+                            <span className="px-2 py-1 rounded-md bg-rw-bg-alt text-[11px] font-bold">
+                                {o.items.length} items
+                            </span>
+                        ),
                     },
                     {
                         label: "Total",
                         key: "totalAmount",
                         align: "right",
-                        render: (o: Order) => <span className="font-display font-bold text-rw-ink">{fmt(o.totalAmount)}</span>
+                        render: (o: Order) => (
+                            <span className="font-display font-bold text-rw-ink">
+                                {formatNaira(o.totalAmount)}
+                            </span>
+                        ),
                     },
                     {
                         label: "Paid",
@@ -132,34 +174,76 @@ export default function OrdersClient({ initialOrders, isAdmin }: { initialOrders
                         align: "right",
                         className: "hidden md:table-cell",
                         render: (o: Order) => (
-                            <span className={o.amountPaid >= o.totalAmount ? "text-green-600 font-semibold" : ""}>
-                                {fmt(o.amountPaid)}
+                            <span
+                                className={
+                                    o.amountPaid >= o.totalAmount
+                                        ? "text-green-600 font-semibold"
+                                        : ""
+                                }
+                            >
+                                {formatNaira(o.amountPaid)}
                             </span>
-                        )
+                        ),
                     },
                     {
                         label: "Status",
                         key: "status",
-                        render: (o: Order) => <OrderStatusBadge status={o.status} />
+                        render: (o: Order) => <OrderStatusBadge status={o.status} />,
                     },
                     {
                         label: "Date",
                         key: "createdAt",
                         align: "right",
                         className: "hidden lg:table-cell",
-                        render: (o: Order) => (
-                            <span className="text-xs text-rw-muted font-medium">
-                                {new Date(o.createdAt).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
-                            </span>
-                        )
-                    }
+                        render: (o: Order) => {
+                            const date = new Date(o.createdAt);
+                            const absoluteDate = date.toLocaleDateString("en-NG", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                            });
+                            const absoluteTime = date.toLocaleTimeString("en-NG", {
+                                hour: "numeric",
+                                minute: "2-digit",
+                                hour12: true,
+                            });
+                            const relative = getRelativeTime(o.createdAt);
+
+                            return (
+                                <div className="flex flex-col items-end">
+                                    <span className="text-xs font-bold text-rw-ink">
+                                        {absoluteDate}{" "}
+                                        <span className="font-normal text-rw-muted">
+                                            • {absoluteTime}
+                                        </span>
+                                    </span>
+                                    <span className="text-[10px] font-semibold text-rw-crimson mt-0.5 tracking-wide">
+                                        {relative}
+                                    </span>
+                                </div>
+                            );
+                        },
+                    },
                 ]}
                 footer={
                     <div className="flex items-center justify-between">
-                        <p className="text-xs text-rw-muted font-medium italic">Showing {filteredOrders.length} of {initialOrders.length} orders</p>
+                        <p className="text-xs text-rw-muted font-medium italic">
+                            Showing {filteredOrders.length} of {initialOrders.length}{" "}
+                            orders
+                        </p>
                         <div className="flex gap-2">
-                            <button disabled className="px-3 py-1 text-xs font-bold text-rw-muted border border-[var(--rw-border)] rounded-lg bg-white/50 opacity-50">Prev</button>
-                            <button disabled className="px-3 py-1 text-xs font-bold text-rw-muted border border-[var(--rw-border)] rounded-lg bg-white/50 opacity-50">Next</button>
+                            <button
+                                disabled
+                                className="px-3 py-1 text-xs font-bold text-rw-muted border border-[var(--rw-border)] rounded-lg bg-white/50 opacity-50"
+                            >
+                                Prev
+                            </button>
+                            <button
+                                disabled
+                                className="px-3 py-1 text-xs font-bold text-rw-muted border border-[var(--rw-border)] rounded-lg bg-white/50 opacity-50"
+                            >
+                                Next
+                            </button>
                         </div>
                     </div>
                 }
