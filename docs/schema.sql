@@ -224,6 +224,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+
+
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 6. ORDER ITEMS
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -299,6 +301,8 @@ CREATE INDEX IF NOT EXISTS idx_payments_status ON rw_payments(status);
 
 
 -- ─── Trigger: sync orders.amount_paid after payment approval ─────────────────
+-- ─── Database Trigger Function Patch ──────────────────────────────────────────
+-- Corrects the legacy "orders" table reference to "rw_orders" in the sync trigger
 
 CREATE OR REPLACE FUNCTION sync_order_amount_paid()
 RETURNS TRIGGER AS $$
@@ -375,7 +379,7 @@ COMMENT ON VIEW rw_order_payment_summary IS
 --
 -- Note on Security & Authentication:
 --   - Row Level Security (RLS) is NOT enabled for these tables by design.
---   - The platform relies on application-level security and the 
+--   - The platform relies on application-level security and the
 --     SUPABASE_SERVICE_ROLE_KEY to manage access to these tables.
 --   - Admin/Moderator authentication relies on the existing `profiles` and
 --     `rw_admin_moderators` tables in your Supabase project.
@@ -389,7 +393,7 @@ COMMENT ON VIEW rw_order_payment_summary IS
 --   2. Set DEMO_MODE = false in src/lib/config.ts when ready to go live.
 --
 
--- Enable Row Level Security on all tables. 
+-- Enable Row Level Security on all tables.
 -- Since there are no policies defined, all tables are closed to the anon key and authenticated users by default.
 -- Only the service_role key (Admin) can access these tables.
 ALTER TABLE public.rw_categories ENABLE ROW LEVEL SECURITY;

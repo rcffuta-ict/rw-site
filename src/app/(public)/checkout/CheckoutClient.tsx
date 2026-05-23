@@ -10,17 +10,6 @@ import { ph } from "@/lib/utils/functions";
 
 type Step = 1 | 2 | 3;
 
-function generateRef(): string {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    return (
-        "FF" +
-        Array.from(
-            { length: 4 },
-            () => chars[Math.floor(Math.random() * chars.length)]
-        ).join("")
-    );
-}
-
 function StepIndicator({ step }: { step: Step }) {
     const steps = ["Your Info", "Review", "Confirmed"];
     return (
@@ -214,31 +203,6 @@ export function CheckoutClient() {
         await navigator.clipboard.writeText(orderRef);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-    }
-
-    function field(id: string, label: string, type = "text", placeholder = "") {
-        const key = id as keyof typeof form;
-        return (
-            <div>
-                <label
-                    htmlFor={id}
-                    className="block text-sm font-medium text-rw-ink mb-2"
-                >
-                    {label}
-                </label>
-                <input
-                    id={id}
-                    type={type}
-                    value={form[key]}
-                    onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                    placeholder={placeholder}
-                    className={`rw-input ${errors[id] ? "error" : ""}`}
-                />
-                {errors[id] && (
-                    <p className="mt-1.5 text-xs text-red-500">{errors[id]}</p>
-                )}
-            </div>
-        );
     }
 
     if (items.length === 0 && step !== 3) {

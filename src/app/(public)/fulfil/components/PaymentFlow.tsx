@@ -259,6 +259,11 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
         } catch (error: any) {
             console.error("Payment confirmation error:", error);
             
+            let displayError = error.message || "An unexpected error occurred. Please try again.";
+            if (displayError.includes('relation "orders" does not exist')) {
+                displayError = 'Database Trigger Error: The database trigger is referencing the old "orders" table instead of "rw_orders". Please apply the SQL trigger fix from docs/schema.sql.';
+            }
+            
             if (uploadedCloudData) {
                 const nextRetries = saveRetries + 1;
                 setSaveRetries(nextRetries);
@@ -271,13 +276,11 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                     resetUpload();
                 } else {
                     toast.error(
-                        error.message || `Database error. Retrying ${nextRetries}/3. Please try again.`
+                        `${displayError} (Retrying ${nextRetries}/3)`
                     );
                 }
             } else {
-                toast.error(
-                    error.message || "An unexpected error occurred. Please try again."
-                );
+                toast.error(displayError);
             }
         } finally {
             setSubmitting(false);
