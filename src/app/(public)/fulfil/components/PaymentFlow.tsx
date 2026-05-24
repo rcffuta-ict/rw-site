@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/forms/Button";
+import { PriceInput } from "@/components/ui/forms/PriceInput";
 import type { Order } from "@/lib/data/types";
 import type { GlobalSettings } from "@/lib/services/settings.service";
 import { analyzeReceipt, deleteReceiptImage } from "@/app/actions/receipt";
@@ -893,12 +894,7 @@ export function PaymentFlow({
                                 settings.payment_installment_allowed &&
                                 remaining > minPayable
                             ) {
-                                if (
-                                    settings.payment_installment_allowed &&
-                                    remaining > minPayable
-                                ) {
-                                    setPaymentType("partial");
-                                }
+                                setPaymentType("partial");
                             }
                         }}
                         title={

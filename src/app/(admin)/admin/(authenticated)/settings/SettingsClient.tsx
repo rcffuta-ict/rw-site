@@ -104,6 +104,7 @@ function AddModeratorForm({ onSuccess }: { onSuccess: () => void }) {
         });
     };
 
+
     return (
         <form onSubmit={handleSubmit} className="space-y-8 pb-6">
             <div className="space-y-6">
