@@ -81,13 +81,17 @@ export const metadata: Metadata = {
     },
 };
 
+import { AdminAuthProvider } from "@/context/AdminAuthContext";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en">
             <body
                 className={`${inter.variable} ${syne.variable} ${jetbrainsMono.variable}`}
             >
-                <AppStatusProvider>{children}</AppStatusProvider>
+                <AdminAuthProvider>
+                    <AppStatusProvider>{children}</AppStatusProvider>
+                </AdminAuthProvider>
             </body>
         </html>
     );
