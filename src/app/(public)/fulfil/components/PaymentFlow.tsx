@@ -10,6 +10,7 @@ import { analyzeReceipt, deleteReceiptImage } from "@/app/actions/receipt";
 import { attachPayment } from "@/lib/services/orders.service";
 import { toast } from "sonner";
 import { DEMO_MODE } from "@/lib/config";
+import { formatNaira } from "@/lib/utils/functions";
 
 interface ExtractionResult {
     senderName: string | null;
@@ -537,7 +538,7 @@ export function PaymentFlow({
                                     </p>
                                     <p className="font-bold text-base text-rw-ink truncate">
                                         {extraction.amount
-                                            ? `₦${extraction.amount.toLocaleString()}`
+                                            ? formatNaira(extraction.amount)
                                             : "—"}
                                     </p>
                                 </div>
@@ -882,7 +883,7 @@ export function PaymentFlow({
                         selected={paymentType === "full"}
                         onClick={() => setPaymentType("full")}
                         title="Pay in Full"
-                        desc={`₦${remaining.toLocaleString()}`}
+                        desc={formatNaira(remaining)}
                     />
                     <RadioCard
                         selected={paymentType === "partial"}
@@ -899,7 +900,7 @@ export function PaymentFlow({
                                 ? "Pay Minimum Deposit"
                                 : "Pay in Part (Disabled)"
                         }
-                        desc={`Min ₦${minPayable.toLocaleString()}`}
+                        desc={`Min ${formatNaira(minPayable)}`}
                         disabled={
                             !settings.payment_installment_allowed ||
                             remaining <= minPayable
@@ -924,13 +925,13 @@ export function PaymentFlow({
 
                     {typeof customAmount === "number" && customAmount < minPayable && (
                         <p className="text-xs text-rw-crimson font-medium mb-4">
-                            Amount must be at least ₦{minPayable.toLocaleString()}
+                            Amount must be at least {formatNaira(minPayable)}
                         </p>
                     )}
                     {typeof customAmount === "number" && customAmount > remaining && (
                         <p className="text-xs text-rw-crimson font-medium mb-4">
                             Amount cannot exceed remaining balance of ₦
-                            {remaining.toLocaleString()}
+                            {formatNaira(remaining)}
                         </p>
                     )}
 
@@ -939,7 +940,7 @@ export function PaymentFlow({
                             Amount to pay:
                         </span>
                         <span className="font-bold text-3xl text-rw-crimson">
-                            ₦{payAmount.toLocaleString()}
+                            {formatNaira(payAmount)}
                         </span>
                     </div>
                 </div>
