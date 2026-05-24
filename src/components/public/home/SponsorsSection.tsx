@@ -393,7 +393,7 @@ export function SponsorsSection() {
 
                     {/* ── 6. Contacts ── */}
                     <div className="rounded-3xl bg-[#1C0003] overflow-hidden">
-                        <div className="px-8 py-14 md:px-14 md:py-16 lg:px-16 lg:py-20">
+                        <div className="px-5 py-10 md:px-14 md:py-16 lg:px-16 lg:py-20">
                             <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#FF9A44] mb-3">
                                 Reach out directly
                             </p>
@@ -404,7 +404,7 @@ export function SponsorsSection() {
                                 {CONTACTS.map((c) => (
                                     <div
                                         key={c.name}
-                                        className="rounded-2xl bg-white/8 border border-white/15 p-8 flex flex-col gap-5 hover:bg-white/10 transition-colors"
+                                        className="rounded-2xl bg-white/8 border border-white/15 p-6 md:p-8 flex flex-col gap-5 hover:bg-white/10 transition-colors"
                                     >
                                         <div>
                                             <p className="text-[10px] font-bold uppercase tracking-widest text-[#FF6A00] mb-1">
@@ -419,7 +419,7 @@ export function SponsorsSection() {
                                                 href={`https://wa.me/${c.phone.replace(/\D/g, "")}?text=Hi, I'd like to support RW${TENURE.shortYear}`}
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="flex items-center gap-3 rounded-xl bg-white/10 border border-white/20 px-4 py-3 text-sm font-semibold text-rw-bg-alt hover:bg-[#25D366]/20 hover:border-[#25D366]/40 transition-all"
+                                                className="flex items-center gap-3 rounded-xl bg-white/10 border border-white/20 px-4 py-3 text-sm font-semibold text-rw-bg-alt hover:bg-[#25D366]/20 hover:border-[#25D366]/40 transition-all overflow-hidden"
                                             >
                                                 <svg
                                                     className="h-4 w-4 text-[#25D366] shrink-0"
@@ -429,11 +429,11 @@ export function SponsorsSection() {
                                                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
                                                     <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.852L0 24l6.335-1.508A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.006-1.368l-.36-.214-3.72.885.938-3.615-.235-.374A9.79 9.79 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182 17.43 2.182 21.818 6.57 21.818 12c0 5.43-4.388 9.818-9.818 9.818z" />
                                                 </svg>
-                                                WhatsApp — {c.phone}
+                                                <span className="truncate">WhatsApp — {c.phone}</span>
                                             </a>
                                             <a
                                                 href={`mailto:${c.email}?subject=Support Inquiry — RW${TENURE.shortYear}`}
-                                                className="flex items-center gap-3 rounded-xl bg-white/10 border border-white/20 px-4 py-3 text-sm font-semibold text-white hover:bg-[#FF0015]/20 hover:border-[#FF0015]/40 transition-all"
+                                                className="flex items-center gap-3 rounded-xl bg-white/10 border border-white/20 px-4 py-3 text-sm font-semibold text-white hover:bg-[#FF0015]/20 hover:border-[#FF0015]/40 transition-all overflow-hidden"
                                             >
                                                 <svg
                                                     className="h-4 w-4 text-[#FF6A00] shrink-0"
@@ -448,7 +448,7 @@ export function SponsorsSection() {
                                                         d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
                                                     />
                                                 </svg>
-                                                {c.email}
+                                                <span className="truncate">{c.email}</span>
                                             </a>
                                         </div>
                                     </div>
