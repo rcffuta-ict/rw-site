@@ -69,7 +69,7 @@ export function AppStatusProvider({ children }: { children: React.ReactNode }) {
             {/* Demo mode banner */}
             {DEMO_MODE && (
                 <div
-                    className="fixed bottom-2 md:top-2 right-4 md:left-4 z-[9999] flex items-center gap-2 rounded-full
+                    className="fixed bottom-2 left-4 md:top-2 md:bottom-auto md:left-auto md:right-4 z-[9999] flex items-center gap-2 rounded-full
                                bg-[#1C0003] text-white text-[11px] font-bold px-4 py-2 shadow-lg
                                border border-white/10 opacity-80 hover:opacity-100 transition-opacity"
                     title="Running in demo mode — no real data"
