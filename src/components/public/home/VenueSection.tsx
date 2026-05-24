@@ -107,7 +107,7 @@ export function VenueSection() {
                         <p className="mt-6 text-[#5c4048] text-lg leading-relaxed max-w-[46ch]">
                             {TENURE.venue} is your destination for seven nights of
                             worship, drama, music, and community. Everyone is welcome —
-                            free admission, every night.
+                            free entry, every night.
                         </p>
 
                         {/* Address pill */}

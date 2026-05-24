@@ -231,7 +231,7 @@ export function AboutSection() {
                                     key={s.label}
                                     className="rounded-2xl bg-[#fdf8f8] border border-[#e8d0d4] p-4 text-center"
                                 >
-                                    <p className="font-display font-extrabold text-2xl text-[#FF0015]">
+                                    <p className="font-display font-extrabold text-xl lg:text-2xl! text-[#FF0015]">
                                         {s.value}
                                     </p>
                                     <p className="text-xs text-rw-muted font-medium mt-0.5">

@@ -39,8 +39,8 @@ function DigitBlock({
                 <div
                     className="relative flex items-center justify-center rounded-2xl bg-white border border-[var(--rw-border)] shadow-sm overflow-hidden"
                     style={{
-                        width: "clamp(72px, 11vw, 100px)",
-                        height: "clamp(80px, 12vw, 108px)",
+                        width: "clamp(56px, 15vw, 100px)",
+                        height: "clamp(64px, 18vw, 108px)",
                     }}
                 >
                     {/* Crimson bottom accent line */}
@@ -55,7 +55,7 @@ function DigitBlock({
                             flipping ? "scale-95 opacity-60" : "scale-100 opacity-100"
                         }`}
                         style={{
-                            fontSize: "clamp(2rem, 5vw, 3rem)",
+                            fontSize: "clamp(1.75rem, 6vw, 3rem)",
                             letterSpacing: "-0.04em",
                         }}
                     >
@@ -76,9 +76,9 @@ function DigitBlock({
 
 function Separator() {
     return (
-        <div className="flex flex-col items-center gap-1.5 pb-9 self-center">
-            <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson/25" />
-            <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson/25" />
+        <div className="flex flex-col items-center gap-1 sm:gap-1.5 pb-7 sm:pb-9 self-center">
+            <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-rw-crimson/25" />
+            <span className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-rw-crimson/25" />
         </div>
     );
 }
@@ -115,13 +115,14 @@ export function CountdownTimer({ targetDate }: { targetDate: string }) {
 
     if (!mounted) {
         return (
-            <div className="flex items-center gap-3 sm:gap-4">
-                {(["Days", "Hours", "Mins", "Secs"] as const).map((l, i) => (
-                    <div key={l} className="flex items-center gap-3 sm:gap-4">
-                        <DigitBlock value={0} label={l} flipping={false} />
-                        {i < 3 && <Separator />}
-                    </div>
-                ))}
+            <div className="flex items-center gap-1.5 sm:gap-3 md:gap-4">
+                <DigitBlock value={0} label="Days" flipping={false} />
+                <Separator />
+                <DigitBlock value={0} label="Hours" flipping={false} />
+                <Separator />
+                <DigitBlock value={0} label="Mins" flipping={false} />
+                <Separator />
+                <DigitBlock value={0} label="Secs" flipping={false} />
             </div>
         );
     }
@@ -138,7 +139,7 @@ export function CountdownTimer({ targetDate }: { targetDate: string }) {
     }
 
     return (
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-1.5 sm:gap-3 md:gap-4 pb-10 md:pb-0">
             <DigitBlock value={t.days} label="Days" flipping={false} />
             <Separator />
             <DigitBlock value={t.hours} label="Hours" flipping={false} />

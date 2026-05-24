@@ -64,6 +64,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         <div className="h-screen flex flex-col bg-rw-bg-alt relative overflow-hidden">
             <AdminNotification />
             <MobileAdviceModal />
+            {/* <AdminStatusIndicator /> */}
 
             {/* Mobile Header */}
             <AdminHeader onOpenMobileMenu={() => setIsMobileMenuOpen(true)} />

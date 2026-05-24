@@ -66,7 +66,18 @@ export function AppStatusProvider({ children }: { children: React.ReactNode }) {
                 theme: TENURE.theme,
             }}
         >
-            <AppStatusIndicator />
+            {/* Demo mode banner */}
+            {DEMO_MODE && (
+                <div
+                    className="fixed top-2 left-4 z-[9999] flex items-center gap-2 rounded-full
+                               bg-[#1C0003] text-white text-[11px] font-bold px-4 py-2 shadow-lg
+                               border border-white/10 opacity-80 hover:opacity-100 transition-opacity"
+                    title="Running in demo mode — no real data"
+                >
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#FF6A00] animate-pulse-soft" />
+                    Demo Mode
+                </div>
+            )}
             {children}
         </AppStatusContext.Provider>
     );

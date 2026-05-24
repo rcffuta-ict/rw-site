@@ -39,27 +39,45 @@ export function HeroSection() {
     return (
         <section
             ref={videoRef}
-            className="relative min-h-screen overflow-hidden flex items-center bg-white"
+            className="relative min-h-[100svh] overflow-hidden flex items-center bg-white"
             style={{ "--mouse-x": "60%", "--mouse-y": "40%" } as React.CSSProperties}
         >
             {/* ── Background image — right-side, dramatic ──────────────────── */}
             <div className="absolute inset-0">
-            <picture>
-                <source media="(max-width: 640px)" srcSet={ph(640, 960, "Redemption Week · Worship Night", "1C0003", "FF6A00")} />
-                <source media="(max-width: 1024px)" srcSet={ph(1024, 768, "Redemption Week · Worship Night", "1C0003", "FF6A00")} />
-                <img
-                    src={ph(
-                        1920,
-                        1080,
-                        "Redemption Week · Worship Night",
-                        "1C0003",
-                        "FF6A00"
-                    )}
-                    alt=""
-                    aria-hidden
-                    className="absolute inset-0 w-full h-full object-cover object-right"
-                />
-            </picture>
+                <picture>
+                    <source
+                        media="(max-width: 640px)"
+                        srcSet={ph(
+                            640,
+                            960,
+                            "Redemption Week · Worship Night",
+                            "1C0003",
+                            "FF6A00"
+                        )}
+                    />
+                    <source
+                        media="(max-width: 1024px)"
+                        srcSet={ph(
+                            1024,
+                            768,
+                            "Redemption Week · Worship Night",
+                            "1C0003",
+                            "FF6A00"
+                        )}
+                    />
+                    <img
+                        src={ph(
+                            1920,
+                            1080,
+                            "Redemption Week · Worship Night",
+                            "1C0003",
+                            "FF6A00"
+                        )}
+                        alt=""
+                        aria-hidden
+                        className="absolute inset-0 w-full h-full object-cover object-right"
+                    />
+                </picture>
                 {/* White sweep — content area */}
                 <div className="absolute inset-0 bg-gradient-to-r from-white via-white/98 lg:via-white/95 xl:via-white/88 to-white/5" />
                 {/* Bottom fade into white */}
@@ -79,18 +97,18 @@ export function HeroSection() {
             />
 
             {/* ── Main content ──────────────────────────────────────────────── */}
-            <div className="relative z-10 section-container py-28 lg:py-36 w-full">
+            <div className="relative z-10 section-container pt-18 pb-20 lg:pt-28 lg:pb-36 w-full">
                 <div className="max-w-3xl stagger-children">
                     {/* Fellowship badge with logos */}
-                    <div className="animate-fade-in-up">
+                    <div className="animate-fade-in-up mt-1 md:mt-0">
                         <div
                             className="inline-flex items-center gap-3 rounded-full border border-[#e8d0d4]
                                         bg-white/95 backdrop-blur-sm px-4 py-2 shadow-sm"
                         >
                             <img
-                                src={LOGOS.rcfFuta}
+                                src={LOGOS.redemptionWeek}
                                 alt="RCF FUTA"
-                                className="h-6 w-6 rounded-full object-cover border border-[#e8d0d4]"
+                                className="h-6 w-6 object-contain"
                             />
                             <span className="text-[10px] font-bold text-[#9a8085] tracking-[0.14em] uppercase">
                                 {TENURE.anniversaryLabel}
@@ -98,7 +116,7 @@ export function HeroSection() {
                             <span className="h-3 w-px bg-[#e8d0d4]" />
                             <span className="flex items-center gap-1.5 text-[10px] font-bold text-[#FF0015] tracking-[0.14em] uppercase">
                                 <span className="h-1.5 w-1.5 rounded-full bg-[#FF0015] animate-pulse-soft" />
-                                Redeemed Christian Fellowship, FUTA
+                                Redeemed Christian Fellowship, FUTA Chapter
                             </span>
                         </div>
                     </div>
@@ -157,7 +175,7 @@ export function HeroSection() {
                                 ),
                             },
                             {
-                                label: "7 Nights · Free Admission",
+                                label: "7 Nights · Free Entry",
                                 icon: (
                                     <path
                                         strokeLinecap="round"
@@ -274,7 +292,7 @@ export function HeroSection() {
             </div>
 
             {/* ── Scroll indicator ──────────────────────────────────────────── */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 animate-bounce-subtle">
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 hidden md:flex flex-col items-center gap-2 animate-bounce-subtle">
                 <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#b09098]">
                     Scroll
                 </span>
