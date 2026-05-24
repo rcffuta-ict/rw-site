@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/forms/Button";
 import type { GlobalSettings } from "@/lib/services/settings.service";
 
-export function TransferDetails({ orderRef, settings }: { orderRef: string, settings: GlobalSettings }) {
+export function TransferDetails({
+    orderRef,
+    settings,
+}: {
+    orderRef: string;
+    settings: GlobalSettings;
+}) {
     const prescribedNarration = `RW26-${orderRef}`;
 
     return (
