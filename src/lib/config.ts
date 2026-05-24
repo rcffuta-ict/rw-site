@@ -4,7 +4,9 @@
 
 // ─── Demo / Live Switch ───────────────────────────────────────────────────────
 // Set to false when integrating Supabase. All services check this flag.
-export const DEMO_MODE = true;
+export const DEMO_MODE = process.env.NEXT_PUBLIC_VERCEL_ENV
+    ? process.env.NEXT_PUBLIC_VERCEL_ENV !== "production"
+    : process.env.NODE_ENV !== "production";
 
 // ─── Tenure Details ───────────────────────────────────────────────────────────
 export const TENURE = {
@@ -90,9 +92,9 @@ export const BRAND = {
 // ─── Support / Donations ───────────────────────────────────────────────────────
 // This is the INDIVIDUAL SUPPORT account — different from the /fulfil commerce account.
 export const SUPPORT_ACCOUNT = {
-    bankName: "Access Bank",
-    accountNumber: "0123456789", // ← Replace with real account number
-    accountName: "RCF FUTA Welfare Fund",
+    bankName: "Wema Bank",
+    accountNumber: "0222938198",
+    accountName: "Christian Fellowship Redeemed",
     /** Minimum suggested donation */
     minimumAmount: 1000,
 } as const;

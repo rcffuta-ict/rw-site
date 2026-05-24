@@ -255,6 +255,24 @@ export function SponsorsSection() {
                                         </div>
                                     </div>
                                     <div className="pt-6 border-t border-white/15">
+                                        <div className="mb-4 rounded-lg bg-[#FF9A44]/10 border border-[#FF9A44]/20 p-3">
+                                            <p className="text-xs text-[#FF9A44] leading-relaxed font-medium">
+                                                💡{" "}
+                                                <strong className="text-white">
+                                                    Quick note:
+                                                </strong>{" "}
+                                                Please add{" "}
+                                                <strong className="text-white">
+                                                    &ldquo;Redemption Week Support&#34;
+                                                </strong>{" "}
+                                                or{" "}
+                                                <strong className="text-white">
+                                                    &#34;RW26&#34;
+                                                </strong>{" "}
+                                                as the narration/remark when making your
+                                                transfer.
+                                            </p>
+                                        </div>
                                         <p className="text-xs text-white/60 leading-relaxed">
                                             ⚠️ This account is for{" "}
                                             <strong className="text-white/80">
