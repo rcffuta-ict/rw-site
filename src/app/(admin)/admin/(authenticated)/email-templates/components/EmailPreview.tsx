@@ -1,15 +1,20 @@
-import { injectSampleData, getLogoUrl } from "../utils";
+import { injectSampleData, getLogoUrl, getHeaderImageUrl } from "../utils";
 import { SAMPLE_DATA } from "../constants";
+import type { SiteEmailLayout } from "../types";
 
 interface EmailPreviewProps {
   subject: string;
   bodyHtml: string;
+  layout?: SiteEmailLayout;
 }
 
-export function EmailPreview({ subject, bodyHtml }: EmailPreviewProps) {
+export function EmailPreview({ subject, bodyHtml, layout }: EmailPreviewProps) {
   const rendered = injectSampleData(bodyHtml, SAMPLE_DATA);
   const renderedSubject = injectSampleData(subject, SAMPLE_DATA);
-  const logoUrl = getLogoUrl();
+  const logoUrl = layout?.footer_image_url || getLogoUrl();
+  const headerImageUrl = layout?.header_image_url || getHeaderImageUrl();
+  const headerText = layout?.header_text || "<h3>Welcome</h3>";
+  const footerText = layout?.footer_text || "<p>Thank you for your order</p>";
 
   return (
     <div className="bg-rw-bg-alt border border-[var(--rw-border)] rounded-lg overflow-hidden">
@@ -24,18 +29,19 @@ export function EmailPreview({ subject, bodyHtml }: EmailPreviewProps) {
         <div className="bg-white rounded-lg border border-[var(--rw-border)] overflow-hidden max-w-lg mx-auto">
           {/* Header */}
           <div className="bg-rw-crimson/95 px-6 py-8 text-center">
-            <div className="flex justify-center mb-3">
-              <img
-                src={logoUrl}
-                alt="RCF FUTA Logo"
-                className="h-10 w-auto"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
-              />
-            </div>
-            <p className="text-xs font-bold text-white tracking-widest uppercase">RCF FUTA</p>
-            <h3 className="text-lg font-serif text-white mt-1">Redemption Week '26</h3>
+            {headerImageUrl && (
+              <div className="flex justify-center mb-3">
+                <img
+                  src={headerImageUrl}
+                  alt="Email Header"
+                  className="max-h-16 w-auto"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              </div>
+            )}
+            <div className="text-white text-sm font-serif" dangerouslySetInnerHTML={{ __html: headerText }} />
           </div>
 
           {/* Body */}
@@ -45,8 +51,19 @@ export function EmailPreview({ subject, bodyHtml }: EmailPreviewProps) {
 
           {/* Footer */}
           <div className="bg-rw-bg-alt px-6 py-4 border-t border-[var(--rw-border)] text-center">
-            <p className="text-xs text-rw-muted font-medium">Order reference: <strong>#FF3A9C</strong></p>
-            <p className="text-[10px] text-rw-muted mt-1">RCF FUTA · Federal University of Technology, Akure</p>
+            {layout?.footer_image_url && (
+              <div className="mb-3 flex justify-center">
+                <img
+                  src={layout.footer_image_url}
+                  alt="Email Footer"
+                  className="max-h-12 w-auto"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              </div>
+            )}
+            <div className="text-xs text-rw-muted font-serif" dangerouslySetInnerHTML={{ __html: footerText }} />
           </div>
         </div>
       </div>

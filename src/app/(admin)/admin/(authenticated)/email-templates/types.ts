@@ -13,6 +13,13 @@ export interface TemplateData {
   is_active: boolean;
 }
 
+export interface SiteEmailLayout {
+  header_text: string;
+  header_image_url: string;
+  footer_text: string;
+  footer_image_url: string;
+}
+
 export interface SampleData {
   [key: string]: string;
 }
