@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/forms/Button";
-import { PAYMENT_CONFIG } from "@/lib/config";
+import type { GlobalSettings } from "@/lib/services/settings.service";
 
-export function TransferDetails({ orderRef }: { orderRef: string }) {
+export function TransferDetails({ orderRef, settings }: { orderRef: string, settings: GlobalSettings }) {
     const prescribedNarration = `RW26-${orderRef}`;
 
     return (
@@ -19,7 +19,7 @@ export function TransferDetails({ orderRef }: { orderRef: string }) {
                             Bank Name
                         </p>
                         <p className="font-bold text-rw-ink text-lg">
-                            {PAYMENT_CONFIG.bank}
+                            {settings.bank_name}
                         </p>
                     </div>
                     <div className="p-5 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)]">
@@ -28,9 +28,9 @@ export function TransferDetails({ orderRef }: { orderRef: string }) {
                         </p>
                         <p
                             className="font-bold text-rw-ink text-lg truncate"
-                            title={PAYMENT_CONFIG.accountName}
+                            title={settings.bank_account_name}
                         >
-                            {PAYMENT_CONFIG.accountName}
+                            {settings.bank_account_name}
                         </p>
                     </div>
                     <div className="p-5 rounded-2xl bg-rw-crimson/5 border border-rw-crimson/20 sm:col-span-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -39,14 +39,14 @@ export function TransferDetails({ orderRef }: { orderRef: string }) {
                                 Account Number
                             </p>
                             <p className="font-mono font-bold text-3xl text-rw-ink tracking-widest">
-                                {PAYMENT_CONFIG.accountNumber}
+                                {settings.bank_account_number}
                             </p>
                         </div>
                         <Button
                             variant="outlined"
                             onClick={() =>
                                 navigator.clipboard.writeText(
-                                    PAYMENT_CONFIG.accountNumber
+                                    settings.bank_account_number
                                 )
                             }
                             className="shrink-0 bg-white"

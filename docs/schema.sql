@@ -393,6 +393,38 @@ COMMENT ON VIEW rw_order_payment_summary IS
 --   2. Set DEMO_MODE = false in src/lib/config.ts when ready to go live.
 --
 
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 9. SETTINGS & AUDIT LOGS
+-- ═══════════════════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS public.rw_settings (
+  id integer PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+  bank_name text NOT NULL DEFAULT 'First Bank',
+  bank_account_name text NOT NULL DEFAULT 'RCF FUTA',
+  bank_account_number text NOT NULL DEFAULT '3012345678',
+  payment_min_amount integer NOT NULL DEFAULT 2000,
+  payment_installment_allowed boolean NOT NULL DEFAULT true,
+  updated_by uuid REFERENCES public.profiles(id),
+  updated_at timestamptz DEFAULT now()
+);
+
+COMMENT ON TABLE public.rw_settings IS 'Global application settings (singleton row).';
+
+-- Insert default row
+INSERT INTO public.rw_settings (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS public.rw_audit_logs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  profile_id uuid REFERENCES public.profiles(id),
+  action text NOT NULL,
+  entity_type text NOT NULL,
+  entity_id text,
+  details jsonb,
+  created_at timestamptz DEFAULT now()
+);
+
+COMMENT ON TABLE public.rw_audit_logs IS 'Audit trail for admin/moderator actions.';
+
 -- Enable Row Level Security on all tables.
 -- Since there are no policies defined, all tables are closed to the anon key and authenticated users by default.
 -- Only the service_role key (Admin) can access these tables.
@@ -404,4 +436,5 @@ ALTER TABLE public.rw_orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_order_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_admin_moderators ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_audit_logs ENABLE ROW LEVEL SECURITY;

@@ -49,16 +49,7 @@ export const env = {
         .map((s) => s.trim().toLowerCase())
         .filter(Boolean),
 
-    bank: {
-        bankName:      optional("RW_BANK_NAME")           ?? "First Bank",
-        accountName:   optional("RW_BANK_ACCOUNT_NAME")   ?? "RCF FUTA",
-        accountNumber: optional("RW_BANK_ACCOUNT_NUMBER") ?? "3012345678",
-    },
 
-    payment: {
-        minPercent:          Number(optional("RW_PAYMENT_MIN_PERCENT") ?? "50"),
-        installmentAllowed:  optional("RW_PAYMENT_INSTALLMENT") !== "false",
-    },
 
     required,
 };

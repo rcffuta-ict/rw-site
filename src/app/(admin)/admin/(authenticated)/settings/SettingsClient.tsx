@@ -1,98 +1,41 @@
 "use client";
 
-import React, { useState } from "react";
-import { AdminStats, AdminStatItem } from "@/components/admin/AdminStats";
+import React, { useState, useTransition } from "react";
 import { useAdminModal } from "@/context/AdminModalContext";
+import type { GlobalSettings, AdminModerator } from "@/lib/services/settings.service";
+import {
+    saveSettingsAction,
+    addModeratorAction,
+    removeModeratorAction,
+} from "@/app/actions/settings";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { PriceInput } from "@/components/ui/forms/PriceInput";
 
 type Tab = "account" | "moderators";
 
-const MOCK_MODERATORS = [
-    {
-        id: 1,
-        name: "Admin Sarah",
-        email: "sarah@rcffuta.org",
-        role: "Moderator",
-        status: "active",
-        joined: "2026-01-12",
-    },
-    {
-        id: 2,
-        name: "Logistics Lead",
-        email: "logistics@rcffuta.org",
-        role: "Moderator",
-        status: "active",
-        joined: "2026-02-05",
-    },
-    {
-        id: 3,
-        name: "Finance Officer",
-        email: "finance@rcffuta.org",
-        role: "Moderator",
-        status: "inactive",
-        joined: "2026-03-10",
-    },
-];
-
-export default function SettingsClient() {
+export default function SettingsClient({
+    initialSettings,
+    initialModerators,
+}: {
+    initialSettings: GlobalSettings;
+    initialModerators: AdminModerator[];
+}) {
     const [activeTab, setActiveTab] = useState<Tab>("account");
-    const { openModal } = useAdminModal();
+    const { openModal, closeModal } = useAdminModal();
+    const router = useRouter();
 
     const handleInviteModerator = () => {
         openModal(
-            <div className="space-y-8 pb-6">
-                <div className="space-y-6">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
-                            Moderator Name
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="e.g. John Doe"
-                            className="rw-input"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
-                            Email Address
-                        </label>
-                        <input
-                            type="email"
-                            placeholder="john@rcffuta.org"
-                            className="rw-input"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
-                            Access Password
-                        </label>
-                        <input
-                            type="password"
-                            placeholder="••••••••"
-                            className="rw-input"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
-                            Designated Role
-                        </label>
-                        <div className="rw-input bg-rw-bg-alt/50 flex items-center px-4 font-bold text-rw-ink uppercase tracking-widest text-[11px]">
-                            Moderator
-                        </div>
-                    </div>
-                </div>
-                <div className="p-6 bg-rw-bg-alt/50 rounded-2xl border border-[var(--rw-border)] border-dashed">
-                    <p className="text-[10px] text-rw-muted font-medium italic leading-relaxed text-center">
-                        The new moderator will be able to log in immediately with these
-                        credentials.
-                    </p>
-                </div>
-                <button className="btn-primary w-full !h-14 font-display font-black uppercase tracking-widest text-xs shadow-xl shadow-rw-crimson/20">
-                    Add Moderator
-                </button>
-            </div>,
+            <AddModeratorForm
+                onSuccess={() => {
+                    closeModal();
+                    router.refresh();
+                }}
+            />,
             {
                 title: "Add New Moderator",
-                description: "Register a new administrative account for the dashboard",
+                description: "Appoint an existing user as a moderator",
             }
         );
     };
@@ -132,105 +75,241 @@ export default function SettingsClient() {
             </div>
 
             {activeTab === "account" ? (
-                <AccountSection />
+                <AccountSection settings={initialSettings} />
             ) : (
-                <ModeratorsSection onInvite={handleInviteModerator} />
+                <ModeratorsSection
+                    moderators={initialModerators}
+                    onInvite={handleInviteModerator}
+                />
             )}
         </div>
     );
 }
 
-function AccountSection() {
+function AddModeratorForm({ onSuccess }: { onSuccess: () => void }) {
+    const [email, setEmail] = useState("");
+    const [isPending, startTransition] = useTransition();
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        startTransition(async () => {
+            const res = await addModeratorAction(email);
+            if (res.success) {
+                toast.success("Moderator appointed successfully.");
+                onSuccess();
+            } else {
+                toast.error(res.error || "Failed to appoint moderator.");
+            }
+        });
+    };
+
     return (
-        <>
-            {/* Content: Financial Config Only */}
-            <div className="max-w-3xl space-y-10">
-                {/* Bank Config Card */}
-                <section className="rw-card overflow-hidden border-none shadow-xl ring-1 ring-rw-ink/5">
-                    <div className="p-8 border-b border-[var(--rw-border)]">
-                        <h3 className="font-display font-black text-xl text-rw-ink uppercase tracking-tight">
-                            Financial Configuration
-                        </h3>
-                        <p className="text-xs text-rw-muted font-medium mt-1 italic">
-                            These details are shown to customers on the checkout page.
-                        </p>
+        <form onSubmit={handleSubmit} className="space-y-8 pb-6">
+            <div className="space-y-6">
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
+                        User Email Address
+                    </label>
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        placeholder="john@rcffuta.org"
+                        className="rw-input"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
+                        Designated Role
+                    </label>
+                    <div className="rw-input bg-rw-bg-alt/50 flex items-center px-4 font-bold text-rw-ink uppercase tracking-widest text-[11px]">
+                        Moderator
                     </div>
-                    <div className="p-8 space-y-8">
-                        <div className="grid sm:grid-cols-2 gap-8">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
-                                    Receiving Bank
-                                </label>
-                                <input
-                                    type="text"
-                                    defaultValue="First Bank"
-                                    className="rw-input"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
-                                    Account Number
-                                </label>
-                                <input
-                                    type="text"
-                                    defaultValue="3012345678"
-                                    className="rw-input"
-                                />
-                            </div>
-                            <div className="space-y-2 sm:col-span-2">
-                                <label className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
-                                    Account Name
-                                </label>
-                                <input
-                                    type="text"
-                                    defaultValue="RCF FUTA"
-                                    className="rw-input"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="pt-4 space-y-6 border-t border-[var(--rw-border)] border-dashed">
-                            <div className="flex items-center justify-between">
-                                <div className="space-y-1">
-                                    <p className="text-sm font-black text-rw-ink uppercase tracking-tight">
-                                        Allow Installments
-                                    </p>
-                                    <p className="text-[10px] text-rw-muted font-bold uppercase tracking-widest">
-                                        Enable partial payments with a minimum deposit
-                                    </p>
-                                </div>
-                                <div className="h-8 w-14 bg-rw-crimson/10 rounded-full border border-rw-crimson/20 p-1 flex items-center cursor-pointer">
-                                    <div className="h-6 w-6 bg-rw-crimson rounded-full shadow-md ml-auto" />
-                                </div>
-                            </div>
-                            <div className="space-y-2 max-w-[200px]">
-                                <label className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
-                                    Min Deposit Amount (₦)
-                                </label>
-                                <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-display font-black text-rw-muted">
-                                        ₦
-                                    </span>
-                                    <input
-                                        type="number"
-                                        defaultValue="5000"
-                                        className="rw-input pl-10 font-display font-black text-lg"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <button className="btn-primary !h-12 !px-8 text-xs font-black uppercase tracking-widest shadow-lg shadow-rw-crimson/20">
-                            Save Configuration
-                        </button>
-                    </div>
-                </section>
+                </div>
             </div>
-        </>
+            <div className="p-6 bg-rw-bg-alt/50 rounded-2xl border border-[var(--rw-border)] border-dashed">
+                <p className="text-[10px] text-rw-muted font-medium italic leading-relaxed text-center">
+                    The user must already have logged into the platform at least once to
+                    be appointed.
+                </p>
+            </div>
+            <button
+                type="submit"
+                disabled={isPending}
+                className="btn-primary w-full !h-14 font-display font-black uppercase tracking-widest text-xs shadow-xl shadow-rw-crimson/20 disabled:opacity-50"
+            >
+                {isPending ? "Appointing..." : "Add Moderator"}
+            </button>
+        </form>
     );
 }
 
-function ModeratorsSection({ onInvite }: { onInvite: () => void }) {
+function AccountSection({ settings }: { settings: GlobalSettings }) {
+    const [formState, setFormState] = useState(settings);
+    const [isPending, startTransition] = useTransition();
+    const router = useRouter();
+
+    const handleSave = () => {
+        startTransition(async () => {
+            const res = await saveSettingsAction(formState);
+            if (res.success) {
+                toast.success("Settings saved successfully.");
+                router.refresh();
+            } else {
+                toast.error(res.error || "Failed to save settings.");
+            }
+        });
+    };
+
+    return (
+        <div className="max-w-3xl space-y-10">
+            {/* Bank Config Card */}
+            <section className="rw-card overflow-hidden border-none shadow-xl ring-1 ring-rw-ink/5">
+                <div className="p-8 border-b border-[var(--rw-border)]">
+                    <h3 className="font-display font-black text-xl text-rw-ink uppercase tracking-tight">
+                        Financial Configuration
+                    </h3>
+                    <p className="text-xs text-rw-muted font-medium mt-1 italic">
+                        These details are shown to customers on the checkout page.
+                    </p>
+                </div>
+                <div className="p-8 space-y-8">
+                    <div className="grid sm:grid-cols-2 gap-8">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
+                                Receiving Bank
+                            </label>
+                            <input
+                                type="text"
+                                value={formState.bank_name}
+                                onChange={(e) =>
+                                    setFormState((s) => ({
+                                        ...s,
+                                        bank_name: e.target.value,
+                                    }))
+                                }
+                                className="rw-input"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
+                                Account Number
+                            </label>
+                            <input
+                                type="text"
+                                value={formState.bank_account_number}
+                                onChange={(e) =>
+                                    setFormState((s) => ({
+                                        ...s,
+                                        bank_account_number: e.target.value,
+                                    }))
+                                }
+                                className="rw-input"
+                            />
+                        </div>
+                        <div className="space-y-2 sm:col-span-2">
+                            <label className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
+                                Account Name
+                            </label>
+                            <input
+                                type="text"
+                                value={formState.bank_account_name}
+                                onChange={(e) =>
+                                    setFormState((s) => ({
+                                        ...s,
+                                        bank_account_name: e.target.value,
+                                    }))
+                                }
+                                className="rw-input"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="pt-4 space-y-6 border-t border-[var(--rw-border)] border-dashed">
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                                <p className="text-sm font-black text-rw-ink uppercase tracking-tight">
+                                    Allow Installments
+                                </p>
+                                <p className="text-[10px] text-rw-muted font-bold uppercase tracking-widest">
+                                    Enable partial payments with a minimum deposit amount
+                                </p>
+                            </div>
+                            <div
+                                onClick={() =>
+                                    setFormState((s) => ({
+                                        ...s,
+                                        payment_installment_allowed:
+                                            !s.payment_installment_allowed,
+                                    }))
+                                }
+                                className={`h-8 w-14 rounded-full border p-1 flex items-center cursor-pointer transition-colors ${formState.payment_installment_allowed ? "bg-rw-crimson/10 border-rw-crimson/20" : "bg-gray-100 border-gray-300"}`}
+                            >
+                                <div
+                                    className={`h-6 w-6 rounded-full shadow-md transition-transform ${formState.payment_installment_allowed ? "bg-rw-crimson translate-x-6" : "bg-gray-400 translate-x-0"}`}
+                                />
+                            </div>
+                        </div>
+                        <div
+                            className={`space-y-2 max-w-[200px] transition-opacity ${formState.payment_installment_allowed ? "opacity-100" : "opacity-50 pointer-events-none"}`}
+                        >
+                            <label className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
+                                Min Deposit Amount
+                            </label>
+                            <div className="relative">
+                                <PriceInput
+                                    value={formState.payment_min_amount}
+                                    onChange={(val) =>
+                                        setFormState((s) => ({
+                                            ...s,
+                                            payment_min_amount:
+                                                val === "" ? 0 : Number(val),
+                                        }))
+                                    }
+                                    className="rw-input !pl-10 font-display font-black text-lg"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={handleSave}
+                        disabled={isPending}
+                        className="btn-primary !h-12 !px-8 text-xs font-black uppercase tracking-widest shadow-lg shadow-rw-crimson/20 disabled:opacity-50"
+                    >
+                        {isPending ? "Saving..." : "Save Configuration"}
+                    </button>
+                </div>
+            </section>
+        </div>
+    );
+}
+
+function ModeratorsSection({
+    moderators,
+    onInvite,
+}: {
+    moderators: AdminModerator[];
+    onInvite: () => void;
+}) {
+    const router = useRouter();
+    const [removingId, setRemovingId] = useState<string | null>(null);
+
+    const handleRemove = async (id: string) => {
+        if (!confirm("Are you sure you want to remove this moderator?")) return;
+        setRemovingId(id);
+        toast.loading("Removing moderator...");
+        const res = await removeModeratorAction(id);
+        if (res.success) {
+            toast.success("Moderator removed.");
+            router.refresh();
+        } else {
+            toast.error(res.error || "Failed to remove moderator.");
+        }
+        setRemovingId(null);
+    };
+
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
@@ -275,9 +354,6 @@ function ModeratorsSection({ onInvite }: { onInvite: () => void }) {
                                     Role
                                 </th>
                                 <th className="px-8 py-5 text-left text-[10px] font-black text-rw-muted uppercase tracking-[0.2em]">
-                                    Status
-                                </th>
-                                <th className="px-8 py-5 text-left text-[10px] font-black text-rw-muted uppercase tracking-[0.2em]">
                                     Joined
                                 </th>
                                 <th className="px-8 py-5 text-right text-[10px] font-black text-rw-muted uppercase tracking-[0.2em]">
@@ -286,75 +362,82 @@ function ModeratorsSection({ onInvite }: { onInvite: () => void }) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--rw-border)]">
-                            {MOCK_MODERATORS.map((mod) => (
-                                <tr
-                                    key={mod.id}
-                                    className="hover:bg-rw-bg-alt/10 transition-colors group"
-                                >
-                                    <td className="px-8 py-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="h-10 w-10 rounded-xl bg-rw-bg-alt flex items-center justify-center font-display font-black text-rw-ink text-sm border border-[var(--rw-border)] shadow-inner">
-                                                {mod.name
-                                                    .split(" ")
-                                                    .map((n) => n[0])
-                                                    .join("")}
-                                            </div>
-                                            <div>
-                                                <p className="font-display font-black text-rw-ink uppercase tracking-tight text-sm leading-none mb-1.5">
-                                                    {mod.name}
-                                                </p>
-                                                <p className="text-[10px] text-rw-muted font-bold uppercase tracking-widest">
-                                                    {mod.email}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-6">
-                                        <span
-                                            className={`text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${mod.role === "Super Admin" ? "bg-rw-crimson/10 text-rw-crimson" : "bg-rw-ink/10 text-rw-ink"}`}
-                                        >
-                                            {mod.role}
-                                        </span>
-                                    </td>
-                                    <td className="px-8 py-6">
-                                        <div className="flex items-center gap-2">
-                                            <div
-                                                className={`h-1.5 w-1.5 rounded-full ${mod.status === "active" ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" : "bg-rw-muted"}`}
-                                            />
-                                            <span className="text-[10px] font-black text-rw-ink uppercase tracking-widest">
-                                                {mod.status}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-6">
-                                        <p className="font-mono text-[11px] font-black text-rw-muted">
-                                            {mod.joined}
-                                        </p>
-                                    </td>
-                                    <td className="px-8 py-6 text-right">
-                                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button
-                                                className="p-2 text-rw-muted hover:text-rw-crimson transition-colors"
-                                                title="Remove Moderator"
-                                            >
-                                                <svg
-                                                    className="h-4 w-4"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    strokeWidth={2}
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </div>
+                            {moderators.length === 0 ? (
+                                <tr>
+                                    <td
+                                        colSpan={4}
+                                        className="px-8 py-10 text-center text-sm text-rw-muted"
+                                    >
+                                        No moderators found.
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                moderators.map((mod) => (
+                                    <tr
+                                        key={mod.id}
+                                        className="hover:bg-rw-bg-alt/10 transition-colors group"
+                                    >
+                                        <td className="px-8 py-6">
+                                            <div className="flex items-center gap-4">
+                                                {/* <div className="h-10 w-10 rounded-xl bg-rw-bg-alt flex items-center justify-center font-display font-black text-rw-ink text-sm border border-[var(--rw-border)] shadow-inner uppercase">
+                                                {mod.profiles?.first_name?.[0] || mod.profiles?.email?.[0] || '?'}
+                                            </div> */}
+                                                <div>
+                                                    <p className="font-display font-black text-rw-ink uppercase tracking-tight text-sm leading-none mb-1.5">
+                                                        {mod.profiles?.first_name}{" "}
+                                                        {mod.profiles?.last_name}
+                                                    </p>
+                                                    <p className="text-[10px] text-rw-muted font-bold uppercase tracking-widest">
+                                                        {mod.profiles?.email}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-6">
+                                            <span
+                                                className={`text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${mod.role === "ADMIN" ? "bg-rw-crimson/10 text-rw-crimson" : "bg-rw-ink/10 text-rw-ink"}`}
+                                            >
+                                                {mod.role}
+                                            </span>
+                                        </td>
+                                        <td className="px-8 py-6">
+                                            <p className="font-mono text-[11px] font-black text-rw-muted">
+                                                {new Date(
+                                                    mod.created_at
+                                                ).toLocaleDateString()}
+                                            </p>
+                                        </td>
+                                        <td className="px-8 py-6 text-right">
+                                            {mod.role !== "ADMIN" && (
+                                                <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button
+                                                        onClick={() =>
+                                                            handleRemove(mod.id)
+                                                        }
+                                                        disabled={removingId === mod.id}
+                                                        className="p-2 text-rw-muted hover:text-rw-crimson transition-colors disabled:opacity-50"
+                                                        title="Remove Moderator"
+                                                    >
+                                                        <svg
+                                                            className="h-4 w-4"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth={2}
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                            />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
