@@ -3,10 +3,11 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/forms/Button";
+import { PriceInput } from "@/components/ui/forms/PriceInput";
 import type { Order } from "@/lib/data/types";
-import { PAYMENT_CONFIG } from "@/lib/config";
-import { analyzeReceipt, deleteReceiptImage } from "@/app/actions/receipt";
 import { DEMO_MODE } from "@/lib/config";
+import type { GlobalSettings } from "@/lib/services/settings.service";
+import { analyzeReceipt, deleteReceiptImage } from "@/app/actions/receipt";
 import { attachPayment } from "@/lib/services/orders.service";
 import { toast } from "sonner";
 
@@ -54,13 +55,14 @@ function RadioCard({
 
 interface PaymentFlowProps {
     order: Order;
+    settings: GlobalSettings;
     onResetOrder: () => void;
     onStageChange?: (stage: "idle" | "analysing" | "preview" | "done") => void;
 }
 
-export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowProps) {
+export function PaymentFlow({ order, settings, onResetOrder, onStageChange }: PaymentFlowProps) {
     const [paymentType, setPaymentType] = useState<"full" | "partial" | null>("full");
-    const [partialPercent, setPartialPercent] = useState(PAYMENT_CONFIG.minPercent);
+    const [customAmount, setCustomAmount] = useState<number | "">(settings.payment_min_amount);
     const [file, setFile] = useState<File | null>(null);
     const [stage, setStage] = useState<"idle" | "analysing" | "preview" | "done">("idle");
     const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
@@ -74,16 +76,12 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
     const [saveRetries, setSaveRetries] = useState(0);
 
     const remaining = order.totalAmount - order.amountPaid;
+    const minPayable = Math.min(settings.payment_min_amount, remaining);
+
     const payAmount =
         paymentType === "full"
             ? remaining
-            : Math.ceil((remaining * partialPercent) / 100);
-
-    const percentChoices = [
-        PAYMENT_CONFIG.minPercent,
-        PAYMENT_CONFIG.minPercent + Math.floor((100 - PAYMENT_CONFIG.minPercent) / 2),
-        100,
-    ];
+            : (typeof customAmount === "number" ? Math.max(customAmount, minPayable) : minPayable);
 
     function updateStage(newStage: typeof stage) {
         setStage(newStage);
@@ -374,12 +372,12 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
         const isBankMismatch =
             extraction &&
             extraction.bank &&
-            extraction.bank.toLowerCase() !== PAYMENT_CONFIG.bank.toLowerCase();
+            extraction.bank.toLowerCase() !== settings.bank_name.toLowerCase();
         const isRecipientMismatch =
             extraction &&
             extraction.senderName &&
             extraction.senderName.toLowerCase() !==
-                PAYMENT_CONFIG.accountName.toLowerCase();
+                settings.bank_account_name.toLowerCase();
         const hasAccountMismatch = Boolean(isBankMismatch || isRecipientMismatch);
 
         return (
@@ -560,7 +558,7 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                                                 title={extraction.bank || ""}
                                             >
                                                 Expected Bank:{" "}
-                                                <b>{PAYMENT_CONFIG.bank}</b> | Found:{" "}
+                                                <b>{settings.bank_name}</b> | Found:{" "}
                                                 <b>{extraction.bank}</b>
                                             </p>
                                         )}
@@ -570,7 +568,7 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                                                 title={extraction.senderName || ""}
                                             >
                                                 Expected Recipient:{" "}
-                                                <b>{PAYMENT_CONFIG.accountName}</b> |
+                                                <b>{settings.bank_account_name}</b> |
                                                 Found: <b>{extraction.senderName}</b>
                                             </p>
                                         )}
@@ -819,39 +817,42 @@ export function PaymentFlow({ order, onResetOrder, onStageChange }: PaymentFlowP
                     />
                     <RadioCard
                         selected={paymentType === "partial"}
-                        onClick={() => {}}
-                        title="Pay in Part (Disabled)"
-                        desc={`Min ${PAYMENT_CONFIG.minPercent}%`}
-                        disabled={true}
+                        onClick={() => {
+                            if (settings.payment_installment_allowed && remaining > minPayable) {
+                                setPaymentType("partial");
+                            }
+                        }}
+                        title={settings.payment_installment_allowed && remaining > minPayable ? "Pay Minimum Deposit" : "Pay in Part (Disabled)"}
+                        desc={`Min ₦${minPayable.toLocaleString()}`}
+                        disabled={!settings.payment_installment_allowed || remaining <= minPayable}
                     />
                 </div>
             </div>
 
-            {/* Partial percentage picker */}
+            {/* Partial amount picker */}
             {paymentType === "partial" && (
                 <div className="p-6 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)] animate-fade-in-down">
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex flex-col gap-4 mb-4">
                         <p className="text-sm font-semibold text-rw-ink">
-                            Select Percentage
+                            Enter Deposit Amount
                         </p>
+                        <PriceInput
+                            value={customAmount}
+                            onChange={(val) => setCustomAmount(val)}
+                            className="bg-white !pl-10 font-display font-black text-lg"
+                        />
                     </div>
 
-                    <div className="flex gap-3 mt-2">
-                        {percentChoices.map((percent) => (
-                            <button
-                                key={percent}
-                                type="button"
-                                onClick={() => setPartialPercent(percent)}
-                                className={`flex-1 py-3 rounded-xl font-bold transition-all ${
-                                    partialPercent === percent
-                                        ? "bg-rw-ink text-white shadow-md scale-105"
-                                        : "bg-white text-rw-text-2 border border-[var(--rw-border-mid)] hover:border-rw-crimson hover:text-rw-crimson"
-                                }`}
-                            >
-                                {percent}%
-                            </button>
-                        ))}
-                    </div>
+                    {typeof customAmount === "number" && customAmount < minPayable && (
+                        <p className="text-xs text-rw-crimson font-medium mb-4">
+                            Amount must be at least ₦{minPayable.toLocaleString()}
+                        </p>
+                    )}
+                    {typeof customAmount === "number" && customAmount > remaining && (
+                        <p className="text-xs text-rw-crimson font-medium mb-4">
+                            Amount cannot exceed remaining balance of ₦{remaining.toLocaleString()}
+                        </p>
+                    )}
 
                     <div className="mt-6 pt-5 border-t border-[var(--rw-border)] flex items-end justify-between">
                         <span className="text-sm font-medium text-rw-text-2">

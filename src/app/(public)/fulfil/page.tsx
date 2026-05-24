@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { FulfilClient } from "./FulfilClient";
 import { TENURE } from "@/lib/config";
 import { getOrderByRef } from "@/lib/services/orders.service";
+import { getSettings } from "@/lib/services/settings.service";
 
 type Props = {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -45,6 +46,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     };
 }
 
-export default function FulfilPage() {
-    return <FulfilClient />;
+export default async function FulfilPage() {
+    const settings = await getSettings();
+    return <FulfilClient settings={settings} />;
 }

@@ -10,8 +10,9 @@ import { PaymentHistory } from "./components/PaymentHistory";
 import { TransferDetails } from "./components/TransferDetails";
 import { PaymentFlow } from "./components/PaymentFlow";
 import { PAYMENT_CONFIG } from "@/lib/config";
+import type { GlobalSettings } from "@/lib/services/settings.service";
 
-function FulfilContent() {
+function FulfilContent({ settings }: { settings: GlobalSettings }) {
     const params = useSearchParams();
     const router = useRouter();
     const [order, setOrder] = useState<Order | null>(null);
@@ -173,13 +174,14 @@ function FulfilContent() {
                 {/* RIGHT COLUMN: Transfer & Submit */}
                 <div className="flex flex-col gap-6 animate-slide-in-right">
                     {/* Bank details */}
-                    <TransferDetails orderRef={order.orderRef} />
+                    <TransferDetails orderRef={order.orderRef} settings={settings} />
 
                     {/* Payment form */}
                     <PaymentFlow
                         order={order}
                         onResetOrder={handleResetOrder}
                         onStageChange={setPaymentStage}
+                        settings={settings}
                     />
                 </div>
             </div>
@@ -215,7 +217,7 @@ function FulfilContent() {
     );
 }
 
-export function FulfilClient() {
+export function FulfilClient({ settings }: { settings: GlobalSettings }) {
     return (
         <Suspense
             fallback={
@@ -224,7 +226,7 @@ export function FulfilClient() {
                 </div>
             }
         >
-            <FulfilContent />
+            <FulfilContent settings={settings} />
         </Suspense>
     );
 }
