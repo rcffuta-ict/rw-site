@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/forms/Button";
 import type { Order } from "@/lib/data/types";
-import { PAYMENT_CONFIG } from "./constants";
+import { PAYMENT_CONFIG } from "@/lib/config";
 import { analyzeReceipt, deleteReceiptImage } from "@/app/actions/receipt";
 import { DEMO_MODE } from "@/lib/config";
 import { attachPayment } from "@/lib/services/orders.service";

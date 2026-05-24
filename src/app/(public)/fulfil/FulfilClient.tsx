@@ -9,7 +9,7 @@ import { OrderSummary } from "./components/OrderSummary";
 import { PaymentHistory } from "./components/PaymentHistory";
 import { TransferDetails } from "./components/TransferDetails";
 import { PaymentFlow } from "./components/PaymentFlow";
-import { PAYMENT_CONFIG } from "./components/constants";
+import { PAYMENT_CONFIG } from "@/lib/config";
 
 function FulfilContent() {
     const params = useSearchParams();
