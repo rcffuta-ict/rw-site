@@ -44,7 +44,7 @@ export function AdminNotification({
             bg: "bg-green-600",
             text: "text-white",
             iconColor: "text-white",
-            label: "Success",
+            label: "Live Mode",
             defaultMessage: "System is running optimally.",
         },
     };
