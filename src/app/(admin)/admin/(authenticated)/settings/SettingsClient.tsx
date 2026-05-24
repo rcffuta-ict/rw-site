@@ -93,12 +93,13 @@ function AddModeratorForm({ onSuccess }: { onSuccess: () => void }) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         startTransition(async () => {
+            const toastId = toast.loading("Appointing moderator...");
             const res = await addModeratorAction(email);
             if (res.success) {
-                toast.success("Moderator appointed successfully.");
+                toast.success("Moderator appointed successfully.", { id: toastId });
                 onSuccess();
             } else {
-                toast.error(res.error || "Failed to appoint moderator.");
+                toast.error(res.error || "Failed to appoint moderator.", { id: toastId });
             }
         });
     };
@@ -152,12 +153,13 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
 
     const handleSave = () => {
         startTransition(async () => {
+            const toastId = toast.loading("Saving settings...");
             const res = await saveSettingsAction(formState);
             if (res.success) {
-                toast.success("Settings saved successfully.");
+                toast.success("Settings saved successfully.", { id: toastId });
                 router.refresh();
             } else {
-                toast.error(res.error || "Failed to save settings.");
+                toast.error(res.error || "Failed to save settings.", { id: toastId });
             }
         });
     };
@@ -299,13 +301,13 @@ function ModeratorsSection({
     const handleRemove = async (id: string) => {
         if (!confirm("Are you sure you want to remove this moderator?")) return;
         setRemovingId(id);
-        toast.loading("Removing moderator...");
+        const toastId = toast.loading("Removing moderator...");
         const res = await removeModeratorAction(id);
         if (res.success) {
-            toast.success("Moderator removed.");
+            toast.success("Moderator removed.", { id: toastId });
             router.refresh();
         } else {
-            toast.error(res.error || "Failed to remove moderator.");
+            toast.error(res.error || "Failed to remove moderator.", { id: toastId });
         }
         setRemovingId(null);
     };
