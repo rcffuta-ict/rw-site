@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/forms/Button";
 import { getOrderByRefAction } from "@/app/actions/orders";
 import type { Order } from "@/lib/data/types";
-import { PAYMENT_CONFIG } from "./constants";
+import { PAYMENT_CONFIG } from "@/lib/config";
 import Link from "next/link";
 
 interface LookupFormProps {
