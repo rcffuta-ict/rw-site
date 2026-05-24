@@ -80,6 +80,7 @@ export function PaymentFlow({
     const [customAmount, setCustomAmount] = useState<number | "">(
         settings.payment_min_amount
     );
+
     const [file, setFile] = useState<File | null>(null);
     const [stage, setStage] = useState<"idle" | "analysing" | "preview" | "done">("idle");
     const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
@@ -893,7 +894,12 @@ export function PaymentFlow({
                                 settings.payment_installment_allowed &&
                                 remaining > minPayable
                             ) {
-                                setPaymentType("partial");
+                                if (
+                                    settings.payment_installment_allowed &&
+                                    remaining > minPayable
+                                ) {
+                                    setPaymentType("partial");
+                                }
                             }
                         }}
                         title={
