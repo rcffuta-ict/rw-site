@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { VerdictDocument, VerdictDownloadButton } from "../component";
+import { toast } from "sonner";
+import { createVerdict } from "@/lib/services/verdicts.service";
 import type { Order } from "@/lib/data/types";
 
 interface NewVerdictClientProps {
@@ -22,8 +22,7 @@ export function NewVerdictClient({ orders }: NewVerdictClientProps) {
     const router = useRouter();
     const [selected, setSelected] = useState<Set<string>>(new Set());
     const [signature, setSignature] = useState("");
-    const [generating, setGenerating] = useState(false);
-    const [done, setDone] = useState(false);
+    const [isPending, startTransition] = useTransition();
 
     function toggle(ref: string) {
         setSelected((prev) => {
@@ -34,71 +33,27 @@ export function NewVerdictClient({ orders }: NewVerdictClientProps) {
         });
     }
 
-    // eslint-disable-next-line react-hooks/purity
-    const verdictId = (Math.random() * 10000).toString().padStart(4, "0");
-    const selectedOrdersData = confirmedOrders.filter((o) => selected.has(o.orderRef));
+    const selectedOrdersData = confirmedOrders.filter((o) => selected.has(o.id));
 
     function handleGenerate() {
-        setGenerating(true);
-        setTimeout(() => {
-            setGenerating(false);
-            setDone(true);
-            alert(
-                "Administrative Verdict generated successfully. PDF download initiated."
-            );
-        }, 2500);
-    }
+        if (!signature || selected.size === 0) return;
 
-    if (done) {
-        return (
-            <div className="flex flex-col items-center gap-10 animate-fade-in pb-20">
-                <div className="max-w-4xl w-full">
-                    <div className="flex items-center justify-between mb-8 bg-rw-ink text-white p-8 rounded-[32px] shadow-2xl shadow-rw-ink/20">
-                        <div className="flex items-center gap-6">
-                            <div className="h-14 w-14 rounded-full bg-rw-crimson text-white flex items-center justify-center shadow-lg shadow-rw-crimson/20">
-                                <svg
-                                    className="h-8 w-8"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={3}
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M5 13l4 4L19 7"
-                                    />
-                                </svg>
-                            </div>
-                            <div className="text-left">
-                                <h2 className="font-display font-black text-2xl uppercase tracking-tight">
-                                    Verdict Finalized
-                                </h2>
-                                <p className="text-[10px] text-white/50 font-black uppercase tracking-[0.3em] mt-1">
-                                    Official Document Registered & Exported
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex gap-4">
-                            <Link
-                                href="/admin/finance"
-                                className="btn-secondary !bg-white/10 !text-white !border-white/20 !h-14 px-8 text-[11px] font-black uppercase tracking-widest hover:!bg-white hover:!text-rw-ink"
-                            >
-                                Finance Dashboard
-                            </Link>
-                            <VerdictDownloadButton />
-                        </div>
-                    </div>
+        const toastId = toast.loading("Processing verdict creation...");
 
-                    <VerdictDocument
-                        id={`V-${verdictId}`}
-                        orders={selectedOrdersData}
-                        generatedBy={signature || "System Administrator"}
-                        generatedAt={new Date().toISOString()}
-                    />
-                </div>
-            </div>
-        );
+        startTransition(async () => {
+            const selectedIds = Array.from(selected);
+            const res = await createVerdict({
+                issuedBy: signature,
+                orderIds: selectedIds,
+            });
+
+            if (res.success && res.data) {
+                toast.success("Verdict created successfully!", { id: toastId });
+                router.push(`/admin/verdicts/${res.data.id}`);
+            } else {
+                toast.error("Failed to create verdict", { id: toastId, description: res.error });
+            }
+        });
     }
 
     return (
@@ -185,9 +140,7 @@ export function NewVerdictClient({ orders }: NewVerdictClientProps) {
                         <div className="flex gap-4">
                             <button
                                 onClick={() =>
-                                    setSelected(
-                                        new Set(confirmedOrders.map((o) => o.orderRef))
-                                    )
+                                    setSelected(new Set(confirmedOrders.map((o) => o.id)))
                                 }
                                 className="text-[10px] font-black text-rw-crimson uppercase tracking-widest hover:underline"
                             >
@@ -213,12 +166,12 @@ export function NewVerdictClient({ orders }: NewVerdictClientProps) {
                             confirmedOrders.map((o) => (
                                 <label
                                     key={o.id}
-                                    className={`flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all border-2 ${selected.has(o.orderRef) ? "border-rw-crimson bg-white shadow-md scale-[1.01]" : "border-transparent hover:bg-white/50"}`}
+                                    className={`flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all border-2 ${selected.has(o.id) ? "border-rw-crimson bg-white shadow-md scale-[1.01]" : "border-transparent hover:bg-white/50"}`}
                                 >
                                     <input
                                         type="checkbox"
-                                        checked={selected.has(o.orderRef)}
-                                        onChange={() => toggle(o.orderRef)}
+                                        checked={selected.has(o.id)}
+                                        onChange={() => toggle(o.id)}
                                         className="h-5 w-5 rounded-lg accent-rw-crimson"
                                     />
                                     <div className="flex-1 min-w-0">
@@ -271,17 +224,17 @@ export function NewVerdictClient({ orders }: NewVerdictClientProps) {
                     </div>
                     <button
                         onClick={handleGenerate}
-                        disabled={selected.size === 0 || !signature || generating}
+                        disabled={selected.size === 0 || !signature || isPending}
                         className="h-14 px-10 rounded-2xl bg-rw-crimson text-white font-display font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-30 disabled:grayscale disabled:scale-100 flex items-center gap-3 shadow-xl shadow-rw-crimson/20"
                     >
-                        {generating ? (
+                        {isPending ? (
                             <>
                                 <span className="h-5 w-5 rounded-full border-3 border-white border-t-transparent animate-spin" />{" "}
                                 Processing...
                             </>
                         ) : (
                             <>
-                                Register & Download
+                                Register & View
                                 <svg
                                     className="h-5 w-5"
                                     fill="none"

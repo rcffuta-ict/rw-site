@@ -41,6 +41,8 @@
 /* ─── CSS Custom Properties ──────────────────────────────────────────────────── */
 :root {
     color-scheme: light;
+    --rw-crimson: #FF0015;
+    --rw-crimson-dk: #cc0011;
     --rw-border: #e8d0d4;
     --rw-border-mid: #d4a8b0;
     --rw-border-strong: #b07080;
@@ -691,6 +693,12 @@ a {
     background: rgba(100, 20, 180, 0.08);
     color: #5010aa;
     border: 1px solid rgba(100, 20, 180, 0.2);
+}
+
+.badge-ready {
+    background: rgba(8, 145, 178, 0.08);
+    color: #0e7490;
+    border: 1px solid rgba(8, 145, 178, 0.2);
 }
 
 .badge-delivered {

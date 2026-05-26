@@ -42,6 +42,13 @@ const STATUS_CONFIG: Record<
         bg: "#f8f0ff",
         message: "Your merch is being produced — hang tight!",
     },
+    ready: {
+        label: "Ready",
+        icon: "📦",
+        color: "#0891b2",
+        bg: "#ecfeff",
+        message: "Your merch is ready! Await collection instructions.",
+    },
     delivered: {
         label: "Delivered",
         icon: "🎉",
@@ -71,6 +78,7 @@ const STATUS_STEPS: OrderStatus[] = [
     "paid",
     "confirmed",
     "in_production",
+    "ready",
     "delivered",
 ];
 
@@ -80,6 +88,7 @@ const STEP_LABELS = [
     "Paid",
     "Queued",
     "Production",
+    "Ready",
     "Delivered",
 ];
 
@@ -98,10 +107,10 @@ export function StatusTimeline({ status, className = "" }: StatusTimelineProps) 
         return (
             <div
                 className={`rounded-2xl p-5 text-sm font-semibold flex items-center gap-3 border shadow-sm ${className}`}
-                style={{ 
-                    backgroundColor: cfg.bg, 
+                style={{
+                    backgroundColor: cfg.bg,
                     color: cfg.color,
-                    borderColor: `${cfg.color}25`
+                    borderColor: `${cfg.color}25`,
                 }}
             >
                 <span className="text-2xl shrink-0">{cfg.icon}</span>
@@ -111,7 +120,9 @@ export function StatusTimeline({ status, className = "" }: StatusTimelineProps) 
     }
 
     return (
-        <div className={`rounded-2xl border border-[var(--rw-border)] bg-white p-6 shadow-sm hover:shadow-md transition-shadow duration-300 ${className}`}>
+        <div
+            className={`rounded-2xl border border-[var(--rw-border)] bg-white p-6 shadow-sm hover:shadow-md transition-shadow duration-300 ${className}`}
+        >
             <div className="flex items-center gap-2 mb-6">
                 <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson animate-ping" />
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-rw-muted">
@@ -124,16 +135,19 @@ export function StatusTimeline({ status, className = "" }: StatusTimelineProps) 
                     const active = i === currentIdx;
                     const isLast = i === STATUS_STEPS.length - 1;
                     return (
-                        <div key={step} className="flex items-center flex-1 last:flex-initial">
+                        <div
+                            key={step}
+                            className="flex items-center flex-1 last:flex-initial"
+                        >
                             <div className="flex flex-col items-center gap-2 group relative">
                                 <div
                                     className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-                                        done 
-                                            ? "bg-rw-crimson text-white shadow-[0_2px_8px_rgba(255,0,21,0.25)]" 
+                                        done
+                                            ? "bg-rw-crimson text-white shadow-[0_2px_8px_rgba(255,0,21,0.25)]"
                                             : "bg-rw-bg-alt text-rw-muted border border-[var(--rw-border)]"
                                     } ${
-                                        active 
-                                            ? "ring-4 ring-rw-crimson/15 scale-110" 
+                                        active
+                                            ? "ring-4 ring-rw-crimson/15 scale-110"
                                             : ""
                                     }`}
                                 >
@@ -157,7 +171,9 @@ export function StatusTimeline({ status, className = "" }: StatusTimelineProps) 
                                 </div>
                                 <span
                                     className={`text-[9px] font-bold uppercase tracking-wide text-center absolute -bottom-5 whitespace-nowrap left-1/2 -translate-x-1/2 transition-colors duration-300 ${
-                                        done ? "text-rw-crimson font-extrabold" : "text-rw-muted"
+                                        done
+                                            ? "text-rw-crimson font-extrabold"
+                                            : "text-rw-muted"
                                     }`}
                                 >
                                     {STEP_LABELS[i]}
@@ -167,7 +183,10 @@ export function StatusTimeline({ status, className = "" }: StatusTimelineProps) 
                                 <div
                                     className="flex-1 h-0.5 -mt-3.5 mx-2 rounded transition-all duration-500"
                                     style={{
-                                        background: i < currentIdx ? "var(--rw-crimson)" : "var(--rw-border)",
+                                        background:
+                                            i < currentIdx
+                                                ? "var(--rw-crimson)"
+                                                : "var(--rw-border)",
                                     }}
                                 />
                             )}
