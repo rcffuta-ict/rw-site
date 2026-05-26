@@ -2,7 +2,8 @@
 
 import { useState, useTransition, useRef } from "react";
 import { toast } from "sonner";
-import { productImageUrl } from "@/lib/utils/functions";
+import { useCloudinaryUpload } from "@/hooks/useCloudinaryUpload";
+import { productImageUrl, COLOR_HEX } from "@/lib/utils/functions";
 import type { Product, ProductVariant } from "@/lib/data/types";
 import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { AdminTable } from "@/components/admin/AdminTable";
@@ -10,22 +11,12 @@ import {
     updateVariant,
     deleteVariant,
     deleteProduct,
+    upsertVariantImage,
 } from "@/lib/services/products.service";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import cloudinaryLoader from "@/lib/utils/cloudinaryLoader";
 import { ProductImage } from "@/components/common/CloudinaryImage";
 
 const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL", "One Size"];
-
-const COLOR_SWATCH_BG: Record<string, { bg: string; fg: string }> = {
-    Black: { bg: "1a1a1a", fg: "e0e0e0" },
-    White: { bg: "f5f5f0", fg: "333333" },
-    Burgundy: { bg: "7a0c31", fg: "f0d0d8" },
-    "Wine Red": { bg: "940011", fg: "ffcccc" },
-    Navy: { bg: "0a1628", fg: "b0c4de" },
-    Grey: { bg: "6b7280", fg: "f3f4f6" },
-};
 
 function sortVariants(variants: ProductVariant[]) {
     return [...variants].sort((a, b) => {
@@ -111,6 +102,7 @@ export default function ProductDetailClient({
     const [product] = useState(initialProduct);
     const [variants, setVariants] = useState(() => sortVariants(product.variants));
     const [isPending, startTransition] = useTransition();
+    const { uploadImage } = useCloudinaryUpload();
 
     const [editSkuId] = useState<string | null>(null);
     const [editSkuVal, setEditSkuVal] = useState("");
@@ -131,48 +123,36 @@ export default function ProductDetailClient({
             : productImageUrl(product.name, activeColor);
 
     // Upload Image
-    function handleUploadImage(variantId: string, file: File) {
+    async function handleUploadImage(variantId: string, file: File) {
         const toastId = `upload-${variantId}`;
         toast.loading("Uploading image...", { id: toastId });
 
-        // startTransition(async () => {
-        //     const formData = new FormData();
-        //     formData.append("file", file);
-        //     formData.append("variantId", variantId);
+        const uploadData = await uploadImage(file, variantId);
 
-        //     try {
-        //         const res = await fetch("/api/cloudinary/upload", {
-        //             method: "POST",
-        //             body: formData,
-        //         });
-        //         const data = await res.json();
-
-        //         if (data.publicId && data.url) {
-        //             const dbRes = await upsertVariantImage(
-        //                 variantId,
-        //                 data.publicId,
-        //                 data.url,
-        //                 `${product.name}`,
-        //                 true
-        //             );
-        //             if (dbRes.success && dbRes.data) {
-        //                 toast.success("Image uploaded", { id: toastId });
-        //                 // Update local state
-        //                 setVariants((prev) =>
-        //                     prev.map((v) =>
-        //                         v.id === variantId ? { ...v, images: [dbRes.data!] } : v
-        //                     )
-        //                 );
-        //             } else {
-        //                 toast.error(`Database error: ${dbRes.error}`, { id: toastId });
-        //             }
-        //         } else {
-        //             toast.error(`Upload error: ${data.error}`, { id: toastId });
-        //         }
-        //     } catch (err) {
-        //         toast.error("Failed to upload image", { id: toastId });
-        //     }
-        // });
+        if (uploadData.success && uploadData.publicId && uploadData.url) {
+            startTransition(async () => {
+                const dbRes = await upsertVariantImage(
+                    variantId,
+                    uploadData.publicId!,
+                    uploadData.url!,
+                    `${product.name}`,
+                    true
+                );
+                if (dbRes.success && dbRes.data) {
+                    toast.success("Image uploaded", { id: toastId });
+                    // Update local state
+                    setVariants((prev) =>
+                        prev.map((v) =>
+                            v.id === variantId ? { ...v, images: [dbRes.data!] } : v
+                        )
+                    );
+                } else {
+                    toast.error(`Database error: ${dbRes.error}`, { id: toastId });
+                }
+            });
+        } else {
+            toast.error(`Upload error: ${uploadData.error}`, { id: toastId });
+        }
     }
 
     // Toggle Variant
@@ -372,8 +352,9 @@ export default function ProductDetailClient({
                                 <span
                                     className="h-3.5 w-3.5 rounded-full border border-black/10"
                                     style={{
-                                        background:
-                                            COLOR_SWATCH_BG[activeColor]?.bg ?? "#888",
+                                        background: COLOR_HEX[activeColor]
+                                            ? `#${COLOR_HEX[activeColor]}`
+                                            : "#888",
                                     }}
                                 />
                                 <span className="text-xs font-semibold text-rw-ink">
@@ -471,8 +452,9 @@ export default function ProductDetailClient({
                                                 className="h-3 w-3 rounded-full border border-black/10"
                                                 style={{
                                                     background: v.color
-                                                        ? COLOR_SWATCH_BG[v.color]?.bg ||
-                                                          "#ccc"
+                                                        ? COLOR_HEX[v.color]
+                                                            ? `#${COLOR_HEX[v.color]}`
+                                                            : "#ccc"
                                                         : "#ccc",
                                                 }}
                                             />

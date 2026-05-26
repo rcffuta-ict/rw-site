@@ -11,24 +11,17 @@ import {
     upsertVariantImage,
 } from "@/lib/services/products.service";
 import type { Category } from "@/lib/data/types";
-import { ph } from "@/lib/utils/functions";
+import { ph, productImageUrl, COLOR_HEX } from "@/lib/utils/functions";
 import { PillInput } from "@/components/ui/forms/PillInput";
 import { Input } from "@/components/ui/forms/Input";
 import { PriceInput } from "@/components/ui/forms/PriceInput";
 import { Select } from "@/components/ui/forms/Select";
 import { Textarea } from "@/components/ui/forms/Textarea";
 import { ColorInput } from "@/components/ui/forms/ColorInput";
+import { useCloudinaryUpload } from "@/hooks/useCloudinaryUpload";
+import { ProductImage } from "@/components/common/CloudinaryImage";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-const COLOR_HEX: Record<string, string> = {
-    Black: "#1a1a1a",
-    White: "#f5f5f0",
-    Burgundy: "#7a0c31",
-    "Wine Red": "#940011",
-    Navy: "#0a1628",
-    Grey: "#6b7280",
-};
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -51,22 +44,12 @@ interface NewProductClientProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function productImageUrl(
-    name: string,
-    color: string | null,
-    cloudinaryUrl?: string | null
-) {
-    if (cloudinaryUrl) return cloudinaryUrl;
-    const bg = color ? (COLOR_HEX[color]?.slice(1) ?? "f3f4f6") : "f3f4f6";
-    const fg = color ? "e0e0e0" : "9ca3af";
-    return ph(360, 480, `${name || "Product"}${color ? `\n${color}` : ""}`, bg, fg);
-}
-
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function NewProductClient({ categories }: NewProductClientProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
+    const { uploadImage } = useCloudinaryUpload();
 
     // Form State
     const [name, setName] = useState("");
@@ -229,29 +212,17 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                     toast.loading(`Uploading image for variant ${addedCount + 1}...`, {
                         id: toastId,
                     });
-                    const formData = new FormData();
-                    formData.append("file", v.imageFile);
-                    // Use a temporary ID since the variant isn't in DB yet
-                    formData.append("variantId", `grp-${Date.now()}-${addedCount}`);
+                    
+                    const uploadData = await uploadImage(v.imageFile, `grp-${Date.now()}-${addedCount}`);
 
-                    try {
-                        const uploadRes = await fetch("/api/cloudinary/upload", {
-                            method: "POST",
-                            body: formData,
-                        });
-                        const uploadData = await uploadRes.json();
-
-                        if (uploadRes.ok && uploadData.publicId && uploadData.url) {
-                            uploadedImage = {
-                                publicId: uploadData.publicId,
-                                url: uploadData.url,
-                            };
-                        } else {
-                            throw new Error(uploadData.error || "Failed to upload image");
-                        }
-                    } catch (e: any) {
+                    if (uploadData.success && uploadData.publicId && uploadData.url) {
+                        uploadedImage = {
+                            publicId: uploadData.publicId,
+                            url: uploadData.url,
+                        };
+                    } else {
                         toast.error(
-                            `Image upload failed for variant ${addedCount + 1}: ${e.message}`,
+                            `Image upload failed for variant ${addedCount + 1}: ${uploadData.error}`,
                             { id: toastId }
                         );
                         // Skip creating this variant group entirely if image fails
@@ -448,14 +419,13 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                                                     {v.sizes.length > 0
                                                         ? v.sizes.join(", ")
                                                         : "No Size"}
-                                                    {(v.colorHex ||
-                                                        COLOR_HEX[v.color]) && (
+                                                    {(v.colorHex || COLOR_HEX[v.color]) && (
                                                         <span
                                                             className="h-3 w-3 rounded-full border border-black/10 inline-block"
                                                             style={{
                                                                 background:
                                                                     v.colorHex ||
-                                                                    COLOR_HEX[v.color],
+                                                                    (COLOR_HEX[v.color] ? `#${COLOR_HEX[v.color]}` : "#ddd"),
                                                             }}
                                                         />
                                                     )}
@@ -652,15 +622,13 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                         <div className="pointer-events-none">
                             <div className="rw-card group flex flex-col bg-white border-none shadow-md overflow-hidden">
                                 <div className="relative aspect-[3/4] overflow-hidden bg-rw-bg-alt">
-                                    <img
-                                        src={productImageUrl(
+                                    <ProductImage
+                                        imageUrl={primaryImage || productImageUrl(
                                             name,
                                             (uniqueColors[0] as string | undefined) ??
-                                                null,
-                                            primaryImage
+                                                null
                                         )}
                                         alt={name}
-                                        className="w-full h-full object-cover transition-transform duration-700"
                                     />
                                     <div className="absolute top-3 left-3">
                                         <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest bg-rw-crimson/90 text-white backdrop-blur-sm shadow-sm">
@@ -719,7 +687,7 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                                                         className="h-2.5 w-2.5 rounded-full border border-black/10"
                                                         style={{
                                                             background:
-                                                                COLOR_HEX[c] || "#ddd",
+                                                                COLOR_HEX[c] ? `#${COLOR_HEX[c]}` : "#ddd",
                                                         }}
                                                     />
                                                 ))}
