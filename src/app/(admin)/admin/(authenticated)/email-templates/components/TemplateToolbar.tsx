@@ -24,7 +24,7 @@ export function TemplateToolbar({
   onSave,
 }: TemplateToolbarProps) {
   return (
-    <div className="flex items-center justify-between gap-4 pb-4 border-b border-[var(--rw-border)]">
+    <div className="flex items-center justify-between gap-4 pb-4 border-b border-(--rw-border)">
       <div className="flex items-center gap-3">
         <span className="text-2xl">{template?.icon}</span>
         <div>
@@ -46,7 +46,7 @@ export function TemplateToolbar({
         </label>
 
         {/* View toggle */}
-        <div className="flex border border-[var(--rw-border)] rounded-lg overflow-hidden">
+        <div className="flex border border-(--rw-border) rounded-lg overflow-hidden">
           {(["editor", "split", "preview"] as const).map((v) => (
             <button
               key={v}
@@ -54,7 +54,7 @@ export function TemplateToolbar({
               className={`px-3 py-1.5 text-xs font-medium transition-all ${
                 view === v
                   ? "bg-rw-crimson text-white"
-                  : "bg-white text-rw-text-2 hover:text-rw-ink border-r border-[var(--rw-border)] last:border-r-0"
+                  : "bg-white text-rw-text-2 hover:text-rw-ink border-r border-(--rw-border) last:border-r-0"
               }`}
             >
               {v === "editor" ? "Edit" : v === "split" ? "Split" : "Preview"}
