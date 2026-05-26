@@ -3,6 +3,7 @@
 **Getting emails working in 5 steps (15 minutes):**
 
 ## Step 1: Run Schema (Supabase SQL Editor)
+
 ```sql
 -- Copy & paste entire docs/schema.sql into Supabase SQL Editor
 -- Click "Run"
@@ -10,6 +11,7 @@
 ```
 
 ## Step 2: Get Zoho Credentials
+
 ```
 1. Log in to mail.zoho.com
 2. Settings → Mail Accounts → [Your account] → Security → App Passwords
@@ -18,6 +20,7 @@
 ```
 
 ## Step 3: Set Database Settings (Supabase)
+
 ```
 Dashboard → Settings → Database → Postgres Settings (scroll down)
 
@@ -27,6 +30,7 @@ app.supabase_service_role_key = [your service role key from Dashboard → API]
 ```
 
 ## Step 4: Deploy Edge Function
+
 ```bash
 supabase link --project-ref YOUR_PROJECT_REF
 supabase functions deploy send-order-email
@@ -37,6 +41,7 @@ supabase secrets set ZOHO_SMTP_PASS=your_app_password
 ```
 
 ## Step 5: Seed Templates (Supabase SQL Editor)
+
 ```sql
 -- Copy & paste entire docs/seed-email-templates.sql
 -- Click "Run"
@@ -55,5 +60,5 @@ supabase secrets set ZOHO_SMTP_PASS=your_app_password
 
 ---
 
-**Full setup guide:** `docs/EMAIL_SETUP.md`  
+**Full setup guide:** `docs/EMAIL_SETUP.md`
 **Complete reference:** `docs/EMAIL_SYSTEM.md`

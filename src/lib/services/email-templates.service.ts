@@ -36,9 +36,9 @@ export interface EmailLog {
 /**
  * Fetch all email templates, optionally filtered
  */
-export async function getEmailTemplates(
-    options?: { only_active?: boolean }
-): Promise<ServiceResult<EmailTemplate[]>> {
+export async function getEmailTemplates(options?: {
+    only_active?: boolean;
+}): Promise<ServiceResult<EmailTemplate[]>> {
     try {
         const supabase = createSupabaseAdminClient();
 
@@ -184,9 +184,7 @@ export async function getRecentEmailLogs(
 /**
  * Get email stats (success rate, failures, etc.)
  */
-export async function getEmailStats(
-    since?: Date
-): Promise<
+export async function getEmailStats(since?: Date): Promise<
     ServiceResult<{
         total_sent: number;
         successful: number;

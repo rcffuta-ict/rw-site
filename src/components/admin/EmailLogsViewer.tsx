@@ -25,11 +25,21 @@ export function EmailLogsViewer({ logs }: EmailLogsViewerProps) {
             <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
-                        <th className="px-4 py-3 text-left font-medium text-gray-700">Sent</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-700">Template</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-700">Recipient</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-700">Status</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-700">Subject</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">
+                            Sent
+                        </th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">
+                            Template
+                        </th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">
+                            Recipient
+                        </th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">
+                            Status
+                        </th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-700">
+                            Subject
+                        </th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">

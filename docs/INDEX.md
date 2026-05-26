@@ -3,11 +3,13 @@
 ## 🎯 Start Here
 
 ### First Time? Read These (In Order)
+
 1. **`README_EMAIL_INTEGRATION.md`** ← **START HERE** (2 min overview)
 2. **`docs/QUICK_START.md`** (5-step setup)
 3. **`docs/EMAIL_SETUP.md`** (detailed step-by-step)
 
 ### Need More Info?
+
 - **`docs/EMAIL_SYSTEM.md`** — Complete reference (architecture, API, testing)
 - **`docs/IMPLEMENTATION_SUMMARY.md`** — What was built and why
 - **`docs/FILE_STRUCTURE.md`** — File layout and data flow
@@ -99,13 +101,17 @@ docs/
 ## 📖 Reading Guide by Role
 
 ### For Admins/Non-Developers
+
 Read in this order:
+
 1. README_EMAIL_INTEGRATION.md
 2. QUICK_START.md (steps 1–5)
 3. Skip to `/admin/email-templates` and customize templates
 
 ### For Developers/Implementers
+
 Read in this order:
+
 1. README_EMAIL_INTEGRATION.md
 2. EMAIL_SETUP.md (all 10 steps)
 3. FILE_STRUCTURE.md
@@ -113,7 +119,9 @@ Read in this order:
 5. Review: schema.sql, Edge Function, service layer
 
 ### For DevOps/Infrastructure
+
 Focus on:
+
 1. EMAIL_SETUP.md (steps 2, 3, 4)
 2. supabase/config.toml
 3. .env.example
@@ -123,19 +131,19 @@ Focus on:
 
 ## 🔍 Find What You Need
 
-| Question | Answer |
-|----------|--------|
-| How do I get started? | Read `QUICK_START.md` |
-| How do I set this up? | Follow `EMAIL_SETUP.md` step-by-step |
-| How do I edit templates? | Go to `/admin/email-templates` |
-| Where are the templates? | `docs/seed-email-templates.sql` |
-| How does it work? | See `EMAIL_SYSTEM.md` (Architecture) |
-| What was built? | Read `IMPLEMENTATION_SUMMARY.md` |
-| Where are the files? | Check `FILE_STRUCTURE.md` |
-| Something's broken | See `EMAIL_SETUP.md` (Troubleshooting section) |
+| Question                  | Answer                                               |
+| ------------------------- | ---------------------------------------------------- |
+| How do I get started?     | Read `QUICK_START.md`                                |
+| How do I set this up?     | Follow `EMAIL_SETUP.md` step-by-step                 |
+| How do I edit templates?  | Go to `/admin/email-templates`                       |
+| Where are the templates?  | `docs/seed-email-templates.sql`                      |
+| How does it work?         | See `EMAIL_SYSTEM.md` (Architecture)                 |
+| What was built?           | Read `IMPLEMENTATION_SUMMARY.md`                     |
+| Where are the files?      | Check `FILE_STRUCTURE.md`                            |
+| Something's broken        | See `EMAIL_SETUP.md` (Troubleshooting section)       |
 | What variables can I use? | `EMAIL_SYSTEM.md` (Email Template Variables section) |
-| How do I test? | `EMAIL_SETUP.md` (Step 7) |
-| Is it production-ready? | Yes! See checklist in `EMAIL_SETUP.md` (Step 10) |
+| How do I test?            | `EMAIL_SETUP.md` (Step 7)                            |
+| Is it production-ready?   | Yes! See checklist in `EMAIL_SETUP.md` (Step 10)     |
 
 ---
 
@@ -144,33 +152,39 @@ Focus on:
 Use this list as you follow the setup guides:
 
 **Database:**
+
 - [ ] schema.sql executed (all tables created)
 - [ ] seed-email-templates.sql executed (12 templates loaded)
 - [ ] pg_net extension verified enabled
 
 **Supabase Config:**
+
 - [ ] app.supabase_url set in Postgres Settings
 - [ ] app.supabase_service_role_key set in Postgres Settings
 - [ ] Both settings took effect (may take 1–2 min)
 
 **Zoho Mail:**
+
 - [ ] App password generated
 - [ ] ZOHO_SMTP_USER noted
 - [ ] ZOHO_SMTP_PASS noted
 
 **Edge Function:**
+
 - [ ] send-order-email deployed
 - [ ] ZOHO_SMTP_USER secret set
 - [ ] ZOHO_SMTP_PASS secret set
 - [ ] Function accessible in Supabase Dashboard
 
 **Testing:**
+
 - [ ] Test order created in Supabase
 - [ ] Status updated (pending → paid)
 - [ ] Email received in inbox
 - [ ] Email log entry created
 
 **Admin UI:**
+
 - [ ] /admin/email-templates page loads
 - [ ] Can see all 12 templates
 - [ ] Can expand and edit templates
@@ -178,6 +192,7 @@ Use this list as you follow the setup guides:
 - [ ] Can view email logs
 
 **Production:**
+
 - [ ] All templates reviewed and customized
 - [ ] All templates marked is_active = true
 - [ ] Email stats showing in admin dashboard
@@ -188,24 +203,28 @@ Use this list as you follow the setup guides:
 ## 📞 Quick Links
 
 ### If emails aren't sending:
+
 1. Check: `/admin/email-templates` → Recent Email Sends (error message?)
 2. Check: `rw_email_logs` table in Supabase (success = false?)
 3. Check: `EMAIL_SETUP.md` Troubleshooting section
 4. Check: Edge Function logs in Supabase Dashboard
 
 ### If templates won't save:
+
 1. Check: Are you logged in as admin?
 2. Check: Is RLS policy correct?
 3. Check: Check browser console for errors
 4. Check: `EMAIL_SYSTEM.md` Admin section
 
 ### If Edge Function won't deploy:
+
 1. Check: `supabase link --project-ref YOUR_REF`
 2. Check: `supabase functions list` (is it there?)
 3. Check: Check for Deno syntax errors in index.ts
 4. Check: `EMAIL_SETUP.md` Step 4
 
 ### If database trigger won't fire:
+
 1. Check: `CREATE EXTENSION pg_net;` worked?
 2. Check: Database settings are correct?
 3. Check: Try manually updating order status
@@ -216,16 +235,19 @@ Use this list as you follow the setup guides:
 ## 🎓 Learning Resources
 
 ### Architecture
+
 - Visual diagram: `EMAIL_SYSTEM.md` (Architecture Overview)
 - Data flow: `FILE_STRUCTURE.md` (Data Flow)
 - Complete spec: `email-integration.md` (original document)
 
 ### API Reference
+
 - Server functions: `EMAIL_SYSTEM.md` (Admin API section)
 - Database schema: `schema.sql`
 - Types: `src/lib/data/types.ts`
 
 ### Code Examples
+
 - Edge Function: `supabase/functions/send-order-email/index.ts`
 - Service layer: `src/lib/services/email-templates.service.ts`
 - Admin components: `src/components/admin/*.tsx`
@@ -245,15 +267,15 @@ Use this list as you follow the setup guides:
 
 ## 📊 Document Overview
 
-| Document | Length | Type | Best For |
-|----------|--------|------|----------|
-| README_EMAIL_INTEGRATION.md | 5 min | Overview | First-time readers |
-| QUICK_START.md | 2 min | Quick ref | Fast setup |
-| EMAIL_SETUP.md | 20 min | Guide | Step-by-step |
-| EMAIL_SYSTEM.md | 15 min | Reference | Understanding system |
-| IMPLEMENTATION_SUMMARY.md | 10 min | Summary | What was built |
-| FILE_STRUCTURE.md | 10 min | Layout | Finding code |
-| email-integration.md | 30 min | Spec | Deep dive |
+| Document                    | Length | Type      | Best For             |
+| --------------------------- | ------ | --------- | -------------------- |
+| README_EMAIL_INTEGRATION.md | 5 min  | Overview  | First-time readers   |
+| QUICK_START.md              | 2 min  | Quick ref | Fast setup           |
+| EMAIL_SETUP.md              | 20 min | Guide     | Step-by-step         |
+| EMAIL_SYSTEM.md             | 15 min | Reference | Understanding system |
+| IMPLEMENTATION_SUMMARY.md   | 10 min | Summary   | What was built       |
+| FILE_STRUCTURE.md           | 10 min | Layout    | Finding code         |
+| email-integration.md        | 30 min | Spec      | Deep dive            |
 
 ---
 
@@ -261,14 +283,14 @@ Use this list as you follow the setup guides:
 
 You've successfully implemented the email system when:
 
-✅ `/admin/email-templates` page loads  
-✅ Can see all 12 templates  
-✅ Can edit and save templates  
-✅ Creating test order auto-triggers email send  
-✅ Email arrives in inbox within 30 seconds  
-✅ Email log created in `rw_email_logs`  
-✅ Admin dashboard shows stats  
-✅ No errors in Edge Function logs  
+✅ `/admin/email-templates` page loads
+✅ Can see all 12 templates
+✅ Can edit and save templates
+✅ Creating test order auto-triggers email send
+✅ Email arrives in inbox within 30 seconds
+✅ Email log created in `rw_email_logs`
+✅ Admin dashboard shows stats
+✅ No errors in Edge Function logs
 
 ---
 
@@ -295,8 +317,8 @@ You've successfully implemented the email system when:
 
 ---
 
-**Last Updated:** May 2026  
-**Status:** ✅ Complete & Ready  
+**Last Updated:** May 2026
+**Status:** ✅ Complete & Ready
 **RCF FUTA — Redemption Week '26**
 
 ---

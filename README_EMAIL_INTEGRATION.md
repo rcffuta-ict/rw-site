@@ -1,7 +1,7 @@
 # 📧 Email Integration for RW '26 — Complete Implementation ✅
 
-> **Status:** Production-ready transactional email system implemented  
-> **Setup time:** ~15 minutes  
+> **Status:** Production-ready transactional email system implemented
+> **Setup time:** ~15 minutes
 > **Maintenance:** Zero (templates edited from admin UI)
 
 ---
@@ -16,6 +16,7 @@ Status Changes → Database Trigger Fires → Edge Function Runs → Email Sent
 ```
 
 **12 templates included:**
+
 - 8 for order statuses (pending, paid, in_production, delivered, etc.)
 - 4 for payment statuses (approved, rejected, flagged, etc.)
 
@@ -25,14 +26,14 @@ Status Changes → Database Trigger Fires → Edge Function Runs → Email Sent
 
 ## 📚 Documentation (Read in Order)
 
-| Document | Time | Use For |
-|----------|------|---------|
-| **QUICK_START.md** | 2 min | Quick overview of 5 setup steps |
-| **EMAIL_SETUP.md** | 20 min | Detailed setup guide (step-by-step instructions) |
-| **EMAIL_SYSTEM.md** | 15 min | System reference (architecture, API, testing) |
-| **IMPLEMENTATION_SUMMARY.md** | 10 min | What was built and why |
-| **FILE_STRUCTURE.md** | 5 min | File layout and data flow |
-| **email-integration.md** | 30 min | Original detailed specification |
+| Document                      | Time   | Use For                                          |
+| ----------------------------- | ------ | ------------------------------------------------ |
+| **QUICK_START.md**            | 2 min  | Quick overview of 5 setup steps                  |
+| **EMAIL_SETUP.md**            | 20 min | Detailed setup guide (step-by-step instructions) |
+| **EMAIL_SYSTEM.md**           | 15 min | System reference (architecture, API, testing)    |
+| **IMPLEMENTATION_SUMMARY.md** | 10 min | What was built and why                           |
+| **FILE_STRUCTURE.md**         | 5 min  | File layout and data flow                        |
+| **email-integration.md**      | 30 min | Original detailed specification                  |
 
 **TL;DR:** Start with `QUICK_START.md`, then follow `EMAIL_SETUP.md`
 
@@ -41,40 +42,51 @@ Status Changes → Database Trigger Fires → Edge Function Runs → Email Sent
 ## 🚀 Quick Start (5 Steps)
 
 ### 1️⃣ Run Database Schema
+
 ```sql
 /* Supabase Dashboard → SQL Editor → paste docs/schema.sql → Run */
 ```
+
 ✅ Email tables created, triggers ready
 
 ### 2️⃣ Get Zoho Credentials
+
 ```
 mail.zoho.com → Settings → App Passwords → Generate
 Note: ZOHO_SMTP_USER and ZOHO_SMTP_PASS
 ```
+
 ✅ SMTP credentials obtained
 
 ### 3️⃣ Set Database Settings
+
 ```
 Supabase Dashboard → Settings → Database → Postgres Settings
 Add: app.supabase_url and app.supabase_service_role_key
 ```
+
 ✅ Triggers can now call Edge Function
 
 ### 4️⃣ Deploy Edge Function & Secrets
+
 ```bash
 supabase functions deploy send-order-email
 supabase secrets set ZOHO_SMTP_USER=...
 supabase secrets set ZOHO_SMTP_PASS=...
 ```
+
 ✅ Function live and authenticated
 
 ### 5️⃣ Seed Templates
+
 ```sql
 /* Supabase Dashboard → SQL Editor → paste docs/seed-email-templates.sql → Run */
 ```
+
 ✅ 12 templates ready to use
 
 **DONE! Email system is live. Test it:**
+
 1. Go to `/admin/email-templates`
 2. Create test order in Supabase
 3. Update status: pending → paid
@@ -85,6 +97,7 @@ supabase secrets set ZOHO_SMTP_PASS=...
 ## 📦 What Was Implemented
 
 ### Database (docs/schema.sql)
+
 - ✅ `pg_net` extension enabled
 - ✅ `rw_email_templates` table (editable templates)
 - ✅ `rw_email_logs` table (audit log)
@@ -92,6 +105,7 @@ supabase secrets set ZOHO_SMTP_PASS=...
 - ✅ `notify_payment_status_change()` trigger
 
 ### Supabase Edge Function
+
 - ✅ `supabase/functions/send-order-email/index.ts` (Deno)
 - ✅ Fetches templates from database
 - ✅ Injects variables (customer name, order ref, amounts, items)
@@ -100,6 +114,7 @@ supabase secrets set ZOHO_SMTP_PASS=...
 - ✅ Logs success/failure
 
 ### Backend API
+
 - ✅ `lib/services/email-templates.service.ts` (TypeScript)
 - ✅ CRUD operations on templates
 - ✅ Email statistics
@@ -107,6 +122,7 @@ supabase secrets set ZOHO_SMTP_PASS=...
 - ✅ All server-side secure
 
 ### Admin UI
+
 - ✅ `/admin/email-templates` page
 - ✅ Template editor component (edit subject & HTML)
 - ✅ Email logs viewer
@@ -115,6 +131,7 @@ supabase secrets set ZOHO_SMTP_PASS=...
 - ✅ No code changes needed to customize
 
 ### Types & Config
+
 - ✅ `EmailTemplate` & `EmailLog` interfaces
 - ✅ `.env.example` updated with email variables
 
@@ -125,6 +142,7 @@ supabase secrets set ZOHO_SMTP_PASS=...
 **All included and ready to customize:**
 
 **Order Status (8):**
+
 1. pending → "Order Received" (CTA: Upload payment)
 2. partially_paid → "Partial Payment Confirmed" (CTA: Pay rest)
 3. paid → "Full Payment Confirmed"
@@ -134,11 +152,7 @@ supabase secrets set ZOHO_SMTP_PASS=...
 7. flagged → "Action Required" (CTA: Contact admin)
 8. cancelled → "Order Cancelled"
 
-**Payment Status (4):**
-9. payment_pending → "Receipt Received" (under review)
-10. payment_approved → "Payment Approved"
-11. payment_flagged → "Receipt Has Issues" (resubmit)
-12. payment_rejected → "Verification Failed"
+**Payment Status (4):** 9. payment_pending → "Receipt Received" (under review) 10. payment_approved → "Payment Approved" 11. payment_flagged → "Receipt Has Issues" (resubmit) 12. payment_rejected → "Verification Failed"
 
 ---
 
@@ -156,6 +170,7 @@ Every template automatically supports:
 ```
 
 **Example:**
+
 ```html
 <p>Hi {{customer_name}},</p>
 <p>Your order #{{order_ref}} is confirmed for ₦{{total_amount}}.</p>
@@ -167,6 +182,7 @@ Every template automatically supports:
 ## 🎯 How to Use
 
 ### 👨‍💼 For Admins: Edit Templates
+
 ```
 1. Go to /admin/email-templates
 2. Expand any template
@@ -176,6 +192,7 @@ Every template automatically supports:
 ```
 
 ### 👀 For Admins: Monitor Sends
+
 ```
 1. Dashboard shows stats (total, success rate, failures)
 2. Table shows recent 50 sends
@@ -184,6 +201,7 @@ Every template automatically supports:
 ```
 
 ### 🧪 For Devs: Test Integration
+
 ```sql
 -- Create test order
 INSERT INTO rw_orders (customer_name, customer_email, total_amount, status, order_ref)
@@ -220,13 +238,13 @@ getEmailStats(since?)
 
 ## 🐛 Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Email not sending | Check `/admin/email-templates` logs for error |
-| Trigger not firing | Verify `pg_net` extension enabled |
-| SMTP auth error | Regenerate Zoho app password |
-| Variables empty | Check template uses `{{variable}}` syntax |
-| Admin page 404 | Ensure authenticated as admin |
+| Issue              | Solution                                      |
+| ------------------ | --------------------------------------------- |
+| Email not sending  | Check `/admin/email-templates` logs for error |
+| Trigger not firing | Verify `pg_net` extension enabled             |
+| SMTP auth error    | Regenerate Zoho app password                  |
+| Variables empty    | Check template uses `{{variable}}` syntax     |
+| Admin page 404     | Ensure authenticated as admin                 |
 
 **Detailed troubleshooting:** See `EMAIL_SETUP.md` (Step 10)
 
@@ -237,17 +255,20 @@ getEmailStats(since?)
 ### `/admin/email-templates` includes:
 
 ✅ **Email Statistics Card**
+
 - Total sent (30 days)
 - Successful / Failed
 - Success rate %
 
 ✅ **Templates List**
+
 - All 12 templates (expandable)
 - Status (Active/Inactive)
 - Inline editor
 - Preview button
 
 ✅ **Email Logs Table**
+
 - Recent 50 sends
 - Success/failure status
 - Recipient email
@@ -270,27 +291,33 @@ getEmailStats(since?)
 ## 📁 Files Created/Modified
 
 **Schema & Database:**
+
 - `docs/schema.sql` — Updated (+email tables, +triggers)
 - `docs/seed-email-templates.sql` — NEW (12 templates)
 
 **Supabase:**
+
 - `supabase/functions/send-order-email/index.ts` — NEW (Edge Function)
 - `supabase/config.toml` — NEW
 - `supabase/deno.json` — NEW
 
 **Backend:**
+
 - `src/lib/services/email-templates.service.ts` — NEW (API)
 - `src/lib/data/types.ts` — Updated (+types)
 
 **Admin UI:**
+
 - `src/app/(admin)/admin/email-templates/page.tsx` — NEW
 - `src/components/admin/EmailTemplateEditor.tsx` — NEW
 - `src/components/admin/EmailLogsViewer.tsx` — NEW
 
 **Config:**
+
 - `.env.example` — Updated (+email vars)
 
 **Documentation:**
+
 - `docs/QUICK_START.md` — NEW
 - `docs/EMAIL_SETUP.md` — NEW
 - `docs/EMAIL_SYSTEM.md` — NEW
@@ -302,16 +329,19 @@ getEmailStats(since?)
 ## 🎯 Next Steps
 
 ### Immediate (Today)
+
 1. ✅ Read: `QUICK_START.md` (2 min)
 2. ✅ Follow: `EMAIL_SETUP.md` steps 1–5 (10 min)
 3. ✅ Test: Create test order, check email (3 min)
 
 ### Today/Tomorrow
+
 4. ✅ Review: All 12 templates at `/admin/email-templates`
 5. ✅ Customize: Edit subject lines & body text as needed
 6. ✅ Monitor: Dashboard for first live emails
 
 ### Before Going Live
+
 7. ✅ Complete: `EMAIL_SETUP.md` production checklist (Step 10)
 8. ✅ Configure: Zoho domain SPF/DKIM/DMARC (optional)
 9. ✅ Test: All status transitions at least once
@@ -321,22 +351,22 @@ getEmailStats(since?)
 
 ## ❓ FAQ
 
-**Q: How do I edit templates?**  
+**Q: How do I edit templates?**
 A: Go to `/admin/email-templates`, click expand on any template, edit, click Save. Done!
 
-**Q: Do I need to redeploy code to change emails?**  
+**Q: Do I need to redeploy code to change emails?**
 A: No! All changes are saved to database. Takes effect immediately.
 
-**Q: How do I test email sending?**  
+**Q: How do I test email sending?**
 A: Create test order in Supabase, update status, check your inbox in 30 seconds.
 
-**Q: What if an email fails?**  
+**Q: What if an email fails?**
 A: Check `/admin/email-templates` logs. Error message shows why it failed.
 
-**Q: Can I add more templates?**  
+**Q: Can I add more templates?**
 A: Yes! Insert new rows into `rw_email_templates` with unique `template_key`.
 
-**Q: Can I batch send emails?**  
+**Q: Can I batch send emails?**
 A: Not yet, but current architecture supports it (feature roadmap item).
 
 ---
@@ -353,18 +383,18 @@ A: Not yet, but current architecture supports it (feature roadmap item).
 
 ## ✨ Features Included
 
-✅ Automatic triggers (no manual action)  
-✅ 12 default templates  
-✅ Editable from admin UI  
-✅ Live email preview  
-✅ Variable injection  
-✅ Email audit log  
-✅ Success metrics  
-✅ Error tracking  
-✅ Zoho SMTP integration  
-✅ RLS security  
-✅ Server-side API  
-✅ Production-ready  
+✅ Automatic triggers (no manual action)
+✅ 12 default templates
+✅ Editable from admin UI
+✅ Live email preview
+✅ Variable injection
+✅ Email audit log
+✅ Success metrics
+✅ Error tracking
+✅ Zoho SMTP integration
+✅ RLS security
+✅ Server-side API
+✅ Production-ready
 
 ---
 
@@ -404,6 +434,6 @@ Customer Email Received + Admin Log Created
 
 ---
 
-**Last updated:** May 2026  
-**Status:** ✅ Production Ready  
+**Last updated:** May 2026
+**Status:** ✅ Production Ready
 **RCF FUTA — Redemption Week '26**

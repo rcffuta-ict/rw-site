@@ -42,36 +42,40 @@ rw-site/
 ## File Purposes
 
 ### 📋 Documentation
-| File | Purpose |
-|------|---------|
-| `QUICK_START.md` | 5-step setup (15 min) |
-| `EMAIL_SETUP.md` | Detailed 10-step guide with troubleshooting |
-| `EMAIL_SYSTEM.md` | Complete reference (architecture, API, testing) |
-| `IMPLEMENTATION_SUMMARY.md` | What was built and why |
-| `schema.sql` | Database schema (includes email tables) |
-| `seed-email-templates.sql` | 12 pre-written email templates |
+
+| File                        | Purpose                                         |
+| --------------------------- | ----------------------------------------------- |
+| `QUICK_START.md`            | 5-step setup (15 min)                           |
+| `EMAIL_SETUP.md`            | Detailed 10-step guide with troubleshooting     |
+| `EMAIL_SYSTEM.md`           | Complete reference (architecture, API, testing) |
+| `IMPLEMENTATION_SUMMARY.md` | What was built and why                          |
+| `schema.sql`                | Database schema (includes email tables)         |
+| `seed-email-templates.sql`  | 12 pre-written email templates                  |
 
 ### 🗄️ Database
-| File | Purpose |
-|------|---------|
+
+| File         | Purpose                                   |
+| ------------ | ----------------------------------------- |
 | `schema.sql` | `rw_email_templates` (editable templates) |
-| `schema.sql` | `rw_email_logs` (audit log) |
-| `schema.sql` | `notify_order_status_change()` trigger |
-| `schema.sql` | `notify_payment_status_change()` trigger |
+| `schema.sql` | `rw_email_logs` (audit log)               |
+| `schema.sql` | `notify_order_status_change()` trigger    |
+| `schema.sql` | `notify_payment_status_change()` trigger  |
 
 ### ⚙️ Backend
-| File | Purpose |
-|------|---------|
-| `send-order-email/index.ts` | Deno Edge Function that sends emails |
-| `email-templates.service.ts` | TypeScript API for managing templates |
-| `types.ts` | `EmailTemplate`, `EmailLog` interfaces |
+
+| File                         | Purpose                                |
+| ---------------------------- | -------------------------------------- |
+| `send-order-email/index.ts`  | Deno Edge Function that sends emails   |
+| `email-templates.service.ts` | TypeScript API for managing templates  |
+| `types.ts`                   | `EmailTemplate`, `EmailLog` interfaces |
 
 ### 🎨 Admin UI
-| File | Purpose |
-|------|---------|
+
+| File                       | Purpose                                |
+| -------------------------- | -------------------------------------- |
 | `email-templates/page.tsx` | Admin dashboard (template list + logs) |
-| `EmailTemplateEditor.tsx` | Edit subject, body, active status |
-| `EmailLogsViewer.tsx` | View recent email sends |
+| `EmailTemplateEditor.tsx`  | Edit subject, body, active status      |
+| `EmailLogsViewer.tsx`      | View recent email sends                |
 
 ---
 
@@ -115,6 +119,7 @@ rw-site/
 ## Admin Workflow
 
 ### Managing Templates
+
 ```
 1. Go to /admin/email-templates
 2. Click "expand" on any template
@@ -126,6 +131,7 @@ rw-site/
 ```
 
 ### Monitoring Emails
+
 ```
 1. Dashboard shows:
    - Total emails sent (30 days)
@@ -140,6 +146,7 @@ rw-site/
 ```
 
 ### Testing Manually
+
 ```
 1. Create test order in Supabase
 2. Update status (e.g., pending → paid)
@@ -170,28 +177,28 @@ See `.env.example` for reference.
 
 ## Key Features
 
-✅ **Automatic triggers** — No manual action needed  
-✅ **12 default templates** — Covers all order/payment states  
-✅ **Editable from admin UI** — No code redeploy required  
-✅ **Live preview** — See email before sending (in editor)  
-✅ **Variable injection** — {{customer_name}}, {{order_ref}}, etc.  
-✅ **Email logs** — Audit trail of all sends  
-✅ **Success metrics** — Dashboard shows stats  
-✅ **Error tracking** — See failure reasons  
-✅ **Zoho integration** — Reliable SMTP delivery  
+✅ **Automatic triggers** — No manual action needed
+✅ **12 default templates** — Covers all order/payment states
+✅ **Editable from admin UI** — No code redeploy required
+✅ **Live preview** — See email before sending (in editor)
+✅ **Variable injection** — {{customer_name}}, {{order_ref}}, etc.
+✅ **Email logs** — Audit trail of all sends
+✅ **Success metrics** — Dashboard shows stats
+✅ **Error tracking** — See failure reasons
+✅ **Zoho integration** — Reliable SMTP delivery
 
 ---
 
 ## Architecture Decisions
 
-| Decision | Reason |
-|----------|--------|
+| Decision                  | Reason                                       |
+| ------------------------- | -------------------------------------------- |
 | Database-stored templates | Easy to edit from admin UI, no code redeploy |
-| pg_net for triggers | Serverless, no external queue needed |
-| Deno Edge Function | Supabase native, easy deployment |
-| Zoho SMTP | Reliable, inexpensive, easy to set up |
-| Server-side CRUD | Secure (service role key not exposed) |
-| RLS on email tables | Admin-only access by default |
+| pg_net for triggers       | Serverless, no external queue needed         |
+| Deno Edge Function        | Supabase native, easy deployment             |
+| Zoho SMTP                 | Reliable, inexpensive, easy to set up        |
+| Server-side CRUD          | Secure (service role key not exposed)        |
+| RLS on email tables       | Admin-only access by default                 |
 
 ---
 
@@ -209,6 +216,7 @@ For bulk sends, consider adding an async job queue.
 ## Support & Debugging
 
 **Quick help:**
+
 - See error in logs? → Check `ERROR_MESSAGE` column in `rw_email_logs`
 - Trigger not firing? → Verify `pg_net` extension enabled
 - Edge Function not running? → Check Supabase Dashboard → Edge Functions logs
@@ -216,6 +224,7 @@ For bulk sends, consider adding an async job queue.
 - Email in spam? → Configure SPF/DKIM/DMARC for your domain
 
 **Detailed help:**
+
 - Setup issues → `docs/EMAIL_SETUP.md`
 - Architecture/API → `docs/EMAIL_SYSTEM.md`
 - Specific troubleshooting → `docs/EMAIL_SETUP.md` (Troubleshooting section)
@@ -232,6 +241,6 @@ For bulk sends, consider adding an async job queue.
 
 ---
 
-**Last updated:** May 2026  
-**Status:** ✅ Production Ready  
+**Last updated:** May 2026
+**Status:** ✅ Production Ready
 **RCF FUTA — Redemption Week '26**

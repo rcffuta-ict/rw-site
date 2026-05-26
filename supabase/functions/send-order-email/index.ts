@@ -47,16 +47,22 @@ serve(async (req) => {
 
         if (templateError || !template) {
             console.warn(`No template found for key: ${templateKey}`);
-            return new Response(JSON.stringify({ skipped: true, reason: "no_template" }), {
-                status: 200,
-            });
+            return new Response(
+                JSON.stringify({ skipped: true, reason: "no_template" }),
+                {
+                    status: 200,
+                }
+            );
         }
 
         if (!template.is_active) {
             console.info(`Template ${templateKey} is inactive, skipping.`);
-            return new Response(JSON.stringify({ skipped: true, reason: "template_inactive" }), {
-                status: 200,
-            });
+            return new Response(
+                JSON.stringify({ skipped: true, reason: "template_inactive" }),
+                {
+                    status: 200,
+                }
+            );
         }
 
         // 4. Build items HTML for order summary
@@ -96,13 +102,10 @@ serve(async (req) => {
             success: true,
         });
 
-        return new Response(
-            JSON.stringify({ sent: true, order_ref: order.order_ref }),
-            {
-                headers: { "Content-Type": "application/json" },
-                status: 200,
-            }
-        );
+        return new Response(JSON.stringify({ sent: true, order_ref: order.order_ref }), {
+            headers: { "Content-Type": "application/json" },
+            status: 200,
+        });
     } catch (err) {
         console.error("send-order-email error:", err);
 
@@ -121,13 +124,10 @@ serve(async (req) => {
             console.error("Failed to log email error:", logErr);
         }
 
-        return new Response(
-            JSON.stringify({ error: String(err) }),
-            {
-                status: 500,
-                headers: { "Content-Type": "application/json" },
-            }
-        );
+        return new Response(JSON.stringify({ error: String(err) }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+        });
     }
 });
 
@@ -261,7 +261,9 @@ async function sendEmail({
     const smtpPass = Deno.env.get("ZOHO_SMTP_PASS");
 
     if (!smtpUser || !smtpPass) {
-        throw new Error("Zoho SMTP credentials not configured (ZOHO_SMTP_USER, ZOHO_SMTP_PASS)");
+        throw new Error(
+            "Zoho SMTP credentials not configured (ZOHO_SMTP_USER, ZOHO_SMTP_PASS)"
+        );
     }
 
     const client = new SmtpClient();

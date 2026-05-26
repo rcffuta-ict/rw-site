@@ -9,10 +9,12 @@ All files have been created and integrated. Below is your deployment checklist.
 ## 📁 Files Delivered
 
 ### Schema & Database
+
 - ✅ `docs/schema.sql` — Updated with email tables & triggers
 - ✅ `docs/seed-email-templates.sql` — 12 default templates
 
 ### Backend
+
 - ✅ `supabase/functions/send-order-email/index.ts` — Edge Function
 - ✅ `supabase/config.toml` — Supabase config
 - ✅ `supabase/deno.json` — Deno config
@@ -20,14 +22,17 @@ All files have been created and integrated. Below is your deployment checklist.
 - ✅ `src/lib/data/types.ts` — Updated with email types
 
 ### Admin UI
+
 - ✅ `src/app/(admin)/admin/email-templates/page.tsx` — Admin page
 - ✅ `src/components/admin/EmailTemplateEditor.tsx` — Editor component
 - ✅ `src/components/admin/EmailLogsViewer.tsx` — Logs component
 
 ### Configuration
+
 - ✅ `.env.example` — Updated with email variables
 
 ### Documentation
+
 - ✅ `README_EMAIL_INTEGRATION.md` — Main overview
 - ✅ `docs/QUICK_START.md` — 5-step quick start
 - ✅ `docs/EMAIL_SETUP.md` — 10-step detailed guide
@@ -59,8 +64,8 @@ All files have been created and integrated. Below is your deployment checklist.
 - [ ] Select "Third-party app"
 - [ ] Copy the generated password
 - [ ] Note these two values:
-  - ZOHO_SMTP_USER = your email (e.g., orders@yourdomain.com)
-  - ZOHO_SMTP_PASS = generated password
+    - ZOHO_SMTP_USER = your email (e.g., orders@yourdomain.com)
+    - ZOHO_SMTP_PASS = generated password
 
 ### Phase 3: Supabase Database Settings (2 min)
 
@@ -68,11 +73,11 @@ All files have been created and integrated. Below is your deployment checklist.
 - [ ] Go to Settings → Database → Postgres Settings
 - [ ] Scroll down to "Application settings"
 - [ ] Add setting 1:
-  - Variable: `app.supabase_url`
-  - Value: `https://YOUR_PROJECT_REF.supabase.co`
+    - Variable: `app.supabase_url`
+    - Value: `https://YOUR_PROJECT_REF.supabase.co`
 - [ ] Add setting 2:
-  - Variable: `app.supabase_service_role_key`
-  - Value: [Your Service Role Key from Dashboard → API]
+    - Variable: `app.supabase_service_role_key`
+    - Value: [Your Service Role Key from Dashboard → API]
 - [ ] Click "Save"
 - [ ] Wait 1–2 minutes for settings to apply
 
@@ -94,7 +99,7 @@ supabase secrets set ZOHO_SMTP_PASS=your_zoho_app_password
 - [ ] supabase functions deploy completes
 - [ ] supabase secrets set commands succeed
 - [ ] Verify in Supabase Dashboard:
-  - Edge Functions → send-order-email (should be listed)
+    - Edge Functions → send-order-email (should be listed)
 
 ### Phase 5: Seed Email Templates (2 min)
 
@@ -112,10 +117,10 @@ supabase secrets set ZOHO_SMTP_PASS=your_zoho_app_password
 - [ ] Navigate to: `http://localhost:3000/admin/email-templates`
 - [ ] Page should load with 12 templates visible
 - [ ] Create test order in Supabase (`rw_orders` table):
-  - customer_name: "Test User"
-  - customer_email: [YOUR TEST EMAIL]
-  - total_amount: 5000
-  - order_ref: "TEST01"
+    - customer_name: "Test User"
+    - customer_email: [YOUR TEST EMAIL]
+    - total_amount: 5000
+    - order_ref: "TEST01"
 - [ ] Update order status: `pending` → `paid`
 - [ ] Wait 30 seconds
 - [ ] Check your email inbox (should have email with RCF branding)
@@ -136,9 +141,9 @@ supabase secrets set ZOHO_SMTP_PASS=your_zoho_app_password
 ### Phase 8: Monitor (ongoing)
 
 - [ ] Check `/admin/email-templates` dashboard:
-  - Email stats card (total sent, success rate)
-  - Recent sends table (verify delivery)
-  - Error logs (if any failures)
+    - Email stats card (total sent, success rate)
+    - Recent sends table (verify delivery)
+    - Error logs (if any failures)
 - [ ] Monitor for at least 24 hours
 - [ ] Verify no errors in Edge Function logs
 
@@ -167,38 +172,38 @@ supabase secrets set ZOHO_SMTP_PASS=your_zoho_app_password
 
 Verify each order status triggers correct email:
 
-| Status | Template | Test By | Expected |
-|--------|----------|---------|----------|
-| pending | Order Received | Create order | Email arrives |
-| partially_paid | Partial Payment | Approve partial payment | Email arrives |
-| paid | Full Payment Confirmed | Approve full payment | Email arrives |
-| confirmed | Queued for Production | Update to confirmed | Email arrives |
-| in_production | Items Being Made | Update to in_production | Email arrives |
-| delivered | Ready for Collection | Update to delivered | Email arrives |
-| flagged | Action Required | Update to flagged | Email arrives |
-| cancelled | Order Cancelled | Update to cancelled | Email arrives |
+| Status         | Template               | Test By                 | Expected      |
+| -------------- | ---------------------- | ----------------------- | ------------- |
+| pending        | Order Received         | Create order            | Email arrives |
+| partially_paid | Partial Payment        | Approve partial payment | Email arrives |
+| paid           | Full Payment Confirmed | Approve full payment    | Email arrives |
+| confirmed      | Queued for Production  | Update to confirmed     | Email arrives |
+| in_production  | Items Being Made       | Update to in_production | Email arrives |
+| delivered      | Ready for Collection   | Update to delivered     | Email arrives |
+| flagged        | Action Required        | Update to flagged       | Email arrives |
+| cancelled      | Order Cancelled        | Update to cancelled     | Email arrives |
 
 Payment statuses:
 
-| Status | Template | Test By | Expected |
-|--------|----------|---------|----------|
-| payment_pending | Receipt Received | Submit receipt | Email arrives |
-| payment_approved | Payment Approved | Approve receipt | Email arrives |
-| payment_flagged | Receipt Has Issues | Flag receipt | Email arrives |
-| payment_rejected | Verification Failed | Reject receipt | Email arrives |
+| Status           | Template            | Test By         | Expected      |
+| ---------------- | ------------------- | --------------- | ------------- |
+| payment_pending  | Receipt Received    | Submit receipt  | Email arrives |
+| payment_approved | Payment Approved    | Approve receipt | Email arrives |
+| payment_flagged  | Receipt Has Issues  | Flag receipt    | Email arrives |
+| payment_rejected | Verification Failed | Reject receipt  | Email arrives |
 
 ---
 
 ## 🐛 Troubleshooting Matrix
 
-| Problem | Check | Solution |
-|---------|-------|----------|
-| Emails not sending | `rw_email_logs.success = false` | See error_message column |
-| Trigger not firing | Check Edge Function logs | Run `CREATE EXTENSION pg_net;` |
-| SMTP auth fails | Zoho credentials | Regenerate app password in Zoho |
-| Variables empty | Template HTML | Use `{{variable}}` syntax (double braces) |
-| Page 404 | Auth check | Ensure logged in as admin |
-| Function timeout | Check logs | Increase timeout in supabase/config.toml |
+| Problem            | Check                           | Solution                                  |
+| ------------------ | ------------------------------- | ----------------------------------------- |
+| Emails not sending | `rw_email_logs.success = false` | See error_message column                  |
+| Trigger not firing | Check Edge Function logs        | Run `CREATE EXTENSION pg_net;`            |
+| SMTP auth fails    | Zoho credentials                | Regenerate app password in Zoho           |
+| Variables empty    | Template HTML                   | Use `{{variable}}` syntax (double braces) |
+| Page 404           | Auth check                      | Ensure logged in as admin                 |
+| Function timeout   | Check logs                      | Increase timeout in supabase/config.toml  |
 
 ---
 
@@ -234,30 +239,30 @@ SELECT * FROM rw_email_logs WHERE success=false; # Failures
 
 You've successfully deployed when ALL of these are true:
 
-✅ All 12 templates exist in `rw_email_templates`  
-✅ Edge Function deployed and accessible  
-✅ Edge Function secrets set correctly  
-✅ Database settings configured  
-✅ Test order triggered email send  
-✅ Email arrived in inbox  
-✅ Log entry created in `rw_email_logs`  
-✅ Admin page loads and shows templates  
-✅ Can edit and save template changes  
-✅ Dashboard shows email statistics  
-✅ No errors in Edge Function logs  
+✅ All 12 templates exist in `rw_email_templates`
+✅ Edge Function deployed and accessible
+✅ Edge Function secrets set correctly
+✅ Database settings configured
+✅ Test order triggered email send
+✅ Email arrived in inbox
+✅ Log entry created in `rw_email_logs`
+✅ Admin page loads and shows templates
+✅ Can edit and save template changes
+✅ Dashboard shows email statistics
+✅ No errors in Edge Function logs
 
 ---
 
 ## 📞 Support Resources
 
-| Issue | Reference |
-|-------|-----------|
-| Step-by-step setup | `docs/EMAIL_SETUP.md` |
-| System reference | `docs/EMAIL_SYSTEM.md` |
-| Quick start | `docs/QUICK_START.md` |
-| File locations | `docs/FILE_STRUCTURE.md` |
-| API reference | `docs/EMAIL_SYSTEM.md` (Admin API section) |
-| Troubleshooting | `docs/EMAIL_SETUP.md` (Step 10) |
+| Issue              | Reference                                  |
+| ------------------ | ------------------------------------------ |
+| Step-by-step setup | `docs/EMAIL_SETUP.md`                      |
+| System reference   | `docs/EMAIL_SYSTEM.md`                     |
+| Quick start        | `docs/QUICK_START.md`                      |
+| File locations     | `docs/FILE_STRUCTURE.md`                   |
+| API reference      | `docs/EMAIL_SYSTEM.md` (Admin API section) |
+| Troubleshooting    | `docs/EMAIL_SETUP.md` (Step 10)            |
 
 ---
 
@@ -272,14 +277,14 @@ You've successfully deployed when ALL of these are true:
 
 ---
 
-**Estimated total time:** 30–45 minutes  
-**Difficulty:** Low (mostly copy-paste and config)  
+**Estimated total time:** 30–45 minutes
+**Difficulty:** Low (mostly copy-paste and config)
 **Expertise needed:** None (all steps documented)
 
 **Next step:** Start with Phase 1 above (Database Setup)
 
 ---
 
-**Last updated:** May 2026  
-**Status:** ✅ Ready to Deploy  
+**Last updated:** May 2026
+**Status:** ✅ Ready to Deploy
 **RCF FUTA — Redemption Week '26**

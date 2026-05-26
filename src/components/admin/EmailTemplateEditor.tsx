@@ -38,7 +38,10 @@ export function EmailTemplateEditor({
         const { name, value, type } = e.currentTarget;
         setFormData((prev) => ({
             ...prev,
-            [name]: type === "checkbox" ? (e.currentTarget as HTMLInputElement).checked : value,
+            [name]:
+                type === "checkbox"
+                    ? (e.currentTarget as HTMLInputElement).checked
+                    : value,
         }));
     };
 
@@ -72,8 +75,9 @@ export function EmailTemplateEditor({
       `,
         };
 
-        const preview = formData.bodyHtml.replace(/\{\{(\w+)\}\}/g, (_, key) =>
-            sampleVars[key] ?? `{{${key}}}`
+        const preview = formData.bodyHtml.replace(
+            /\{\{(\w+)\}\}/g,
+            (_, key) => sampleVars[key] ?? `{{${key}}}`
         );
 
         setPreviewHtml(preview);
@@ -130,7 +134,8 @@ export function EmailTemplateEditor({
             <div className="border-b pb-4">
                 <h2 className="text-2xl font-semibold text-gray-900">{template.label}</h2>
                 <p className="text-sm text-gray-500 mt-1">
-                    Template key: <code className="text-xs bg-gray-100 px-2 py-1 rounded">
+                    Template key:{" "}
+                    <code className="text-xs bg-gray-100 px-2 py-1 rounded">
                         {template.templateKey}
                     </code>
                 </p>
@@ -151,7 +156,9 @@ export function EmailTemplateEditor({
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                         placeholder="e.g. Order Confirmed"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Display name for this template</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                        Display name for this template
+                    </p>
                 </div>
 
                 {/* Subject */}
@@ -167,7 +174,9 @@ export function EmailTemplateEditor({
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                         placeholder="e.g. Your Order #{{order_ref}} is Confirmed"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Use {{variable}} syntax for dynamic content</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                        Use {{ variable }} syntax for dynamic content
+                    </p>
                 </div>
 
                 {/* Body HTML */}
@@ -198,7 +207,10 @@ export function EmailTemplateEditor({
                         onChange={handleInputChange}
                         className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
                     />
-                    <label htmlFor="isActive" className="ml-2 block text-sm text-gray-700">
+                    <label
+                        htmlFor="isActive"
+                        className="ml-2 block text-sm text-gray-700"
+                    >
                         Template is active (used by email triggers)
                     </label>
                 </div>
@@ -206,7 +218,9 @@ export function EmailTemplateEditor({
 
             {/* Supported Variables */}
             <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                <h3 className="font-semibold text-sm text-blue-900 mb-2">Supported Variables</h3>
+                <h3 className="font-semibold text-sm text-blue-900 mb-2">
+                    Supported Variables
+                </h3>
                 <div className="space-y-1">
                     {supportedVars.map((v) => (
                         <div key={v.key} className="text-sm">

@@ -16,98 +16,107 @@ A complete, production-ready transactional email system for RW '26 that:
 ## 📁 Files Created/Modified
 
 ### Schema & Database
+
 - **`docs/schema.sql`** — Updated with:
-  - `pg_net` extension for HTTP triggers
-  - `rw_email_templates` table (editable templates)
-  - `rw_email_logs` table (audit log)
-  - `notify_order_status_change()` trigger function
-  - `notify_payment_status_change()` trigger function
+    - `pg_net` extension for HTTP triggers
+    - `rw_email_templates` table (editable templates)
+    - `rw_email_logs` table (audit log)
+    - `notify_order_status_change()` trigger function
+    - `notify_payment_status_change()` trigger function
 
 - **`docs/seed-email-templates.sql`** — 12 pre-written templates:
-  - 8 order status templates (pending, paid, delivered, etc.)
-  - 4 payment status templates (approved, rejected, etc.)
+    - 8 order status templates (pending, paid, delivered, etc.)
+    - 4 payment status templates (approved, rejected, etc.)
 
 ### Supabase Edge Function
+
 - **`supabase/functions/send-order-email/index.ts`** — Complete email sending logic:
-  - Fetches template from database
-  - Fetches order + items from database
-  - Injects variables (customer_name, order_ref, amounts, items_html)
-  - Wraps in HTML email shell with RCF branding
-  - Sends via Zoho SMTP (TLS, port 465)
-  - Logs result to `rw_email_logs`
+    - Fetches template from database
+    - Fetches order + items from database
+    - Injects variables (customer_name, order_ref, amounts, items_html)
+    - Wraps in HTML email shell with RCF branding
+    - Sends via Zoho SMTP (TLS, port 465)
+    - Logs result to `rw_email_logs`
 
 - **`supabase/deno.json`** — Deno configuration
 - **`supabase/config.toml`** — Supabase local dev config
 
 ### Backend Services
+
 - **`src/lib/services/email-templates.service.ts`** — Server-side CRUD:
-  - `getEmailTemplates()` — Fetch all or active templates
-  - `getEmailTemplate()` — Fetch single template
-  - `updateEmailTemplate()` — Save template changes
-  - `getEmailLogsForOrder()` — Get logs for an order
-  - `getRecentEmailLogs()` — Get recent sends
-  - `getEmailStats()` — Get success rate & stats
+    - `getEmailTemplates()` — Fetch all or active templates
+    - `getEmailTemplate()` — Fetch single template
+    - `updateEmailTemplate()` — Save template changes
+    - `getEmailLogsForOrder()` — Get logs for an order
+    - `getRecentEmailLogs()` — Get recent sends
+    - `getEmailStats()` — Get success rate & stats
 
 ### Data Types
+
 - **`src/lib/data/types.ts`** — Added:
-  - `EmailTemplate` interface
-  - `EmailLog` interface
-  - Both map database columns to camelCase
+    - `EmailTemplate` interface
+    - `EmailLog` interface
+    - Both map database columns to camelCase
 
 ### Admin UI Components
+
 - **`src/components/admin/EmailTemplateEditor.tsx`** — Template editor:
-  - Edit subject and HTML body
-  - Toggle active/inactive
-  - Live preview with sample data
-  - Variable reference panel
-  - Save changes to database
+    - Edit subject and HTML body
+    - Toggle active/inactive
+    - Live preview with sample data
+    - Variable reference panel
+    - Save changes to database
 
 - **`src/components/admin/EmailLogsViewer.tsx`** — Email logs table:
-  - View recent send attempts
-  - See success/failure status
-  - View error messages
+    - View recent send attempts
+    - See success/failure status
+    - View error messages
 
 ### Admin Page
+
 - **`src/app/(admin)/admin/email-templates/page.tsx`** — Admin dashboard:
-  - Email statistics (total sent, success rate)
-  - List all templates (expandable)
-  - Embedded template editor
-  - Recent email logs table
+    - Email statistics (total sent, success rate)
+    - List all templates (expandable)
+    - Embedded template editor
+    - Recent email logs table
 
 ### Configuration
+
 - **`.env.example`** — Added email variables:
-  - ZOHO_SMTP_USER (Zoho email)
-  - ZOHO_SMTP_PASS (app password)
-  - Database settings reference
+    - ZOHO_SMTP_USER (Zoho email)
+    - ZOHO_SMTP_PASS (app password)
+    - Database settings reference
 
 ### Documentation
+
 - **`docs/EMAIL_SETUP.md`** — Step-by-step setup guide (10 steps):
-  1. Create Supabase project & run schema
-  2. Configure Zoho Mail SMTP credentials
-  3. Set Supabase database settings
-  4. Deploy Edge Function
-  5. Seed default templates
-  6. Update admin UI
-  7. Test end-to-end
-  8. Verify template variables
-  9. Monitor email logs
-  10. Production checklist
+    1. Create Supabase project & run schema
+    2. Configure Zoho Mail SMTP credentials
+    3. Set Supabase database settings
+    4. Deploy Edge Function
+    5. Seed default templates
+    6. Update admin UI
+    7. Test end-to-end
+    8. Verify template variables
+    9. Monitor email logs
+    10. Production checklist
 
 - **`docs/EMAIL_SYSTEM.md`** — Complete system reference:
-  - Architecture overview
-  - Database schema details
-  - All 12 default templates listed
-  - Email template variables reference
-  - Admin API function reference
-  - Testing instructions
-  - Troubleshooting guide
-  - Performance notes & security
+    - Architecture overview
+    - Database schema details
+    - All 12 default templates listed
+    - Email template variables reference
+    - Admin API function reference
+    - Testing instructions
+    - Troubleshooting guide
+    - Performance notes & security
 
 ---
 
 ## 🔧 How It Works
 
 ### Trigger Flow
+
 ```
 Admin updates order status in Supabase
         ↓
@@ -131,7 +140,9 @@ Customer receives email
 ```
 
 ### Template Variables
+
 Every template automatically supports:
+
 - `{{customer_name}}` — Customer's name
 - `{{order_ref}}` — Order reference code (e.g., FF3A9C)
 - `{{total_amount}}` — Total order amount (₦ formatted)
@@ -144,6 +155,7 @@ Every template automatically supports:
 ## 📋 12 Default Templates
 
 **Order Status (8):**
+
 1. **pending** — Order Received (CTA: Upload receipt)
 2. **partially_paid** — Partial Payment Confirmed (CTA: Pay balance)
 3. **paid** — Full Payment Confirmed (CTA: Wait for production)
@@ -153,11 +165,7 @@ Every template automatically supports:
 7. **flagged** — Action Required (CTA: Contact admin)
 8. **cancelled** — Order Cancelled
 
-**Payment Status (4):**
-9. **payment_pending** — Receipt Received (under review)
-10. **payment_approved** — Payment Approved
-11. **payment_flagged** — Receipt Has Issues (resubmit)
-12. **payment_rejected** — Payment Verification Failed
+**Payment Status (4):** 9. **payment_pending** — Receipt Received (under review) 10. **payment_approved** — Payment Approved 11. **payment_flagged** — Receipt Has Issues (resubmit) 12. **payment_rejected** — Payment Verification Failed
 
 All customizable from `/admin/email-templates` without code changes.
 
@@ -166,6 +174,7 @@ All customizable from `/admin/email-templates` without code changes.
 ## 🚀 Next Steps to Launch
 
 ### 1. Deploy Schema
+
 ```bash
 # In Supabase Dashboard → SQL Editor, run:
 # - docs/schema.sql (full schema with email tables & triggers)
@@ -173,6 +182,7 @@ All customizable from `/admin/email-templates` without code changes.
 ```
 
 ### 2. Configure Zoho
+
 ```
 1. Log in to mail.zoho.com
 2. Settings → Mail Accounts → [Your account]
@@ -181,6 +191,7 @@ All customizable from `/admin/email-templates` without code changes.
 ```
 
 ### 3. Set Supabase Database Settings
+
 ```
 Dashboard → Settings → Database → Postgres Settings (scroll down)
 
@@ -190,6 +201,7 @@ Add two settings:
 ```
 
 ### 4. Deploy Edge Function
+
 ```bash
 supabase link --project-ref YOUR_PROJECT_REF
 supabase functions deploy send-order-email
@@ -198,6 +210,7 @@ supabase secrets set ZOHO_SMTP_PASS=...
 ```
 
 ### 5. Test
+
 ```
 1. Go to /admin/email-templates
 2. Create a test order
@@ -207,6 +220,7 @@ supabase secrets set ZOHO_SMTP_PASS=...
 ```
 
 ### 6. Go Live
+
 - Review all 12 template texts
 - Customize subject lines if needed
 - Ensure all templates are `is_active = true`
@@ -220,6 +234,7 @@ supabase secrets set ZOHO_SMTP_PASS=...
 **Location:** `/admin/email-templates`
 
 **Available:**
+
 - 📈 Email statistics (total sent, success rate, failures in last 30 days)
 - 📝 All 12 templates with expandable editors
 - ✏️ Live preview of templates with sample data
@@ -265,13 +280,13 @@ No code redeploy needed. Changes take effect immediately.
 
 ## 🐛 Troubleshooting Quick Links
 
-| Issue | Solution |
-|-------|----------|
-| Emails not sending | Check `rw_email_logs` for errors |
-| Trigger not firing | Verify `pg_net` extension enabled |
-| SMTP auth error | Regenerate Zoho app password |
+| Issue                  | Solution                              |
+| ---------------------- | ------------------------------------- |
+| Emails not sending     | Check `rw_email_logs` for errors      |
+| Trigger not firing     | Verify `pg_net` extension enabled     |
+| SMTP auth error        | Regenerate Zoho app password          |
 | Variables not replaced | Check template syntax: `{{variable}}` |
-| Admin page 404 | Ensure you're authenticated as admin |
+| Admin page 404         | Ensure you're authenticated as admin  |
 
 See **`docs/EMAIL_SETUP.md`** (Step 7) for detailed troubleshooting.
 
@@ -291,20 +306,20 @@ See **`docs/EMAIL_SETUP.md`** (Step 7) for detailed troubleshooting.
 
 You now have a **complete, production-ready email system** that:
 
-✅ Automatically sends transactional emails  
-✅ Uses editable database templates  
-✅ Logs all send attempts for audit  
-✅ Provides admin UI for management  
-✅ Supports dynamic variable injection  
-✅ Integrates seamlessly with existing order/payment flows  
+✅ Automatically sends transactional emails
+✅ Uses editable database templates
+✅ Logs all send attempts for audit
+✅ Provides admin UI for management
+✅ Supports dynamic variable injection
+✅ Integrates seamlessly with existing order/payment flows
 
-**Total setup time:** ~30 minutes (mostly Zoho/Supabase config)  
-**Time to first email:** <5 seconds after status change  
+**Total setup time:** ~30 minutes (mostly Zoho/Supabase config)
+**Time to first email:** <5 seconds after status change
 **Maintenance:** Zero (unless you want to customize templates)
 
 ---
 
 **Ready to launch?** Follow the steps in `docs/EMAIL_SETUP.md` from top to bottom.
 
-Last updated: May 2026  
+Last updated: May 2026
 RCF FUTA — Redemption Week '26

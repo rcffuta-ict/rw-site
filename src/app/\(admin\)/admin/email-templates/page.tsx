@@ -1,5 +1,9 @@
 // app/(admin)/admin/email-templates/page.tsx
-import { getEmailTemplates, getRecentEmailLogs, getEmailStats } from "@/lib/services/email-templates.service";
+import {
+    getEmailTemplates,
+    getRecentEmailLogs,
+    getEmailStats,
+} from "@/lib/services/email-templates.service";
 import { EmailTemplateEditor } from "@/components/admin/EmailTemplateEditor";
 import { EmailLogsViewer } from "@/components/admin/EmailLogsViewer";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
@@ -7,17 +11,23 @@ import { createSupabaseAdminClient } from "@/lib/supabase/server";
 export default async function EmailTemplatesPage() {
     const templatesResult = await getEmailTemplates();
     const logsResult = await getRecentEmailLogs(20);
-    const statsResult = await getEmailStats(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
+    const statsResult = await getEmailStats(
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    );
 
     // Get current admin info
     const supabase = createSupabaseAdminClient();
-    const { data: { user } } = await supabase.auth.admin.getUserBySomething?.() || { data: { user: null } };
+    const {
+        data: { user },
+    } = (await supabase.auth.admin.getUserBySomething?.()) || { data: { user: null } };
 
     if (!templatesResult.success) {
         return (
             <div className="p-6">
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <h3 className="font-semibold text-red-900">Error Loading Templates</h3>
+                    <h3 className="font-semibold text-red-900">
+                        Error Loading Templates
+                    </h3>
                     <p className="text-red-700 text-sm mt-1">{templatesResult.error}</p>
                 </div>
             </div>
@@ -34,7 +44,8 @@ export default async function EmailTemplatesPage() {
             <div>
                 <h1 className="text-3xl font-bold text-gray-900">Email Templates</h1>
                 <p className="text-gray-600 mt-2">
-                    Manage transactional email templates. Edit subjects, HTML bodies, and control which templates are active.
+                    Manage transactional email templates. Edit subjects, HTML bodies, and
+                    control which templates are active.
                 </p>
             </div>
 
@@ -43,19 +54,27 @@ export default async function EmailTemplatesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="bg-white rounded-lg border border-gray-200 p-4">
                         <p className="text-sm text-gray-600">Total Sent (30 days)</p>
-                        <p className="text-2xl font-bold text-gray-900 mt-1">{stats.total_sent}</p>
+                        <p className="text-2xl font-bold text-gray-900 mt-1">
+                            {stats.total_sent}
+                        </p>
                     </div>
                     <div className="bg-white rounded-lg border border-gray-200 p-4">
                         <p className="text-sm text-gray-600">Successful</p>
-                        <p className="text-2xl font-bold text-green-600 mt-1">{stats.successful}</p>
+                        <p className="text-2xl font-bold text-green-600 mt-1">
+                            {stats.successful}
+                        </p>
                     </div>
                     <div className="bg-white rounded-lg border border-gray-200 p-4">
                         <p className="text-sm text-gray-600">Failed</p>
-                        <p className="text-2xl font-bold text-red-600 mt-1">{stats.failed}</p>
+                        <p className="text-2xl font-bold text-red-600 mt-1">
+                            {stats.failed}
+                        </p>
                     </div>
                     <div className="bg-white rounded-lg border border-gray-200 p-4">
                         <p className="text-sm text-gray-600">Success Rate</p>
-                        <p className="text-2xl font-bold text-blue-600 mt-1">{stats.success_rate}%</p>
+                        <p className="text-2xl font-bold text-blue-600 mt-1">
+                            {stats.success_rate}%
+                        </p>
                     </div>
                 </div>
             )}
@@ -65,7 +84,10 @@ export default async function EmailTemplatesPage() {
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Templates</h2>
                 {templates.length === 0 ? (
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                        <p className="text-yellow-900">No templates configured. Run the seed script to create default templates.</p>
+                        <p className="text-yellow-900">
+                            No templates configured. Run the seed script to create default
+                            templates.
+                        </p>
                     </div>
                 ) : (
                     <div className="space-y-4">
@@ -76,7 +98,9 @@ export default async function EmailTemplatesPage() {
                             >
                                 <summary className="px-4 py-3 bg-gray-50 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
                                     <div>
-                                        <h3 className="font-medium text-gray-900">{template.label}</h3>
+                                        <h3 className="font-medium text-gray-900">
+                                            {template.label}
+                                        </h3>
                                         <p className="text-xs text-gray-500">
                                             {template.templateKey}
                                         </p>
@@ -120,7 +144,9 @@ export default async function EmailTemplatesPage() {
 
             {/* Recent Email Logs */}
             <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Email Sends</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    Recent Email Sends
+                </h2>
                 <EmailLogsViewer logs={logs} />
             </div>
         </div>
