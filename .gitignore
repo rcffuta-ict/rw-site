@@ -42,3 +42,7 @@ next-env.d.ts
 
 # logs
 *.log
+
+# Local SSL certificates
+localhost.pem
+localhost-key.pem

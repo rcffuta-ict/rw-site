@@ -1,18 +1,21 @@
 import { ph } from "@/lib/utils/functions";
 import type { Order } from "@/lib/data/types";
+import { ProductImage } from "@/components/common/ProductImage";
 
-function ProgressBar({ 
-    approved, 
-    pending, 
-    total 
-}: { 
-    approved: number; 
-    pending: number; 
-    total: number; 
+function ProgressBar({
+    approved,
+    pending,
+    total,
+}: {
+    approved: number;
+    pending: number;
+    total: number;
 }) {
-    const approvedPct = total > 0 ? Math.min(100, Math.round((approved / total) * 100)) : 0;
-    const pendingPct = total > 0 ? Math.min(100 - approvedPct, Math.round((pending / total) * 100)) : 0;
-    
+    const approvedPct =
+        total > 0 ? Math.min(100, Math.round((approved / total) * 100)) : 0;
+    const pendingPct =
+        total > 0 ? Math.min(100 - approvedPct, Math.round((pending / total) * 100)) : 0;
+
     return (
         <div className="flex flex-col gap-3">
             <div className="flex justify-between items-end">
@@ -21,7 +24,8 @@ function ProgressBar({
                         Payment Progress
                     </span>
                     <span className="text-[10px] text-rw-muted font-bold uppercase tracking-wider block mt-0.5">
-                        ₦{approved.toLocaleString()} approved {pending > 0 && `· ₦${pending.toLocaleString()} pending`}
+                        ₦{approved.toLocaleString()} approved{" "}
+                        {pending > 0 && `· ₦${pending.toLocaleString()} pending`}
                     </span>
                 </div>
                 <div className="text-right">
@@ -39,24 +43,26 @@ function ProgressBar({
             {/* Premium Dual Segment Bar */}
             <div className="h-3 w-full bg-rw-bg-alt rounded-full overflow-hidden flex border border-[var(--rw-border)] relative">
                 {/* Approved segment */}
-                <div 
+                <div
                     className="h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-500 rounded-l-full"
                     style={{ width: `${approvedPct}%` }}
                 />
                 {/* Pending segment (amber striped / pulse) */}
-                <div 
+                <div
                     className="h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500 animate-pulse relative overflow-hidden"
-                    style={{ 
+                    style={{
                         width: `${pendingPct}%`,
                         backgroundImage: `linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent)`,
-                        backgroundSize: '1rem 1rem'
+                        backgroundSize: "1rem 1rem",
                     }}
                 />
             </div>
 
             <div className="flex justify-between text-xs font-medium text-rw-muted">
                 <span>₦{approved.toLocaleString()} confirmed</span>
-                <span>₦{Math.max(0, total - approved - pending).toLocaleString()} remaining</span>
+                <span>
+                    ₦{Math.max(0, total - approved - pending).toLocaleString()} remaining
+                </span>
             </div>
         </div>
     );
@@ -64,7 +70,7 @@ function ProgressBar({
 
 export function OrderSummary({ order }: { order: Order }) {
     const payments = order.payments || [];
-    
+
     const approvedSum = payments
         .filter((p) => p.status === "approved")
         .reduce((sum, p) => sum + (p.amountConfirmed ?? p.extractedAmount), 0);
@@ -106,11 +112,14 @@ export function OrderSummary({ order }: { order: Order }) {
                             key={i.id}
                             className="flex items-center gap-4 p-3 rounded-2xl border border-[var(--rw-border)] hover:border-[var(--rw-border-mid)] transition-colors"
                         >
-                            <img
-                                src={i.imageUrl || ph(64, 64, i.productName.slice(0, 6))}
+                            <ProductImage
+                                imageUrl={
+                                    i.imageUrl || ph(64, 64, i.productName.slice(0, 6))
+                                }
                                 alt={i.productName}
-                                className="h-16 w-16 rounded-xl object-cover shrink-0 bg-rw-bg-alt"
+                                minimal={true}
                             />
+
                             <div className="flex-1 min-w-0">
                                 <p className="font-semibold text-sm text-rw-ink truncate">
                                     {i.productName}
@@ -131,7 +140,11 @@ export function OrderSummary({ order }: { order: Order }) {
                     ))}
                 </div>
 
-                <ProgressBar approved={approvedSum} pending={pendingSum} total={order.totalAmount} />
+                <ProgressBar
+                    approved={approvedSum}
+                    pending={pendingSum}
+                    total={order.totalAmount}
+                />
             </div>
         </div>
     );

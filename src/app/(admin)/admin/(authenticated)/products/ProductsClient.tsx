@@ -3,13 +3,14 @@
 import { useState, useMemo, useTransition } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { ph } from "@/lib/utils/functions";
+import { formatNaira, productImageUrl } from "@/lib/utils/functions";
 import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { AdminStats, AdminStatItem } from "@/components/admin/AdminStats";
 import CategoryDrawer from "@/components/admin/CategoryDrawer";
 import { updateProduct } from "@/lib/services/products.service";
 import type { Category, Product } from "@/lib/data/types";
+import { ProductImage } from "@/components/common/ProductImage";
 
 // ─── Color map ────────────────────────────────────────────────────────────────
 
@@ -20,19 +21,6 @@ const COLOR_HEX: Record<string, string> = {
     "Wine Red": "#940011",
     Navy: "#0a1628",
 };
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function productImageUrl(
-    name: string,
-    color: string | null,
-    cloudinaryUrl?: string | null
-) {
-    if (cloudinaryUrl) return cloudinaryUrl;
-    const bg = color ? (COLOR_HEX[color]?.slice(1) ?? "f3f4f6") : "f3f4f6";
-    const fg = color ? "e0e0e0" : "9ca3af";
-    return ph(360, 480, `${name}${color ? `\n${color}` : ""}`, bg, fg);
-}
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
@@ -148,24 +136,22 @@ function ProductCard({
     const uniqueColors = [
         ...new Set(product.variants.map((v) => v.color).filter(Boolean)),
     ] as string[];
+    const displayColor = uniqueColors[0] ?? null;
     const primaryVariant =
-        product.variants.find((v) => v.color === uniqueColors[0]) ?? product.variants[0];
+        product.variants.find((v) => v.color === displayColor) ?? product.variants[0];
     const primaryImage =
         primaryVariant?.images.find((img) => img.isPrimary) ?? primaryVariant?.images[0];
     const availableCount = product.variants.filter((v) => v.isAvailable).length;
+    const finalImageUrl =
+        primaryImage?.cloudinaryUrl || productImageUrl(product.name, displayColor);
 
     return (
         <div className="rw-card group flex flex-col bg-white border-none shadow-md ring-1 ring-[var(--rw-border)] hover:ring-rw-crimson/30 hover:shadow-xl transition-all duration-300 overflow-hidden">
             {/* Image */}
             <div className="relative aspect-[3/4] overflow-hidden bg-rw-bg-alt">
-                <img
-                    src={productImageUrl(
-                        product.name,
-                        uniqueColors[0] ?? null,
-                        primaryImage?.cloudinaryUrl
-                    )}
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                <ProductImage
+                    imageUrl={finalImageUrl}
+                    alt={`${product.name}${displayColor ? ` — ${displayColor}` : ""}`}
                 />
 
                 {/* Badges */}
@@ -218,7 +204,7 @@ function ProductCard({
                     </h3>
                     <div className="flex items-baseline justify-between">
                         <span className="font-display font-black text-rw-crimson text-base">
-                            ₦{product.basePrice.toLocaleString()}
+                            {formatNaira(product.basePrice)}
                         </span>
                         <span className="text-[9px] font-bold text-rw-muted uppercase tracking-wider">
                             Base Price

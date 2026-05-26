@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { updateOrderStatus } from "@/lib/services/orders.service";
 import { StatusTimeline } from "@/components/ui/StatusTimeline";
 import type { OrderStatus } from "@/lib/data/types";
+import { ProductImage } from "@/components/common/ProductImage";
 
 interface OrderDetailClientProps {
     order: Order;
@@ -277,16 +278,22 @@ export default function OrderDetailClient({
                                     key={i.id}
                                     className="flex items-center gap-3 sm:gap-4 px-5 sm:px-6 py-4 hover:bg-rw-bg-alt/20 transition-colors"
                                 >
-                                    <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-lg sm:rounded-xl bg-rw-bg-alt overflow-hidden shrink-0 border border-[var(--rw-border)]">
-                                        <img
-                                            src={
-                                                i.imageUrl ||
-                                                ph(56, 56, i.productName.slice(0, 6))
-                                            }
-                                            alt={i.productName}
-                                            className="h-full w-full object-cover"
-                                        />
-                                    </div>
+                                    {/* <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-lg sm:rounded-xl bg-rw-bg-alt overflow-hidden shrink-0 border border-[var(--rw-border)]">
+
+                                    </div> */}
+                                    <ProductImage
+                                        imageUrl={
+                                            i.imageUrl ||
+                                            ph(56, 56, i.productName.slice(0, 6))
+                                        }
+                                        alt={i.productName}
+                                        minimal={true}
+                                        config={{
+                                            h: "h-12 sm:h-14",
+                                            w: "w-12 sm:w-14",
+                                            className: "rounded-lg sm:rounded-xl",
+                                        }}
+                                    />
                                     <div className="flex-1 min-w-0">
                                         <p className="font-bold text-rw-ink text-xs sm:text-sm uppercase tracking-tight truncate">
                                             {i.productName}
