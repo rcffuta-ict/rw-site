@@ -19,7 +19,7 @@ import { Select } from "@/components/ui/forms/Select";
 import { Textarea } from "@/components/ui/forms/Textarea";
 import { ColorInput } from "@/components/ui/forms/ColorInput";
 import { useCloudinaryUpload } from "@/hooks/useCloudinaryUpload";
-import { ProductImage } from "@/components/common/CloudinaryImage";
+import { ProductImage } from "@/components/common/ProductImage";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -168,7 +168,9 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
         }
 
         if (variants.length === 0) {
-            toast.error("There must be at least one variant before a product is created.");
+            toast.error(
+                "There must be at least one variant before a product is created."
+            );
             return;
         }
 
@@ -212,8 +214,11 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                     toast.loading(`Uploading image for variant ${addedCount + 1}...`, {
                         id: toastId,
                     });
-                    
-                    const uploadData = await uploadImage(v.imageFile, `grp-${Date.now()}-${addedCount}`);
+
+                    const uploadData = await uploadImage(
+                        v.imageFile,
+                        `grp-${Date.now()}-${addedCount}`
+                    );
 
                     if (uploadData.success && uploadData.publicId && uploadData.url) {
                         uploadedImage = {
@@ -419,13 +424,16 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                                                     {v.sizes.length > 0
                                                         ? v.sizes.join(", ")
                                                         : "No Size"}
-                                                    {(v.colorHex || COLOR_HEX[v.color]) && (
+                                                    {(v.colorHex ||
+                                                        COLOR_HEX[v.color]) && (
                                                         <span
                                                             className="h-3 w-3 rounded-full border border-black/10 inline-block"
                                                             style={{
                                                                 background:
                                                                     v.colorHex ||
-                                                                    (COLOR_HEX[v.color] ? `#${COLOR_HEX[v.color]}` : "#ddd"),
+                                                                    (COLOR_HEX[v.color]
+                                                                        ? `#${COLOR_HEX[v.color]}`
+                                                                        : "#ddd"),
                                                             }}
                                                         />
                                                     )}
@@ -480,8 +488,18 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                         <div className="rounded-2xl border-2 border-[var(--rw-border)] p-6 bg-rw-bg-alt/30 space-y-6">
                             <div className="flex items-center justify-between">
                                 <h3 className="font-display font-extrabold text-xl text-rw-ink tracking-tight flex items-center gap-2">
-                                    <svg className="h-5 w-5 text-rw-crimson" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                    <svg
+                                        className="h-5 w-5 text-rw-crimson"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        strokeWidth={2.5}
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M12 4v16m8-8H4"
+                                        />
                                     </svg>
                                     Add New Variant
                                 </h3>
@@ -491,47 +509,141 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                                     </span>
                                 )}
                             </div>
-                            
+
                             <div className="flex flex-col xl:flex-row gap-6 items-start">
                                 {/* Image Uploader */}
                                 <div className="w-full xl:w-48 shrink-0">
                                     <label className="flex flex-col items-center justify-center w-full aspect-[3/4] rounded-2xl border-2 border-dashed border-[var(--rw-border-strong)] bg-white hover:border-rw-crimson hover:bg-rw-crimson/5 transition-all cursor-pointer overflow-hidden group relative">
                                         {nvImagePreview ? (
                                             <>
-                                                <img src={nvImagePreview} alt="Preview" className="w-full h-full object-cover group-hover:opacity-40 transition-opacity" />
+                                                <img
+                                                    src={nvImagePreview}
+                                                    alt="Preview"
+                                                    className="w-full h-full object-cover group-hover:opacity-40 transition-opacity"
+                                                />
                                                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <span className="bg-black/80 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full backdrop-blur-sm shadow-xl">Change Image</span>
+                                                    <span className="bg-black/80 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full backdrop-blur-sm shadow-xl">
+                                                        Change Image
+                                                    </span>
                                                 </div>
                                             </>
                                         ) : (
                                             <div className="flex flex-col items-center justify-center p-4 text-center">
                                                 <div className="h-10 w-10 bg-rw-bg-alt rounded-full flex items-center justify-center text-rw-muted mb-2 group-hover:text-rw-crimson transition-colors shadow-inner">
-                                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    <svg
+                                                        className="h-5 w-5"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                        />
                                                     </svg>
                                                 </div>
-                                                <span className="text-xs font-bold text-rw-ink">Upload Image</span>
-                                                <span className="text-[9px] font-medium text-rw-muted mt-1 uppercase tracking-widest">Required • &lt; 200KB</span>
+                                                <span className="text-xs font-bold text-rw-ink">
+                                                    Upload Image
+                                                </span>
+                                                <span className="text-[9px] font-medium text-rw-muted mt-1 uppercase tracking-widest">
+                                                    Required • &lt; 200KB
+                                                </span>
                                             </div>
                                         )}
-                                        <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageChange} className="hidden" />
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            ref={fileInputRef}
+                                            onChange={handleImageChange}
+                                            className="hidden"
+                                        />
                                     </label>
                                 </div>
 
                                 {/* Inputs */}
                                 <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
-                                    <Input label="Color Name" required value={nvColor} onChange={(e) => setNvColor(e.target.value)} placeholder="e.g. Space Grey" className="!bg-white" />
-                                    <ColorInput label="Color Hex (Optional)" value={nvColorHex} onChange={setNvColorHex} placeholder="#333333" className="!bg-white" />
-                                    <PillInput label="Sizes (Separate by comma)" required value={nvSizes} onChange={setNvSizes} placeholder="e.g. S, M, L, XL" upperCase className="!bg-white sm:col-span-2" />
-                                    <Input label="Design Text" value={nvDesign} onChange={(e) => setNvDesign(e.target.value)} placeholder="e.g. Holy Spirit" className="!bg-white" />
-                                    <PriceInput label="Price Override" value={nvPriceOverride === "" ? "" : Number(nvPriceOverride)} onChange={(val) => setNvPriceOverride(val === "" ? "" : val.toString())} placeholder="Base" className="!bg-white" />
-                                    <Input label="SKU" value={nvSku} onChange={(e) => { setNvSku(e.target.value); setIsSkuAuto(false); }} placeholder="Auto-generated" className="!bg-white sm:col-span-2" disabled infoTooltip="Stock Keeping Unit. Auto-generated based on product details." />
+                                    <Input
+                                        label="Color Name"
+                                        required
+                                        value={nvColor}
+                                        onChange={(e) => setNvColor(e.target.value)}
+                                        placeholder="e.g. Space Grey"
+                                        className="!bg-white"
+                                    />
+                                    <ColorInput
+                                        label="Color Hex (Optional)"
+                                        value={nvColorHex}
+                                        onChange={setNvColorHex}
+                                        placeholder="#333333"
+                                        className="!bg-white"
+                                    />
+                                    <PillInput
+                                        label="Sizes (Separate by comma)"
+                                        required
+                                        value={nvSizes}
+                                        onChange={setNvSizes}
+                                        placeholder="e.g. S, M, L, XL"
+                                        upperCase
+                                        className="!bg-white sm:col-span-2"
+                                    />
+                                    <Input
+                                        label="Design Text"
+                                        value={nvDesign}
+                                        onChange={(e) => setNvDesign(e.target.value)}
+                                        placeholder="e.g. Holy Spirit"
+                                        className="!bg-white"
+                                    />
+                                    <PriceInput
+                                        label="Price Override"
+                                        value={
+                                            nvPriceOverride === ""
+                                                ? ""
+                                                : Number(nvPriceOverride)
+                                        }
+                                        onChange={(val) =>
+                                            setNvPriceOverride(
+                                                val === "" ? "" : val.toString()
+                                            )
+                                        }
+                                        placeholder="Base"
+                                        className="!bg-white"
+                                    />
+                                    <Input
+                                        label="SKU"
+                                        value={nvSku}
+                                        onChange={(e) => {
+                                            setNvSku(e.target.value);
+                                            setIsSkuAuto(false);
+                                        }}
+                                        placeholder="Auto-generated"
+                                        className="!bg-white sm:col-span-2"
+                                        disabled
+                                        infoTooltip="Stock Keeping Unit. Auto-generated based on product details."
+                                    />
                                 </div>
                             </div>
-                            
+
                             <div className="flex justify-end pt-2 border-t border-[var(--rw-border)]">
-                                <button type="button" onClick={handleAddVariant} className="btn-primary !h-11 px-8 text-xs flex items-center gap-2 shadow-lg shadow-rw-crimson/20">
-                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                                <button
+                                    type="button"
+                                    onClick={handleAddVariant}
+                                    className="btn-primary !h-11 px-8 text-xs flex items-center gap-2 shadow-lg shadow-rw-crimson/20"
+                                >
+                                    <svg
+                                        className="h-4 w-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth={2.5}
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M12 4v16m8-8H4"
+                                        />
+                                    </svg>
                                     Save Variant
                                 </button>
                             </div>
@@ -607,7 +719,9 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                                 <div className="flex items-center justify-center gap-2 mt-4 animate-fade-in">
                                     <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson animate-ping" />
                                     <p className="text-center text-[10px] text-rw-muted font-medium animate-pulse leading-snug">
-                                        Please do not close this window or refresh the page while we securely upload your images and create variants.
+                                        Please do not close this window or refresh the
+                                        page while we securely upload your images and
+                                        create variants.
                                     </p>
                                 </div>
                             )}
@@ -623,11 +737,14 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                             <div className="rw-card group flex flex-col bg-white border-none shadow-md overflow-hidden">
                                 <div className="relative aspect-[3/4] overflow-hidden bg-rw-bg-alt">
                                     <ProductImage
-                                        imageUrl={primaryImage || productImageUrl(
-                                            name,
-                                            (uniqueColors[0] as string | undefined) ??
-                                                null
-                                        )}
+                                        imageUrl={
+                                            primaryImage ||
+                                            productImageUrl(
+                                                name,
+                                                (uniqueColors[0] as string | undefined) ??
+                                                    null
+                                            )
+                                        }
                                         alt={name}
                                     />
                                     <div className="absolute top-3 left-3">
@@ -686,8 +803,9 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                                                         key={c}
                                                         className="h-2.5 w-2.5 rounded-full border border-black/10"
                                                         style={{
-                                                            background:
-                                                                COLOR_HEX[c] ? `#${COLOR_HEX[c]}` : "#ddd",
+                                                            background: COLOR_HEX[c]
+                                                                ? `#${COLOR_HEX[c]}`
+                                                                : "#ddd",
                                                         }}
                                                     />
                                                 ))}

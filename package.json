@@ -4,8 +4,10 @@
     "private": true,
     "scripts": {
         "dev": "next dev",
+        "dev:ssl": "next dev --experimental-https --experimental-https-key localhost-key.pem --experimental-https-cert localhost.pem",
         "build": "next build",
         "start": "next start",
+        "start:ssl": "local-ssl-proxy --source 3001 --target 3000 --cert localhost.pem --key localhost-key.pem & next start",
         "lint": "eslint",
         "format": "prettier . --write",
         "format:check": "prettier . --check"
@@ -15,6 +17,7 @@
         "@supabase/ssr": "^0.10.2",
         "@supabase/supabase-js": "^2.104.1",
         "@tailwindcss/postcss": "^4.2.4",
+        "clsx": "^2.1.1",
         "groq-sdk": "^1.2.0",
         "next": "16.2.4",
         "react": "19.2.4",
@@ -32,6 +35,7 @@
         "eslint": "^9",
         "eslint-config-next": "16.2.4",
         "eslint-config-prettier": "^10.1.8",
+        "local-ssl-proxy": "^2.0.5",
         "postcss": "^8.5.10",
         "prettier": "^3.8.3",
         "tailwindcss": "^4.2.2",

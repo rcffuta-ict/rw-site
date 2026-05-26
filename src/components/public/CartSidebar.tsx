@@ -5,6 +5,7 @@ import { ph } from "@/lib/utils/functions";
 import Link from "next/link";
 import { Button } from "@/components/ui/forms/Button";
 import { usePathname } from "next/navigation";
+import { ProductImage } from "../common/ProductImage";
 
 export function CartSidebar() {
     const { items, removeItem, updateQuantity, total, itemCount, isOpen, closeCart } =
@@ -87,16 +88,20 @@ export function CartSidebar() {
                         <ul className="flex-1 overflow-y-auto divide-y divide-[var(--rw-border)]">
                             {items.map((item) => (
                                 <li key={item.variantId} className="flex gap-4 p-5">
-                                    <div className="h-20 w-20 rounded-xl overflow-hidden shrink-0 bg-rw-bg-alt">
-                                        <img
-                                            src={
-                                                item.imageUrl ||
-                                                ph(80, 80, item.productName.slice(0, 8))
-                                            }
-                                            alt={item.productName}
-                                            className="h-full w-full object-cover"
-                                        />
-                                    </div>
+                                    <ProductImage
+                                        imageUrl={
+                                            item.imageUrl ||
+                                            ph(20, 20, item.productName.slice(0, 6))
+                                        }
+                                        alt={item.productName}
+                                        size="400px"
+                                        config={{
+                                            className: "rounded-xl",
+                                            h: "h-20",
+                                            w: "w-20",
+                                        }}
+                                        minimal={true}
+                                    />
                                     <div className="flex flex-1 flex-col gap-1.5 min-w-0">
                                         <p className="font-semibold text-sm text-rw-ink truncate">
                                             {item.productName}

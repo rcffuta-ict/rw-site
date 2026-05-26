@@ -7,6 +7,7 @@ import { PaymentStatusBadge } from "@/components/ui/Badge";
 import { StatusTimeline } from "@/components/ui/StatusTimeline";
 import { toast } from "sonner";
 import { formatNaira, productImageUrl } from "@/lib/utils/functions";
+import { ProductImage } from "@/components/common/ProductImage";
 
 interface OrderDetailSheetClientProps {
     order: Order;
@@ -408,11 +409,18 @@ export default function OrderDetailSheetClient({ order }: OrderDetailSheetClient
                                         >
                                             <div className="flex items-start gap-4">
                                                 {/* Line Item Image Preview */}
-                                                <div className="h-16 w-12 rounded-lg bg-rw-bg-alt border border-[var(--rw-border)] overflow-hidden shrink-0 shadow-sm relative group-hover:border-rw-crimson/30 transition-colors">
-                                                    <img
-                                                        src={item.imageUrl || fallbackImg}
+                                                <div className="group-hover:border-rw-crimson/30 transition-colors">
+                                                    <ProductImage
+                                                        imageUrl={
+                                                            item.imageUrl || fallbackImg
+                                                        }
                                                         alt={item.productName}
-                                                        className="h-full w-full object-cover"
+                                                        minimal={true}
+                                                        config={{
+                                                            h: "h-16",
+                                                            w: "w-12",
+                                                        }}
+                                                        size="192px"
                                                     />
                                                 </div>
 

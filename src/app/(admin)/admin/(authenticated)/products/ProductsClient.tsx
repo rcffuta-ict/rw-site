@@ -3,16 +3,14 @@
 import { useState, useMemo, useTransition } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { formatNaira, ph, productImageUrl } from "@/lib/utils/functions";
+import { formatNaira, productImageUrl } from "@/lib/utils/functions";
 import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { AdminStats, AdminStatItem } from "@/components/admin/AdminStats";
 import CategoryDrawer from "@/components/admin/CategoryDrawer";
 import { updateProduct } from "@/lib/services/products.service";
 import type { Category, Product } from "@/lib/data/types";
-import Image from "next/image";
-import cloudinaryLoader from "@/lib/utils/cloudinaryLoader";
-import { ProductImage } from "@/components/common/CloudinaryImage";
+import { ProductImage } from "@/components/common/ProductImage";
 
 // ─── Color map ────────────────────────────────────────────────────────────────
 

@@ -2,11 +2,9 @@
 
 import { COLOR_HEX } from "@/lib/data/products";
 import type { Product } from "@/lib/data/types";
-import cloudinaryLoader from "@/lib/utils/cloudinaryLoader";
 import { formatNaira, productImageUrl } from "@/lib/utils/functions";
-import Image from "next/image";
 import { useMemo, useState } from "react";
-import { ProductImage } from "../common/CloudinaryImage";
+import { ProductImage } from "../common/ProductImage";
 
 interface Props {
     product: Product;

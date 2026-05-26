@@ -14,7 +14,7 @@ import {
     upsertVariantImage,
 } from "@/lib/services/products.service";
 import { useRouter } from "next/navigation";
-import { ProductImage } from "@/components/common/CloudinaryImage";
+import { ProductImage } from "@/components/common/ProductImage";
 
 const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL", "One Size"];
 

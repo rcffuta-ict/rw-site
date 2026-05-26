@@ -6,7 +6,8 @@ import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/forms/Button";
 import { Input } from "@/components/ui/forms/Input";
 import { Textarea } from "@/components/ui/forms/Textarea";
-import { ph } from "@/lib/utils/functions";
+import { formatNaira, ph } from "@/lib/utils/functions";
+import { ProductImage, ProductImageMinimal } from "@/components/common/ProductImage";
 
 type Step = 1 | 2 | 3;
 
@@ -86,16 +87,12 @@ function OrderSummaryPanel({
                 <ul className="flex flex-col gap-5 mb-8 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
                     {items.map((i) => (
                         <li key={i.variantId} className="flex gap-4 group">
-                            <div className="h-16 w-16 rounded-xl overflow-hidden shrink-0 bg-rw-bg-alt border border-[var(--rw-border)] relative">
-                                <img
-                                    src={
-                                        i.imageUrl ||
-                                        ph(80, 80, i.productName.slice(0, 6))
-                                    }
-                                    alt={i.productName}
-                                    className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                                />
-                            </div>
+                            <ProductImageMinimal
+                                imageUrl={
+                                    i.imageUrl || ph(80, 80, i.productName.slice(0, 6))
+                                }
+                                alt={i.productName}
+                            />
                             <div className="flex-1 min-w-0">
                                 <p className="font-bold text-sm text-rw-ink leading-tight truncate">
                                     {i.productName}
@@ -342,7 +339,7 @@ export function CheckoutClient() {
                                                 key={i.variantId}
                                                 className="p-6 sm:p-8 flex gap-6 sm:gap-8 items-center group"
                                             >
-                                                <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl overflow-hidden shrink-0 border border-[var(--rw-border)] bg-rw-bg-alt relative">
+                                                {/* <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl overflow-hidden shrink-0 border border-[var(--rw-border)] bg-rw-bg-alt relative">
                                                     <img
                                                         src={
                                                             i.imageUrl ||
@@ -355,7 +352,25 @@ export function CheckoutClient() {
                                                         alt={i.productName}
                                                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                     />
-                                                </div>
+                                                </div> */}
+                                                <ProductImage
+                                                    imageUrl={
+                                                        i.imageUrl ||
+                                                        ph(
+                                                            140,
+                                                            140,
+                                                            i.productName.slice(0, 6)
+                                                        )
+                                                    }
+                                                    alt={i.productName}
+                                                    minimal={true}
+                                                    size="140px"
+                                                    config={{
+                                                        h: "h-24 sm:h-28",
+                                                        w: "w-24 sm:w-28",
+                                                        className: "rounded-2xl",
+                                                    }}
+                                                />
                                                 <div className="flex-1 min-w-0">
                                                     <p className="font-display font-bold text-rw-ink text-lg sm:text-xl leading-tight">
                                                         {i.productName}
@@ -368,10 +383,9 @@ export function CheckoutClient() {
                                                             Quantity: {i.quantity}
                                                         </span>
                                                         <span className="text-lg font-bold text-rw-crimson">
-                                                            ₦
-                                                            {(
+                                                            {formatNaira(
                                                                 i.unitPrice * i.quantity
-                                                            ).toLocaleString()}
+                                                            )}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -384,7 +398,7 @@ export function CheckoutClient() {
                                                 Total Payable
                                             </span>
                                             <span className="text-2xl sm:text-3xl font-display font-black">
-                                                ₦{total.toLocaleString()}
+                                                {formatNaira(total)}
                                             </span>
                                         </div>
                                         <div className="h-10 w-10 rounded-full border border-white/20 flex items-center justify-center">
@@ -495,7 +509,8 @@ export function CheckoutClient() {
                                         <div className="flex items-center justify-center gap-2 mt-2">
                                             <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson animate-ping" />
                                             <p className="text-center text-xs text-rw-muted font-medium animate-pulse">
-                                                Please do not close this window or refresh the page while we process your order.
+                                                Please do not close this window or refresh
+                                                the page while we process your order.
                                             </p>
                                         </div>
                                     )}

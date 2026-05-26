@@ -3,16 +3,17 @@
 export default function cloudinaryLoader({
     src,
     width,
-    // quality,
+    quality,
 }: {
     src: string;
     width: number;
-    // quality?: number;
+    quality?: number;
 }) {
-    // If it's not a Cloudinary asset URL, pass it back unchanged
-    if (!src.includes("res.cloudinary.com")) return src;
+    if (!src || !src.includes("res.cloudinary.com")) return src;
 
-    // Inject f_auto, q_auto, and matching width transformations right after '/upload/'
-    const optimizationParams = `upload/f_auto,q_auto,w_${width},c_limit`;
+    // FIXED: Added a trailing slash at the end of the optimization string
+    const optimizationParams = `upload/f_auto,q_auto,w_${width},c_limit/`;
+
+    // Replace the first instance of 'upload/' with the optimization chunk + slash
     return src.replace("upload/", optimizationParams);
 }

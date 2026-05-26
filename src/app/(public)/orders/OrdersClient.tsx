@@ -8,6 +8,7 @@ import { SearchInput } from "@/components/ui/SearchInput";
 import { searchOrdersAction, getOrdersByRefsAction } from "@/app/actions/orders";
 import { ph } from "@/lib/utils/functions";
 import { StatusTimeline } from "@/components/ui/StatusTimeline";
+import { ProductImage } from "@/components/common/ProductImage";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -130,8 +131,17 @@ function OrderListItem({
         .filter((p) => p.status === "pending")
         .reduce((sum, p) => sum + p.extractedAmount, 0);
 
-    const approvedPct = order.totalAmount > 0 ? Math.min(100, Math.round((approvedSum / order.totalAmount) * 100)) : 0;
-    const pendingPct = order.totalAmount > 0 ? Math.min(100 - approvedPct, Math.round((pendingSum / order.totalAmount) * 100)) : 0;
+    const approvedPct =
+        order.totalAmount > 0
+            ? Math.min(100, Math.round((approvedSum / order.totalAmount) * 100))
+            : 0;
+    const pendingPct =
+        order.totalAmount > 0
+            ? Math.min(
+                  100 - approvedPct,
+                  Math.round((pendingSum / order.totalAmount) * 100)
+              )
+            : 0;
     const cfg = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.pending;
 
     return (
@@ -172,31 +182,37 @@ function OrderListItem({
 
             <div className="mt-3">
                 <div className="flex justify-between items-center mb-1.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#9a8085]">{cfg.label}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#9a8085]">
+                        {cfg.label}
+                    </span>
                     <span className="text-xs font-semibold text-[#1C0003]">
-                        {fmtNgn(approvedSum)} {pendingSum > 0 && <span className="text-amber-600 font-bold">({fmtNgn(pendingSum)} pending)</span>} / {fmtNgn(order.totalAmount)}
+                        {fmtNgn(approvedSum)}{" "}
+                        {pendingSum > 0 && (
+                            <span className="text-amber-600 font-bold">
+                                ({fmtNgn(pendingSum)} pending)
+                            </span>
+                        )}{" "}
+                        / {fmtNgn(order.totalAmount)}
                     </span>
                 </div>
                 <div className="h-1.5 w-full bg-[#f4e6e8] rounded-full overflow-hidden flex border border-[#f0dedf]/55 relative">
-                    <div 
-                        className="h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-300" 
-                        style={{ width: `${approvedPct}%` }} 
+                    <div
+                        className="h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-300"
+                        style={{ width: `${approvedPct}%` }}
                     />
-                    <div 
-                        className="h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-300 animate-pulse" 
-                        style={{ 
+                    <div
+                        className="h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-300 animate-pulse"
+                        style={{
                             width: `${pendingPct}%`,
                             backgroundImage: `linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent)`,
-                            backgroundSize: '0.5rem 0.5rem'
-                        }} 
+                            backgroundSize: "0.5rem 0.5rem",
+                        }}
                     />
                 </div>
             </div>
         </button>
     );
 }
-
-
 
 // ─── Order Detail Panel ───────────────────────────────────────────────────────
 
@@ -209,8 +225,17 @@ function OrderDetailPanel({ order }: { order: Order }) {
         .filter((p) => p.status === "pending")
         .reduce((sum, p) => sum + p.extractedAmount, 0);
 
-    const approvedPct = order.totalAmount > 0 ? Math.min(100, Math.round((approvedSum / order.totalAmount) * 100)) : 0;
-    const pendingPct = order.totalAmount > 0 ? Math.min(100 - approvedPct, Math.round((pendingSum / order.totalAmount) * 100)) : 0;
+    const approvedPct =
+        order.totalAmount > 0
+            ? Math.min(100, Math.round((approvedSum / order.totalAmount) * 100))
+            : 0;
+    const pendingPct =
+        order.totalAmount > 0
+            ? Math.min(
+                  100 - approvedPct,
+                  Math.round((pendingSum / order.totalAmount) * 100)
+              )
+            : 0;
     const remaining = Math.max(0, order.totalAmount - approvedSum - pendingSum);
     const cfg = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.pending;
 
@@ -298,13 +323,18 @@ function OrderDetailPanel({ order }: { order: Order }) {
                             >
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 shrink-0 rounded-lg overflow-hidden bg-[#fdf8f8] border border-[#e8d0d4]">
-                                            <img
-                                                src={item.imageUrl || ph(40, 40, item.productName.slice(0, 6))}
-                                                alt={item.productName}
-                                                className="h-full w-full object-cover"
-                                            />
-                                        </div>
+                                        <ProductImage
+                                            imageUrl={
+                                                item.imageUrl ||
+                                                ph(40, 40, item.productName.slice(0, 6))
+                                            }
+                                            alt={item.productName}
+                                            size="40px"
+                                            config={{
+                                                className:
+                                                    "rounded-lg overflow-hidden shrink-0 border border-[var(--rw-border)] bg-rw-bg-alt relative",
+                                            }}
+                                        />
                                         <div>
                                             <p className="font-semibold text-[#1C0003]">
                                                 {item.productName}
@@ -371,21 +401,27 @@ function OrderDetailPanel({ order }: { order: Order }) {
                     <div className="flex justify-between items-center">
                         <span className="text-xs text-[#9a8085]">Payment progress</span>
                         <div className="text-right">
-                            <span className="text-xs font-bold text-[#1C0003]">{approvedPct}%</span>
-                            {pendingPct > 0 && <span className="text-[10px] font-bold text-amber-500 ml-1">+{pendingPct}% pending</span>}
+                            <span className="text-xs font-bold text-[#1C0003]">
+                                {approvedPct}%
+                            </span>
+                            {pendingPct > 0 && (
+                                <span className="text-[10px] font-bold text-amber-500 ml-1">
+                                    +{pendingPct}% pending
+                                </span>
+                            )}
                         </div>
                     </div>
                     <div className="h-3 w-full bg-[#f4e6e8] rounded-full overflow-hidden flex border border-[#f0dedf] relative">
-                        <div 
+                        <div
                             className="h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-500 rounded-l-full"
                             style={{ width: `${approvedPct}%` }}
                         />
-                        <div 
+                        <div
                             className="h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500 animate-pulse relative overflow-hidden"
-                            style={{ 
+                            style={{
                                 width: `${pendingPct}%`,
                                 backgroundImage: `linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent)`,
-                                backgroundSize: '1rem 1rem'
+                                backgroundSize: "1rem 1rem",
                             }}
                         />
                     </div>
