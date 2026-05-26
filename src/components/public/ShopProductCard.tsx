@@ -2,8 +2,11 @@
 
 import { COLOR_HEX } from "@/lib/data/products";
 import type { Product } from "@/lib/data/types";
+import cloudinaryLoader from "@/lib/utils/cloudinaryLoader";
 import { formatNaira, productImageUrl } from "@/lib/utils/functions";
+import Image from "next/image";
 import { useMemo, useState } from "react";
+import { ProductImage } from "../common/CloudinaryImage";
 
 interface Props {
     product: Product;
@@ -14,6 +17,7 @@ export function ShopProductCard({ product, onOpen }: Props) {
     const colors = useMemo(() => {
         return [...new Set(product.variants.filter((v) => v.color).map((v) => v.color!))];
     }, [product.variants]);
+
     const sizes = [
         ...new Set(
             product.variants
@@ -25,7 +29,6 @@ export function ShopProductCard({ product, onOpen }: Props) {
     const [hoveredColor, setHoveredColor] = useState<string | null>(null);
     const displayColor = hoveredColor ?? colors[0] ?? null;
 
-    // Find the image for the current display colour
     const activeVariant =
         product.variants.find((v) => v.color === displayColor) || product.variants[0];
     const primaryImage =
@@ -36,15 +39,14 @@ export function ShopProductCard({ product, onOpen }: Props) {
 
     return (
         <article className="rw-card group flex flex-col overflow-hidden hover:-translate-y-1.5">
-            {/* Image */}
+            {/* Image Wrapper */}
             <div
                 className="relative overflow-hidden bg-rw-bg-alt"
                 style={{ aspectRatio: "3/4" }}
             >
-                <img
-                    src={finalImageUrl}
+                <ProductImage
+                    imageUrl={finalImageUrl}
                     alt={`${product.name}${displayColor ? ` — ${displayColor}` : ""}`}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
 
                 {/* Quick view overlay */}
@@ -59,9 +61,9 @@ export function ShopProductCard({ product, onOpen }: Props) {
                     </span>
                 </button>
 
-                {/* Colour swatches (hover to preview) */}
+                {/* Colour swatches */}
                 {colors.length > 0 && (
-                    <div className="absolute top-3 left-3 flex gap-1.5">
+                    <div className="absolute top-3 left-3 flex gap-1.5 z-10">
                         {colors.slice(0, 5).map((c) => (
                             <button
                                 key={c}
@@ -86,12 +88,12 @@ export function ShopProductCard({ product, onOpen }: Props) {
                 )}
 
                 {/* Category pill */}
-                <span className="absolute bottom-3 right-3 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-[#1C0003] px-2.5 py-1 rounded-full">
+                <span className="absolute bottom-3 right-3 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-[#1C0003] px-2.5 py-1 rounded-full z-10">
                     {product.categoryLabel}
                 </span>
             </div>
 
-            {/* Info */}
+            {/* Info Section */}
             <div className="flex flex-col gap-3 p-5 flex-1">
                 <div className="flex-1">
                     <h3 className="font-display font-bold text-rw-ink group-hover:text-rw-crimson transition-colors text-[15px] leading-snug">

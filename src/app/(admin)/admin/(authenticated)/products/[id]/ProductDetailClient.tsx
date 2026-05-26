@@ -2,17 +2,19 @@
 
 import { useState, useTransition, useRef } from "react";
 import { toast } from "sonner";
-import { ph } from "@/lib/utils/functions";
+import { productImageUrl } from "@/lib/utils/functions";
 import type { Product, ProductVariant } from "@/lib/data/types";
 import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { AdminTable } from "@/components/admin/AdminTable";
 import {
     updateVariant,
     deleteVariant,
-    upsertVariantImage,
     deleteProduct,
 } from "@/lib/services/products.service";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import cloudinaryLoader from "@/lib/utils/cloudinaryLoader";
+import { ProductImage } from "@/components/common/CloudinaryImage";
 
 const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL", "One Size"];
 
@@ -33,18 +35,6 @@ function sortVariants(variants: ProductVariant[]) {
     });
 }
 
-function productImageUrl(
-    name: string,
-    color: string | null,
-    cloudinaryUrl?: string | null
-) {
-    if (cloudinaryUrl) return cloudinaryUrl;
-    const bg = color && COLOR_SWATCH_BG[color] ? COLOR_SWATCH_BG[color].bg : "f3f4f6";
-    const fg = color && COLOR_SWATCH_BG[color] ? COLOR_SWATCH_BG[color].fg : "9ca3af";
-    const label = `${name}${color ? `\n${color}` : ""}`;
-    return ph(360, 480, label, bg, fg);
-}
-
 function ImageSlot({
     variant,
     productName,
@@ -62,6 +52,9 @@ function ImageSlot({
         variant.images.find((img) => img.isPrimary) ?? variant.images[0] ?? null;
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const finalImageUrl =
+        primaryImage?.cloudinaryUrl || productImageUrl(productName, variant.color);
+
     return (
         <div
             className={`relative rounded-xl overflow-hidden border-2 transition-all ${
@@ -69,15 +62,11 @@ function ImageSlot({
             }`}
             style={{ aspectRatio: "3/4" }}
         >
-            <img
-                src={productImageUrl(
-                    productName,
-                    variant.color,
-                    primaryImage?.cloudinaryUrl
-                )}
+            <ProductImage
+                imageUrl={finalImageUrl}
                 alt={`${productName} — ${variant.color ?? "default"}`}
-                className="w-full h-full object-cover"
             />
+
             {primaryImage?.cloudinaryUrl ? (
                 <div className="absolute bottom-2 left-2 right-2">
                     <span className="block w-full text-center text-[9px] font-bold uppercase tracking-widest bg-black/40 text-white backdrop-blur-sm rounded-full px-2 py-0.5">
@@ -119,11 +108,11 @@ export default function ProductDetailClient({
     isAdmin: boolean;
 }) {
     const router = useRouter();
-    const [product, setProduct] = useState(initialProduct);
+    const [product] = useState(initialProduct);
     const [variants, setVariants] = useState(() => sortVariants(product.variants));
     const [isPending, startTransition] = useTransition();
 
-    const [editSkuId, setEditSkuId] = useState<string | null>(null);
+    const [editSkuId] = useState<string | null>(null);
     const [editSkuVal, setEditSkuVal] = useState("");
     const [editPriceId, setEditPriceId] = useState<string | null>(null);
     const [editPriceVal, setEditPriceVal] = useState("");
@@ -135,6 +124,11 @@ export default function ProductDetailClient({
         uniqueColors[0] ?? null
     );
     const activeVariant = variants.find((v) => v.color === activeColor) ?? variants[0];
+
+    const finalImageUrl =
+        activeVariant?.images?.length > 0
+            ? activeVariant.images[0].cloudinaryUrl
+            : productImageUrl(product.name, activeColor);
 
     // Upload Image
     function handleUploadImage(variantId: string, file: File) {
@@ -329,13 +323,29 @@ export default function ProductDetailClient({
                 <div className="rw-card p-5 border-l-4 border-amber-500 bg-amber-50/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex gap-3">
                         <div className="h-9 w-9 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
-                            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                            <svg
+                                className="h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+                                />
                             </svg>
                         </div>
                         <div>
-                            <p className="font-display font-bold text-sm text-rw-ink">Moderator Access — Read Only Mode</p>
-                            <p className="text-xs text-rw-muted mt-0.5">Only Administrators can modify product details, change price overrides, toggle variant availabilities, or delete products.</p>
+                            <p className="font-display font-bold text-sm text-rw-ink">
+                                Moderator Access — Read Only Mode
+                            </p>
+                            <p className="text-xs text-rw-muted mt-0.5">
+                                Only Administrators can modify product details, change
+                                price overrides, toggle variant availabilities, or delete
+                                products.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -348,16 +358,9 @@ export default function ProductDetailClient({
                         className="relative rounded-2xl overflow-hidden bg-rw-bg-alt"
                         style={{ aspectRatio: "3/4" }}
                     >
-                        <img
-                            key={activeColor ?? "default"}
-                            src={productImageUrl(
-                                product.name,
-                                activeColor,
-                                activeVariant?.images.find((img) => img.isPrimary)
-                                    ?.cloudinaryUrl
-                            )}
-                            alt={`${product.name}${activeColor ? ` — ${activeColor}` : ""}`}
-                            className="w-full h-full object-cover animate-fade-in"
+                        <ProductImage
+                            imageUrl={finalImageUrl}
+                            alt={`${product.name} — ${activeColor ?? "default"}`}
                         />
                         <div className="absolute top-4 left-4">
                             <span className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest bg-rw-crimson text-white shadow-md">

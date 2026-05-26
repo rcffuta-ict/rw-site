@@ -14,8 +14,8 @@ const COLOR_SWATCH_BG: Record<string, string> = {
 export function productImageUrl(
     name: string,
     color: string | null,
-    width: number = 480,
-    height: number = 640
+    width: number = 360,
+    height: number = 480
 ) {
     const bg = color && COLOR_SWATCH_BG[color] ? COLOR_SWATCH_BG[color] : "f3f4f6";
     const fg = color ? "e0e0e0" : "9ca3af";
