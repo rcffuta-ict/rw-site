@@ -18,6 +18,8 @@
 --   6. order_items         Line items per order (snapshot at order time)
 --   7. payments            Payment receipts with actor signature
 --   8. admin_users         Admin/moderator users (linked to Supabase Auth)
+--   9. email_templates     Transactional email templates (editable from admin UI)
+--   10. email_logs         Email send audit log (success/failure tracking)
 --
 -- Views:
 --   order_payment_summary  Derived payment state per order
@@ -28,6 +30,7 @@
 -- ─── Extensions ──────────────────────────────────────────────────────────────
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";  -- gen_random_uuid()
+CREATE EXTENSION IF NOT EXISTS "pg_net";     -- HTTP calls from triggers
 
 
 -- ─── Enum Types ───────────────────────────────────────────────────────────────
@@ -346,6 +349,132 @@ COMMENT ON TABLE public.rw_admin_moderators IS 'Admin/moderator access roles for
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
+-- 9. EMAIL TEMPLATES
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Editable transactional email templates. Admins can update subject lines and body HTML.
+-- Variables supported: {{customer_name}}, {{order_ref}}, {{total_amount}}, {{amount_paid}}, {{balance}}, {{items_html}}
+
+CREATE TABLE IF NOT EXISTS rw_email_templates (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  template_key TEXT NOT NULL UNIQUE,
+  label        TEXT NOT NULL,             -- human-readable name e.g. "Order Confirmed"
+  subject      TEXT NOT NULL,             -- email subject line (supports {{variables}})
+  body_html    TEXT NOT NULL,             -- full HTML body (supports {{variables}})
+  is_active    BOOLEAN NOT NULL DEFAULT TRUE,
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_by   TEXT                       -- email of the admin who last edited
+);
+
+CREATE OR REPLACE TRIGGER email_templates_set_updated_at
+  BEFORE UPDATE ON rw_email_templates
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+COMMENT ON TABLE rw_email_templates IS
+  'Editable transactional email templates. template_key maps to order_status or payment event keys. '
+  'Supports {{customer_name}}, {{order_ref}}, {{total_amount}}, {{amount_paid}}, {{balance}}, {{items_html}} variables.';
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 10. EMAIL LOGS
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Audit log of all email send attempts (success and failure).
+
+CREATE TABLE IF NOT EXISTS rw_email_logs (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id       UUID REFERENCES rw_orders(id) ON DELETE SET NULL,
+  payment_id     UUID REFERENCES rw_payments(id) ON DELETE SET NULL,
+  template_key   TEXT NOT NULL,
+  recipient_email TEXT NOT NULL,
+  subject        TEXT,
+  success        BOOLEAN NOT NULL DEFAULT FALSE,
+  error_message  TEXT,
+  sent_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_email_logs_order ON rw_email_logs(order_id);
+CREATE INDEX IF NOT EXISTS idx_email_logs_sent_at ON rw_email_logs(sent_at DESC);
+
+COMMENT ON TABLE rw_email_logs IS 'Audit log of email send attempts. Track success/failure and errors.';
+
+
+-- ─── Database Trigger: notify on order status change ─────────────────────────
+-- Fires when order.status changes and calls the Edge Function via pg_net
+-- Note: Requires app.supabase_url and app.supabase_service_role_key DB settings
+
+CREATE OR REPLACE FUNCTION notify_order_status_change()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Only fire when status actually changes
+  IF OLD.status IS DISTINCT FROM NEW.status THEN
+    -- Call the Edge Function asynchronously
+    PERFORM net.http_post(
+      url     := current_setting('app.supabase_url', 't')
+                 || '/functions/v1/send-order-email',
+      headers := jsonb_build_object(
+        'Content-Type',  'application/json',
+        'Authorization', 'Bearer ' || current_setting('app.supabase_service_role_key', 't')
+      ),
+      body    := jsonb_build_object(
+        'event_type',      'order_status',
+        'order_id',        NEW.id,
+        'new_status',      NEW.status,
+        'customer_email',  NEW.customer_email,
+        'customer_name',   NEW.customer_name,
+        'order_ref',       NEW.order_ref,
+        'total_amount',    NEW.total_amount,
+        'amount_paid',     NEW.amount_paid
+      )::text
+    );
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER order_status_email_trigger
+  AFTER UPDATE OF status ON rw_orders
+  FOR EACH ROW EXECUTE FUNCTION notify_order_status_change();
+
+COMMENT ON FUNCTION notify_order_status_change() IS
+  'Fires when order status changes. Calls the send-order-email Edge Function via pg_net. '
+  'Requires: app.supabase_url and app.supabase_service_role_key settings.';
+
+
+-- ─── Database Trigger: notify on payment status change ────────────────────────
+-- Fires when payment.status changes and calls the Edge Function via pg_net
+
+CREATE OR REPLACE FUNCTION notify_payment_status_change()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF OLD.status IS DISTINCT FROM NEW.status THEN
+    PERFORM net.http_post(
+      url     := current_setting('app.supabase_url', 't')
+                 || '/functions/v1/send-order-email',
+      headers := jsonb_build_object(
+        'Content-Type',  'application/json',
+        'Authorization', 'Bearer ' || current_setting('app.supabase_service_role_key', 't')
+      ),
+      body    := jsonb_build_object(
+        'event_type',     'payment_status',
+        'order_id',       NEW.order_id,
+        'payment_id',     NEW.id,
+        'new_status',     NEW.status,
+        'payment_amount', NEW.amount_confirmed
+      )::text
+    );
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER payment_status_email_trigger
+  AFTER UPDATE OF status ON rw_payments
+  FOR EACH ROW EXECUTE FUNCTION notify_payment_status_change();
+
+COMMENT ON FUNCTION notify_payment_status_change() IS
+  'Fires when payment status changes. Calls the send-order-email Edge Function via pg_net.';
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
 -- VIEW: order_payment_summary
 -- ═══════════════════════════════════════════════════════════════════════════
 -- Derived payment state per order.
@@ -392,6 +521,14 @@ COMMENT ON VIEW rw_order_payment_summary IS
 --
 --   2. Set DEMO_MODE = false in src/lib/config.ts when ready to go live.
 --
+--   3. EMAIL INTEGRATION (Optional — enables transactional emails):
+--      a. In Supabase Dashboard → Settings → Database → Postgres Settings:
+--         Set app.supabase_url and app.supabase_service_role_key
+--      b. Generate Zoho SMTP credentials and set in Supabase Edge Function secrets:
+--         ZOHO_SMTP_USER, ZOHO_SMTP_PASS
+--      c. Deploy the Edge Function: supabase functions deploy send-order-email
+--      d. Seed default email templates using the seed script in docs/seed-email-templates.sql
+--
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 9. SETTINGS & AUDIT LOGS
@@ -437,4 +574,6 @@ ALTER TABLE public.rw_order_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_admin_moderators ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_email_templates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_email_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_audit_logs ENABLE ROW LEVEL SECURITY;
