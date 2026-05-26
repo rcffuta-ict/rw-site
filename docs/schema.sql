@@ -521,6 +521,14 @@ COMMENT ON VIEW rw_order_payment_summary IS
 --
 --   2. Set DEMO_MODE = false in src/lib/config.ts when ready to go live.
 --
+--   3. EMAIL INTEGRATION (Optional — enables transactional emails):
+--      a. In Supabase Dashboard → Settings → Database → Postgres Settings:
+--         Set app.supabase_url and app.supabase_service_role_key
+--      b. Generate Zoho SMTP credentials and set in Supabase Edge Function secrets:
+--         ZOHO_SMTP_USER, ZOHO_SMTP_PASS
+--      c. Deploy the Edge Function: supabase functions deploy send-order-email
+--      d. Seed default email templates using the seed script in docs/seed-email-templates.sql
+--
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 9. SETTINGS & AUDIT LOGS
@@ -601,4 +609,6 @@ ALTER TABLE public.rw_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_email_templates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_email_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_email_templates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_email_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_audit_logs ENABLE ROW LEVEL SECURITY;
