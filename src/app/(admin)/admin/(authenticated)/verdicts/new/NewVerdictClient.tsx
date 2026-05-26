@@ -1,28 +1,66 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createVerdict } from "@/lib/services/verdicts.service";
 import type { Order } from "@/lib/data/types";
+import { useAdminAuth } from "@/context/AdminAuthContext";
+import { formatNaira } from "@/lib/utils/functions";
 
 interface NewVerdictClientProps {
     orders: Order[];
 }
 
 export function NewVerdictClient({ orders }: NewVerdictClientProps) {
+    const { user } = useAdminAuth();
     const confirmedOrders = orders.filter(
         (o) =>
-            o.status === "confirmed" ||
-            o.status === "paid" ||
-            o.status === "in_production" ||
-            o.status === "delivered"
+            (o.status === "confirmed" ||
+                o.status === "paid" ||
+                o.status === "in_production" ||
+                o.status === "delivered") &&
+            o.items &&
+            o.items.length > 0
     );
 
     const router = useRouter();
     const [selected, setSelected] = useState<Set<string>>(new Set());
-    const [signature, setSignature] = useState("");
     const [isPending, startTransition] = useTransition();
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const currentAdminName = user?.name || "Authorized Admin";
+    const currentAdminContact = user?.email || "";
+    const currentAdmin = currentAdminContact
+        ? `${currentAdminName} (${currentAdminContact})`
+        : currentAdminName;
+
+    const filteredOrders = useMemo(() => {
+        if (!searchQuery.trim()) return confirmedOrders;
+        const q = searchQuery.toLowerCase();
+        return confirmedOrders.filter(
+            (o) =>
+                o.orderRef.toLowerCase().includes(q) ||
+                o.customerName.toLowerCase().includes(q)
+        );
+    }, [confirmedOrders, searchQuery]);
+
+    const isAllFilteredSelected =
+        filteredOrders.length > 0 && filteredOrders.every((o) => selected.has(o.id));
+
+    function toggleSelectAllFiltered() {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (isAllFilteredSelected) {
+                // deselect all filtered
+                filteredOrders.forEach((o) => next.delete(o.id));
+            } else {
+                // select all filtered
+                filteredOrders.forEach((o) => next.add(o.id));
+            }
+            return next;
+        });
+    }
 
     function toggle(ref: string) {
         setSelected((prev) => {
@@ -36,14 +74,14 @@ export function NewVerdictClient({ orders }: NewVerdictClientProps) {
     const selectedOrdersData = confirmedOrders.filter((o) => selected.has(o.id));
 
     function handleGenerate() {
-        if (!signature || selected.size === 0) return;
+        if (selected.size === 0) return;
 
         const toastId = toast.loading("Processing verdict creation...");
 
         startTransition(async () => {
             const selectedIds = Array.from(selected);
             const res = await createVerdict({
-                issuedBy: signature,
+                issuedBy: currentAdmin,
                 orderIds: selectedIds,
             });
 
@@ -51,65 +89,75 @@ export function NewVerdictClient({ orders }: NewVerdictClientProps) {
                 toast.success("Verdict created successfully!", { id: toastId });
                 router.push(`/admin/verdicts/${res.data.id}`);
             } else {
-                toast.error("Failed to create verdict", { id: toastId, description: res.error });
+                toast.error("Failed to create verdict", {
+                    id: toastId,
+                    description: res.error,
+                });
             }
         });
     }
 
     return (
-        <div className="flex flex-col gap-10 animate-fade-in max-w-4xl pb-20">
+        <div className="flex flex-col gap-8 animate-fade-in pb-32 max-w-6xl mx-auto">
+            {/* Header Area */}
             <div>
                 <h1 className="section-heading text-2xl lg:text-3xl font-display font-black uppercase tracking-tight">
                     Generate Verdict
                 </h1>
                 <p className="text-sm text-rw-muted mt-1 font-medium italic">
-                    Create official administrative documents for confirmed orders
+                    Select eligible orders to batch into a formalized production directive
                 </p>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-10">
-                <div className="space-y-10">
-                    <section className="space-y-4">
-                        <h4 className="text-[10px] font-black text-rw-muted uppercase tracking-[0.3em] opacity-60">
-                            1. Authorizing Signature
-                        </h4>
-                        <div className="relative">
-                            <input
-                                type="text"
-                                placeholder="Enter your full name..."
-                                value={signature}
-                                onChange={(e) => setSignature(e.target.value)}
-                                className="w-full h-20 bg-rw-bg-alt/40 border border-[var(--rw-border)] rounded-2xl px-8 font-display font-black text-rw-ink uppercase tracking-wider outline-none focus:bg-white focus:border-rw-crimson transition-all shadow-inner text-lg"
-                            />
-                            <div className="absolute right-8 top-1/2 -translate-y-1/2">
-                                <svg
-                                    className="h-6 w-6 text-rw-muted opacity-40"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={2}
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-                                    />
-                                </svg>
-                            </div>
+            {/* Top Cards: Authorization & Integrity Info */}
+            <div className="grid lg:grid-cols-2 gap-6">
+                <div className="rw-card p-6 flex flex-col justify-between bg-white border border-[var(--rw-border)] shadow-sm">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="h-10 w-10 rounded-full bg-rw-bg-alt flex items-center justify-center shrink-0 border border-[var(--rw-border)]">
+                            <svg
+                                className="h-5 w-5 text-rw-crimson"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2.5}
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"
+                                />
+                            </svg>
                         </div>
-                        <p className="text-[10px] text-rw-muted font-bold uppercase tracking-widest italic opacity-50">
-                            This name will appear on the formal document as the
-                            authorizing officer.
-                        </p>
-                    </section>
-
-                    <div className="rw-card p-6 bg-blue-50/50 border-blue-100 flex gap-4">
-                        <div className="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-[10px] font-black text-rw-muted uppercase tracking-[0.2em]">
+                                Authorized Issuer
+                            </p>
+                            <p
+                                className="font-display font-black text-rw-ink uppercase text-lg tracking-wider truncate"
+                                title={currentAdminName}
+                            >
+                                {currentAdminName}
+                            </p>
+                            {currentAdminContact && (
+                                <p className="text-xs font-bold text-rw-crimson mt-0.5 truncate">
+                                    {currentAdminContact}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                    <p className="text-[10px] text-rw-muted font-bold uppercase tracking-widest italic opacity-50">
+                        This authenticated identity will be permanently stamped on the
+                        manifest.
+                    </p>
+                </div>
+                <div className="rw-card p-6 bg-blue-50/50 border border-blue-100 flex flex-col justify-between shadow-sm">
+                    <div className="flex items-center gap-4 mb-2">
+                        <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
                             <svg
                                 className="h-5 w-5 text-blue-600"
                                 fill="none"
                                 stroke="currentColor"
-                                strokeWidth={2}
+                                strokeWidth={2.5}
                                 viewBox="0 0 24 24"
                             >
                                 <path
@@ -119,93 +167,158 @@ export function NewVerdictClient({ orders }: NewVerdictClientProps) {
                                 />
                             </svg>
                         </div>
-                        <div className="space-y-1">
-                            <p className="text-[10px] font-black text-blue-900 uppercase tracking-widest">
-                                Document Integrity
-                            </p>
-                            <p className="text-xs text-blue-700/70 font-medium leading-relaxed">
-                                Generating a verdict will consolidate selected orders into
-                                a single production and withdrawal manifest. This process
-                                is irreversible for the selected batch.
-                            </p>
+                        <p className="text-xs font-black text-blue-900 uppercase tracking-widest">
+                            Document Integrity
+                        </p>
+                    </div>
+                    <p className="text-xs text-blue-800/80 font-medium leading-relaxed mt-2">
+                        Generating a verdict consolidates all selected orders into a
+                        single unified production and financial ledger. This action cannot
+                        be reversed.
+                    </p>
+                </div>
+            </div>
+
+            {/* Selection Table Area */}
+            <div className="rw-card bg-white overflow-hidden flex flex-col shadow-sm border border-[var(--rw-border)]">
+                {/* Search & Actions Bar */}
+                <div className="p-4 border-b border-[var(--rw-border)] bg-rw-bg-alt/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="relative w-full sm:max-w-md">
+                        <svg
+                            className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-rw-muted"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                            />
+                        </svg>
+                        <input
+                            type="text"
+                            placeholder="Search by order ref or customer name..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-10 pr-4 py-3 bg-white border border-[var(--rw-border)] rounded-xl text-sm font-medium focus:border-rw-crimson focus:ring-1 focus:ring-rw-crimson outline-none transition-all shadow-sm"
+                        />
+                    </div>
+                    <div className="flex items-center gap-6 self-end sm:self-auto">
+                        <div className="flex flex-col text-right hidden sm:flex">
+                            <span className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
+                                Showing
+                            </span>
+                            <span className="text-sm font-black text-rw-ink">
+                                {filteredOrders.length} Orders
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                <section className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h4 className="text-[10px] font-black text-rw-muted uppercase tracking-[0.3em] opacity-60">
-                            2. Select Orders ({selected.size})
-                        </h4>
-                        <div className="flex gap-4">
-                            <button
-                                onClick={() =>
-                                    setSelected(new Set(confirmedOrders.map((o) => o.id)))
-                                }
-                                className="text-[10px] font-black text-rw-crimson uppercase tracking-widest hover:underline"
-                            >
-                                Select all
-                            </button>
-                            <button
-                                onClick={() => setSelected(new Set())}
-                                className="text-[10px] font-black text-rw-muted uppercase tracking-widest hover:text-rw-ink"
-                            >
-                                Clear
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="rw-card p-2 space-y-2 max-h-[500px] overflow-y-auto scrollbar-hide bg-rw-bg-alt/30 border-dashed">
-                        {confirmedOrders.length === 0 ? (
-                            <div className="py-20 text-center">
-                                <p className="text-sm font-bold text-rw-muted italic">
-                                    No confirmed orders available
-                                </p>
-                            </div>
-                        ) : (
-                            confirmedOrders.map((o) => (
-                                <label
-                                    key={o.id}
-                                    className={`flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all border-2 ${selected.has(o.id) ? "border-rw-crimson bg-white shadow-md scale-[1.01]" : "border-transparent hover:bg-white/50"}`}
-                                >
+                {/* Table */}
+                <div className="overflow-x-auto max-h-[600px] scrollbar-thin scrollbar-thumb-rw-border scrollbar-track-transparent">
+                    <table className="w-full text-left border-collapse">
+                        <thead className="sticky top-0 bg-rw-bg-alt/95 backdrop-blur z-10 shadow-sm">
+                            <tr>
+                                <th className="p-4 pl-6 w-12 border-b border-[var(--rw-border)]">
                                     <input
                                         type="checkbox"
-                                        checked={selected.has(o.id)}
-                                        onChange={() => toggle(o.id)}
-                                        className="h-5 w-5 rounded-lg accent-rw-crimson"
+                                        checked={isAllFilteredSelected}
+                                        onChange={toggleSelectAllFiltered}
+                                        className="h-4 w-4 rounded-md accent-rw-crimson cursor-pointer"
                                     />
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between">
-                                            <span className="font-mono font-black text-sm text-rw-crimson">
+                                </th>
+                                <th className="p-4 text-[10px] font-black text-rw-muted uppercase tracking-widest whitespace-nowrap border-b border-[var(--rw-border)]">
+                                    Order Ref
+                                </th>
+                                <th className="p-4 text-[10px] font-black text-rw-muted uppercase tracking-widest whitespace-nowrap border-b border-[var(--rw-border)]">
+                                    Customer
+                                </th>
+                                <th className="p-4 text-[10px] font-black text-rw-muted uppercase tracking-widest whitespace-nowrap border-b border-[var(--rw-border)]">
+                                    Items
+                                </th>
+                                <th className="p-4 text-[10px] font-black text-rw-muted uppercase tracking-widest whitespace-nowrap border-b border-[var(--rw-border)]">
+                                    Status
+                                </th>
+                                <th className="p-4 pr-6 text-[10px] font-black text-rw-muted uppercase tracking-widest whitespace-nowrap border-b border-[var(--rw-border)] text-right">
+                                    Valuation
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[var(--rw-border)]">
+                            {filteredOrders.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="p-16 text-center">
+                                        <p className="text-sm font-bold text-rw-muted italic">
+                                            No matching orders found.
+                                        </p>
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredOrders.map((o) => (
+                                    <tr
+                                        key={o.id}
+                                        onClick={() => toggle(o.id)}
+                                        className={`transition-colors cursor-pointer group ${selected.has(o.id) ? "bg-rw-crimson/5 hover:bg-rw-crimson/10" : "hover:bg-rw-bg-alt/50"}`}
+                                    >
+                                        <td
+                                            className="p-4 pl-6 w-12"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={selected.has(o.id)}
+                                                onChange={() => toggle(o.id)}
+                                                className="h-4 w-4 rounded-md accent-rw-crimson cursor-pointer"
+                                            />
+                                        </td>
+                                        <td className="p-4">
+                                            <span className="font-mono font-black text-sm text-rw-ink group-hover:text-rw-crimson transition-colors">
                                                 {o.orderRef}
                                             </span>
-                                            <span className="text-[10px] font-black text-rw-ink uppercase bg-rw-bg-alt px-2 py-0.5 rounded-md border border-[var(--rw-border)]">
-                                                ₦{o.totalAmount.toLocaleString()}
+                                        </td>
+                                        <td className="p-4">
+                                            <p className="text-sm font-bold text-rw-ink whitespace-nowrap">
+                                                {o.customerName}
+                                            </p>
+                                        </td>
+                                        <td className="p-4">
+                                            <span className="text-[10px] font-bold uppercase tracking-wider bg-rw-bg-alt px-2 py-1 rounded-md text-rw-muted border border-[var(--rw-border)]">
+                                                {o.items.length} unit
+                                                {o.items.length !== 1 ? "s" : ""}
                                             </span>
-                                        </div>
-                                        <p className="text-xs text-rw-ink font-black mt-1 truncate">
-                                            {o.customerName}
-                                        </p>
-                                        <p className="text-[9px] text-rw-muted font-bold uppercase tracking-tighter mt-0.5">
-                                            {o.items.length} item
-                                            {o.items.length !== 1 ? "s" : ""}
-                                        </p>
-                                    </div>
-                                </label>
-                            ))
-                        )}
-                    </div>
-                </section>
+                                        </td>
+                                        <td className="p-4">
+                                            <span
+                                                className={`text-[9px] font-black uppercase tracking-[0.2em] px-2 py-1 rounded-md border ${o.status === "paid" ? "bg-green-50 text-green-700 border-green-200" : o.status === "confirmed" ? "bg-purple-50 text-purple-700 border-purple-200" : "bg-gray-50 text-gray-700 border-gray-200"}`}
+                                            >
+                                                {o.status.replace("_", " ")}
+                                            </span>
+                                        </td>
+                                        <td className="p-4 pr-6 text-right">
+                                            <span className="text-xs font-black font-mono text-rw-ink">
+                                                {formatNaira(o.totalAmount)}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 w-full max-w-4xl px-6">
-                <div className="rw-card p-6 bg-rw-ink text-white border-none shadow-2xl flex items-center justify-between gap-8 rounded-[32px]">
+            {/* Bottom Floating Bar */}
+            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-5xl px-6">
+                <div className="rw-card p-4 sm:p-6 bg-rw-ink text-white border-none shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-8 rounded-[32px]">
                     <div className="flex items-center gap-6">
                         <div className="flex flex-col">
                             <span className="text-[9px] font-black uppercase tracking-[0.3em] opacity-40">
-                                Orders Selected
+                                Selected
                             </span>
-                            <span className="text-2xl font-display font-black tracking-tighter">
+                            <span className="text-xl sm:text-2xl font-display font-black tracking-tighter">
                                 {selected.size}
                             </span>
                         </div>
@@ -214,18 +327,20 @@ export function NewVerdictClient({ orders }: NewVerdictClientProps) {
                             <span className="text-[9px] font-black uppercase tracking-[0.3em] opacity-40">
                                 Total Valuation
                             </span>
-                            <span className="text-2xl font-display font-black tracking-tighter text-rw-gold">
-                                ₦
-                                {selectedOrdersData
-                                    .reduce((s, o) => s + o.totalAmount, 0)
-                                    .toLocaleString()}
+                            <span className="text-xl sm:text-2xl font-display font-black tracking-tighter text-rw-gold">
+                                {formatNaira(
+                                    selectedOrdersData.reduce(
+                                        (s, o) => s + o.totalAmount,
+                                        0
+                                    )
+                                )}
                             </span>
                         </div>
                     </div>
                     <button
                         onClick={handleGenerate}
-                        disabled={selected.size === 0 || !signature || isPending}
-                        className="h-14 px-10 rounded-2xl bg-rw-crimson text-white font-display font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-30 disabled:grayscale disabled:scale-100 flex items-center gap-3 shadow-xl shadow-rw-crimson/20"
+                        disabled={selected.size === 0 || isPending}
+                        className="h-12 sm:h-14 px-8 sm:px-10 rounded-2xl bg-rw-crimson text-white font-display font-black uppercase tracking-widest text-xs sm:text-sm hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-30 disabled:grayscale disabled:scale-100 flex items-center gap-3 shadow-xl shadow-rw-crimson/20 w-full sm:w-auto justify-center"
                     >
                         {isPending ? (
                             <>
@@ -234,9 +349,9 @@ export function NewVerdictClient({ orders }: NewVerdictClientProps) {
                             </>
                         ) : (
                             <>
-                                Register & View
+                                Register Verdict
                                 <svg
-                                    className="h-5 w-5"
+                                    className="h-4 w-4 sm:h-5 sm:w-5"
                                     fill="none"
                                     stroke="currentColor"
                                     strokeWidth={3}

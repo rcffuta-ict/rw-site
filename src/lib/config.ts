@@ -44,7 +44,7 @@ export const TENURE = {
 
 // ─── Fellowship Identity ───────────────────────────────────────────────────────
 export const FELLOWSHIP = {
-    fullName: "Redeemed Christian Fellowship, Federal University of Technology, Akure",
+    fullName: "Redeemed Christian Fellowship, FUTA Chapter",
     shortName: "RCF FUTA",
     acronym: "RCFFUTA",
     founded: "1983",

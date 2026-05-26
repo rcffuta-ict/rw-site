@@ -4,11 +4,18 @@
 export const dynamic = "force-dynamic";
 
 import { AdminLayoutWrapper } from "@/components/admin/AdminLayoutWrapper";
+import { getPendingPaymentsCount } from "@/lib/services/finance.service";
 
 export default async function AuthenticatedSectionLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    return <AdminLayoutWrapper>{children}</AdminLayoutWrapper>;
+    const pendingFinanceCount = await getPendingPaymentsCount();
+
+    return (
+        <AdminLayoutWrapper pendingFinanceCount={pendingFinanceCount}>
+            {children}
+        </AdminLayoutWrapper>
+    );
 }

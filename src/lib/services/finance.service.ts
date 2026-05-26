@@ -57,3 +57,14 @@ export async function getFinanceSummary() {
 
     return { collected, pending, flagged, totalOrdered, outstanding: totalOrdered - collected, payments };
 }
+
+export async function getPendingPaymentsCount(): Promise<number> {
+    const supabase = await createSupabaseAdminClient();
+    const { count, error } = await supabase
+        .from("rw_payments")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending");
+
+    if (error) return 0;
+    return count ?? 0;
+}

@@ -60,9 +60,16 @@ interface PaymentFlowProps {
     onStageChange?: (stage: "idle" | "analysing" | "preview" | "done") => void;
 }
 
-export function PaymentFlow({ order, settings, onResetOrder, onStageChange }: PaymentFlowProps) {
+export function PaymentFlow({
+    order,
+    settings,
+    onResetOrder,
+    onStageChange,
+}: PaymentFlowProps) {
     const [paymentType, setPaymentType] = useState<"full" | "partial" | null>("full");
-    const [customAmount, setCustomAmount] = useState<number | "">(settings.payment_min_amount);
+    const [customAmount, setCustomAmount] = useState<number | "">(
+        settings.payment_min_amount
+    );
     const [file, setFile] = useState<File | null>(null);
     const [stage, setStage] = useState<"idle" | "analysing" | "preview" | "done">("idle");
     const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
@@ -81,7 +88,9 @@ export function PaymentFlow({ order, settings, onResetOrder, onStageChange }: Pa
     const payAmount =
         paymentType === "full"
             ? remaining
-            : (typeof customAmount === "number" ? Math.max(customAmount, minPayable) : minPayable);
+            : typeof customAmount === "number"
+              ? Math.max(customAmount, minPayable)
+              : minPayable;
 
     function updateStage(newStage: typeof stage) {
         setStage(newStage);
@@ -557,9 +566,8 @@ export function PaymentFlow({ order, settings, onResetOrder, onStageChange }: Pa
                                                 className="text-xs text-red-600 font-mono mt-2 truncate max-w-xs"
                                                 title={extraction.bank || ""}
                                             >
-                                                Expected Bank:{" "}
-                                                <b>{settings.bank_name}</b> | Found:{" "}
-                                                <b>{extraction.bank}</b>
+                                                Expected Bank: <b>{settings.bank_name}</b>{" "}
+                                                | Found: <b>{extraction.bank}</b>
                                             </p>
                                         )}
                                         {isRecipientMismatch && (
@@ -720,15 +728,6 @@ export function PaymentFlow({ order, settings, onResetOrder, onStageChange }: Pa
                         </p>
                     </div>
                 )}
-                {submitting && (
-                    <div className="flex items-center justify-center gap-2 mt-4 animate-fade-in">
-                        <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson animate-ping" />
-                        <p className="text-center text-xs text-rw-muted font-medium animate-pulse">
-                            Please do not close this window or refresh the page while we
-                            process your payment.
-                        </p>
-                    </div>
-                )}
             </div>
         );
     }
@@ -818,13 +817,23 @@ export function PaymentFlow({ order, settings, onResetOrder, onStageChange }: Pa
                     <RadioCard
                         selected={paymentType === "partial"}
                         onClick={() => {
-                            if (settings.payment_installment_allowed && remaining > minPayable) {
+                            if (
+                                settings.payment_installment_allowed &&
+                                remaining > minPayable
+                            ) {
                                 setPaymentType("partial");
                             }
                         }}
-                        title={settings.payment_installment_allowed && remaining > minPayable ? "Pay Minimum Deposit" : "Pay in Part (Disabled)"}
+                        title={
+                            settings.payment_installment_allowed && remaining > minPayable
+                                ? "Pay Minimum Deposit"
+                                : "Pay in Part (Disabled)"
+                        }
                         desc={`Min ₦${minPayable.toLocaleString()}`}
-                        disabled={!settings.payment_installment_allowed || remaining <= minPayable}
+                        disabled={
+                            !settings.payment_installment_allowed ||
+                            remaining <= minPayable
+                        }
                     />
                 </div>
             </div>
@@ -850,7 +859,8 @@ export function PaymentFlow({ order, settings, onResetOrder, onStageChange }: Pa
                     )}
                     {typeof customAmount === "number" && customAmount > remaining && (
                         <p className="text-xs text-rw-crimson font-medium mb-4">
-                            Amount cannot exceed remaining balance of ₦{remaining.toLocaleString()}
+                            Amount cannot exceed remaining balance of ₦
+                            {remaining.toLocaleString()}
                         </p>
                     )}
 
