@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Payment } from "@/lib/data/types";
 import { PaymentStatusBadge } from "../ui/Badge";
 import { Card } from "../ui/cards/Card";
-import { Button } from "../ui/forms/Button";
+import { formatNaira } from "@/lib/utils/functions";
 
 interface PaymentReviewCardProps {
     payment: Payment;
@@ -23,7 +23,7 @@ export function PaymentReviewCard({ payment }: PaymentReviewCardProps) {
                 <div className="flex items-start justify-between gap-4">
                     <div>
                         <p className="font-mono font-bold text-xl text-rw-crimson">
-                            ₦{payment.extractedAmount.toLocaleString()}
+                            {formatNaira(payment.extractedAmount)}
                         </p>
                         <p className="text-[10px] font-bold text-rw-muted uppercase tracking-wider mt-1">
                             {new Date(payment.createdAt).toLocaleString("en-NG", {
