@@ -13,67 +13,74 @@ A **complete, production-ready transactional email system** fully integrated int
 ## 📋 Deliverables Checklist
 
 ### 🗄️ Database Layer
+
 - [x] **docs/schema.sql** — Updated with:
-  - `pg_net` extension enabled
-  - `rw_email_templates` table
-  - `rw_email_logs` table
-  - `notify_order_status_change()` trigger
-  - `notify_payment_status_change()` trigger
-  - RLS policies on new tables
-  
+    - `pg_net` extension enabled
+    - `rw_email_templates` table
+    - `rw_email_logs` table
+    - `notify_order_status_change()` trigger
+    - `notify_payment_status_change()` trigger
+    - RLS policies on new tables
+
 - [x] **docs/seed-email-templates.sql** — NEW file with:
-  - 12 production-ready email templates
-  - 8 order status templates
-  - 4 payment status templates
+    - 12 production-ready email templates
+    - 8 order status templates
+    - 4 payment status templates
 
 ### ⚙️ Backend Services
+
 - [x] **src/lib/services/email-templates.service.ts** — NEW file:
-  - `getEmailTemplates()` 
-  - `getEmailTemplate()`
-  - `updateEmailTemplate()`
-  - `getEmailLogsForOrder()`
-  - `getRecentEmailLogs()`
-  - `getEmailStats()`
+    - `getEmailTemplates()`
+    - `getEmailTemplate()`
+    - `updateEmailTemplate()`
+    - `getEmailLogsForOrder()`
+    - `getRecentEmailLogs()`
+    - `getEmailStats()`
 
 ### 🌐 Edge Function
+
 - [x] **supabase/functions/send-order-email/index.ts** — NEW Deno function:
-  - Fetches orders & templates from DB
-  - Injects 6 template variables
-  - Renders RCF-branded HTML
-  - Sends via Zoho SMTP
-  - Logs all sends
+    - Fetches orders & templates from DB
+    - Injects 6 template variables
+    - Renders RCF-branded HTML
+    - Sends via Zoho SMTP
+    - Logs all sends
 
 ### 🎨 Admin UI
+
 - [x] **src/components/admin/EmailTemplateEditor.tsx** — NEW component:
-  - Edit template label, subject, body
-  - Toggle active/inactive
-  - Live preview with sample data
-  - Variable reference panel
-  - Save with admin attribution
-  
+    - Edit template label, subject, body
+    - Toggle active/inactive
+    - Live preview with sample data
+    - Variable reference panel
+    - Save with admin attribution
+
 - [x] **src/components/admin/EmailLogsViewer.tsx** — NEW component:
-  - Display recent email sends
-  - Success/failure indicators
-  - Error tooltips
-  
+    - Display recent email sends
+    - Success/failure indicators
+    - Error tooltips
+
 - [x] **src/app/(admin)/admin/email-templates/page.tsx** — NEW page:
-  - Full admin dashboard
-  - Email statistics (30 days)
-  - Expandable template editors
-  - Recent send logs
+    - Full admin dashboard
+    - Email statistics (30 days)
+    - Expandable template editors
+    - Recent send logs
 
 ### 📘 Type Definitions
+
 - [x] **src/lib/data/types.ts** — Updated with:
-  - `EmailTemplate` interface
-  - `EmailLog` interface
+    - `EmailTemplate` interface
+    - `EmailLog` interface
 
 ### 📚 Documentation
+
 - [x] **IMPLEMENTATION_SUMMARY.md** — Complete setup guide
 - [x] **EMAIL_QUICK_START.md** — Quick reference
 - [x] **EMAIL_IMPLEMENTATION_COMPLETE.md** — Visual summary
 - [x] **PR_MESSAGE.md** — GitHub PR template
 
 ### 📦 Dependencies
+
 - [x] **package.json** — Added `date-fns` for email log timestamps
 
 ---
@@ -81,6 +88,7 @@ A **complete, production-ready transactional email system** fully integrated int
 ## 🎯 Email Triggers (12 Total)
 
 ### Order Emails (8)
+
 1. `pending` — Order received, upload receipt
 2. `partially_paid` — Partial payment confirmed
 3. `paid` — Full payment confirmed 🎉
@@ -91,6 +99,7 @@ A **complete, production-ready transactional email system** fully integrated int
 8. `cancelled` — Order cancelled
 
 ### Payment Emails (4)
+
 9. `payment_pending` — Receipt received
 10. `payment_approved` — Payment verified
 11. `payment_flagged` — Receipt has issue
@@ -101,12 +110,14 @@ A **complete, production-ready transactional email system** fully integrated int
 ## 🔧 How to Deploy
 
 ### 1️⃣ Database Setup
+
 ```bash
 # In Supabase SQL Editor, run:
 # docs/schema.sql
 ```
 
 ### 2️⃣ Configure Database Settings
+
 ```
 Supabase Dashboard → Settings → Database
   app.supabase_url = https://YOUR_PROJECT_REF.supabase.co
@@ -114,29 +125,34 @@ Supabase Dashboard → Settings → Database
 ```
 
 ### 3️⃣ Zoho SMTP Credentials
+
 ```bash
 # mail.zoho.com → Security → App Passwords
 # Generate app password
 ```
 
 ### 4️⃣ Edge Function Secrets
+
 ```bash
 supabase secrets set ZOHO_SMTP_USER=orders@yourdomain.com
 supabase secrets set ZOHO_SMTP_PASS=your_app_password
 ```
 
 ### 5️⃣ Deploy Function
+
 ```bash
 supabase functions deploy send-order-email
 ```
 
 ### 6️⃣ Seed Templates
+
 ```bash
 # In Supabase SQL Editor, run:
 # docs/seed-email-templates.sql
 ```
 
 ### 7️⃣ Update Environment
+
 ```bash
 # .env.local with Supabase credentials
 ```
@@ -162,6 +178,7 @@ supabase functions deploy send-order-email
 ## 📊 Admin Dashboard
 
 Visit **Admin → Email Templates** to:
+
 - View 30-day email statistics
 - Edit any of 12 templates
 - Preview templates with sample data
@@ -230,20 +247,21 @@ Documentation/
 
 ## 📖 Documentation Available
 
-| Document | Purpose |
-|----------|---------|
-| **IMPLEMENTATION_SUMMARY.md** | Complete reference (40+ sections) |
-| **EMAIL_QUICK_START.md** | Quick setup guide (7 steps) |
-| **EMAIL_IMPLEMENTATION_COMPLETE.md** | Visual overview & architecture |
-| **PR_MESSAGE.md** | GitHub PR template |
-| **docs/schema.sql** | Database schema with comments |
-| **docs/seed-email-templates.sql** | Default template SQL |
+| Document                             | Purpose                           |
+| ------------------------------------ | --------------------------------- |
+| **IMPLEMENTATION_SUMMARY.md**        | Complete reference (40+ sections) |
+| **EMAIL_QUICK_START.md**             | Quick setup guide (7 steps)       |
+| **EMAIL_IMPLEMENTATION_COMPLETE.md** | Visual overview & architecture    |
+| **PR_MESSAGE.md**                    | GitHub PR template                |
+| **docs/schema.sql**                  | Database schema with comments     |
+| **docs/seed-email-templates.sql**    | Default template SQL              |
 
 ---
 
 ## 🎊 Summary
 
 You now have a **professional, automated email system** that:
+
 - Triggers automatically on order/payment changes
 - Sends branded emails via Zoho SMTP
 - Allows admins to customize templates
