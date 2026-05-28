@@ -38,7 +38,7 @@ export function Identity({
     // const rcfLogoH = variant === "hero" ? "h-20" : isLarge ? "h-12 sm:h-14" : "h-10";
     // const rwLogoH = variant === "hero" ? "h-14" : isLarge ? "h-10 sm:h-11" : "h-8";
     const rcfLogoH = "h-20";
-    const rwLogoH = "h-12";
+    const rwLogoH = "h-8";
 
     // Title & Subtext scales
     const titleSize =
@@ -72,7 +72,7 @@ export function Identity({
 
                 {/* RW Campaign Variant Identity Box */}
                 <div
-                    className={`${rwLogoH} aspect-square overflow-hidden flex items-center justify-center p-0.5 group-hover:scale-105 transition-transform duration-300`}
+                    className={`${rwLogoH} overflow-hidden flex items-center justify-center p-0.5 group-hover:scale-105 transition-transform duration-300`}
                     style={{ transitionDelay: "30ms" }}
                 >
                     <img
