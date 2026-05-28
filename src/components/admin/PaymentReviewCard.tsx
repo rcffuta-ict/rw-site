@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Payment } from "@/lib/data/types";
 import { PaymentStatusBadge } from "../ui/Badge";
 import { Card } from "../ui/cards/Card";
-import { Button } from "../ui/forms/Button";
+import { formatNaira } from "@/lib/utils/functions";
 
 interface PaymentReviewCardProps {
     payment: Payment;
@@ -13,24 +13,8 @@ interface PaymentReviewCardProps {
     onReject: (id: string, note: string) => void;
 }
 
-export function PaymentReviewCard({
-    payment,
-    onApprove,
-    onFlag,
-    onReject,
-}: PaymentReviewCardProps) {
-    const [note, setNote] = useState(payment.reviewNote || "");
-    const [isActioning, setIsActioning] = useState(false);
-
+export function PaymentReviewCard({ payment }: PaymentReviewCardProps) {
     const amountMatch = payment.extractedAmount === payment.amountConfirmed;
-
-    const handleAction = async (action: () => void) => {
-        setIsActioning(true);
-        // Simulate network delay
-        await new Promise((r) => setTimeout(r, 600));
-        action();
-        setIsActioning(false);
-    };
 
     return (
         <Card className="overflow-hidden border-[var(--rw-border-mid)] shadow-md">
@@ -39,7 +23,7 @@ export function PaymentReviewCard({
                 <div className="flex items-start justify-between gap-4">
                     <div>
                         <p className="font-mono font-bold text-xl text-rw-crimson">
-                            ₦{payment.extractedAmount.toLocaleString()}
+                            {formatNaira(payment.extractedAmount)}
                         </p>
                         <p className="text-[10px] font-bold text-rw-muted uppercase tracking-wider mt-1">
                             {new Date(payment.createdAt).toLocaleString("en-NG", {
@@ -117,69 +101,6 @@ export function PaymentReviewCard({
                             ))}
                         </dl>
                     </div>
-                </div>
-
-                {/* Status-specific actions and notes */}
-                <div className="pt-4 border-t border-[var(--rw-border)] flex flex-col gap-4">
-                    {payment.status === "pending" || payment.status === "flagged" ? (
-                        <>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-[10px] font-bold text-rw-muted uppercase tracking-widest">
-                                    Admin Note
-                                </label>
-                                <textarea
-                                    value={note}
-                                    onChange={(e) => setNote(e.target.value)}
-                                    placeholder="Add a note for the review..."
-                                    className="w-full h-16 rounded-lg border border-[var(--rw-border-mid)] bg-rw-bg px-3 py-2 text-xs text-rw-ink focus:outline-none focus:border-rw-crimson transition-all resize-none"
-                                />
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                                <Button
-                                    variant="primary"
-                                    size="sm"
-                                    className="bg-green-600 hover:bg-green-700"
-                                    disabled={isActioning}
-                                    onClick={() =>
-                                        handleAction(() => onApprove(payment.id))
-                                    }
-                                >
-                                    Approve Payment
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    size="sm"
-                                    className="text-amber-700 border-amber-300 hover:bg-amber-50"
-                                    disabled={isActioning}
-                                    onClick={() =>
-                                        handleAction(() => onFlag(payment.id, note))
-                                    }
-                                >
-                                    Flag for Review
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    size="sm"
-                                    className="text-red-600 border-red-200 hover:bg-red-50"
-                                    disabled={isActioning}
-                                    onClick={() =>
-                                        handleAction(() => onReject(payment.id, note))
-                                    }
-                                >
-                                    Reject Payment
-                                </Button>
-                            </div>
-                        </>
-                    ) : (
-                        <div className="bg-rw-bg-alt/50 rounded-lg px-4 py-3 border border-[var(--rw-border)]">
-                            <p className="text-[10px] font-bold text-rw-muted uppercase tracking-widest mb-1">
-                                Final Decision Note
-                            </p>
-                            <p className="text-sm text-rw-text-2 italic">
-                                {payment.reviewNote || "No decision note provided."}
-                            </p>
-                        </div>
-                    )}
                 </div>
             </div>
         </Card>

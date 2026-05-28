@@ -66,6 +66,7 @@ export const LOGOS = {
     rcfFutaDark: "/images/logos/rcffuta-dark.png",
     /** RCFFUTA full logo — light version (for dark bg) */
     rcfFutaLight: "/images/logos/rcffuta-light.png",
+    rcfFutaMix: "/images/logos/rcffuta-dark-on-white.png",
     /** Plain RCF badge mark */
     rcf: "/images/logos/rcf.png",
     /** Redemption Week 2026 event logo */
