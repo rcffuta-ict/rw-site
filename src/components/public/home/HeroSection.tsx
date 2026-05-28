@@ -9,20 +9,25 @@ import { useEffect, useRef, useState } from "react";
 
 const NIGHT_ITEMS = [
     { label: "Opening Ceremony", day: "MON", n: "01", color: "#FF0015" },
-    { label: "Word Night",       day: "TUE", n: "02", color: "#FF6A00" },
-    { label: "Power Night",      day: "WED", n: "03", color: "#FF0015" },
-    { label: "Drama Night",      day: "THU", n: "04", color: "#FF6A00" },
-    { label: "Choir Concert",    day: "FRI", n: "05", color: "#FF0015" },
-    { label: "RIFE Night",       day: "SAT", n: "06", color: "#FF6A00" },
-    { label: "Handing Over",     day: "SUN", n: "07", color: "#FF0015" },
+    { label: "Word Night", day: "TUE", n: "02", color: "#FF6A00" },
+    { label: "Power Night", day: "WED", n: "03", color: "#FF0015" },
+    { label: "Drama Night", day: "THU", n: "04", color: "#FF6A00" },
+    { label: "Choir Concert", day: "FRI", n: "05", color: "#FF0015" },
+    { label: "RIFE Night", day: "SAT", n: "06", color: "#FF6A00" },
+    { label: "Handing Over", day: "SUN", n: "07", color: "#FF0015" },
 ];
 
 export function HeroSection() {
     const sectionRef = useRef<HTMLElement>(null);
     const [mounted, setMounted] = useState(false);
 
+    // setMounted deferred to avoid synchronous setState inside effect
     useEffect(() => {
-        setMounted(true);
+        const t = setTimeout(() => setMounted(true), 0);
+        return () => clearTimeout(t);
+    }, []);
+
+    useEffect(() => {
         const el = sectionRef.current;
         if (!el) return;
         const handler = (e: MouseEvent) => {
@@ -67,7 +72,6 @@ export function HeroSection() {
                         transparent 100%
                     );
                 }
-                /* On mobile the whole image needs to be legible below text */
                 @media (max-width: 639px) {
                     .hero-gradient-left {
                         background: linear-gradient(
@@ -111,12 +115,6 @@ export function HeroSection() {
                 }
 
                 /* ── headline ──────────────────────────────────────── */
-                /*
-                 * clamp breakdown:
-                 *   min  3.6rem  → ~57px on 320px phone  (fits "REDEMPTION" in one line)
-                 *   mid  13vw    → scales with viewport
-                 *   max  14rem   → caps at large desktop
-                 */
                 .hero-display {
                     font-family: var(--font-bebas), 'Impact', sans-serif;
                     font-size: clamp(3.6rem, 13vw, 14rem);
@@ -163,7 +161,6 @@ export function HeroSection() {
                     font-size: 0.75rem;
                     font-weight: 500;
                     color: rgba(255,255,255,0.72);
-                    /* allow wrapping on very small screens */
                     white-space: normal;
                     word-break: break-word;
                 }
@@ -253,27 +250,45 @@ export function HeroSection() {
                     color: rgba(255,255,255,0.4);
                 }
 
-                /* ── hero badge ────────────────────────────────────── */
-                .hero-badge {
+                /* ── composite brand wrapper ────────────────────────── */
+                .brand-composer-panel {
                     display: inline-flex;
-                    align-items: center;
-                    gap: 8px;
-                    background: rgba(255,255,255,0.06);
-                    border: 1px solid rgba(255,255,255,0.12);
-                    border-radius: 999px;
-                    padding: 6px 12px 6px 7px;
-                    backdrop-filter: blur(10px);
-                    /* don't let it stretch full width on mobile */
+                    flex-direction: column;
+                    gap: 12px;
                     max-width: 100%;
                     width: fit-content;
                 }
-                /* hide anniversary label on very small screens to keep badge compact */
-                .hero-badge .badge-anniversary {
-                    display: none;
+                @media (min-width: 768px) {
+                    .brand-composer-panel {
+                        flex-direction: row;
+                        align-items: center;
+                        background: rgba(15, 5, 5, 0.4);
+                        border: 1px solid rgba(255,255,255,0.08);
+                        border-radius: 999px;
+                        padding: 6px 18px 6px 6px;
+                        backdrop-filter: blur(16px);
+                        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+                    }
                 }
-                @media (min-width: 400px) {
-                    .hero-badge .badge-anniversary { display: inline; }
-                    .hero-badge { gap: 10px; padding: 7px 14px 7px 8px; }
+
+                .hero-badge-base {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 10px;
+                    background: rgba(15, 5, 5, 0.55);
+                    border: 1px solid rgba(255,255,255,0.1);
+                    border-radius: 999px;
+                    padding: 5px 14px 5px 6px;
+                    backdrop-filter: blur(12px);
+                    width: fit-content;
+                }
+                @media (min-width: 768px) {
+                    .hero-badge-base {
+                        background: transparent;
+                        border: none;
+                        padding: 0;
+                        backdrop-filter: none;
+                    }
                 }
 
                 /* ── fire accent line ──────────────────────────────── */
@@ -286,48 +301,6 @@ export function HeroSection() {
                 }
                 @media (min-width: 640px) {
                     .fire-line { width: 48px; }
-                }
-
-                /* ── scroll indicator ──────────────────────────────── */
-                .scroll-hint {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 6px;
-                }
-                .scroll-hint-line {
-                    width: 1px;
-                    height: 32px;
-                    background: linear-gradient(to bottom, rgba(255,0,21,0.7), transparent);
-                    animation: scrollPulse 1.8s ease-in-out infinite;
-                }
-                @keyframes scrollPulse {
-                    0%, 100% { opacity: 0.4; transform: scaleY(1); }
-                    50%       { opacity: 1;   transform: scaleY(1.15); }
-                }
-
-                /* ── stagger fade-ins ──────────────────────────────── */
-                @keyframes heroFadeUp {
-                    from { opacity: 0; transform: translateY(24px); }
-                    to   { opacity: 1; transform: translateY(0); }
-                }
-                .h-reveal { opacity: 0; animation: heroFadeUp 0.75s cubic-bezier(0.16,1,0.3,1) forwards; }
-                .h-reveal.d0 { animation-delay:  80ms; }
-                .h-reveal.d1 { animation-delay: 200ms; }
-                .h-reveal.d2 { animation-delay: 330ms; }
-                .h-reveal.d3 { animation-delay: 450ms; }
-                .h-reveal.d4 { animation-delay: 570ms; }
-                .h-reveal.d5 { animation-delay: 690ms; }
-                .h-reveal.d6 { animation-delay: 810ms; }
-
-                /* ── countdown dark overrides ──────────────────────── */
-                .hero-countdown-wrap {
-                    --rw-ink: #fff;
-                    --rw-text: rgba(255,255,255,0.9);
-                    --rw-text-2: rgba(255,255,255,0.55);
-                    --rw-border: rgba(255,255,255,0.12);
-                    --rw-surface: rgba(255,255,255,0.06);
-                    --rw-crimson: #FF0015;
                 }
 
                 /* ── desktop programme strip ───────────────────────── */
@@ -405,7 +378,6 @@ export function HeroSection() {
                         gap: 7px;
                         scrollbar-width: none;
                         padding-bottom: 2px;
-                        /* extend slightly beyond container padding for edge-to-edge feel */
                         margin-left: -0.25rem;
                         padding-left: 0.25rem;
                     }
@@ -447,22 +419,16 @@ export function HeroSection() {
                 }
 
                 /* ── content grid ──────────────────────────────────── */
-                /*
-                 * Mobile:  column, scrollable, top-padded for navbar, bottom-padded
-                 * Desktop: centred vertically, right padding frees up prog strip space
-                 */
                 .hero-content-grid {
                     position: relative;
                     z-index: 10;
                     width: 100%;
                     max-width: 1600px;
                     margin: 0 auto;
-                    /* top pad = navbar height (~64px) + breathing room */
                     padding: 5rem 1.25rem 3rem;
                     display: flex;
                     flex-direction: column;
                     justify-content: flex-start;
-                    /* min height so content never gets cramped */
                     min-height: 100svh;
                 }
                 @media (min-width: 480px) {
@@ -502,14 +468,48 @@ export function HeroSection() {
                     />
                 </div>
 
+                {/* ── BRAND LOGO ASSETS: EDITORIAL BACKGROUND LAYERS ── */}
+                {/* 38th Anniversary Logo Watermark background accent */}
+                <div className="absolute right-0 bottom-0 lg:right-[10%] lg:top-1/2 lg:-translate-y-1/2 pointer-events-none z-[1] select-none opacity-[0.04] md:opacity-[0.06] transition-opacity duration-700">
+                    <img
+                        src={LOGOS.redemptionWeek}
+                        alt="38th Anniversary Stamp"
+                        className="w-[300px] h-[300px] sm:w-[450px] sm:h-[450px] lg:w-[650px] lg:h-[650px] object-contain"
+                    />
+                </div>
+
                 {/* gradient masks */}
                 <div className="absolute inset-0 z-[1] hero-gradient-left" />
                 <div className="absolute inset-0 z-[2] hero-gradient-bottom" />
                 <div className="absolute inset-0 z-[2] hero-gradient-top" />
 
                 {/* atmospheric orbs */}
-                <div className="absolute z-[3] pointer-events-none" style={{ top: "-10%", left: "-8%", width: "520px", height: "520px", background: "radial-gradient(circle, rgba(255,0,21,0.14) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(20px)" }} />
-                <div className="absolute z-[3] pointer-events-none" style={{ bottom: "10%", left: "20%", width: "350px", height: "350px", background: "radial-gradient(circle, rgba(255,106,0,0.10) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(16px)" }} />
+                <div
+                    className="absolute z-[3] pointer-events-none"
+                    style={{
+                        top: "-10%",
+                        left: "-8%",
+                        width: "520px",
+                        height: "520px",
+                        background:
+                            "radial-gradient(circle, rgba(255,0,21,0.14) 0%, transparent 70%)",
+                        borderRadius: "50%",
+                        filter: "blur(20px)",
+                    }}
+                />
+                <div
+                    className="absolute z-[3] pointer-events-none"
+                    style={{
+                        bottom: "10%",
+                        left: "20%",
+                        width: "350px",
+                        height: "350px",
+                        background:
+                            "radial-gradient(circle, rgba(255,106,0,0.10) 0%, transparent 70%)",
+                        borderRadius: "50%",
+                        filter: "blur(16px)",
+                    }}
+                />
 
                 {/* mouse glow */}
                 <div className="hero-glow" />
@@ -517,97 +517,262 @@ export function HeroSection() {
                 {/* ── Main content ──────────────────────────────────────── */}
                 <div className="hero-content-grid">
                     <div style={{ maxWidth: "780px", width: "100%" }}>
+                        {/* ── COMPOSITE BRAND HEADER ARCHITECTURE ── */}
+                        <div
+                            className={`brand-composer-panel h-reveal d0 ${mounted ? "" : "opacity-0"}`}
+                        >
+                            {/* Primary Badge Structure: Host Branding */}
+                            <div className="hero-badge-base">
+                                <div className="flex items-center justify-center shadow-md">
+                                    <img
+                                        src={LOGOS.rcfFutaMix}
+                                        alt="RCF FUTA Primary Logo"
+                                        className="h-[18px] w-auto max-w-[40px] object-contain"
+                                    />
+                                </div>
+                                <span className="eyebrow-dark tracking-[0.22em] text-white/90 text-[10px] sm:text-xs font-bold">
+                                    {TENURE.anniversaryLabel}
+                                </span>
+                            </div>
 
-                        {/* Badge */}
-                        <div className={`hero-badge h-reveal d0 ${mounted ? "" : "opacity-0"}`}>
-                            <img src={LOGOS.redemptionWeek} alt="RCF FUTA" style={{ height: "20px", width: "20px", objectFit: "contain", flexShrink: 0 }} />
-                            <span className="eyebrow-dark badge-anniversary">{TENURE.anniversaryLabel}</span>
-                            <span className="badge-anniversary" style={{ width: "1px", height: "12px", background: "rgba(255,255,255,0.15)", display: "inline-block", flexShrink: 0 }} />
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: "5px", fontFamily: "var(--font-dm-sans), ui-sans-serif, sans-serif", fontSize: "0.65rem", fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "#FF6A00", flexShrink: 0 }}>
-                                <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#FF0015", animation: "pulse-soft 2s infinite", display: "inline-block", flexShrink: 0 }} />
-                                RCF FUTA
-                            </span>
+                            {/* Divider Line (Only displays on Desktop cluster block) */}
+                            <span className="hidden md:block w-[1px] h-4 bg-white/20" />
+
+                            {/* Desktop/Mobile integrated secondary logo rows */}
+                            <div className="flex items-center gap-4 bg-neutral-900/50 border border-white/5 md:border-none md:bg-transparent px-3 py-2 md:p-0 rounded-full w-fit">
+                                {/* Campaign Logo: RW'26 */}
+                                <div className="flex items-center gap-2">
+                                    <div className="bg-white">
+                                        <img
+                                            src={LOGOS.anniversary}
+                                            alt="RW26 Logo Card"
+                                            className="h-[22px] w-auto object-contain filter drop-shadow-[0_2px_8px_rgba(255,106,0,0.2)]"
+                                        />
+                                    </div>
+                                    <span className="text-[10px] uppercase font-semibold tracking-wider text-neutral-400 font-dm-sans hidden sm:inline">
+                                        {TENURE.dateRange}
+                                    </span>
+                                </div>
+
+                                <span className="w-[1px] h-3 bg-white/10" />
+
+                                {/* Active Tenure Identity Icon */}
+                                <div className="flex items-center gap-2">
+                                    <img
+                                        src={LOGOS.tenureIcon}
+                                        alt="Current Tenure Icon"
+                                        className="h-[20px] w-auto object-contain filter brightness-110"
+                                    />
+                                    <span className="text-[10px] uppercase font-bold tracking-widest text-orange-500 font-dm-sans">
+                                        RW &apos;{TENURE.year.slice(2)}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Headline */}
-                        <div className={`h-reveal d1 ${mounted ? "" : "opacity-0"}`} style={{ marginTop: "clamp(1rem, 2.5vw, 2rem)" }}>
+                        <div
+                            className={`h-reveal d1 ${mounted ? "" : "opacity-0"}`}
+                            style={{ marginTop: "clamp(1.25rem, 3vw, 2.25rem)" }}
+                        >
                             <h1 className="hero-display">
                                 <span className="outline-word">Redemption</span>
-                                <span className="fire-word">Week &apos;{TENURE.year.slice(2)}</span>
+                                <span className="fire-word">
+                                    Week &apos;{TENURE.year.slice(2)}
+                                </span>
                             </h1>
                         </div>
 
                         {/* Theme */}
-                        <div className={`h-reveal d2 ${mounted ? "" : "opacity-0"}`} style={{ marginTop: "clamp(0.75rem, 2vw, 1.5rem)", display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                        <div
+                            className={`h-reveal d2 ${mounted ? "" : "opacity-0"}`}
+                            style={{
+                                marginTop: "clamp(0.75rem, 2vw, 1.5rem)",
+                                display: "flex",
+                                alignItems: "flex-start",
+                                gap: "12px",
+                            }}
+                        >
                             <div className="fire-line" style={{ marginTop: "0.55em" }} />
                             <p className="theme-quote">&ldquo;{TENURE.theme}&rdquo;</p>
                         </div>
 
                         {/* Meta pills */}
-                        <div className={`h-reveal d3 ${mounted ? "" : "opacity-0"}`} style={{ marginTop: "clamp(0.75rem, 2vw, 1.5rem)", display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                        <div
+                            className={`h-reveal d3 ${mounted ? "" : "opacity-0"}`}
+                            style={{
+                                marginTop: "clamp(0.75rem, 2vw, 1.5rem)",
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: "6px",
+                            }}
+                        >
                             {[
-                                { label: TENURE.dateRange, icon: <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /> },
-                                { label: "Southgate Aud. · FUTA, Akure", icon: <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /> },
-                                { label: "7 Nights · Free Entry", icon: <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /> },
+                                {
+                                    label: TENURE.dateRange,
+                                    icon: (
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+                                        />
+                                    ),
+                                },
+                                {
+                                    label: "Southgate Aud. · FUTA, Akure",
+                                    icon: (
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
+                                        />
+                                    ),
+                                },
+                                {
+                                    label: "7 Nights · Free Entry",
+                                    icon: (
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                        />
+                                    ),
+                                },
                             ].map(({ label, icon }) => (
                                 <span key={label} className="meta-pill">
-                                    <svg className="shrink-0" style={{ width: "12px", height: "12px", color: "#FF6A00" }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden>{icon}</svg>
+                                    <svg
+                                        className="shrink-0"
+                                        style={{
+                                            width: "12px",
+                                            height: "12px",
+                                            color: "#FF6A00",
+                                        }}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth={2}
+                                        viewBox="0 0 24 24"
+                                        aria-hidden
+                                    >
+                                        {icon}
+                                    </svg>
                                     {label}
                                 </span>
                             ))}
                         </div>
 
                         {/* CTAs */}
-                        <div className={`h-reveal d4 ${mounted ? "" : "opacity-0"}`} style={{ marginTop: "clamp(1rem, 2.5vw, 2rem)", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px" }}>
+                        <div
+                            className={`h-reveal d4 ${mounted ? "" : "opacity-0"}`}
+                            style={{
+                                marginTop: "clamp(1rem, 2.5vw, 2rem)",
+                                display: "flex",
+                                flexWrap: "wrap",
+                                alignItems: "center",
+                                gap: "10px",
+                            }}
+                        >
                             <Link href="/shop" id="hero-shop-cta" className="cta-fire">
                                 Pre-order Merch
-                                <svg style={{ width: "15px", height: "15px" }} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                                <svg
+                                    style={{ width: "15px", height: "15px" }}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={2.5}
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+                                    />
                                 </svg>
                             </Link>
-                            <Link href="/#support" id="hero-support-cta" className="cta-ghost">Support the Event</Link>
-                            <Link href="/fulfil" id="hero-pay-cta" className="cta-link">Pay an Order →</Link>
+                            <Link href="/fulfil" id="hero-pay-cta" className="cta-link">
+                                Pay an Order →
+                            </Link>
                         </div>
 
                         {/* Countdown */}
-                        <div className={`hero-countdown-wrap h-reveal d5 ${mounted ? "" : "opacity-0"}`} style={{ marginTop: "clamp(1.25rem, 3vw, 2.5rem)" }}>
-                            <p className="eyebrow-dark" style={{ marginBottom: "0.875rem" }}>
+                        <div
+                            className={`hero-countdown-wrap h-reveal d5 ${mounted ? "" : "opacity-0"}`}
+                            style={{ marginTop: "clamp(1.25rem, 3vw, 2.5rem)" }}
+                        >
+                            <p
+                                className="eyebrow-dark"
+                                style={{ marginBottom: "0.875rem" }}
+                            >
                                 Counting down to RW&apos;{TENURE.year.slice(2)}
                             </p>
                             <CountdownTimer targetDate={env.eventStartDate} />
                         </div>
 
                         {/* Mobile programme scroll */}
-                        <div className={`prog-mobile h-reveal d6 ${mounted ? "" : "opacity-0"}`} style={{ marginTop: "clamp(1.25rem, 3vw, 2rem)" }}>
+                        <div
+                            className={`prog-mobile h-reveal d6 ${mounted ? "" : "opacity-0"}`}
+                            style={{ marginTop: "clamp(1.25rem, 3vw, 2rem)" }}
+                        >
                             {NIGHT_ITEMS.map((n) => (
                                 <div key={n.label} className="prog-mobile-item">
-                                    <span className="prog-mobile-num" style={{ color: n.color }}>{n.n}</span>
+                                    <span
+                                        className="prog-mobile-num"
+                                        style={{ color: n.color }}
+                                    >
+                                        {n.n}
+                                    </span>
                                     <span className="prog-mobile-day">{n.day}</span>
                                     <span className="prog-mobile-label">{n.label}</span>
                                 </div>
                             ))}
                         </div>
-
                     </div>
                 </div>
 
                 {/* ── Desktop programme strip ────────────────────────────── */}
                 <div className="prog-strip">
-                    <p className="eyebrow-dark" style={{ paddingLeft: "4px", marginBottom: "6px" }}>Programme</p>
+                    <p
+                        className="eyebrow-dark"
+                        style={{ paddingLeft: "4px", marginBottom: "6px" }}
+                    >
+                        Programme
+                    </p>
                     {NIGHT_ITEMS.map((n, i) => (
-                        <div key={n.label} className="prog-item" style={{ animationDelay: `${600 + i * 70}ms` }}>
-                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, width: "28px" }}>
-                                <span className="prog-num" style={{ color: n.color }}>{n.n}</span>
+                        <div
+                            key={n.label}
+                            className="prog-item"
+                            style={{ animationDelay: `${600 + i * 70}ms` }}
+                        >
+                            <div
+                                style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    flexShrink: 0,
+                                    width: "28px",
+                                }}
+                            >
+                                <span className="prog-num" style={{ color: n.color }}>
+                                    {n.n}
+                                </span>
                                 <span className="prog-day">{n.day}</span>
                             </div>
-                            <span style={{ width: "1px", height: "20px", background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
+                            <span
+                                style={{
+                                    width: "1px",
+                                    height: "20px",
+                                    background: "rgba(255,255,255,0.1)",
+                                    flexShrink: 0,
+                                }}
+                            />
                             <span className="prog-label">{n.label}</span>
                         </div>
                     ))}
                 </div>
 
                 {/* ── Scroll indicator ──────────────────────────────────── */}
-                <div className="absolute bottom-8 left-1/2 z-10 hidden md:flex" style={{ transform: "translateX(-50%)" }}>
+                <div
+                    className="absolute bottom-8 left-1/2 z-10 hidden md:flex"
+                    style={{ transform: "translateX(-50%)" }}
+                >
                     <div className="scroll-hint">
                         <span className="eyebrow-dark">Scroll</span>
                         <div className="scroll-hint-line" />
