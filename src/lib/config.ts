@@ -120,7 +120,7 @@ export const CONTACTS = [
 
 export const PAYMENT_CONFIG = {
     supportContacts: [
-        { name: "Sis Mercy (WhatsApp)", phone: "2348166309428" },
+        { name: "Sis Mercy (WhatsApp)", phone: "2348116778900" },
         { name: "ICT Coord (WhatsApp)", phone: "2348122137834" },
     ],
 };
