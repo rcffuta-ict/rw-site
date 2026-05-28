@@ -41,7 +41,7 @@ const dmSans = DM_Sans({
 
 // 2. Optimized Metadata
 export const metadata: Metadata = {
-    metadataBase: new URL(env.siteUrl),
+    metadataBase: "https://rw.rcffuta.com",
     title: {
         default: `${TENURE.eventName} ${TENURE.shortYear} — ${FELLOWSHIP.shortName}`,
         template: `%s | ${TENURE.eventName} ${TENURE.shortYear} — ${FELLOWSHIP.shortName}`,
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: `${TENURE.eventName} ${TENURE.shortYear} — ${FELLOWSHIP.shortName}`,
         description: `Join us for the ${TENURE.anniversaryLabel} ${TENURE.eventName}. Partner with us through sponsorship or explore our exclusive event pre-order store.`,
-        url: "./", // Next.js automatically resolves this against metadataBase
+        url: "https://rw.rcffuta.com", // Next.js automatically resolves this against metadataBase
         siteName: `${TENURE.eventName} ${TENURE.shortYear}`,
         locale: "en_US",
         type: "website",
