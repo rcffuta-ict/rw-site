@@ -74,11 +74,11 @@ function ShopBanner() {
                 </p>
 
                 {/* Info Pills */}
-                <div className="mt-8 flex flex-wrap gap-2 max-w-[50ch]">
+                {/* <div className="mt-8 flex flex-wrap gap-2 max-w-[50ch]">
                     {[
-                        "Free pickup at venue",
+                        "Quick",
                         "Limited quantities",
-                        "Secure payment via bank transfer",
+                        "Let other",
                     ].map((tag) => (
                         <span
                             key={tag}
@@ -90,7 +90,7 @@ function ShopBanner() {
                             {tag}
                         </span>
                     ))}
-                </div>
+                </div> */}
             </div>
         </div>
     );

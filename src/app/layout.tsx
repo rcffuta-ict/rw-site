@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Syne, JetBrains_Mono } from "next/font/google";
+import { Inter, Syne, JetBrains_Mono, Bebas_Neue, DM_Sans } from "next/font/google";
 import { AppStatusProvider } from "@/context/AppStatusContext";
 import "./globals.css";
 import { TENURE, FELLOWSHIP } from "@/lib/config";
@@ -21,6 +21,19 @@ const syne = Syne({
 const jetbrainsMono = JetBrains_Mono({
     subsets: ["latin"],
     variable: "--font-jetbrains",
+    display: "swap",
+});
+
+const bebasNeue = Bebas_Neue({
+    weight: "400",
+    subsets: ["latin"],
+    variable: "--font-bebas",
+    display: "swap",
+});
+
+const dmSans = DM_Sans({
+    subsets: ["latin"],
+    variable: "--font-dm-sans",
     display: "swap",
 });
 
@@ -87,7 +100,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
         <html lang="en">
             <body
-                className={`${inter.variable} ${syne.variable} ${jetbrainsMono.variable}`}
+                className={`${inter.variable} ${syne.variable} ${jetbrainsMono.variable} ${bebasNeue.variable} ${dmSans.variable}`}
             >
                 <AdminAuthProvider>
                     <AppStatusProvider>{children}</AppStatusProvider>

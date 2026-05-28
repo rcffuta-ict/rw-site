@@ -19,6 +19,14 @@ export interface SiteImageProps {
     };
 }
 
+export interface ResponsiveSiteImageProps {
+    desktopSrc: string;
+    mobileSrc: string;
+    alt: string;
+    priority?: boolean;
+    className?: string;
+}
+
 export function SiteImage({
     src,
     alt,
@@ -69,5 +77,40 @@ export function SiteImage({
             sizes={sizes}
             className={className}
         />
+    );
+}
+
+export function ResponsiveSiteImage({
+    desktopSrc,
+    mobileSrc,
+    alt,
+    priority = false,
+    className = "",
+}: ResponsiveSiteImageProps) {
+    const desktopId = getCloudinaryPublicId(desktopSrc);
+    const mobileId = getCloudinaryPublicId(mobileSrc);
+
+    if (!desktopId || !mobileId) return null;
+
+    // Generate responsive transformed URLs directly from your loader logic
+    const mobileUrl = cloudinaryLoader({ src: mobileId, width: 640, quality: 80 });
+    const tabletUrl = cloudinaryLoader({ src: desktopId, width: 1024, quality: 80 });
+    const desktopUrl = cloudinaryLoader({ src: desktopId, width: 1920, quality: 80 });
+
+    return (
+        <picture className={className}>
+            {/* Desktop Viewports */}
+            <source media="(min-width: 1024px)" srcSet={desktopUrl} />
+            {/* Tablet Viewports */}
+            <source media="(min-width: 640px)" srcSet={tabletUrl} />
+            {/* Mobile Viewports / Fallback Img */}
+            <img
+                src={mobileUrl}
+                alt={alt}
+                loading={priority ? "eager" : "lazy"}
+                fetchPriority={priority ? "high" : "low"}
+                className="absolute inset-0 w-full h-full object-cover object-center"
+            />
+        </picture>
     );
 }
