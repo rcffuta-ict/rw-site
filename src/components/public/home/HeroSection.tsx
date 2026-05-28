@@ -9,12 +9,12 @@ import { useEffect, useRef, useState } from "react";
 
 const NIGHT_ITEMS = [
     { label: "Opening Ceremony", day: "MON", n: "01", color: "#FF0015" },
-    { label: "Word Night", day: "TUE", n: "02", color: "#FF6A00" },
-    { label: "Power Night", day: "WED", n: "03", color: "#FF0015" },
-    { label: "Drama Night", day: "THU", n: "04", color: "#FF6A00" },
-    { label: "Choir Concert", day: "FRI", n: "05", color: "#FF0015" },
-    { label: "RIFE Night", day: "SAT", n: "06", color: "#FF6A00" },
-    { label: "Handing Over", day: "SUN", n: "07", color: "#FF0015" },
+    { label: "Word Night",       day: "TUE", n: "02", color: "#FF6A00" },
+    { label: "Power Night",      day: "WED", n: "03", color: "#FF0015" },
+    { label: "Drama Night",      day: "THU", n: "04", color: "#FF6A00" },
+    { label: "Choir Concert",    day: "FRI", n: "05", color: "#FF0015" },
+    { label: "RIFE Night",       day: "SAT", n: "06", color: "#FF6A00" },
+    { label: "Handing Over",     day: "SUN", n: "07", color: "#FF0015" },
 ];
 
 export function HeroSection() {
@@ -38,15 +38,13 @@ export function HeroSection() {
 
     return (
         <>
-            {/* ── Injected styles ─────────────────────────────────────────── */}
             <style>{`
-
                 .hero-root {
                     --mx: 55%;
                     --my: 45%;
                 }
 
-                /* ---------- noise grain overlay ---------- */
+                /* ── grain overlay ─────────────────────────────────── */
                 .hero-grain::after {
                     content: "";
                     position: absolute;
@@ -58,7 +56,7 @@ export function HeroSection() {
                     background-size: 180px 180px;
                 }
 
-                /* ---------- gradient layers ---------- */
+                /* ── gradient masks ────────────────────────────────── */
                 .hero-gradient-left {
                     background: linear-gradient(
                         105deg,
@@ -68,6 +66,17 @@ export function HeroSection() {
                         rgba(10,0,2,0.18) 78%,
                         transparent 100%
                     );
+                }
+                /* On mobile the whole image needs to be legible below text */
+                @media (max-width: 639px) {
+                    .hero-gradient-left {
+                        background: linear-gradient(
+                            to bottom,
+                            rgba(10,0,2,0.82) 0%,
+                            rgba(10,0,2,0.65) 40%,
+                            rgba(10,0,2,0.88) 100%
+                        );
+                    }
                 }
                 .hero-gradient-bottom {
                     background: linear-gradient(
@@ -85,7 +94,7 @@ export function HeroSection() {
                     );
                 }
 
-                /* ---------- mouse-tracked glow ---------- */
+                /* ── mouse glow ────────────────────────────────────── */
                 .hero-glow {
                     position: absolute;
                     width: 420px;
@@ -101,10 +110,16 @@ export function HeroSection() {
                     mix-blend-mode: screen;
                 }
 
-                /* ---------- headline ---------- */
+                /* ── headline ──────────────────────────────────────── */
+                /*
+                 * clamp breakdown:
+                 *   min  3.6rem  → ~57px on 320px phone  (fits "REDEMPTION" in one line)
+                 *   mid  13vw    → scales with viewport
+                 *   max  14rem   → caps at large desktop
+                 */
                 .hero-display {
-                    fontFamily: var(--font-bebas);
-                    font-size: clamp(5.5rem, 8vw, 14rem);
+                    font-family: var(--font-bebas), 'Impact', sans-serif;
+                    font-size: clamp(3.6rem, 13vw, 14rem);
                     line-height: 0.86;
                     letter-spacing: -0.01em;
                     color: #fff;
@@ -123,46 +138,51 @@ export function HeroSection() {
                     display: block;
                 }
 
-                /* ---------- theme quote ---------- */
+                /* ── theme quote ───────────────────────────────────── */
                 .theme-quote {
-                    font-family: var(--font-dm-sans);
+                    font-family: var(--font-dm-sans), ui-sans-serif, sans-serif;
                     font-style: italic;
                     font-weight: 300;
-                    font-size: clamp(1rem, 2.2vw, 1.25rem);
-                    line-height: 1.5;
+                    font-size: clamp(0.9rem, 2.2vw, 1.25rem);
+                    line-height: 1.55;
                     color: rgba(255,255,255,0.72);
                     max-width: 38ch;
                 }
 
-                /* ---------- meta pill ---------- */
+                /* ── meta pills ────────────────────────────────────── */
                 .meta-pill {
                     display: inline-flex;
                     align-items: center;
                     gap: 0.4rem;
-                    padding: 0.35rem 0.85rem;
+                    padding: 0.35rem 0.75rem;
                     border-radius: 999px;
                     border: 1px solid rgba(255,255,255,0.14);
                     background: rgba(255,255,255,0.06);
                     backdrop-filter: blur(8px);
-                    font-family: var(--font-dm-sans);
-                    font-size: 0.78rem;
+                    font-family: var(--font-dm-sans), ui-sans-serif, sans-serif;
+                    font-size: 0.75rem;
                     font-weight: 500;
                     color: rgba(255,255,255,0.72);
-                    white-space: nowrap;
+                    /* allow wrapping on very small screens */
+                    white-space: normal;
+                    word-break: break-word;
+                }
+                @media (min-width: 480px) {
+                    .meta-pill { white-space: nowrap; }
                 }
 
-                /* ---------- CTA buttons ---------- */
+                /* ── CTA buttons ───────────────────────────────────── */
                 .cta-fire {
                     display: inline-flex;
                     align-items: center;
                     gap: 0.5rem;
-                    height: 52px;
-                    padding: 0 2rem;
+                    height: 48px;
+                    padding: 0 1.5rem;
                     background: linear-gradient(135deg, #FF0015 0%, #FF6A00 100%);
                     color: #fff;
-                    font-family: var(--font-dm-sans);
+                    font-family: var(--font-dm-sans), ui-sans-serif, sans-serif;
                     font-weight: 600;
-                    font-size: 0.9375rem;
+                    font-size: 0.9rem;
                     border-radius: 14px;
                     border: none;
                     cursor: pointer;
@@ -170,6 +190,10 @@ export function HeroSection() {
                     box-shadow: 0 4px 24px rgba(255,0,21,0.45), 0 1px 4px rgba(0,0,0,0.3);
                     transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
                     letter-spacing: 0.01em;
+                    flex-shrink: 0;
+                }
+                @media (min-width: 640px) {
+                    .cta-fire { height: 52px; padding: 0 2rem; font-size: 0.9375rem; }
                 }
                 .cta-fire:hover {
                     transform: translateY(-3px);
@@ -180,13 +204,13 @@ export function HeroSection() {
                     display: inline-flex;
                     align-items: center;
                     gap: 0.5rem;
-                    height: 52px;
-                    padding: 0 2rem;
+                    height: 48px;
+                    padding: 0 1.5rem;
                     background: rgba(255,255,255,0.07);
                     color: rgba(255,255,255,0.88);
-                    font-family: var(--font-dm-sans);
+                    font-family: var(--font-dm-sans), ui-sans-serif, sans-serif;
                     font-weight: 500;
-                    font-size: 0.9375rem;
+                    font-size: 0.9rem;
                     border-radius: 14px;
                     border: 1px solid rgba(255,255,255,0.22);
                     cursor: pointer;
@@ -194,6 +218,10 @@ export function HeroSection() {
                     backdrop-filter: blur(8px);
                     transition: all 0.22s ease;
                     letter-spacing: 0.01em;
+                    flex-shrink: 0;
+                }
+                @media (min-width: 640px) {
+                    .cta-ghost { height: 52px; padding: 0 2rem; font-size: 0.9375rem; }
                 }
                 .cta-ghost:hover {
                     background: rgba(255,255,255,0.13);
@@ -204,27 +232,105 @@ export function HeroSection() {
                     display: inline-flex;
                     align-items: center;
                     gap: 0.3rem;
-                    font-family: var(--font-dm-sans);
+                    font-family: var(--font-dm-sans), ui-sans-serif, sans-serif;
                     font-size: 0.875rem;
                     font-weight: 500;
                     color: rgba(255,255,255,0.5);
                     text-decoration: none;
                     transition: color 0.2s ease;
                     letter-spacing: 0.01em;
+                    padding: 0.25rem 0;
                 }
                 .cta-link:hover { color: rgba(255,255,255,0.85); }
 
-                /* ---------- eyebrow label ---------- */
+                /* ── eyebrow ───────────────────────────────────────── */
                 .eyebrow-dark {
-                    font-family: var(--font-dm-sans);
-                    font-size: 0.68rem;
+                    font-family: var(--font-dm-sans), ui-sans-serif, sans-serif;
+                    font-size: 0.65rem;
                     font-weight: 600;
                     letter-spacing: 0.18em;
                     text-transform: uppercase;
                     color: rgba(255,255,255,0.4);
                 }
 
-                /* ---------- programme strip (desktop) ---------- */
+                /* ── hero badge ────────────────────────────────────── */
+                .hero-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    background: rgba(255,255,255,0.06);
+                    border: 1px solid rgba(255,255,255,0.12);
+                    border-radius: 999px;
+                    padding: 6px 12px 6px 7px;
+                    backdrop-filter: blur(10px);
+                    /* don't let it stretch full width on mobile */
+                    max-width: 100%;
+                    width: fit-content;
+                }
+                /* hide anniversary label on very small screens to keep badge compact */
+                .hero-badge .badge-anniversary {
+                    display: none;
+                }
+                @media (min-width: 400px) {
+                    .hero-badge .badge-anniversary { display: inline; }
+                    .hero-badge { gap: 10px; padding: 7px 14px 7px 8px; }
+                }
+
+                /* ── fire accent line ──────────────────────────────── */
+                .fire-line {
+                    height: 2px;
+                    width: 36px;
+                    background: linear-gradient(90deg, #FF0015, #FF6A00);
+                    border-radius: 999px;
+                    flex-shrink: 0;
+                }
+                @media (min-width: 640px) {
+                    .fire-line { width: 48px; }
+                }
+
+                /* ── scroll indicator ──────────────────────────────── */
+                .scroll-hint {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 6px;
+                }
+                .scroll-hint-line {
+                    width: 1px;
+                    height: 32px;
+                    background: linear-gradient(to bottom, rgba(255,0,21,0.7), transparent);
+                    animation: scrollPulse 1.8s ease-in-out infinite;
+                }
+                @keyframes scrollPulse {
+                    0%, 100% { opacity: 0.4; transform: scaleY(1); }
+                    50%       { opacity: 1;   transform: scaleY(1.15); }
+                }
+
+                /* ── stagger fade-ins ──────────────────────────────── */
+                @keyframes heroFadeUp {
+                    from { opacity: 0; transform: translateY(24px); }
+                    to   { opacity: 1; transform: translateY(0); }
+                }
+                .h-reveal { opacity: 0; animation: heroFadeUp 0.75s cubic-bezier(0.16,1,0.3,1) forwards; }
+                .h-reveal.d0 { animation-delay:  80ms; }
+                .h-reveal.d1 { animation-delay: 200ms; }
+                .h-reveal.d2 { animation-delay: 330ms; }
+                .h-reveal.d3 { animation-delay: 450ms; }
+                .h-reveal.d4 { animation-delay: 570ms; }
+                .h-reveal.d5 { animation-delay: 690ms; }
+                .h-reveal.d6 { animation-delay: 810ms; }
+
+                /* ── countdown dark overrides ──────────────────────── */
+                .hero-countdown-wrap {
+                    --rw-ink: #fff;
+                    --rw-text: rgba(255,255,255,0.9);
+                    --rw-text-2: rgba(255,255,255,0.55);
+                    --rw-border: rgba(255,255,255,0.12);
+                    --rw-surface: rgba(255,255,255,0.06);
+                    --rw-crimson: #FF0015;
+                }
+
+                /* ── desktop programme strip ───────────────────────── */
                 .prog-strip {
                     position: absolute;
                     right: 0; top: 0; bottom: 0;
@@ -236,9 +342,12 @@ export function HeroSection() {
                     padding: 0 1.5rem 0 0;
                     z-index: 10;
                 }
-                @media (min-width: 1280px) { .prog-strip { width: 290px; padding-right: 2rem; } }
-                @media (max-width: 1023px) { .prog-strip { display: none !important; } }
-
+                @media (min-width: 1280px) {
+                    .prog-strip { width: 290px; padding-right: 2rem; }
+                }
+                @media (max-width: 1023px) {
+                    .prog-strip { display: none !important; }
+                }
                 .prog-item {
                     display: flex;
                     align-items: center;
@@ -257,7 +366,7 @@ export function HeroSection() {
                     transform: translateX(-3px);
                 }
                 .prog-num {
-                    font-family: var(--font-bebas);
+                    font-family: var(--font-bebas), 'Impact', sans-serif;
                     font-size: 1.25rem;
                     line-height: 1;
                     flex-shrink: 0;
@@ -265,7 +374,7 @@ export function HeroSection() {
                     text-align: center;
                 }
                 .prog-day {
-                    font-family: var(--font-dm-sans);
+                    font-family: var(--font-dm-sans), ui-sans-serif, sans-serif;
                     font-size: 0.6rem;
                     font-weight: 600;
                     letter-spacing: 0.12em;
@@ -275,7 +384,7 @@ export function HeroSection() {
                     margin-top: 1px;
                 }
                 .prog-label {
-                    font-family: var(--font-dm-sans);
+                    font-family: var(--font-dm-sans), ui-sans-serif, sans-serif;
                     font-size: 0.78rem;
                     font-weight: 500;
                     color: rgba(255,255,255,0.82);
@@ -285,7 +394,7 @@ export function HeroSection() {
                     text-overflow: ellipsis;
                 }
 
-                /* ---------- programme strip (mobile) ---------- */
+                /* ── mobile programme scroll ───────────────────────── */
                 .prog-mobile {
                     display: none;
                 }
@@ -293,39 +402,43 @@ export function HeroSection() {
                     .prog-mobile {
                         display: flex;
                         overflow-x: auto;
-                        gap: 8px;
+                        gap: 7px;
                         scrollbar-width: none;
-                        padding-bottom: 4px;
+                        padding-bottom: 2px;
+                        /* extend slightly beyond container padding for edge-to-edge feel */
+                        margin-left: -0.25rem;
+                        padding-left: 0.25rem;
                     }
                     .prog-mobile::-webkit-scrollbar { display: none; }
                     .prog-mobile-item {
                         display: flex;
                         flex-direction: column;
                         align-items: center;
-                        gap: 3px;
+                        gap: 2px;
                         background: rgba(255,255,255,0.07);
-                        border: 1px solid rgba(255,255,255,0.1);
+                        border: 1px solid rgba(255,255,255,0.10);
                         border-radius: 10px;
-                        padding: 8px 12px;
+                        padding: 7px 10px;
                         flex-shrink: 0;
                         backdrop-filter: blur(10px);
+                        min-width: 68px;
                     }
                     .prog-mobile-num {
-                        font-family: var(--font-bebas);
-                        font-size: 1.1rem;
+                        font-family: var(--font-bebas), 'Impact', sans-serif;
+                        font-size: 1.05rem;
                         line-height: 1;
                     }
                     .prog-mobile-label {
-                        font-family: var(--font-dm-sans);
-                        font-size: 0.65rem;
+                        font-family: var(--font-dm-sans), ui-sans-serif, sans-serif;
+                        font-size: 0.6rem;
                         font-weight: 500;
                         color: rgba(255,255,255,0.65);
                         white-space: nowrap;
                         text-align: center;
                     }
                     .prog-mobile-day {
-                        font-family: var(--font-dm-sans);
-                        font-size: 0.55rem;
+                        font-family: var(--font-dm-sans), ui-sans-serif, sans-serif;
+                        font-size: 0.52rem;
                         font-weight: 600;
                         letter-spacing: 0.1em;
                         text-transform: uppercase;
@@ -333,92 +446,36 @@ export function HeroSection() {
                     }
                 }
 
-                /* ---------- divider line ---------- */
-                .fire-line {
-                    height: 2px;
-                    width: 48px;
-                    background: linear-gradient(90deg, #FF0015, #FF6A00);
-                    border-radius: 999px;
-                    flex-shrink: 0;
-                }
-
-                /* ---------- badge ---------- */
-                .hero-badge {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 10px;
-                    background: rgba(255,255,255,0.06);
-                    border: 1px solid rgba(255,255,255,0.12);
-                    border-radius: 999px;
-                    padding: 7px 14px 7px 8px;
-                    backdrop-filter: blur(10px);
-                }
-
-                /* ---------- scroll indicator ---------- */
-                .scroll-hint {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 6px;
-                }
-                .scroll-hint-line {
-                    width: 1px;
-                    height: 32px;
-                    background: linear-gradient(to bottom, rgba(255,0,21,0.7), transparent);
-                    animation: scrollPulse 1.8s ease-in-out infinite;
-                }
-                @keyframes scrollPulse {
-                    0%, 100% { opacity: 0.4; transform: scaleY(1); }
-                    50% { opacity: 1; transform: scaleY(1.15); }
-                }
-
-                /* ---------- stagger fade-ins ---------- */
-                @keyframes heroFadeUp {
-                    from { opacity: 0; transform: translateY(28px); }
-                    to   { opacity: 1; transform: translateY(0); }
-                }
-                .h-reveal { opacity: 0; animation: heroFadeUp 0.75s cubic-bezier(0.16,1,0.3,1) forwards; }
-                .h-reveal.d0  { animation-delay: 100ms; }
-                .h-reveal.d1  { animation-delay: 220ms; }
-                .h-reveal.d2  { animation-delay: 360ms; }
-                .h-reveal.d3  { animation-delay: 480ms; }
-                .h-reveal.d4  { animation-delay: 600ms; }
-                .h-reveal.d5  { animation-delay: 720ms; }
-                .h-reveal.d6  { animation-delay: 840ms; }
-
-                /* ---------- countdown override for dark bg ---------- */
-                .hero-countdown-wrap {
-                    --rw-ink: #fff;
-                    --rw-text: rgba(255,255,255,0.9);
-                    --rw-text-2: rgba(255,255,255,0.55);
-                    --rw-border: rgba(255,255,255,0.12);
-                    --rw-surface: rgba(255,255,255,0.06);
-                    --rw-crimson: #FF0015;
-                }
-
-                /* ---------- responsive content layout ---------- */
+                /* ── content grid ──────────────────────────────────── */
+                /*
+                 * Mobile:  column, scrollable, top-padded for navbar, bottom-padded
+                 * Desktop: centred vertically, right padding frees up prog strip space
+                 */
                 .hero-content-grid {
                     position: relative;
                     z-index: 10;
+                    width: 100%;
                     max-width: 1600px;
                     margin: 0 auto;
-                    padding: 0 1.5rem;
-                    height: 100%;
+                    /* top pad = navbar height (~64px) + breathing room */
+                    padding: 5rem 1.25rem 3rem;
                     display: flex;
                     flex-direction: column;
-                    justify-content: flex-end;
-                    padding-bottom: clamp(3rem, 7vw, 6rem);
+                    justify-content: flex-start;
+                    /* min height so content never gets cramped */
+                    min-height: 100svh;
+                }
+                @media (min-width: 480px) {
+                    .hero-content-grid { padding: 5.5rem 1.5rem 3.5rem; }
                 }
                 @media (min-width: 640px) {
-                    .hero-content-grid { padding-left: 2rem; padding-right: 2rem; }
+                    .hero-content-grid { padding: 6rem 2rem 4rem; }
                 }
                 @media (min-width: 1024px) {
                     .hero-content-grid {
                         justify-content: center;
-                        padding-top: 8rem;
-                        padding-bottom: 0;
-                        /* leave right column free for prog strip */
-                        padding-right: 300px;
+                        padding: 8rem 300px 4rem 2rem;
+                        min-height: 100svh;
                     }
                 }
                 @media (min-width: 1280px) {
@@ -431,7 +488,7 @@ export function HeroSection() {
                 ref={sectionRef}
                 className="hero-root hero-grain relative min-h-[100svh] overflow-hidden bg-[#0a0002]"
             >
-                {/* ── Background image ────────────────────────────────── */}
+                {/* background image */}
                 <div className="absolute inset-0 z-0">
                     <SiteImage
                         src="hero_1920_1080_mzm89e"
@@ -445,303 +502,112 @@ export function HeroSection() {
                     />
                 </div>
 
-                {/* ── Gradient masks ──────────────────────────────────── */}
-                <div className="absolute inset-0 z-1 hero-gradient-left" />
-                <div className="absolute inset-0 z-2 hero-gradient-bottom" />
-                <div className="absolute inset-0 z-2 hero-gradient-top" />
+                {/* gradient masks */}
+                <div className="absolute inset-0 z-[1] hero-gradient-left" />
+                <div className="absolute inset-0 z-[2] hero-gradient-bottom" />
+                <div className="absolute inset-0 z-[2] hero-gradient-top" />
 
-                {/* ── Static crimson atmospheric orbs ────────────────── */}
-                <div
-                    className="absolute z-3 pointer-events-none"
-                    style={{
-                        top: "-10%",
-                        left: "-8%",
-                        width: "520px",
-                        height: "520px",
-                        background:
-                            "radial-gradient(circle, rgba(255,0,21,0.14) 0%, transparent 70%)",
-                        borderRadius: "50%",
-                        filter: "blur(20px)",
-                    }}
-                />
-                <div
-                    className="absolute z-3 pointer-events-none"
-                    style={{
-                        bottom: "10%",
-                        left: "20%",
-                        width: "350px",
-                        height: "350px",
-                        background:
-                            "radial-gradient(circle, rgba(255,106,0,0.1) 0%, transparent 70%)",
-                        borderRadius: "50%",
-                        filter: "blur(16px)",
-                    }}
-                />
+                {/* atmospheric orbs */}
+                <div className="absolute z-[3] pointer-events-none" style={{ top: "-10%", left: "-8%", width: "520px", height: "520px", background: "radial-gradient(circle, rgba(255,0,21,0.14) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(20px)" }} />
+                <div className="absolute z-[3] pointer-events-none" style={{ bottom: "10%", left: "20%", width: "350px", height: "350px", background: "radial-gradient(circle, rgba(255,106,0,0.10) 0%, transparent 70%)", borderRadius: "50%", filter: "blur(16px)" }} />
 
-                {/* ── Mouse glow ──────────────────────────────────────── */}
+                {/* mouse glow */}
                 <div className="hero-glow" />
 
-                {/* ── Main content ────────────────────────────────────── */}
+                {/* ── Main content ──────────────────────────────────────── */}
                 <div className="hero-content-grid">
-                    <div style={{ maxWidth: "780px" }}>
+                    <div style={{ maxWidth: "780px", width: "100%" }}>
+
                         {/* Badge */}
-                        <div
-                            className={`hero-badge h-reveal d0 ${mounted ? "" : "opacity-0"}`}
-                        >
-                            <img
-                                src={LOGOS.redemptionWeek}
-                                alt="RCF FUTA"
-                                style={{
-                                    height: "22px",
-                                    width: "22px",
-                                    objectFit: "contain",
-                                }}
-                            />
-                            <span className="eyebrow-dark">
-                                {TENURE.anniversaryLabel}
-                            </span>
-                            <span
-                                style={{
-                                    width: "1px",
-                                    height: "12px",
-                                    background: "rgba(255,255,255,0.15)",
-                                    display: "inline-block",
-                                }}
-                            />
-                            <span
-                                style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    gap: "5px",
-                                    fontFamily: "var(--font-dm-sans)",
-                                    fontSize: "0.68rem",
-                                    fontWeight: 600,
-                                    letterSpacing: "0.14em",
-                                    textTransform: "uppercase",
-                                    color: "#FF6A00",
-                                }}
-                            >
-                                <span
-                                    style={{
-                                        width: "5px",
-                                        height: "5px",
-                                        borderRadius: "50%",
-                                        background: "#FF0015",
-                                        animation: "pulse-soft 2s infinite",
-                                        display: "inline-block",
-                                    }}
-                                />
+                        <div className={`hero-badge h-reveal d0 ${mounted ? "" : "opacity-0"}`}>
+                            <img src={LOGOS.redemptionWeek} alt="RCF FUTA" style={{ height: "20px", width: "20px", objectFit: "contain", flexShrink: 0 }} />
+                            <span className="eyebrow-dark badge-anniversary">{TENURE.anniversaryLabel}</span>
+                            <span className="badge-anniversary" style={{ width: "1px", height: "12px", background: "rgba(255,255,255,0.15)", display: "inline-block", flexShrink: 0 }} />
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "5px", fontFamily: "var(--font-dm-sans), ui-sans-serif, sans-serif", fontSize: "0.65rem", fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "#FF6A00", flexShrink: 0 }}>
+                                <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#FF0015", animation: "pulse-soft 2s infinite", display: "inline-block", flexShrink: 0 }} />
                                 RCF FUTA
                             </span>
                         </div>
 
                         {/* Headline */}
-                        <div
-                            className={`h-reveal d1 ${mounted ? "" : "opacity-0"}`}
-                            style={{ marginTop: "clamp(1.25rem, 2.5vw, 2rem)" }}
-                        >
+                        <div className={`h-reveal d1 ${mounted ? "" : "opacity-0"}`} style={{ marginTop: "clamp(1rem, 2.5vw, 2rem)" }}>
                             <h1 className="hero-display">
                                 <span className="outline-word">Redemption</span>
-                                <span className="fire-word">
-                                    Week &apos;{TENURE.year.slice(2)}
-                                </span>
+                                <span className="fire-word">Week &apos;{TENURE.year.slice(2)}</span>
                             </h1>
                         </div>
 
                         {/* Theme */}
-                        <div
-                            className={`h-reveal d2 ${mounted ? "" : "opacity-0"}`}
-                            style={{
-                                marginTop: "clamp(1rem, 2vw, 1.5rem)",
-                                display: "flex",
-                                alignItems: "flex-start",
-                                gap: "14px",
-                            }}
-                        >
-                            <div className="fire-line" style={{ marginTop: "0.6em" }} />
+                        <div className={`h-reveal d2 ${mounted ? "" : "opacity-0"}`} style={{ marginTop: "clamp(0.75rem, 2vw, 1.5rem)", display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                            <div className="fire-line" style={{ marginTop: "0.55em" }} />
                             <p className="theme-quote">&ldquo;{TENURE.theme}&rdquo;</p>
                         </div>
 
                         {/* Meta pills */}
-                        <div
-                            className={`h-reveal d3 ${mounted ? "" : "opacity-0"}`}
-                            style={{
-                                marginTop: "clamp(1rem, 2vw, 1.5rem)",
-                                display: "flex",
-                                flexWrap: "wrap",
-                                gap: "8px",
-                            }}
-                        >
+                        <div className={`h-reveal d3 ${mounted ? "" : "opacity-0"}`} style={{ marginTop: "clamp(0.75rem, 2vw, 1.5rem)", display: "flex", flexWrap: "wrap", gap: "6px" }}>
                             {[
-                                {
-                                    label: TENURE.dateRange,
-                                    icon: (
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
-                                        />
-                                    ),
-                                },
-                                {
-                                    label: "Southgate Auditorium · FUTA, Akure",
-                                    icon: (
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
-                                        />
-                                    ),
-                                },
-                                {
-                                    label: "7 Nights · Free Entry",
-                                    icon: (
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                        />
-                                    ),
-                                },
+                                { label: TENURE.dateRange, icon: <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /> },
+                                { label: "Southgate Aud. · FUTA, Akure", icon: <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /> },
+                                { label: "7 Nights · Free Entry", icon: <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /> },
                             ].map(({ label, icon }) => (
                                 <span key={label} className="meta-pill">
-                                    <svg
-                                        className="shrink-0"
-                                        style={{
-                                            width: "13px",
-                                            height: "13px",
-                                            color: "#FF6A00",
-                                        }}
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth={2}
-                                        viewBox="0 0 24 24"
-                                        aria-hidden
-                                    >
-                                        {icon}
-                                    </svg>
+                                    <svg className="shrink-0" style={{ width: "12px", height: "12px", color: "#FF6A00" }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden>{icon}</svg>
                                     {label}
                                 </span>
                             ))}
                         </div>
 
-                        {/* CTA buttons */}
-                        <div
-                            className={`h-reveal d4 ${mounted ? "" : "opacity-0"}`}
-                            style={{
-                                marginTop: "clamp(1.25rem, 2.5vw, 2rem)",
-                                display: "flex",
-                                flexWrap: "wrap",
-                                alignItems: "center",
-                                gap: "12px",
-                            }}
-                        >
+                        {/* CTAs */}
+                        <div className={`h-reveal d4 ${mounted ? "" : "opacity-0"}`} style={{ marginTop: "clamp(1rem, 2.5vw, 2rem)", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px" }}>
                             <Link href="/shop" id="hero-shop-cta" className="cta-fire">
                                 Pre-order Merch
-                                <svg
-                                    style={{ width: "16px", height: "16px" }}
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={2.5}
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                                    />
+                                <svg style={{ width: "15px", height: "15px" }} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                                 </svg>
                             </Link>
-                            <Link
-                                href="/#support"
-                                id="hero-support-cta"
-                                className="cta-ghost"
-                            >
-                                Support the Event
-                            </Link>
-                            <Link href="/fulfil" id="hero-pay-cta" className="cta-link">
-                                Pay an Order →
-                            </Link>
+                            <Link href="/#support" id="hero-support-cta" className="cta-ghost">Support the Event</Link>
+                            <Link href="/fulfil" id="hero-pay-cta" className="cta-link">Pay an Order →</Link>
                         </div>
 
                         {/* Countdown */}
-                        <div
-                            className={`hero-countdown-wrap h-reveal d5 ${mounted ? "" : "opacity-0"}`}
-                            style={{ marginTop: "clamp(1.5rem, 3vw, 2.5rem)" }}
-                        >
-                            <p className="eyebrow-dark" style={{ marginBottom: "1rem" }}>
+                        <div className={`hero-countdown-wrap h-reveal d5 ${mounted ? "" : "opacity-0"}`} style={{ marginTop: "clamp(1.25rem, 3vw, 2.5rem)" }}>
+                            <p className="eyebrow-dark" style={{ marginBottom: "0.875rem" }}>
                                 Counting down to RW&apos;{TENURE.year.slice(2)}
                             </p>
                             <CountdownTimer targetDate={env.eventStartDate} />
                         </div>
 
                         {/* Mobile programme scroll */}
-                        <div
-                            className={`prog-mobile h-reveal d6 ${mounted ? "" : "opacity-0"}`}
-                            style={{ marginTop: "clamp(1.5rem, 3vw, 2rem)" }}
-                        >
+                        <div className={`prog-mobile h-reveal d6 ${mounted ? "" : "opacity-0"}`} style={{ marginTop: "clamp(1.25rem, 3vw, 2rem)" }}>
                             {NIGHT_ITEMS.map((n) => (
                                 <div key={n.label} className="prog-mobile-item">
-                                    <span
-                                        className="prog-mobile-num"
-                                        style={{ color: n.color }}
-                                    >
-                                        {n.n}
-                                    </span>
+                                    <span className="prog-mobile-num" style={{ color: n.color }}>{n.n}</span>
                                     <span className="prog-mobile-day">{n.day}</span>
                                     <span className="prog-mobile-label">{n.label}</span>
                                 </div>
                             ))}
                         </div>
+
                     </div>
                 </div>
 
-                {/* ── Desktop programme strip ─────────────────────────── */}
+                {/* ── Desktop programme strip ────────────────────────────── */}
                 <div className="prog-strip">
-                    <p
-                        className="eyebrow-dark"
-                        style={{ paddingLeft: "4px", marginBottom: "6px" }}
-                    >
-                        Programme
-                    </p>
+                    <p className="eyebrow-dark" style={{ paddingLeft: "4px", marginBottom: "6px" }}>Programme</p>
                     {NIGHT_ITEMS.map((n, i) => (
-                        <div
-                            key={n.label}
-                            className="prog-item"
-                            style={{ animationDelay: `${600 + i * 70}ms` }}
-                        >
-                            <div
-                                style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    flexShrink: 0,
-                                    width: "28px",
-                                }}
-                            >
-                                <span className="prog-num" style={{ color: n.color }}>
-                                    {n.n}
-                                </span>
+                        <div key={n.label} className="prog-item" style={{ animationDelay: `${600 + i * 70}ms` }}>
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, width: "28px" }}>
+                                <span className="prog-num" style={{ color: n.color }}>{n.n}</span>
                                 <span className="prog-day">{n.day}</span>
                             </div>
-                            <span
-                                style={{
-                                    width: "1px",
-                                    height: "20px",
-                                    background: "rgba(255,255,255,0.1)",
-                                    flexShrink: 0,
-                                }}
-                            />
+                            <span style={{ width: "1px", height: "20px", background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
                             <span className="prog-label">{n.label}</span>
                         </div>
                     ))}
                 </div>
 
-                {/* ── Scroll indicator ─────────────────────────────────── */}
-                <div
-                    className="absolute bottom-8 left-1/2 z-10 hidden md:flex"
-                    style={{ transform: "translateX(-50%)" }}
-                >
+                {/* ── Scroll indicator ──────────────────────────────────── */}
+                <div className="absolute bottom-8 left-1/2 z-10 hidden md:flex" style={{ transform: "translateX(-50%)" }}>
                     <div className="scroll-hint">
                         <span className="eyebrow-dark">Scroll</span>
                         <div className="scroll-hint-line" />
