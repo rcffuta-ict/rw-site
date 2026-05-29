@@ -187,7 +187,7 @@ function FulfilContent({ settings }: { settings: GlobalSettings }) {
             </div>
 
             {/* Support Contacts */}
-            <div className="mt-16 text-center text-rw-muted text-sm font-medium border-t border-[var(--rw-border)] pt-8">
+            <div className="my-16 text-center text-rw-muted text-sm font-medium border-t border-[var(--rw-border)] pt-8">
                 <p className="mb-3">
                     Need help or facing issues with your payment? Contact our support team
                     via WhatsApp:

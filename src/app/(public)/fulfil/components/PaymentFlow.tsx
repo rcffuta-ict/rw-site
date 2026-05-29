@@ -22,7 +22,15 @@ interface ExtractionResult {
     confidence: "high" | "medium" | "low";
 }
 
-const IS_REAL = !DEMO_MODE;
+// const IS_REAL = !DEMO_MODE;
+
+function rephrase(word: string | null) {
+    if (word?.toLowerCase() === "unknown") {
+        return "Nothing";
+    }
+
+    return word;
+}
 
 function RadioCard({
     selected,
@@ -567,7 +575,8 @@ export function PaymentFlow({
                                                 title={extraction.bank || ""}
                                             >
                                                 Expected Bank: <b>{settings.bank_name}</b>{" "}
-                                                | Found: <b>{extraction.bank}</b>
+                                                | Found:{" "}
+                                                <b>{rephrase(extraction.bank)}</b>
                                             </p>
                                         )}
                                         {isRecipientMismatch && (
@@ -716,15 +725,6 @@ export function PaymentFlow({
                     >
                         Confirm & Complete
                     </Button>
-                )}
-                {submitting && (
-                    <div className="flex items-center justify-center gap-2 mt-4 animate-fade-in">
-                        <span className="h-1.5 w-1.5 rounded-full bg-rw-crimson animate-ping" />
-                        <p className="text-center text-xs text-rw-muted font-medium animate-pulse">
-                            Please do not close this window or refresh the page while we
-                            process your payment.
-                        </p>
-                    </div>
                 )}
                 {submitting && (
                     <div className="flex items-center justify-center gap-2 mt-4 animate-fade-in">

@@ -19,7 +19,7 @@ export default async function ShopPage() {
             {/* By adding bg-slate-50/50 and a subtle top border,
               the feather transition looks intentional and incredibly premium.
             */}
-            <div className="bg-gradient-to-b from-slate-50/60 to-white">
+            <div className="bg-gradient-to-b from-slate-50/60 to-white my-16">
                 <div className="section-container py-12 lg:py-16">
                     <ShopClient products={products} />
                 </div>
