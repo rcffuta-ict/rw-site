@@ -18,6 +18,7 @@ export const TENURE = {
     anniversary: 38,
     /** Event name */
     eventName: "Redemption Week",
+    eventNameShort: "RW",
     /** Event theme */
     theme: "The Lord's Witnesses: The Purified Army",
     /** Event dates — ISO strings */
@@ -36,6 +37,9 @@ export const TENURE = {
     get brandLabel() {
         return `${this.eventName} ${this.shortYear}`;
     },
+    get brandLabelShort() {
+        return `${this.eventNameShort}${this.shortYear}`;
+    },
     /** Anniversary label */
     get anniversaryLabel() {
         return `${this.anniversary}th Anniversary`;
@@ -44,7 +48,7 @@ export const TENURE = {
 
 // ─── Fellowship Identity ───────────────────────────────────────────────────────
 export const FELLOWSHIP = {
-    fullName: "Redeemed Christian Fellowship, Federal University of Technology, Akure",
+    fullName: "Redeemed Christian Fellowship, FUTA Chapter",
     shortName: "RCF FUTA",
     acronym: "RCFFUTA",
     founded: "1983",

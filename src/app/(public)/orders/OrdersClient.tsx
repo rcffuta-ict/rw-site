@@ -548,8 +548,8 @@ export function OrdersClient() {
         <div className="min-h-screen bg-[#fdf8f8]">
             {/* Page header */}
             <div className="bg-white border-b border-[#e8d0d4]">
-                <div className="section-container py-8 sm:py-10">
-                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+                <div className="py-8 sm:py-10">
+                    {/* <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
                         <div>
                             <p className="eyebrow mb-1.5">Redemption Week &lsquo;26</p>
                             <h1 className="section-heading text-3xl sm:text-4xl">
@@ -581,7 +581,7 @@ export function OrdersClient() {
                             </svg>
                             Shop Merch
                         </Link>
-                    </div>
+                    </div> */}
 
                     <SearchInput
                         query={query}

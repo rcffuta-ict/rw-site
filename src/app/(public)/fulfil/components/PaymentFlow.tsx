@@ -5,11 +5,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/forms/Button";
 import { PriceInput } from "@/components/ui/forms/PriceInput";
 import type { Order } from "@/lib/data/types";
-import { DEMO_MODE } from "@/lib/config";
 import type { GlobalSettings } from "@/lib/services/settings.service";
 import { analyzeReceipt, deleteReceiptImage } from "@/app/actions/receipt";
 import { attachPayment } from "@/lib/services/orders.service";
 import { toast } from "sonner";
+import { DEMO_MODE } from "@/lib/config";
 
 interface ExtractionResult {
     senderName: string | null;
@@ -381,9 +381,12 @@ export function PaymentFlow({
             extraction?.amount && extraction.amount < payAmount
         );
         const isAmountWarning = Boolean(
-            paymentType === "full" && extraction?.amount && extraction.amount !== remaining
+            paymentType === "full" &&
+            extraction?.amount &&
+            extraction.amount !== remaining
         );
-        const hasMajorWarning = isMissingInfo || isAmountMismatch || isAmountWarning;
+        const hasMajorWarning =
+            (isMissingInfo || isAmountMismatch || isAmountWarning) && !DEMO_MODE;
 
         const prescribedNarration = `RW26-${order.orderRef}`;
         const isNarrationMismatch =
@@ -398,27 +401,31 @@ export function PaymentFlow({
             extraction &&
             extraction.bank &&
             extraction.bank.toLowerCase() !== settings.bank_name.toLowerCase();
-            
+
         const isRecipientMismatch = (() => {
             if (!extraction || !extraction.senderName) return false;
             const ext = extraction.senderName.toLowerCase();
             const exp = settings.bank_account_name.toLowerCase();
             if (ext === exp) return false;
-            
+
             const extParts = ext.split(/\s+/).filter(Boolean);
             const expParts = exp.split(/\s+/).filter(Boolean);
-            
+
             let matchCount = 0;
             for (const part of extParts) {
                 if (expParts.includes(part)) {
                     matchCount++;
                 }
             }
-            
-            if (matchCount >= 2 || matchCount === extParts.length || matchCount === expParts.length) {
+
+            if (
+                matchCount >= 2 ||
+                matchCount === extParts.length ||
+                matchCount === expParts.length
+            ) {
                 return false;
             }
-            
+
             return true;
         })();
         const hasAccountMismatch = Boolean(isBankMismatch || isRecipientMismatch);
@@ -591,9 +598,9 @@ export function PaymentFlow({
                                             Account Mismatch
                                         </p>
                                         <p className="text-xs text-amber-700 mt-1">
-                                            This payment does not perfectly match our expected
-                                            account details. This is a minor warning, but admins will
-                                            verify it manually.
+                                            This payment does not perfectly match our
+                                            expected account details. This is a minor
+                                            warning, but admins will verify it manually.
                                         </p>
                                         {isBankMismatch && (
                                             <p
@@ -640,8 +647,11 @@ export function PaymentFlow({
                                             Amount Mismatch
                                         </p>
                                         <p className="text-xs text-red-700 mt-1">
-                                            The amount on the receipt (₦{extraction?.amount?.toLocaleString()}) does not match the expected amount to pay (₦{payAmount.toLocaleString()}).
-                                            You cannot proceed with this receipt.
+                                            The amount on the receipt (₦
+                                            {extraction?.amount?.toLocaleString()}) does
+                                            not match the expected amount to pay (₦
+                                            {payAmount.toLocaleString()}). You cannot
+                                            proceed with this receipt.
                                         </p>
                                     </div>
                                 </div>
@@ -737,7 +747,9 @@ export function PaymentFlow({
                         {accurate === true && hasMajorWarning && (
                             <div className="mt-5 p-4 rounded-xl bg-red-50 border border-red-200 animate-fade-in-down">
                                 <p className="text-sm text-red-800 font-medium mb-3">
-                                    <strong>Cannot Proceed:</strong> There is a major issue with the receipt details. Please upload a clearer or correct receipt.
+                                    <strong>Cannot Proceed:</strong> There is a major
+                                    issue with the receipt details. Please upload a
+                                    clearer or correct receipt.
                                 </p>
                                 <Button
                                     variant="outlined"

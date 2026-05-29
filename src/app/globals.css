@@ -98,6 +98,10 @@ a {
     background-clip: padding-box;
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
 /* For Firefox */
 * {
     scrollbar-width: thin;

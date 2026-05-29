@@ -3,7 +3,6 @@ import { Inter, Syne, JetBrains_Mono, Bebas_Neue, DM_Sans } from "next/font/goog
 import { AppStatusProvider } from "@/context/AppStatusContext";
 import { AdminAuthProvider } from "@/context/AdminAuthContext";
 import { TENURE, FELLOWSHIP } from "@/lib/config";
-import { env } from "@/lib/env";
 import "./globals.css";
 
 // 1. Font configurations with anti-aliasing helpers

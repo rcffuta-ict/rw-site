@@ -1,8 +1,21 @@
 import { LOGOS } from "@/lib/config";
+import { clsx } from "clsx";
 
-export function BrandDisplay() {
+type BrandDisplayProps = {
+    /** Optional className for the container */
+    className?: string;
+    center?: boolean; // if true, centers the logos; otherwise, left-aligns
+};
+
+export function BrandDisplay({ className = "", center = true }: BrandDisplayProps) {
     return (
-        <div className="flex items-center gap-6 sm:gap-14 overflow-x-auto scrollbar-hide pb-2 justify-start sm:justify-center flex-nowrap sm:flex-wrap px-2 sm:px-0">
+        <div
+            className={clsx(
+                "flex items-center gap-6 sm:gap-14 overflow-x-auto scrollbar-hide pb-2 flex-nowrap sm:flex-wrap px-2 sm:px-0",
+                className,
+                center ? "justify-center" : "justify-start"
+            )}
+        >
             {[
                 { src: LOGOS.rcfFutaMix, alt: "RCF FUTA", h: "h-14 md:h-20" },
                 { src: LOGOS.crm, alt: "Christ the Redeemers'", h: "h-9" },

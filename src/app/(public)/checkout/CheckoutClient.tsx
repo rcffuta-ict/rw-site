@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/forms/Input";
 import { Textarea } from "@/components/ui/forms/Textarea";
 import { formatNaira, ph } from "@/lib/utils/functions";
 import { ProductImage, ProductImageMinimal } from "@/components/common/ProductImage";
+import { FELLOWSHIP, TENURE } from "@/lib/config";
 
 type Step = 1 | 2 | 3;
 
@@ -153,6 +154,8 @@ export function CheckoutClient() {
         items: ReturnType<typeof useCart>["items"];
         total: number;
     } | null>(null);
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
+    const [consentError, setConsentError] = useState("");
 
     function validate() {
         const e: Record<string, string> = {};
@@ -274,6 +277,7 @@ export function CheckoutClient() {
                                         error={errors.name}
                                         placeholder="e.g. Adewale Ogundimu"
                                         containerClassName="sm:col-span-2"
+                                        required
                                     />
                                     <Input
                                         label="Email address"
@@ -284,6 +288,7 @@ export function CheckoutClient() {
                                         }
                                         error={errors.email}
                                         placeholder="you@example.com"
+                                        required
                                     />
                                     <Input
                                         label="Phone number"
@@ -294,6 +299,7 @@ export function CheckoutClient() {
                                         }
                                         error={errors.phone}
                                         placeholder="080..."
+                                        required
                                     />
                                 </div>
 
@@ -307,10 +313,66 @@ export function CheckoutClient() {
                                     rows={3}
                                 />
 
+                                {/* ── Legal consent ── */}
+                                <div className="flex gap-3.5 items-start p-5 rounded-2xl bg-rw-bg-warm/60 border border-[var(--rw-border-mid)]">
+                                    <div className="mt-0.5 shrink-0">
+                                        <input
+                                            type="checkbox"
+                                            id="legal-consent"
+                                            checked={agreedToTerms}
+                                            onChange={(e) =>
+                                                setAgreedToTerms(e.target.checked)
+                                            }
+                                            className="h-4 w-4 rounded border-[var(--rw-border-strong)] text-rw-crimson accent-rw-crimson cursor-pointer"
+                                        />
+                                    </div>
+                                    <label
+                                        htmlFor="legal-consent"
+                                        className="text-sm text-rw-text-2 leading-relaxed cursor-pointer select-none"
+                                    >
+                                        I have read and agree to the{" "}
+                                        <Link
+                                            href="/terms"
+                                            target="_blank"
+                                            className="font-bold text-rw-ink hover:text-rw-crimson transition-colors underline underline-offset-2"
+                                        >
+                                            Terms of Service
+                                        </Link>{" "}
+                                        and{" "}
+                                        <Link
+                                            href="/privacy"
+                                            target="_blank"
+                                            className="font-bold text-rw-ink hover:text-rw-crimson transition-colors underline underline-offset-2"
+                                        >
+                                            Privacy Policy
+                                        </Link>{" "}
+                                        of the {FELLOWSHIP.fullName}. I understand that{" "}
+                                        <strong className="text-rw-ink">
+                                            all sales are final
+                                        </strong>{" "}
+                                        and no refunds will be issued. I confirm that I am
+                                        affiliated with or informed about the{" "}
+                                        {TENURE.eventName} event.
+                                    </label>
+                                </div>
+                                {consentError && (
+                                    <p className="text-xs text-rw-crimson font-semibold -mt-2 ml-1 animate-fade-in">
+                                        {consentError}
+                                    </p>
+                                )}
+                                {/* ── /Legal consent ── */}
+
                                 <Button
                                     variant="primary"
                                     size="lg"
                                     onClick={() => {
+                                        if (!agreedToTerms) {
+                                            setConsentError(
+                                                "Please read and accept the Terms of Service and Privacy Policy to continue."
+                                            );
+                                            return;
+                                        }
+                                        setConsentError("");
                                         if (validate()) setStep(2);
                                     }}
                                     className="mt-4 h-14 text-lg shadow-lg hover:shadow-rw-crimson/20"
