@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LOGOS } from "@/lib/config";
 import { Identity } from "../ui/Identity";
 import { BrandDisplay } from "../common/BrandDisplay";
 
@@ -22,6 +21,9 @@ const QUICK_LINKS = [
     { href: "/#support", label: "Support Us" },
     { href: "/fulfil", label: "Pay an Order" },
     { href: "/orders", label: "My Orders" },
+    { href: "/docs", label: "How to Order" },
+    { href: "/terms", label: "Terms of Service" },
+    { href: "/privacy", label: "Privacy Policy" },
     // { href: "/admin", label: "Admin Dashboard" },
 ];
 
@@ -92,7 +94,7 @@ export function PublicFooter() {
 
             {/* ── Main columns ─────────────────────────────────────────────── */}
             {!isOrderDetailsPage && (
-                <div className="section-container !pt-20 lg:!pt-28 !pb-16">
+                <div className="section-container !pt-20 lg:!pt-18 !pb-16">
                     <div className="grid gap-12 lg:gap-16 xl:gap-20 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
                         {/* Col 1 — About */}
                         <div className="text-center sm:text-left">
