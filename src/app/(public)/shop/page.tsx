@@ -2,6 +2,8 @@ import { getProducts } from "@/lib/services/products.service";
 import { ShopClient } from "./ShopClient";
 import { TENURE } from "@/lib/config";
 import { SiteImage } from "@/components/ui/SiteImage";
+import Link from "next/link";
+import { Button } from "@/components/ui/forms/Button";
 
 export const metadata = {
     title: `Shop — ${TENURE.brandLabel} Official Merch`,
@@ -22,6 +24,38 @@ export default async function ShopPage() {
             <div className="bg-gradient-to-b from-slate-50/60 to-white my-16">
                 <div className="section-container py-12 lg:py-16">
                     <ShopClient products={products} />
+                </div>
+            </div>
+
+            {/* CTA Banner - Payment Guide */}
+            <div className="section-container mb-24">
+                <div className="rw-card p-8 md:p-12 bg-gradient-to-r from-rw-crimson/10 to-rw-crimson/5 border-l-4 border-l-rw-crimson">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <div>
+                            <p className="text-sm font-bold text-rw-crimson uppercase tracking-widest mb-2">
+                                Next Step
+                            </p>
+                            <h3 className="font-display font-bold text-3xl text-rw-ink mb-2">
+                                Ready to Checkout?
+                            </h3>
+                            <p className="text-rw-text-2 max-w-lg">
+                                Learn how to complete your order, make payment, and get
+                                your items confirmed.
+                            </p>
+                        </div>
+                        <div className="flex gap-3 flex-wrap md:flex-nowrap">
+                            <Link href="/docs">
+                                <Button variant="outlined" size="lg">
+                                    View Guide
+                                </Button>
+                            </Link>
+                            <Link href="/checkout">
+                                <Button variant="primary" size="lg">
+                                    Checkout Now
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

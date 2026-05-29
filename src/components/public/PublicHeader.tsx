@@ -10,6 +10,7 @@ const NAV = [
     { href: "/", label: "Home" },
     { href: "/shop", label: "Shop" },
     { href: "/fulfil", label: "Pay Order" },
+    { href: "/docs", label: "Guide" },
 ];
 
 export function PublicHeader() {
