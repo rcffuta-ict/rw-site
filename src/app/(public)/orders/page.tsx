@@ -3,7 +3,6 @@ import { OrdersClient } from "./OrdersClient";
 import Link from "next/link";
 import { Button } from "@/components/ui/forms/Button";
 import { FELLOWSHIP, TENURE } from "@/lib/config";
-import { HeaderBanner } from "@/components/common/HeaderBanner";
 import { SiteImage } from "@/components/ui/SiteImage";
 
 export const metadata: Metadata = {
