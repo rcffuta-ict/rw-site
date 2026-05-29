@@ -19,6 +19,10 @@ export default function cloudinaryLoader({
         return src.replace("upload/", `upload/${optimizationParams}/`);
     }
 
+    if (src.includes("https://")) {
+        return src;
+    }
+
     // Case 2: If it's just the public ID (e.g. 'shop_banner_usufiq'), build the full URL
     return `https://res.cloudinary.com/${cloudName}/image/upload/${optimizationParams}/${src}`;
 }

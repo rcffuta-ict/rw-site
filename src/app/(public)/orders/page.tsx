@@ -3,6 +3,8 @@ import { OrdersClient } from "./OrdersClient";
 import Link from "next/link";
 import { Button } from "@/components/ui/forms/Button";
 import { FELLOWSHIP, TENURE } from "@/lib/config";
+import { HeaderBanner } from "@/components/common/HeaderBanner";
+import { SiteImage } from "@/components/ui/SiteImage";
 
 export const metadata: Metadata = {
     title: `My Orders — ${TENURE.brandLabel}`,
@@ -12,136 +14,168 @@ export const metadata: Metadata = {
 export default function OrdersPage() {
     return (
         <div className="min-h-screen bg-white">
-            <div className="section-container py-16 md:py-24">
-                {/* Page header */}
-                <div className="max-w-2xl mb-14">
-                    <p className="eyebrow mb-3">{TENURE.brandLabel}</p>
+            {/* ── Hero ─────────────────────────────────────────────────────── */}
+            <div className="bg-rw-ink relative overflow-hidden py-10">
+                {/* Subtle texture grid */}
+                <SiteImage
+                    src="shop_banner_usufiq"
+                    alt="Light Touch pattern with deep crimson and black tones, evoking a sense of mystery and elegance."
+                    fill
+                    priority
+                    sizes="100vw"
+                    placeholderLabel={
+                        "Light Touch pattern with deep crimson and black tones, evoking a sense of mystery and elegance."
+                    }
+                    className="absolute inset-0 w-full h-full object-cover object-right md:object-center"
+                    colors={{
+                        bg: "1C0003",
+                        fg: "FF6A00",
+                    }}
+                />
+                {/* Crimson glow */}
+                {/* <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-rw-crimson/20 blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-20 left-1/3 h-64 w-64 rounded-full bg-rw-crimson/10 blur-3xl pointer-events-none" /> */}
 
-                    <div className="flex items-center gap-4 mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-                        <div>
-                            <h1 className="font-display font-black text-5xl md:text-6xl text-rw-ink mb-4 leading-none tracking-tight">
-                                Track Your
+                <div className="absolute inset-0 bg-gradient-to-r from-[#1C0003] via-[#1C0003]/50 to-transparent md:block hidden" />
+                <div className="absolute inset-0 bg-[#1C0003]/70 md:hidden block" />
+
+                <div className="section-container relative py-16 md:py-24">
+                    <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 p-6 relative z-10 max-w-6xl">
+                        <div className="max-w-xl">
+                            <p className="text-[10px] font-black text-rw-crimson uppercase tracking-[0.35em] mb-4">
+                                {TENURE.brandLabel} &mdash; {TENURE.anniversaryLabel}
+                            </p>
+                            <h1 className="font-display font-black text-5xl md:text-7xl text-white leading-none tracking-tight mb-5">
+                                Track
                                 <br />
-                                <span className="text-gradient-crimson">Order</span>
+                                <span className="text-rw-crimson">Your Order</span>
                             </h1>
-                            <div className="crimson-line mt-4 mb-6" />
-                            <p className="text-lg text-rw-text-2 leading-relaxed">
-                                Look up any order using your reference number, email
-                                address, or phone number. All order communications are
-                                sent from{" "}
-                                <span className="font-bold text-rw-ink">
+                            <p className="text-white/50 text-base leading-relaxed max-w-md">
+                                Look up any order by reference number, email address, or
+                                phone number. Official communications arrive exclusively
+                                from{" "}
+                                <span className="text-white/80 font-semibold">
                                     info@rw.rcffuta.com
                                 </span>
                                 .
                             </p>
                         </div>
 
-                        <Link
-                            href="/shop"
-                            className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#FF0015] px-5 text-sm
-                                       font-semibold text-white hover:bg-[#cc0011] transition-all
-                                       hover:shadow-[0_4px_16px_rgba(255,0,21,0.3)] self-start sm:self-auto"
-                        >
-                            <svg
-                                className="h-4 w-4"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                                viewBox="0 0 24 24"
+                        {/* Quick actions */}
+                        <div className="flex gap-3 flex-wrap shrink-0">
+                            <Link href="/shop">
+                                <Button
+                                    variant="outlined"
+                                    size="md"
+                                    className="border-white/20 text-white hover:border-white/50 hover:bg-white/5 text-xs font-black uppercase tracking-widest"
+                                >
+                                    ← Back to Shop
+                                </Button>
+                            </Link>
+                            <Link href="/docs">
+                                <Button
+                                    variant="outlined"
+                                    size="md"
+                                    className="border-white/20 text-white hover:border-white/50 hover:bg-white/5 text-xs font-black uppercase tracking-widest"
+                                >
+                                    Order Guide
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
+
+                    {/* ── Stat strip ─────────────────────────────────────────── */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-px mt-12 bg-white/10 rounded-2xl overflow-hidden border border-white/10">
+                        {[
+                            {
+                                icon: (
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+                                    />
+                                ),
+                                label: "Official Email",
+                                value: "info@rw.rcffuta.com",
+                                sub: "All order updates sent here only",
+                            },
+                            {
+                                icon: (
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
+                                    />
+                                ),
+                                label: "Collection Point",
+                                value: TENURE.venue,
+                                sub: TENURE.dateRange,
+                            },
+                            {
+                                icon: (
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                                    />
+                                ),
+                                label: "Refund Policy",
+                                value: "No refunds issued",
+                                sub: (
+                                    <Link
+                                        href="/terms"
+                                        className="text-rw-crimson hover:underline font-bold"
+                                    >
+                                        Read Terms of Service →
+                                    </Link>
+                                ),
+                            },
+                        ].map((card) => (
+                            <div
+                                key={card.label}
+                                className="bg-rw-ink/60 backdrop-blur-sm px-6 py-5 flex gap-4 items-start"
                             >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z"
-                                />
-                            </svg>
-                            Shop Merch
-                        </Link>
+                                <div className="h-8 w-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                                    <svg
+                                        className="h-3.5 w-3.5 text-white/40"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        strokeWidth={2}
+                                    >
+                                        {card.icon}
+                                    </svg>
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.25em] mb-1">
+                                        {card.label}
+                                    </p>
+                                    <p className="text-sm font-bold text-white/90 leading-snug break-words">
+                                        {card.value}
+                                    </p>
+                                    <p className="text-[11px] text-white/40 font-medium mt-0.5">
+                                        {card.sub}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
+            </div>
 
-                {/* Info strip — 3 cards */}
-                <div className="grid sm:grid-cols-3 gap-4 mb-14">
-                    {[
-                        {
-                            icon: (
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
-                                />
-                            ),
-                            label: "Official Email",
-                            value: "info@rw.rcffuta.com",
-                            sub: "All order updates sent here",
-                        },
-                        {
-                            icon: (
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
-                                />
-                            ),
-                            label: "Pickup Location",
-                            value: TENURE.venue,
-                            sub: TENURE.dateRange,
-                        },
-                        {
-                            icon: (
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
-                                />
-                            ),
-                            label: "No Refunds",
-                            value: "All sales are final",
-                            sub: "See Terms of Service",
-                        },
-                    ].map((card) => (
-                        <div
-                            key={card.label}
-                            className="rw-card p-5 flex gap-4 items-start"
-                        >
-                            <div className="h-9 w-9 rounded-xl bg-rw-bg-alt border border-[var(--rw-border-mid)] flex items-center justify-center shrink-0 mt-0.5">
-                                <svg
-                                    className="h-4 w-4 text-rw-ink/50"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    strokeWidth={2}
-                                >
-                                    {card.icon}
-                                </svg>
-                            </div>
-                            <div className="min-w-0">
-                                <p className="text-[10px] font-black text-rw-muted uppercase tracking-widest mb-1">
-                                    {card.label}
-                                </p>
-                                <p className="text-sm font-bold text-rw-ink leading-snug break-words">
-                                    {card.value}
-                                </p>
-                                <p className="text-[11px] text-rw-muted font-medium mt-0.5">
-                                    {card.sub}
-                                </p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+            {/* ── Orders Client ─────────────────────────────────────────────── */}
+            <OrdersClient />
 
-                {/* Main lookup */}
-                <OrdersClient />
-
-                {/* Bottom legal + guide strip */}
-                <div className="mt-16 pt-10 border-t border-dashed border-[var(--rw-border-mid)]">
+            {/* ── Footer strip ─────────────────────────────────────────────── */}
+            <div className="section-container pb-20">
+                <div className="pt-10 border-t border-dashed border-[var(--rw-border-mid)]">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                         <div className="flex flex-col gap-1">
-                            <p className="text-xs font-black text-rw-muted uppercase tracking-widest">
+                            <p className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
                                 {FELLOWSHIP.fullName}
                             </p>
                             <p className="text-sm text-rw-text-2">
-                                Questions about your order?{" "}
+                                Questions?{" "}
                                 <Link
                                     href="/docs"
                                     className="text-rw-crimson font-bold hover:underline"
@@ -154,6 +188,13 @@ export default function OrdersPage() {
                                     className="text-rw-crimson font-bold hover:underline"
                                 >
                                     Terms of Service
+                                </Link>{" "}
+                                and{" "}
+                                <Link
+                                    href="/privacy"
+                                    className="text-rw-crimson font-bold hover:underline"
+                                >
+                                    Privacy Policy
                                 </Link>
                                 .
                             </p>
