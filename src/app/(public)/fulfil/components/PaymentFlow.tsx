@@ -11,6 +11,7 @@ import { attachPayment } from "@/lib/services/orders.service";
 import { toast } from "sonner";
 import { DEMO_MODE } from "@/lib/config";
 import { formatNaira } from "@/lib/utils/functions";
+import { DEMO_MODE } from "@/lib/config";
 
 interface ExtractionResult {
     senderName: string | null;
