@@ -64,3 +64,18 @@ export function getEffectiveStatus(o: Order) {
 
     return "pending";
 }
+
+export function formatTime(iso: string) {
+    return new Date(iso).toLocaleTimeString("en-NG", {
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+}
+
+export function formatDate(iso: string) {
+    return new Date(iso).toLocaleDateString("en-NG", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+    });
+}

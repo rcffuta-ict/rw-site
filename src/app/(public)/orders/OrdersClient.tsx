@@ -6,28 +6,13 @@ import type { Order } from "@/lib/data/types";
 import { OrderStatusBadge } from "@/components/ui/Badge";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { searchOrdersAction, getOrdersByRefsAction } from "@/app/actions/orders";
-import { ph } from "@/lib/utils/functions";
+import { formatDate, formatNaira, formatTime, ph } from "@/lib/utils/functions";
 import { StatusTimeline } from "@/components/ui/StatusTimeline";
 import { ProductImage } from "@/components/common/ProductImage";
+import { CopyButton } from "@/components/common/CopyButton";
+import { VariantLabelDisplay } from "@/components/common/VariantDisplay";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function formatDate(iso: string) {
-    return new Date(iso).toLocaleDateString("en-NG", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-    });
-}
-function formatTime(iso: string) {
-    return new Date(iso).toLocaleTimeString("en-NG", {
-        hour: "2-digit",
-        minute: "2-digit",
-    });
-}
-function fmtNgn(amount: number) {
-    return `₦${amount.toLocaleString("en-NG")}`;
-}
 
 function getDeviceRefs(): string[] {
     try {
@@ -101,15 +86,6 @@ const STATUS_CONFIG: Record<
     },
 };
 
-const STATUS_STEPS = [
-    "pending",
-    "partially_paid",
-    "paid",
-    "confirmed",
-    "in_production",
-    "delivered",
-];
-
 // ─── Order List Item ──────────────────────────────────────────────────────────
 
 function OrderListItem({
@@ -161,8 +137,9 @@ function OrderListItem({
             <div className="p-4">
                 <div className="flex items-start justify-between gap-2 mb-3">
                     <div className="flex items-center gap-2 min-w-0 flex-wrap">
-                        <span className="font-mono text-[13px] font-black text-[#1C0003] tracking-[0.12em]">
+                        <span className="font-mono text-[13px] font-black text-[#1C0003] tracking-[0.12em] flex items-center">
                             {order.orderRef}
+                            <CopyButton textToCopy={order.orderRef} />
                         </span>
                         {isDevice && (
                             <span className="inline-flex items-center gap-1 rounded-full bg-rw-crimson/8 px-2 py-0.5 text-[9px] font-black text-rw-crimson uppercase tracking-widest border border-rw-crimson/15">
@@ -193,15 +170,15 @@ function OrderListItem({
                             Payment
                         </span>
                         <span className="text-[10px] font-bold text-[#1C0003]">
-                            {fmtNgn(approvedSum)}
+                            {formatNaira(approvedSum)}
                             {pendingSum > 0 && (
                                 <span className="text-amber-500 font-bold">
                                     {" "}
-                                    +{fmtNgn(pendingSum)} pending
+                                    +{formatNaira(pendingSum)} pending
                                 </span>
                             )}{" "}
                             <span className="text-[#9a8085] font-medium">
-                                / {fmtNgn(order.totalAmount)}
+                                / {formatNaira(order.totalAmount)}
                             </span>
                         </span>
                     </div>
@@ -256,8 +233,9 @@ function OrderDetailPanel({ order }: { order: Order }) {
                         <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] mb-2">
                             Order Reference
                         </p>
-                        <p className="font-mono text-3xl sm:text-4xl font-black text-white tracking-[0.12em] leading-none">
+                        <p className="font-mono text-3xl sm:text-4xl font-black text-white tracking-[0.12em] leading-none flex items-center">
                             {order.orderRef}
+                            <CopyButton textToCopy={order.orderRef} />
                         </p>
                         <p className="text-[11px] text-white/30 mt-2 font-medium">
                             Placed {formatDate(order.createdAt)} at{" "}
@@ -368,9 +346,9 @@ function OrderDetailPanel({ order }: { order: Order }) {
                                             <p className="font-semibold text-[#1C0003]">
                                                 {item.productName}
                                             </p>
-                                            <p className="text-xs text-[#9a8085] mt-0.5">
-                                                {item.variantLabel}
-                                            </p>
+                                            <VariantLabelDisplay
+                                                variants={item.variantLabel}
+                                            />
                                         </div>
                                     </div>
                                 </td>
@@ -378,7 +356,7 @@ function OrderDetailPanel({ order }: { order: Order }) {
                                     {item.quantity}
                                 </td>
                                 <td className="px-6 py-4 text-right font-semibold text-[#1C0003]">
-                                    {fmtNgn(item.unitPrice * item.quantity)}
+                                    {formatNaira(item.unitPrice * item.quantity)}
                                 </td>
                             </tr>
                         ))}
@@ -396,20 +374,20 @@ function OrderDetailPanel({ order }: { order: Order }) {
                     <div className="flex justify-between text-sm">
                         <span className="text-[#5c4048]">Order total</span>
                         <span className="font-semibold text-[#1C0003]">
-                            {fmtNgn(order.totalAmount)}
+                            {formatNaira(order.totalAmount)}
                         </span>
                     </div>
                     <div className="flex justify-between text-sm">
                         <span className="text-[#5c4048]">Amount confirmed</span>
                         <span className="font-semibold text-green-600">
-                            {fmtNgn(approvedSum)}
+                            {formatNaira(approvedSum)}
                         </span>
                     </div>
                     {pendingSum > 0 && (
                         <div className="flex justify-between text-sm">
                             <span className="text-[#5c4048]">Amount pending review</span>
                             <span className="font-semibold text-amber-600 animate-pulse">
-                                {fmtNgn(pendingSum)}
+                                {formatNaira(pendingSum)}
                             </span>
                         </div>
                     )}
@@ -419,7 +397,7 @@ function OrderDetailPanel({ order }: { order: Order }) {
                                 Balance due
                             </span>
                             <span className="font-bold text-[#FF0015]">
-                                {fmtNgn(remaining)}
+                                {formatNaira(remaining)}
                             </span>
                         </div>
                     )}
