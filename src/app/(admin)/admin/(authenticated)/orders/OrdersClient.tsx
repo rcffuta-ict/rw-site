@@ -9,43 +9,9 @@ import { SearchInput } from "@/components/ui/SearchInput";
 import { OrderStats } from "@/components/admin/orders/OrderStats";
 import { OrderVerdictActions } from "@/components/admin/orders/OrderVerdictActions";
 
-import { AdminTable } from "@/components/admin/AdminTable";
 import { Order } from "@/lib/data/types";
-import { formatNaira } from "@/lib/utils/functions";
-
-function getRelativeTime(dateString: string) {
-    const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
-    const date = new Date(dateString);
-    const diffInMs = date.getTime() - Date.now();
-
-    const minutes = Math.round(diffInMs / (1000 * 60));
-    const hours = Math.round(diffInMs / (1000 * 60 * 60));
-    const days = Math.round(diffInMs / (1000 * 60 * 60 * 24));
-
-    if (Math.abs(minutes) < 1) return "Just now";
-    if (Math.abs(minutes) < 60) return rtf.format(minutes, "minute");
-    if (Math.abs(hours) < 24) return rtf.format(hours, "hour");
-    return rtf.format(days, "day");
-}
-
-function getEffectiveStatus(o: Order) {
-    if (o.status === "flagged") return "flagged";
-    if (o.status === "cancelled") return "cancelled";
-    
-    if (o.amountPaid >= o.totalAmount) return "paid";
-    
-    const hasApproved = o.payments?.some(p => p.status === "approved");
-    if (hasApproved && o.amountPaid > 0 && o.amountPaid < o.totalAmount) {
-        return "partially_paid";
-    }
-    
-    if (o.payments && o.payments.length > 0 && !hasApproved) {
-        return "queued";
-    }
-    
-    return "pending";
-}
-
+import { getEffectiveStatus } from "@/lib/utils/functions";
+import { OrdersTable } from "@/components/admin/OrdersTable";
 
 const STATUS_TABS: { key: string; label: string }[] = [
     { key: "all", label: "All" },
@@ -69,7 +35,8 @@ export default function OrdersClient({
     const filteredOrders = useMemo(() => {
         return initialOrders.filter((o) => {
             const effectiveStatus = getEffectiveStatus(o);
-            const matchesStatus = statusFilter === "all" || effectiveStatus === statusFilter;
+            const matchesStatus =
+                statusFilter === "all" || effectiveStatus === statusFilter;
             const matchesSearch =
                 !searchQuery ||
                 o.orderRef.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -136,146 +103,7 @@ export default function OrdersClient({
             </div>
 
             {/* Orders table */}
-            <AdminTable<Order>
-                data={filteredOrders}
-                keyExtractor={(o: Order) => o.id}
-                emptyMessage="No orders found matching your criteria"
-                columns={[
-                    {
-                        label: "Ref",
-                        key: "orderRef",
-                        render: (o: Order) => (
-                            <Link
-                                href={`/admin/orders/${o.orderRef}`}
-                                className="font-mono font-bold text-rw-crimson hover:text-rw-crimson-dk transition-colors border-b border-rw-crimson/20 pb-0.5"
-                            >
-                                {o.orderRef}
-                            </Link>
-                        ),
-                    },
-                    {
-                        label: "Customer",
-                        key: "customerName",
-                        render: (o: Order) => (
-                            <div className="flex flex-col">
-                                <span className="font-bold text-rw-ink group-hover:text-rw-crimson transition-colors">
-                                    {o.customerName}
-                                </span>
-                                <span className="text-xs text-rw-muted">
-                                    {o.customerEmail}
-                                </span>
-                            </div>
-                        ),
-                    },
-                    {
-                        label: "Items",
-                        key: "items",
-                        align: "right",
-                        className: "hidden sm:table-cell",
-                        render: (o: Order) => (
-                            <span className="px-2 py-1 rounded-md bg-rw-bg-alt text-[11px] font-bold">
-                                {o.items.length} items
-                            </span>
-                        ),
-                    },
-                    {
-                        label: "Total",
-                        key: "totalAmount",
-                        align: "right",
-                        render: (o: Order) => (
-                            <span className="font-display font-bold text-rw-ink">
-                                {formatNaira(o.totalAmount)}
-                            </span>
-                        ),
-                    },
-                    {
-                        label: "Paid",
-                        key: "amountPaid",
-                        align: "right",
-                        className: "hidden md:table-cell",
-                        render: (o: Order) => (
-                            <span
-                                className={
-                                    o.amountPaid >= o.totalAmount
-                                        ? "text-green-600 font-semibold"
-                                        : ""
-                                }
-                            >
-                                {formatNaira(o.amountPaid)}
-                            </span>
-                        ),
-                    },
-                    {
-                        label: "Status",
-                        key: "status",
-                        render: (o: Order) => {
-                            const effectiveStatus = getEffectiveStatus(o);
-                            // Convert string to OrderStatus format to reuse the badge or pass it explicitly
-                            // Or just map "queued" to a badge
-                            if (effectiveStatus === "queued") {
-                                return <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-purple-100 text-purple-700">Queued</span>;
-                            }
-                            return <OrderStatusBadge status={o.status} />;
-                        },
-                    },
-                    {
-                        label: "Date",
-                        key: "createdAt",
-                        align: "right",
-                        className: "hidden lg:table-cell",
-                        render: (o: Order) => {
-                            const date = new Date(o.createdAt);
-                            const absoluteDate = date.toLocaleDateString("en-NG", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                            });
-                            const absoluteTime = date.toLocaleTimeString("en-NG", {
-                                hour: "numeric",
-                                minute: "2-digit",
-                                hour12: true,
-                            });
-                            const relative = getRelativeTime(o.createdAt);
-
-                            return (
-                                <div className="flex flex-col items-end">
-                                    <span className="text-xs font-bold text-rw-ink">
-                                        {absoluteDate}{" "}
-                                        <span className="font-normal text-rw-muted">
-                                            • {absoluteTime}
-                                        </span>
-                                    </span>
-                                    <span className="text-[10px] font-semibold text-rw-crimson mt-0.5 tracking-wide">
-                                        {relative}
-                                    </span>
-                                </div>
-                            );
-                        },
-                    },
-                ]}
-                footer={
-                    <div className="flex items-center justify-between">
-                        <p className="text-xs text-rw-muted font-medium italic">
-                            Showing {filteredOrders.length} of {initialOrders.length}{" "}
-                            orders
-                        </p>
-                        <div className="flex gap-2">
-                            <button
-                                disabled
-                                className="px-3 py-1 text-xs font-bold text-rw-muted border border-[var(--rw-border)] rounded-lg bg-white/50 opacity-50"
-                            >
-                                Prev
-                            </button>
-                            <button
-                                disabled
-                                className="px-3 py-1 text-xs font-bold text-rw-muted border border-[var(--rw-border)] rounded-lg bg-white/50 opacity-50"
-                            >
-                                Next
-                            </button>
-                        </div>
-                    </div>
-                }
-            />
+            <OrdersTable orders={filteredOrders} />
         </div>
     );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Order, OrderItem } from "@/lib/data/types";
 import { ph } from "@/lib/utils/functions";
@@ -28,9 +28,29 @@ export default function OrderDetailClient({
     isAdmin = false,
 }: OrderDetailClientProps) {
     const [order, setOrder] = useState(initialOrder);
-    const [selectedStatus, setSelectedStatus] = useState<OrderStatus>(order.status);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [selectedStatus, setSelectedStatus] = useState<OrderStatus>(
+        order.status,
+    );
     const [isUpdating, setIsUpdating] = useState(false);
     const router = useRouter();
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target as Node)
+            ) {
+                setIsDropdownOpen(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [dropdownRef]);
 
     const pct =
         order.totalAmount > 0
@@ -117,9 +137,13 @@ export default function OrderDetailClient({
                         </svg>
                         Full Info
                     </Link>
-                    <div className="relative group w-full sm:w-auto">
+                    <div
+                        className="relative group w-full sm:w-auto"
+                        ref={dropdownRef}
+                    >
                         <button
                             disabled={isUpdating}
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                             className="!h-12 px-6 text-[11px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 w-full md:w-auto rounded-xl bg-white border border-[var(--rw-border)] hover:border-rw-ink hover:text-rw-ink transition-all disabled:opacity-50"
                         >
                             {isUpdating ? (
@@ -150,7 +174,9 @@ export default function OrderDetailClient({
                                 <>
                                     Manage Status
                                     <svg
-                                        className="h-4 w-4"
+                                        className={`h-4 w-4 transition-transform ${
+                                            isDropdownOpen ? "rotate-180" : ""
+                                        }`}
                                         fill="none"
                                         stroke="currentColor"
                                         strokeWidth={2.5}
@@ -166,7 +192,13 @@ export default function OrderDetailClient({
                             )}
                         </button>
 
-                        <div className="absolute right-0 top-[calc(100%+0.5rem)] w-48 bg-white border border-[var(--rw-border)] rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 flex flex-col overflow-hidden">
+                        <div
+                            className={`absolute right-0 top-[calc(100%+0.5rem)] w-48 bg-white border border-[var(--rw-border)] rounded-xl shadow-xl transition-all z-50 flex flex-col overflow-hidden ${
+                                isDropdownOpen
+                                    ? "opacity-100 visible"
+                                    : "opacity-0 invisible"
+                            }`}
+                        >
                             {order.status !== "flagged" && (
                                 <button
                                     onClick={() => handleStatusChange("flagged")}

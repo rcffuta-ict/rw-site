@@ -3,7 +3,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/forms/Button";
-import { PriceInput } from "@/components/ui/forms/PriceInput";
 import type { Order } from "@/lib/data/types";
 import type { GlobalSettings } from "@/lib/services/settings.service";
 import { analyzeReceipt, deleteReceiptImage } from "@/app/actions/receipt";
@@ -12,6 +11,7 @@ import { toast } from "sonner";
 import { DEMO_MODE } from "@/lib/config";
 import { formatNaira } from "@/lib/utils/functions";
 import { DEMO_MODE } from "@/lib/config";
+import { PartialPaymentSelector } from "@/components/public/PartialPaymentSelector";
 
 interface ExtractionResult {
     senderName: string | null;
@@ -912,39 +912,12 @@ export function PaymentFlow({
 
             {/* Partial amount picker */}
             {paymentType === "partial" && (
-                <div className="p-6 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)] animate-fade-in-down">
-                    <div className="flex flex-col gap-4 mb-4">
-                        <p className="text-sm font-semibold text-rw-ink">
-                            Enter Deposit Amount
-                        </p>
-                        <PriceInput
-                            value={customAmount}
-                            onChange={(val) => setCustomAmount(val)}
-                            className="bg-white !pl-10 font-display font-black text-lg"
-                        />
-                    </div>
-
-                    {typeof customAmount === "number" && customAmount < minPayable && (
-                        <p className="text-xs text-rw-crimson font-medium mb-4">
-                            Amount must be at least {formatNaira(minPayable)}
-                        </p>
-                    )}
-                    {typeof customAmount === "number" && customAmount > remaining && (
-                        <p className="text-xs text-rw-crimson font-medium mb-4">
-                            Amount cannot exceed remaining balance of ₦
-                            {formatNaira(remaining)}
-                        </p>
-                    )}
-
-                    <div className="mt-6 pt-5 border-t border-[var(--rw-border)] flex items-end justify-between">
-                        <span className="text-sm font-medium text-rw-text-2">
-                            Amount to pay:
-                        </span>
-                        <span className="font-bold text-3xl text-rw-crimson">
-                            {formatNaira(payAmount)}
-                        </span>
-                    </div>
-                </div>
+                <PartialPaymentSelector
+                    minPayable={minPayable}
+                    remaining={remaining}
+                    selectedAmount={customAmount}
+                    onAmountSelect={(amount) => setCustomAmount(amount)}
+                />
             )}
 
             {/* Upload receipt */}
