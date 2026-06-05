@@ -509,19 +509,15 @@ export function OrdersClient() {
     const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
-        (() => {
-            const refs = getDeviceRefs();
-            setDeviceRefs(refs);
-            if (refs.length > 0) {
-                getOrdersByRefsAction(refs).then((orders) => {
-                    setDeviceOrders(orders);
-                    if (orders.length > 0 && !selectedRef) {
-                        setSelectedRef(orders[0].orderRef);
-                    }
-                });
-            }
-            setHasMounted(true);
-        })();
+        const refs = getDeviceRefs();
+        setDeviceRefs(refs);
+        if (refs.length > 0) {
+            getOrdersByRefsAction(refs).then((orders) => {
+                setDeviceOrders(orders);
+                if (orders.length > 0) setSelectedRef(orders[0].orderRef);
+            });
+        }
+        setHasMounted(true);
     }, []);
 
     useEffect(() => {
@@ -530,21 +526,23 @@ export function OrdersClient() {
     }, [query]);
 
     useEffect(() => {
-        (() => {
-            if (debouncedQuery) {
-                setIsSearching(true);
-                searchOrdersAction(debouncedQuery).then((results) => {
-                    setSearchResults(results);
-                    setIsSearching(false);
-                });
-            } else {
-                setSearchResults([]);
-                setIsSearching(false);
-            }
-        })();
+        if (!debouncedQuery) {
+            setSearchResults([]);
+            setIsSearching(false);
+            return;
+        }
+        setIsSearching(true);
+        searchOrdersAction(debouncedQuery).then((results) => {
+            setSearchResults(results);
+            setIsSearching(false);
+        });
     }, [debouncedQuery]);
 
-    const allOrdersToSelectFrom = [...deviceOrders, ...searchResults];
+    const deviceRefSet = new Set(deviceOrders.map((o) => o.orderRef));
+    const allOrdersToSelectFrom = [
+        ...deviceOrders,
+        ...searchResults.filter((o) => !deviceRefSet.has(o.orderRef)),
+    ];
     const selectedOrder = selectedRef
         ? (allOrdersToSelectFrom.find((o) => o.orderRef === selectedRef) ?? null)
         : null;
@@ -557,7 +555,7 @@ export function OrdersClient() {
 
             {/* Body */}
             <div className="section-container py-8">
-                <div className="max-w-3xl ml-auto my-6">
+                <div className="max-w-2xl mx-auto my-6">
                     <SearchInput
                         query={query}
                         onChange={(e) => {
@@ -590,9 +588,20 @@ export function OrdersClient() {
                             {debouncedQuery && (
                                 <div className="flex flex-col gap-3">
                                     <p className="text-xs font-bold uppercase tracking-wide text-[#FF0015] px-1">
-                                        Search Results ({searchResults.length})
+                                        {isSearching
+                                            ? "Searching…"
+                                            : `Search Results (${searchResults.length})`}
                                     </p>
-                                    {searchResults.length === 0 ? (
+                                    {isSearching ? (
+                                        <>
+                                            {[1, 2].map((i) => (
+                                                <div
+                                                    key={i}
+                                                    className="h-28 rounded-2xl bg-white border border-[#e8d0d4] animate-pulse"
+                                                />
+                                            ))}
+                                        </>
+                                    ) : searchResults.length === 0 ? (
                                         <div className="rw-card">
                                             <EmptyState mode="no-results" />
                                         </div>
