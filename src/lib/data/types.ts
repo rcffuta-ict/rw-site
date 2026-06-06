@@ -226,40 +226,34 @@ export interface AdminUser {
     createdAt: string; // ISO 8601
 }
 
-// ─── Verdicts ─────────────────────────────────────────────────────────────────
+// ─── Email Templates & Logs ───────────────────────────────────────────────────
 //
-// Verdicts are issued by admins to formally direct production & finance teams.
-// Each verdict covers a batch of confirmed/paid orders.
-// Issuing a verdict sets the covered orders to 'in_production'.
-// Marking a verdict 'ready' sets all covered orders to 'ready'.
+// Transactional email system. Templates are stored in the database and edited
+// from the admin UI. Triggers fire when order/payment status changes, invoking
+// the Edge Function which fetches the template, injects variables, and sends.
+// All sends are logged for audit purposes.
 
-export type VerdictStatus = "active" | "ready" | "archived";
-
-export interface VerdictOrder {
-    verdictId: string;
-    orderId: string;
-    order?: Order; // populated when fetched with join
-}
-
-export interface Verdict {
+export interface EmailTemplate {
     id: string;
-    verdictRef: string;       // e.g. 'VRD-0042'
-    issuedBy: string;         // admin name (signature)
-    issuedAt: string;         // ISO 8601
-    status: VerdictStatus;
-    pdfCloudinaryUrl: string | null;
-    pdfCloudinaryId: string | null;
-    totalAmount: number;      // sum of all covered orders
-    notes: string | null;
-    orders: Order[];          // populated by service join
-    createdAt: string;
-    updatedAt: string;
+    templateKey: string; // e.g. "pending", "paid", "payment_approved" — unique key
+    label: string; // human-readable name e.g. "Order Confirmed"
+    subject: string; // email subject (supports {{variables}})
+    bodyHtml: string; // full HTML body (supports {{variables}})
+    isActive: boolean; // inactive templates are skipped by triggers
+    updatedAt: string; // ISO 8601
+    updatedBy: string | null; // email of the admin who last edited
 }
 
-export interface VerdictInput {
-    issuedBy: string;
-    orderIds: string[];
-    notes?: string | null;
+export interface EmailLog {
+    id: string;
+    orderId: string | null;
+    paymentId: string | null;
+    templateKey: string;
+    recipientEmail: string;
+    subject: string | null;
+    success: boolean;
+    errorMessage: string | null;
+    sentAt: string; // ISO 8601
 }
 
 // ─── Service Input/Output Helpers ─────────────────────────────────────────────

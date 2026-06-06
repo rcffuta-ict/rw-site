@@ -1,8 +1,9 @@
+import { Metadata } from "next";
 import { CheckoutClient } from "./CheckoutClient";
 
 import { TENURE } from "@/lib/config";
 
-export const metadata = {
+export const metadata: Metadata = {
     title: `Checkout — ${TENURE.brandLabel}`,
 };
 

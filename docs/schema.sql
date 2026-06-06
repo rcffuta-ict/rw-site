@@ -18,6 +18,8 @@
 --   6. order_items         Line items per order (snapshot at order time)
 --   7. payments            Payment receipts with actor signature
 --   8. admin_users         Admin/moderator users (linked to Supabase Auth)
+--   9. email_templates     Transactional email templates (editable from admin UI)
+--   10. email_logs         Email send audit log (success/failure tracking)
 --
 -- Views:
 --   order_payment_summary  Derived payment state per order
@@ -347,6 +349,101 @@ COMMENT ON TABLE public.rw_admin_moderators IS 'Admin/moderator access roles for
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
+-- 9. EMAIL TEMPLATES
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Editable transactional email templates. Admins can update subject lines and body HTML.
+-- Variables supported: {{customer_name}}, {{order_ref}}, {{total_amount}}, {{amount_paid}}, {{balance}}, {{items_html}}
+
+CREATE TABLE IF NOT EXISTS rw_email_templates (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  template_key TEXT NOT NULL UNIQUE,
+  label        TEXT NOT NULL,             -- human-readable name e.g. "Order Confirmed"
+  subject      TEXT NOT NULL,             -- email subject line (supports {{variables}})
+  body_html    TEXT NOT NULL,             -- full HTML body (supports {{variables}})
+  is_active    BOOLEAN NOT NULL DEFAULT TRUE,
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_by   TEXT                       -- email of the admin who last edited
+);
+
+CREATE OR REPLACE TRIGGER email_templates_set_updated_at
+  BEFORE UPDATE ON rw_email_templates
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+COMMENT ON TABLE rw_email_templates IS
+  'Editable transactional email templates. template_key maps to order_status or payment event keys. '
+  'Supports {{customer_name}}, {{order_ref}}, {{total_amount}}, {{amount_paid}}, {{balance}}, {{items_html}} variables.';
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 10. EMAIL LOGS
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Audit log of all email send attempts (success and failure).
+
+CREATE TABLE IF NOT EXISTS rw_email_logs (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id       UUID REFERENCES rw_orders(id) ON DELETE SET NULL,
+  payment_id     UUID REFERENCES rw_payments(id) ON DELETE SET NULL,
+  template_key   TEXT NOT NULL,
+  recipient_email TEXT NOT NULL,
+  subject        TEXT,
+  success        BOOLEAN NOT NULL DEFAULT FALSE,
+  error_message  TEXT,
+  sent_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_email_logs_order ON rw_email_logs(order_id);
+CREATE INDEX IF NOT EXISTS idx_email_logs_sent_at ON rw_email_logs(sent_at DESC);
+
+COMMENT ON TABLE rw_email_logs IS 'Audit log of email send attempts. Track success/failure and errors.';
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 10b. EMAIL QUEUE
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Durable outbox. The app enqueues a row and returns instantly; the
+-- send-order-email Edge Function drains pending rows and sends via ZeptoMail,
+-- updating status + attempts (with retry) and writing to rw_email_logs.
+
+CREATE TABLE IF NOT EXISTS rw_email_queue (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  mode            TEXT NOT NULL DEFAULT 'status',   -- 'status' | 'custom'
+  event_type      TEXT,                             -- 'order_status' | 'payment_status'
+  order_id        UUID REFERENCES rw_orders(id)   ON DELETE SET NULL,
+  payment_id      UUID REFERENCES rw_payments(id) ON DELETE SET NULL,
+  new_status      TEXT,
+  template_key    TEXT,                             -- resolved template for status mode
+  recipient_email TEXT,                             -- denormalised for display
+  subject         TEXT,                             -- custom mode only
+  body_html       TEXT,                             -- custom mode only
+  status          TEXT NOT NULL DEFAULT 'pending',  -- pending | sending | sent | failed
+  attempts        INTEGER NOT NULL DEFAULT 0,
+  max_attempts    INTEGER NOT NULL DEFAULT 5,
+  last_error      TEXT,
+  sent_at         TIMESTAMPTZ,
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_email_queue_status ON rw_email_queue(status, created_at);
+
+CREATE OR REPLACE TRIGGER email_queue_set_updated_at
+  BEFORE UPDATE ON rw_email_queue
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+COMMENT ON TABLE rw_email_queue IS 'Durable email outbox. Drained by the send-order-email Edge Function.';
+
+
+-- ─── Email notifications ─────────────────────────────────────────────────────
+-- Transactional emails are sent from the APPLICATION layer (Next.js), not from
+-- database triggers. The app enqueues into rw_email_queue and triggers the
+-- `send-order-email` Edge Function (over HTTPS) to drain it and send via ZeptoMail.
+--
+-- This deliberately avoids pg_net / the `net` schema (the source of the
+-- "schema net does not exist" error) and keeps a single, testable send path that
+-- also powers one-off admin messages. No email triggers are defined here.
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
 -- VIEW: order_payment_summary
 -- ═══════════════════════════════════════════════════════════════════════════
 -- Derived payment state per order.
@@ -393,6 +490,48 @@ COMMENT ON VIEW rw_order_payment_summary IS
 --
 --   2. Set DEMO_MODE = false in src/lib/config.ts when ready to go live.
 --
+--   3. EMAIL INTEGRATION (enables transactional + admin emails):
+--      Sending happens from the app, not the DB — there is NOTHING to configure
+--      in Postgres settings (no app.supabase_url, no pg_net).
+--      a. Generate a ZeptoMail Send Mail token and set Edge Function secrets:
+--         ZEPTO_TOKEN, ZEPTO_FROM (e.g. info@rw.rcffuta.com)
+--      b. Deploy the Edge Function: supabase functions deploy send-order-email
+--      c. Ensure the app env has NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
+--      d. The default email templates are seeded automatically at the end of this
+--         file (section 11).
+--
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 9. SETTINGS & AUDIT LOGS
+-- ═══════════════════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS public.rw_settings (
+  id integer PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+  bank_name text NOT NULL DEFAULT 'First Bank',
+  bank_account_name text NOT NULL DEFAULT 'RCF FUTA',
+  bank_account_number text NOT NULL DEFAULT '3012345678',
+  payment_min_amount integer NOT NULL DEFAULT 2000,
+  payment_installment_allowed boolean NOT NULL DEFAULT true,
+  updated_by uuid REFERENCES public.profiles(id),
+  updated_at timestamptz DEFAULT now()
+);
+
+COMMENT ON TABLE public.rw_settings IS 'Global application settings (singleton row).';
+
+-- Insert default row
+INSERT INTO public.rw_settings (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS public.rw_audit_logs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  profile_id uuid REFERENCES public.profiles(id),
+  action text NOT NULL,
+  entity_type text NOT NULL,
+  entity_id text,
+  details jsonb,
+  created_at timestamptz DEFAULT now()
+);
+
+COMMENT ON TABLE public.rw_audit_logs IS 'Audit trail for admin/moderator actions.';
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 9. SETTINGS & AUDIT LOGS
@@ -526,6 +665,133 @@ ALTER TABLE public.rw_order_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_admin_moderators ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_email_templates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_email_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_email_queue ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_audit_logs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.rw_verdicts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.rw_verdict_orders ENABLE ROW LEVEL SECURITY;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 11. DEFAULT EMAIL TEMPLATES (seed)
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 12 templates: 8 order-status + 4 payment-status. ON CONFLICT DO NOTHING means
+-- this is safe on re-run and never overwrites templates edited in the admin UI.
+
+INSERT INTO rw_email_templates (template_key, label, subject, body_html, is_active)
+VALUES
+  ('pending',
+   'Order Received',
+   'Your RW''26 Pre-Order is Confirmed — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Thank you for your pre-order! We have received your order <strong>#{{order_ref}}</strong> totalling <strong>{{total_amount}}</strong>.</p>
+<p>Please upload your payment receipt to proceed. You can pay via bank transfer and submit the receipt in your order dashboard.</p>
+{{items_html}}
+<p>If you have any questions, please contact us at support@rcffuta.com</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('partially_paid',
+   'Partial Payment Confirmed',
+   'Partial Payment Received — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Thank you! We have confirmed a payment of <strong>{{amount_paid}}</strong> on your order <strong>#{{order_ref}}</strong>.</p>
+<p>Your outstanding balance is <strong>{{balance}}</strong>. Please submit payment for the remaining amount to complete your order.</p>
+{{items_html}}
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('paid',
+   'Full Payment Confirmed',
+   'Payment Complete — Your RW''26 Order is Fully Paid 🎉',
+   '<p>Hi {{customer_name}},</p>
+<p>Excellent! Your order <strong>#{{order_ref}}</strong> is now fully paid ({{total_amount}}).</p>
+<p>Your items are queued for production. We will notify you as soon as they are ready.</p>
+{{items_html}}
+<p>Thank you for your support!</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('confirmed',
+   'Order Confirmed for Production',
+   'Order #{{order_ref}} — Queued for Production',
+   '<p>Hi {{customer_name}},</p>
+<p>Great news! Your order <strong>#{{order_ref}}</strong> has been confirmed and is now queued for production.</p>
+<p>We will update you once your items are ready for collection. Typical turnaround is 2–3 weeks.</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('in_production',
+   'Order In Production',
+   'Your RW''26 Items Are Being Made — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Your order <strong>#{{order_ref}}</strong> is currently in production. We are working hard to make your items perfect!</p>
+<p>We will notify you as soon as your order is ready for collection.</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('delivered',
+   'Order Ready for Collection',
+   'Your RW''26 Order is Ready — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Wonderful news! Your order <strong>#{{order_ref}}</strong> is ready for collection!</p>
+<p>Please come collect your items at the designated pickup location. If you have any questions about timing or location, please contact us.</p>
+<p>We hope you love your items! Feel free to share photos or leave a review.</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('flagged',
+   'Order Flagged — Action Required',
+   'Action Required on Your Order #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Your order <strong>#{{order_ref}}</strong> has been flagged for review. This may be due to a payment verification issue or an inquiry we need to resolve with you.</p>
+<p>Please contact us at support@rcffuta.com or reply to this email as soon as possible so we can help.</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('cancelled',
+   'Order Cancelled',
+   'Your Order #{{order_ref}} Has Been Cancelled',
+   '<p>Hi {{customer_name}},</p>
+<p>We are writing to inform you that your order <strong>#{{order_ref}}</strong> has been cancelled.</p>
+<p>If you believe this is an error or would like to discuss this cancellation, please contact us immediately at support@rcffuta.com.</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('payment_pending',
+   'Payment Receipt Received',
+   'We Received Your Payment Receipt — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Your payment receipt for order <strong>#{{order_ref}}</strong> has been received and is under review.</p>
+<p>Our team will verify the payment details and confirm within 24 hours. We will notify you once it has been approved.</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('payment_approved',
+   'Payment Approved',
+   'Payment Approved — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Great! Your payment of <strong>{{amount_paid}}</strong> for order <strong>#{{order_ref}}</strong> has been verified and approved.</p>
+<p>Thank you for your payment. Your order is on track!</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('payment_flagged',
+   'Payment Receipt Flagged',
+   'Issue With Your Payment Receipt — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>There is an issue with the payment receipt you submitted for order <strong>#{{order_ref}}</strong>.</p>
+<p>This may be due to unclear image quality, missing details, or a discrepancy in the amount. Please contact us or resubmit a clear receipt at your earliest convenience.</p>
+<p>Contact: support@rcffuta.com</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('payment_rejected',
+   'Payment Could Not Be Verified',
+   'Payment Verification Issue — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Unfortunately, we could not verify the payment receipt you submitted for order <strong>#{{order_ref}}</strong>.</p>
+<p>The receipt details do not match our records or there may be another issue. Please contact us at support@rcffuta.com with your receipt details so we can help resolve this quickly.</p>
+<p>— RCF FUTA Team</p>',
+   true)
+
+ON CONFLICT (template_key) DO NOTHING;

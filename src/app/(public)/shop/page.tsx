@@ -1,11 +1,14 @@
 import { getProducts } from "@/lib/services/products.service";
-import { ph } from "@/lib/utils/functions";
 import { ShopClient } from "./ShopClient";
-import { TENURE } from "@/lib/config";
+import { FELLOWSHIP, TENURE } from "@/lib/config";
+import { HeaderBanner } from "@/components/common/HeaderBanner";
+import { Metadata } from "next";
+import Link from "next/link";
+import { Button } from "@/components/ui/forms/Button";
 
-export const metadata = {
+export const metadata: Metadata = {
     title: `Shop — ${TENURE.brandLabel} Official Merch`,
-    description: `Pre-order official RW${TENURE.shortYear} anniversary merchandise. T-shirts, hoodies, caps, and more. Ready for pickup during the Handing Over ceremony.`,
+    description: `Pre-order official ${TENURE.brandLabelShort} anniversary merchandise. T-shirts, hoodies, caps, and more. Ready for pickup during ${TENURE.eventName}.`,
 };
 
 export default async function ShopPage() {
@@ -13,72 +16,155 @@ export default async function ShopPage() {
 
     return (
         <div className="min-h-screen bg-white">
-            {/* Full-width hero banner */}
-            <ShopBanner />
+            <HeaderBanner
+                bannerDescription="Official Merch Banner Background"
+                title={`${TENURE.brandLabelShort} Merch Sales`}
+                description={`Pre-order your official ${TENURE.brandLabelShort} anniversary merch. Merchandise is collected exclusively at ${TENURE.venue}.`}
+                header="Official Merchandise"
+            />
 
-            <div className="section-container py-12 lg:py-16">
-                <ShopClient products={products} />
+            <div className="bg-gradient-to-b from-slate-50/60 to-white my-16">
+                <div className="section-container py-12 lg:py-16">
+                    <ShopClient products={products} />
+                </div>
             </div>
-        </div>
-    );
-}
 
-function ShopBanner() {
-    return (
-        <div className="relative overflow-hidden bg-[#1C0003]">
-            <picture>
-                <source
-                    media="(max-width: 640px)"
-                    srcSet={ph(640, 320, "Official Merch · RW'26", "1C0003", "FF6A00")}
-                />
-                <source
-                    media="(max-width: 1024px)"
-                    srcSet={ph(1024, 300, "Official Merch · RW'26", "1C0003", "FF6A00")}
-                />
-                <img
-                    src={ph(1600, 360, "Official Merch · RW'26", "1C0003", "FF6A00")}
-                    alt=""
-                    aria-hidden
-                    className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-luminosity"
-                />
-            </picture>
-            <div className="absolute inset-0 bg-gradient-to-r from-[#1C0003]/95 via-[#1C0003]/70 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FF0015]/5 to-[#FF6A00]/10" />
+            {/* Legal & Guide strip */}
+            <div className="section-container mb-10">
+                <div className="rw-card overflow-hidden">
+                    <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[var(--rw-border)]">
+                        {/* Left — How it works CTA */}
+                        <div className="p-8 md:p-10 flex flex-col gap-4 bg-gradient-to-br from-rw-crimson/8 to-rw-crimson/3">
+                            <div className="flex items-center gap-3">
+                                <div className="h-9 w-9 rounded-xl bg-rw-crimson/10 border border-rw-crimson/20 flex items-center justify-center shrink-0">
+                                    <svg
+                                        className="h-4 w-4 text-rw-crimson"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        strokeWidth={2.5}
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.966 8.966 0 00-6 2.292m0-14.25v14.25"
+                                        />
+                                    </svg>
+                                </div>
+                                <p className="text-xs font-black text-rw-crimson uppercase tracking-widest">
+                                    How It Works
+                                </p>
+                            </div>
+                            <h3 className="font-display font-bold text-2xl text-rw-ink leading-tight">
+                                New to pre-ordering?
+                            </h3>
+                            <p className="text-sm text-rw-text-2 leading-relaxed">
+                                From browsing to pickup at {TENURE.venue} — our complete
+                                guide walks you through every step of the process.
+                            </p>
+                            <div className="mt-2">
+                                <Link href="/docs">
+                                    <Button variant="outlined" size="sm">
+                                        View Complete Guide →
+                                    </Button>
+                                </Link>
+                            </div>
+                        </div>
 
-            {/* Bottom feather */}
-            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent" />
+                        {/* Right — Legal notice */}
+                        <div className="p-8 md:p-10 flex flex-col gap-4 bg-rw-bg-warm/30">
+                            <div className="flex items-center gap-3">
+                                <div className="h-9 w-9 rounded-xl bg-rw-ink/5 border border-[var(--rw-border-mid)] flex items-center justify-center shrink-0">
+                                    <svg
+                                        className="h-4 w-4 text-rw-ink/60"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        strokeWidth={2}
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.955 11.955 0 003 10c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.249-8.25-3.286z"
+                                        />
+                                    </svg>
+                                </div>
+                                <p className="text-xs font-black text-rw-muted uppercase tracking-widest">
+                                    Purchase Policy
+                                </p>
+                            </div>
+                            <h3 className="font-display font-bold text-2xl text-rw-ink leading-tight">
+                                Before you order
+                            </h3>
+                            <p className="text-sm text-rw-text-2 leading-relaxed">
+                                All sales are final — no refunds are offered. Merch is
+                                collected in-person only at {TENURE.venue} during{" "}
+                                {TENURE.eventName} ({TENURE.dateRange}). By placing an
+                                order you accept our Terms of Service.
+                            </p>
+                            <div className="flex items-center gap-4 mt-2 flex-wrap">
+                                <Link
+                                    href="/terms"
+                                    className="text-xs font-black text-rw-ink hover:text-rw-crimson transition-colors uppercase tracking-widest underline underline-offset-4"
+                                >
+                                    Terms of Service
+                                </Link>
+                                <span className="text-rw-border-mid text-xs">·</span>
+                                <Link
+                                    href="/privacy"
+                                    className="text-xs font-black text-rw-ink hover:text-rw-crimson transition-colors uppercase tracking-widest underline underline-offset-4"
+                                >
+                                    Privacy Policy
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="px-8 py-3 bg-rw-ink/3 border-t border-[var(--rw-border)] flex items-center justify-between gap-4 flex-wrap">
+                        <p className="text-[10px] font-bold text-rw-muted uppercase tracking-widest">
+                            {FELLOWSHIP.fullName} &mdash; {TENURE.brandLabel}
+                        </p>
+                        <p className="text-[10px] font-bold text-rw-muted uppercase tracking-widest">
+                            Delivery: {TENURE.venue} &mdash; Check your email for updates
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-            <div className="section-container relative z-10 section-py-sm">
-                <p className="eyebrow mb-3 !text-[#FF6A00]">Official Merchandise</p>
-                <h1
-                    className="font-display font-extrabold text-white leading-tight tracking-tight"
-                    style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)" }}
-                >
-                    RW&apos;{TENURE.year.slice(2)} Merch Sales
-                </h1>
-                <p className="mt-4 text-white/60 text-base leading-relaxed max-w-[50ch]">
-                    Pre-order your {TENURE.anniversaryLabel} anniversary merch. Order
-                    information will be communicated to you as you engage with sales.
-                </p>
-
-                {/* Info pills */}
-                {/* <div className="mt-6 flex flex-wrap gap-2">
-                    {[
-                        "Free pickup at venue",
-                        "Limited quantities",
-                        "Secure payment via bank transfer",
-                    ].map((tag) => (
-                        <span
-                            key={tag}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
-                                                   border border-white/15 bg-white/8 text-white/70 text-xs font-medium
-                                                   backdrop-blur-sm"
-                        >
-                            <span className="h-1 w-1 rounded-full bg-[#FF6A00]" />
-                            {tag}
-                        </span>
-                    ))}
-                </div> */}
+            {/* Bottom CTA */}
+            <div className="section-container mb-24">
+                <div className="rw-card p-8 md:p-12 bg-gradient-to-r from-rw-crimson/10 to-rw-crimson/5 border-l-4 border-l-rw-crimson">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <div>
+                            <p className="text-sm font-bold text-rw-crimson uppercase tracking-widest mb-2">
+                                Next Step
+                            </p>
+                            <h3 className="font-display font-bold text-3xl text-rw-ink mb-2">
+                                Ready to Checkout?
+                            </h3>
+                            <p className="text-rw-text-2 max-w-lg text-sm">
+                                Once you&rsquo;ve added items to your cart, proceed to
+                                checkout. You&rsquo;ll need a valid email address &mdash;
+                                all order updates are sent from{" "}
+                                <span className="font-bold text-rw-ink">
+                                    noreply@rw.rcffuta.com
+                                </span>
+                                .
+                            </p>
+                        </div>
+                        <div className="flex gap-3 flex-wrap md:flex-nowrap shrink-0">
+                            <Link href="/docs">
+                                <Button variant="outlined" size="lg">
+                                    View Guide
+                                </Button>
+                            </Link>
+                            <Link href="/checkout">
+                                <Button variant="primary" size="lg">
+                                    Checkout Now
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

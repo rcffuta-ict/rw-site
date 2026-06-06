@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LOGOS } from "@/lib/config";
 import { Identity } from "../ui/Identity";
+import { BrandDisplay } from "../common/BrandDisplay";
 
 const PROGRAMME = [
     { day: "Mon", label: "Opening Ceremony" },
@@ -21,6 +21,9 @@ const QUICK_LINKS = [
     { href: "/#support", label: "Support Us" },
     { href: "/fulfil", label: "Pay an Order" },
     { href: "/orders", label: "My Orders" },
+    { href: "/docs", label: "How to Order" },
+    { href: "/terms", label: "Terms of Service" },
+    { href: "/privacy", label: "Privacy Policy" },
     // { href: "/admin", label: "Admin Dashboard" },
 ];
 
@@ -76,7 +79,8 @@ const FELLOWSHIP_FACTS = [
 
 export function PublicFooter() {
     const pathname = usePathname();
-    const isOrderDetailsPage = pathname?.startsWith("/orders/") && pathname?.endsWith("/details");
+    const isOrderDetailsPage =
+        pathname?.startsWith("/orders/") && pathname?.endsWith("/details");
 
     return (
         <footer className="bg-rw-bg-warm border-t border-[#e8d0d4] text-[#1C0003] print:hidden">
@@ -84,166 +88,148 @@ export function PublicFooter() {
             <div className="border-b border-[#e8d0d4]">
                 <div className="section-container !pt-6 lg:pt-16 !pb-10 !lg:pb-12 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-8 text-center lg:text-left">
                     <Identity className="justify-center lg:justify-start" />
-                    <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 lg:gap-12">
-                        {[
-                            { src: LOGOS.rcfFuta, alt: "RCF FUTA" },
-                            {
-                                src: LOGOS.tenureIcon,
-                                alt: "The Lords's Witnesses: The Purified Army",
-                            },
-                            { src: LOGOS.crm, alt: "Christ the Redeemers' Ministries" },
-                            { src: LOGOS.anniversary, alt: "38th Anniversary" },
-                            { src: LOGOS.redemptionWeek, alt: "Redemption Week '26" },
-                        ].map((logo) => (
-                            <img
-                                key={logo.alt}
-                                src={logo.src}
-                                alt={logo.alt}
-                                className="h-10 sm:h-12 w-auto object-contain opacity-40 hover:opacity-90 grayscale hover:grayscale-0 transition-all duration-300"
-                            />
-                        ))}
-                    </div>
+                    <BrandDisplay />
                 </div>
             </div>
 
             {/* ── Main columns ─────────────────────────────────────────────── */}
             {!isOrderDetailsPage && (
-                <div className="section-container !pt-20 lg:!pt-28 !pb-16">
-                <div className="grid gap-12 lg:gap-16 xl:gap-20 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
-                    {/* Col 1 — About */}
-                    <div className="text-center sm:text-left">
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#9a8085] mb-6">
-                            About
-                        </p>
-                        <p className="text-sm text-[#5c4048] leading-relaxed max-w-[38ch] mx-auto sm:mx-0">
-                            The Redeemed Christian Fellowship, Federal University of
-                            Technology, Akure (RCFFUTA) is one of the leading fellowships
-                            in the FUTA environs, standing strong in faith, values, and
-                            purpose since 1983.
-                        </p>
-                        <p className="mt-5 text-sm text-[#9a8085] italic">
-                            &ldquo;A place where good things never cease.&rdquo;
-                        </p>
+                <div className="section-container !pt-20 lg:!pt-18 !pb-16">
+                    <div className="grid gap-12 lg:gap-16 xl:gap-20 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
+                        {/* Col 1 — About */}
+                        <div className="text-center sm:text-left">
+                            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#9a8085] mb-6">
+                                About
+                            </p>
+                            <p className="text-sm text-[#5c4048] leading-relaxed max-w-[38ch] mx-auto sm:mx-0">
+                                The Redeemed Christian Fellowship, Federal University of
+                                Technology, Akure (RCFFUTA) is one of the leading
+                                fellowships in the FUTA environs, standing strong in
+                                faith, values, and purpose since 1983.
+                            </p>
+                            <p className="mt-5 text-sm text-[#9a8085] italic">
+                                &ldquo;A place where good things never cease.&rdquo;
+                            </p>
 
-                        {/* Stats */}
-                        <div className="mt-10 grid grid-cols-2 gap-3">
-                            {FELLOWSHIP_FACTS.map((f) => (
-                                <div
-                                    key={f.label}
-                                    className="border border-[#e8d0d4] rounded-xl p-4 bg-[#fdf8f8] hover:border-[#FF0015]/25 transition-colors"
-                                >
-                                    <p className="font-display font-bold text-2xl text-[#FF0015]">
-                                        {f.value}
-                                    </p>
-                                    <p className="text-[11px] text-[#9a8085] font-medium mt-1">
-                                        {f.label}
-                                    </p>
-                                </div>
-                            ))}
+                            {/* Stats */}
+                            <div className="mt-10 grid grid-cols-2 gap-3">
+                                {FELLOWSHIP_FACTS.map((f) => (
+                                    <div
+                                        key={f.label}
+                                        className="border border-[#e8d0d4] rounded-xl p-4 bg-[#fdf8f8] hover:border-[#FF0015]/25 transition-colors"
+                                    >
+                                        <p className="font-display font-bold text-2xl text-[#FF0015]">
+                                            {f.value}
+                                        </p>
+                                        <p className="text-[11px] text-[#9a8085] font-medium mt-1">
+                                            {f.label}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Social */}
+                            <div className="mt-10 flex items-center justify-center sm:justify-start gap-3">
+                                {SOCIAL_LINKS.map((s) => (
+                                    <a
+                                        key={s.label}
+                                        href={s.href}
+                                        aria-label={s.label}
+                                        className="h-10 w-10 rounded-xl border border-[#e8d0d4] bg-white flex items-center justify-center text-[#9a8085] hover:text-[#FF0015] hover:border-[#FF0015]/30 hover:bg-[#FF0015]/5 transition-all duration-200"
+                                    >
+                                        {s.icon}
+                                    </a>
+                                ))}
+                            </div>
                         </div>
 
-                        {/* Social */}
-                        <div className="mt-10 flex items-center justify-center sm:justify-start gap-3">
-                            {SOCIAL_LINKS.map((s) => (
-                                <a
-                                    key={s.label}
-                                    href={s.href}
-                                    aria-label={s.label}
-                                    className="h-10 w-10 rounded-xl border border-[#e8d0d4] bg-white flex items-center justify-center text-[#9a8085] hover:text-[#FF0015] hover:border-[#FF0015]/30 hover:bg-[#FF0015]/5 transition-all duration-200"
-                                >
-                                    {s.icon}
-                                </a>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Col 2 — Programme */}
-                    <div className="text-center sm:text-left">
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#9a8085] mb-6">
-                            Programme
-                        </p>
-                        <ul className="flex flex-col gap-0.5 max-w-[280px] mx-auto sm:mx-0">
-                            {PROGRAMME.map((n, i) => (
-                                <li
-                                    key={n.day}
-                                    className="flex items-start gap-4 py-3 border-b border-[#f4eced] last:border-0"
-                                >
-                                    <div className="flex flex-col items-center gap-0.5 shrink-0 w-8 mt-0.5">
-                                        <span className="font-display font-bold text-[11px] text-[#FF0015]">
-                                            {String(i + 1).padStart(2, "0")}
+                        {/* Col 2 — Programme */}
+                        <div className="text-center sm:text-left">
+                            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#9a8085] mb-6">
+                                Programme
+                            </p>
+                            <ul className="flex flex-col gap-0.5 max-w-[280px] mx-auto sm:mx-0">
+                                {PROGRAMME.map((n, i) => (
+                                    <li
+                                        key={n.day}
+                                        className="flex items-start gap-4 py-3 border-b border-[#f4eced] last:border-0"
+                                    >
+                                        <div className="flex flex-col items-center gap-0.5 shrink-0 w-8 mt-0.5">
+                                            <span className="font-display font-bold text-[11px] text-[#FF0015]">
+                                                {String(i + 1).padStart(2, "0")}
+                                            </span>
+                                            <span className="text-[9px] text-[#9a8085] font-bold uppercase tracking-wider">
+                                                {n.day}
+                                            </span>
+                                        </div>
+                                        <span className="text-sm text-[#5c4048] leading-tight">
+                                            {n.label}
                                         </span>
-                                        <span className="text-[9px] text-[#9a8085] font-bold uppercase tracking-wider">
-                                            {n.day}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        {/* Col 3 — Navigate */}
+                        <div className="text-center sm:text-left">
+                            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#9a8085] mb-6">
+                                Navigate
+                            </p>
+                            <ul className="flex flex-col gap-4">
+                                {QUICK_LINKS.map((l) => (
+                                    <li key={l.href}>
+                                        <Link
+                                            href={l.href}
+                                            className="group flex items-center justify-center sm:justify-start gap-3 text-sm text-[#5c4048] hover:text-[#FF0015] transition-colors duration-200"
+                                        >
+                                            <span className="h-px w-3 bg-[#FF0015]/30 group-hover:w-5 group-hover:bg-[#FF0015] transition-all duration-300" />
+                                            {l.label}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        {/* Col 4 — Sponsorship */}
+                        <div className="text-center sm:text-left">
+                            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#9a8085] mb-6">
+                                Sponsorship
+                            </p>
+                            <p className="text-sm text-[#5c4048] leading-relaxed mb-8">
+                                Partner with 38 years of impact. Reach 900+ students and
+                                alumni across a full week of events.
+                            </p>
+
+                            <div className="flex flex-col gap-2 mb-8">
+                                {[
+                                    { tier: "Diamond", amount: "₦1,000,000" },
+                                    { tier: "Gold", amount: "₦750,000" },
+                                    { tier: "Silver", amount: "₦500,000" },
+                                    { tier: "Bronze", amount: "₦250,000" },
+                                ].map((s) => (
+                                    <div
+                                        key={s.tier}
+                                        className="flex items-center justify-between py-2 border-b border-[#f4eced] text-xs"
+                                    >
+                                        <span className="text-[#9a8085] font-medium">
+                                            {s.tier}
+                                        </span>
+                                        <span className="text-[#1C0003] font-bold tabular-nums">
+                                            {s.amount}
                                         </span>
                                     </div>
-                                    <span className="text-sm text-[#5c4048] leading-tight">
-                                        {n.label}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                                ))}
+                            </div>
 
-                    {/* Col 3 — Navigate */}
-                    <div className="text-center sm:text-left">
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#9a8085] mb-6">
-                            Navigate
-                        </p>
-                        <ul className="flex flex-col gap-4">
-                            {QUICK_LINKS.map((l) => (
-                                <li key={l.href}>
-                                    <Link
-                                        href={l.href}
-                                        className="group flex items-center justify-center sm:justify-start gap-3 text-sm text-[#5c4048] hover:text-[#FF0015] transition-colors duration-200"
-                                    >
-                                        <span className="h-px w-3 bg-[#FF0015]/30 group-hover:w-5 group-hover:bg-[#FF0015] transition-all duration-300" />
-                                        {l.label}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* Col 4 — Sponsorship */}
-                    <div className="text-center sm:text-left">
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#9a8085] mb-6">
-                            Sponsorship
-                        </p>
-                        <p className="text-sm text-[#5c4048] leading-relaxed mb-8">
-                            Partner with 38 years of impact. Reach 900+ students and
-                            alumni across a full week of events.
-                        </p>
-
-                        <div className="flex flex-col gap-2 mb-8">
-                            {[
-                                { tier: "Diamond", amount: "₦1,000,000" },
-                                { tier: "Gold", amount: "₦750,000" },
-                                { tier: "Silver", amount: "₦500,000" },
-                                { tier: "Bronze", amount: "₦250,000" },
-                            ].map((s) => (
-                                <div
-                                    key={s.tier}
-                                    className="flex items-center justify-between py-2 border-b border-[#f4eced] text-xs"
-                                >
-                                    <span className="text-[#9a8085] font-medium">
-                                        {s.tier}
-                                    </span>
-                                    <span className="text-[#1C0003] font-bold tabular-nums">
-                                        {s.amount}
-                                    </span>
-                                </div>
-                            ))}
+                            <Link
+                                href="/#support"
+                                className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-sm font-bold bg-[#FF0015] text-white hover:bg-[#cc0011] transition-all shadow-[0_4px_12px_rgba(255,0,21,0.25)]"
+                            >
+                                Support Us →
+                            </Link>
                         </div>
-
-                        <Link
-                            href="/#support"
-                            className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-sm font-bold bg-[#FF0015] text-white hover:bg-[#cc0011] transition-all shadow-[0_4px_12px_rgba(255,0,21,0.25)]"
-                        >
-                            Support Us →
-                        </Link>
                     </div>
                 </div>
-            </div>
             )}
 
             {/* ── Bottom bar ─────────────────────────────────────────────────── */}

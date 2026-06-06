@@ -9,24 +9,9 @@ import { SearchInput } from "@/components/ui/SearchInput";
 import { OrderStats } from "@/components/admin/orders/OrderStats";
 import { OrderVerdictActions } from "@/components/admin/orders/OrderVerdictActions";
 
-import { AdminTable } from "@/components/admin/AdminTable";
 import { Order } from "@/lib/data/types";
-import { formatNaira } from "@/lib/utils/functions";
-
-function getRelativeTime(dateString: string) {
-    const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
-    const date = new Date(dateString);
-    const diffInMs = date.getTime() - Date.now();
-
-    const minutes = Math.round(diffInMs / (1000 * 60));
-    const hours = Math.round(diffInMs / (1000 * 60 * 60));
-    const days = Math.round(diffInMs / (1000 * 60 * 60 * 24));
-
-    if (Math.abs(minutes) < 1) return "Just now";
-    if (Math.abs(minutes) < 60) return rtf.format(minutes, "minute");
-    if (Math.abs(hours) < 24) return rtf.format(hours, "hour");
-    return rtf.format(days, "day");
-}
+import { getEffectiveStatus } from "@/lib/utils/functions";
+import { OrdersTable } from "@/components/admin/OrdersTable";
 
 const STATUS_TABS: { key: string; label: string }[] = [
     { key: "all", label: "All" },
@@ -66,7 +51,9 @@ export default function OrdersClient({
 
     const filteredOrders = useMemo(() => {
         return initialOrders.filter((o) => {
-            const matchesStatus = statusFilter === "all" || o.status === statusFilter;
+            const effectiveStatus = getEffectiveStatus(o);
+            const matchesStatus =
+                statusFilter === "all" || effectiveStatus === statusFilter;
             const matchesSearch =
                 !searchQuery ||
                 o.orderRef.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -165,125 +152,7 @@ export default function OrdersClient({
             </div>
 
             {/* Orders table */}
-            <AdminTable<Order>
-                data={filteredOrders}
-                keyExtractor={(o: Order) => o.id}
-                emptyMessage="No orders found matching your criteria"
-                columns={[
-                    {
-                        label: "Ref",
-                        key: "orderRef",
-                        render: (o: Order) => (
-                            <Link
-                                href={`/admin/orders/${o.orderRef}`}
-                                className="font-mono font-bold text-rw-crimson hover:text-rw-crimson-dk transition-colors border-b border-rw-crimson/20 pb-0.5"
-                            >
-                                {o.orderRef}
-                            </Link>
-                        ),
-                    },
-                    {
-                        label: "Customer",
-                        key: "customerName",
-                        render: (o: Order) => (
-                            <div className="flex flex-col">
-                                <span className="font-bold text-rw-ink group-hover:text-rw-crimson transition-colors">
-                                    {o.customerName}
-                                </span>
-                                <span className="text-xs text-rw-muted">
-                                    {o.customerEmail}
-                                </span>
-                            </div>
-                        ),
-                    },
-                    {
-                        label: "Items",
-                        key: "items",
-                        align: "right",
-                        className: "hidden sm:table-cell",
-                        render: (o: Order) => (
-                            <span className="px-2 py-1 rounded-md bg-rw-bg-alt text-[11px] font-bold">
-                                {o.items.reduce((s, i) => s + i.quantity, 0)} pcs
-                            </span>
-                        ),
-                    },
-                    {
-                        label: "Total",
-                        key: "totalAmount",
-                        align: "right",
-                        render: (o: Order) => (
-                            <span className="font-display font-bold text-rw-ink">
-                                {formatNaira(o.totalAmount)}
-                            </span>
-                        ),
-                    },
-                    {
-                        label: "Balance",
-                        key: "amountPaid",
-                        align: "right",
-                        className: "hidden md:table-cell",
-                        render: (o: Order) => {
-                            const balance = o.totalAmount - o.amountPaid;
-                            return (
-                                <div className="flex flex-col items-end">
-                                    <span
-                                        className={
-                                            balance === 0
-                                                ? "text-green-600 font-semibold text-xs"
-                                                : "text-rw-crimson font-semibold text-xs"
-                                        }
-                                    >
-                                        {balance === 0
-                                            ? "Cleared"
-                                            : `−${formatNaira(balance)}`}
-                                    </span>
-                                    <span className="text-[9px] text-rw-muted">
-                                        of {formatNaira(o.totalAmount)}
-                                    </span>
-                                </div>
-                            );
-                        },
-                    },
-                    {
-                        label: "Status",
-                        key: "status",
-                        render: (o: Order) => <OrderStatusBadge status={o.status} />,
-                    },
-                    {
-                        label: "Date",
-                        key: "createdAt",
-                        align: "right",
-                        className: "hidden lg:table-cell",
-                        render: (o: Order) => {
-                            const date = new Date(o.createdAt);
-                            const absoluteDate = date.toLocaleDateString("en-NG", {
-                                day: "numeric",
-                                month: "short",
-                            });
-                            const relative = getRelativeTime(o.createdAt);
-
-                            return (
-                                <div className="flex flex-col items-end">
-                                    <span className="text-xs font-bold text-rw-ink">
-                                        {absoluteDate}
-                                    </span>
-                                    <span className="text-[10px] font-semibold text-rw-crimson mt-0.5 tracking-wide">
-                                        {relative}
-                                    </span>
-                                </div>
-                            );
-                        },
-                    },
-                ]}
-                footer={
-                    <div className="flex items-center justify-between">
-                        <p className="text-xs text-rw-muted font-medium italic">
-                            Showing {filteredOrders.length} of {initialOrders.length}{" "}
-                            orders
-                        </p>
-                    </div>
-                }
-            />
+            <OrdersTable orders={filteredOrders} />
         </div>
     );
 }

@@ -1,9 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/forms/Button";
-import { Textarea } from "@/components/ui/forms/Textarea";
 import { useState } from "react";
 import { PriceInput } from "@/components/ui/forms/PriceInput";
+import { formatNaira } from "@/lib/utils/functions";
 
 export function ExportCsvButton() {
     const handleClick = () => {
@@ -211,8 +211,8 @@ export const ApprovalForm = ({
                         </svg>
                         <p className="text-xs text-amber-800 font-medium">
                             Warning: The confirmed amount is higher than what was
-                            extracted/claimed (₦{Number(initialAmount).toLocaleString()}).
-                            This is allowed but please double-check.
+                            extracted/claimed ({formatNaira(Number(initialAmount))}). This
+                            is allowed but please double-check.
                         </p>
                     </div>
                 )}
@@ -225,7 +225,7 @@ export const ApprovalForm = ({
                     onClick={handleConfirm}
                     disabled={status !== "idle" || amount === ""}
                 >
-                    Confirm & Approve ₦{Number(amount || 0).toLocaleString()}
+                    Confirm & Approve {formatNaira(Number(amount || 0))}
                 </Button>
                 <Button
                     variant="ghost"
@@ -255,15 +255,25 @@ export const FlagForm = ({
     const handleConfirm = async () => {
         setStatus("loading");
 
-        setTimeout(() => {
-            if (Math.random() > 0.1) {
-                setStatus("success");
-                setTimeout(() => onConfirm(reason), 1800);
-            } else {
-                setStatus("error");
-                setTimeout(() => setStatus("idle"), 2500);
-            }
-        }, 2200);
+        try {
+            onConfirm(reason);
+            setStatus("success");
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
+            setStatus("error");
+
+            setTimeout(() => setStatus("idle"), 2500);
+        }
+
+        // setTimeout(() => {
+
+        //     if (Math.random() > 0.1) {
+        //         setTimeout(() => onConfirm(reason), 1800);
+        //     } else {
+        //         setStatus("error");
+        //         setTimeout(() => setStatus("idle"), 2500);
+        //     }
+        // }, 2200);
     };
 
     return (

@@ -18,6 +18,7 @@ export const TENURE = {
     anniversary: 38,
     /** Event name */
     eventName: "Redemption Week",
+    eventNameShort: "RW",
     /** Event theme */
     theme: "The Lord's Witnesses: The Purified Army",
     /** Event dates — ISO strings */
@@ -35,6 +36,9 @@ export const TENURE = {
     /** Full branding label */
     get brandLabel() {
         return `${this.eventName} ${this.shortYear}`;
+    },
+    get brandLabelShort() {
+        return `${this.eventNameShort}${this.shortYear}`;
     },
     /** Anniversary label */
     get anniversaryLabel() {
@@ -66,6 +70,7 @@ export const LOGOS = {
     rcfFutaDark: "/images/logos/rcffuta-dark.png",
     /** RCFFUTA full logo — light version (for dark bg) */
     rcfFutaLight: "/images/logos/rcffuta-light.png",
+    rcfFutaMix: "/images/logos/rcffuta-dark-on-white.png",
     /** Plain RCF badge mark */
     rcf: "/images/logos/rcf.png",
     /** Redemption Week 2026 event logo */
@@ -119,7 +124,7 @@ export const CONTACTS = [
 
 export const PAYMENT_CONFIG = {
     supportContacts: [
-        { name: "Sis Mercy (WhatsApp)", phone: "2348166309428" },
+        { name: "Sis Mercy (WhatsApp)", phone: "2348116778900" },
         { name: "ICT Coord (WhatsApp)", phone: "2348122137834" },
     ],
 };

@@ -1,0 +1,41 @@
+{
+    "recommendations": [
+        // Formatting & Linting
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "bradlc.vscode-tailwindcss",
+
+        // TypeScript & JavaScript
+        "ms-vscode.vscode-typescript-next",
+        "vue.volar",
+
+        // Framework Support
+        "ms-vscode.thunder-client",
+        "unifiedjs.vscode-mdx",
+
+        // Git & Version Control
+        "eamodio.gitlens",
+        "github.vscode-pull-request-github",
+        "github.copilot",
+
+        // Productivity
+        "ms-vscode.remote-explorer",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml",
+        "sgryjp.japanese-word-handler",
+
+        // Debugging & Testing
+        "ms-vscode.js-debug",
+        "ms-vscode.js-debug-companion",
+
+        // Theme & Icons (Optional)
+        "zhuangtongfa.material-theme",
+        "PKief.material-icon-theme",
+        "GitHub.github-vscode-theme",
+
+        // Code Quality
+        "Gruntfuggly.todo-tree",
+        "IBM.output-colorizer",
+        "usernamehw.errorlens"
+    ]
+}

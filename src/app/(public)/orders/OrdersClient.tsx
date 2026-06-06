@@ -6,28 +6,13 @@ import type { Order } from "@/lib/data/types";
 import { OrderStatusBadge } from "@/components/ui/Badge";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { searchOrdersAction, getOrdersByRefsAction } from "@/app/actions/orders";
-import { ph } from "@/lib/utils/functions";
+import { formatDate, formatNaira, formatTime, ph } from "@/lib/utils/functions";
 import { StatusTimeline } from "@/components/ui/StatusTimeline";
 import { ProductImage } from "@/components/common/ProductImage";
+import { CopyButton } from "@/components/common/CopyButton";
+import { VariantLabelDisplay } from "@/components/common/VariantDisplay";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function formatDate(iso: string) {
-    return new Date(iso).toLocaleDateString("en-NG", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-    });
-}
-function formatTime(iso: string) {
-    return new Date(iso).toLocaleTimeString("en-NG", {
-        hour: "2-digit",
-        minute: "2-digit",
-    });
-}
-function fmtNgn(amount: number) {
-    return `₦${amount.toLocaleString("en-NG")}`;
-}
 
 function getDeviceRefs(): string[] {
     try {
@@ -101,15 +86,6 @@ const STATUS_CONFIG: Record<
     },
 };
 
-const STATUS_STEPS = [
-    "pending",
-    "partially_paid",
-    "paid",
-    "confirmed",
-    "in_production",
-    "delivered",
-];
-
 // ─── Order List Item ──────────────────────────────────────────────────────────
 
 function OrderListItem({
@@ -130,7 +106,6 @@ function OrderListItem({
     const pendingSum = payments
         .filter((p) => p.status === "pending")
         .reduce((sum, p) => sum + p.extractedAmount, 0);
-
     const approvedPct =
         order.totalAmount > 0
             ? Math.min(100, Math.round((approvedSum / order.totalAmount) * 100))
@@ -147,67 +122,76 @@ function OrderListItem({
     return (
         <button
             onClick={onClick}
-            className={`w-full text-left rounded-2xl border p-4 transition-all duration-200 ${
+            className={`w-full text-left rounded-2xl border transition-all duration-200 overflow-hidden group ${
                 selected
-                    ? "border-[#FF0015] bg-[#fff8f8] shadow-[0_0_0_2px_rgba(255,0,21,0.1)]"
-                    : "border-[#e8d0d4] bg-white hover:border-[#d4a8b0] hover:shadow-sm"
+                    ? "border-rw-crimson shadow-[0_0_0_3px_rgba(255,0,21,0.08)] bg-white"
+                    : "border-[#e8d0d4] bg-white hover:border-[#c9a0a8] hover:shadow-md"
             }`}
         >
-            <div className="flex items-start justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2 min-w-0 flex-wrap">
-                    <span className="font-mono text-[13px] font-bold text-[#1C0003] tracking-widest">
-                        {order.orderRef}
-                    </span>
-                    {isDevice && (
-                        <span
-                            className="inline-flex items-center gap-1 rounded-full bg-[#FF0015]/8 px-2 py-0.5
-                                         text-[10px] font-bold text-[#FF0015] uppercase tracking-wide"
-                        >
-                            This device
+            {/* Top accent bar when selected */}
+            <div
+                className={`h-0.5 w-full transition-all duration-300 ${
+                    selected ? "bg-rw-crimson" : "bg-transparent"
+                }`}
+            />
+            <div className="p-4">
+                <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2 min-w-0 flex-wrap">
+                        <span className="font-mono text-[13px] font-black text-[#1C0003] tracking-[0.12em] flex items-center">
+                            {order.orderRef}
+                            <CopyButton textToCopy={order.orderRef} />
                         </span>
-                    )}
-                </div>
-                <span className="shrink-0 text-base" title={cfg.label}>
-                    {cfg.icon}
-                </span>
-            </div>
-
-            <p className="text-sm font-semibold text-[#1C0003] truncate">
-                {order.customerName}
-            </p>
-            <p className="text-xs text-[#9a8085] mt-0.5 truncate">
-                {order.items.length} item{order.items.length !== 1 ? "s" : ""} ·{" "}
-                {formatDate(order.createdAt)}
-            </p>
-
-            <div className="mt-3">
-                <div className="flex justify-between items-center mb-1.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#9a8085]">
-                        {cfg.label}
-                    </span>
-                    <span className="text-xs font-semibold text-[#1C0003]">
-                        {fmtNgn(approvedSum)}{" "}
-                        {pendingSum > 0 && (
-                            <span className="text-amber-600 font-bold">
-                                ({fmtNgn(pendingSum)} pending)
+                        {isDevice && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-rw-crimson/8 px-2 py-0.5 text-[9px] font-black text-rw-crimson uppercase tracking-widest border border-rw-crimson/15">
+                                This device
                             </span>
-                        )}{" "}
-                        / {fmtNgn(order.totalAmount)}
+                        )}
+                    </div>
+                    <span
+                        className="shrink-0 text-sm px-2 py-0.5 rounded-full font-bold text-[10px] uppercase tracking-wide"
+                        style={{ color: cfg.color, background: cfg.bg }}
+                    >
+                        {cfg.icon} {cfg.label}
                     </span>
                 </div>
-                <div className="h-1.5 w-full bg-[#f4e6e8] rounded-full overflow-hidden flex border border-[#f0dedf]/55 relative">
-                    <div
-                        className="h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-300"
-                        style={{ width: `${approvedPct}%` }}
-                    />
-                    <div
-                        className="h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-300 animate-pulse"
-                        style={{
-                            width: `${pendingPct}%`,
-                            backgroundImage: `linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent)`,
-                            backgroundSize: "0.5rem 0.5rem",
-                        }}
-                    />
+
+                <p className="text-sm font-bold text-[#1C0003] truncate leading-tight">
+                    {order.customerName}
+                </p>
+                <p className="text-[11px] text-[#9a8085] mt-0.5 truncate">
+                    {order.items.length} item{order.items.length !== 1 ? "s" : ""} ·{" "}
+                    {formatDate(order.createdAt)}
+                </p>
+
+                {/* Payment bar */}
+                <div className="mt-3">
+                    <div className="flex justify-between items-center mb-1.5">
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#9a8085]">
+                            Payment
+                        </span>
+                        <span className="text-[10px] font-bold text-[#1C0003]">
+                            {formatNaira(approvedSum)}
+                            {pendingSum > 0 && (
+                                <span className="text-amber-500 font-bold">
+                                    {" "}
+                                    +{formatNaira(pendingSum)} pending
+                                </span>
+                            )}{" "}
+                            <span className="text-[#9a8085] font-medium">
+                                / {formatNaira(order.totalAmount)}
+                            </span>
+                        </span>
+                    </div>
+                    <div className="h-1.5 w-full bg-[#f4e6e8] rounded-full overflow-hidden flex">
+                        <div
+                            className="h-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-500"
+                            style={{ width: `${approvedPct}%` }}
+                        />
+                        <div
+                            className="h-full bg-amber-400 animate-pulse transition-all duration-500"
+                            style={{ width: `${pendingPct}%` }}
+                        />
+                    </div>
                 </div>
             </div>
         </button>
@@ -242,32 +226,48 @@ function OrderDetailPanel({ order }: { order: Order }) {
     return (
         <div className="flex flex-col gap-4 animate-fade-in-up">
             {/* Header card */}
-            <div className="rw-card p-6">
-                <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
+            <div className="rw-card overflow-hidden">
+                {/* Dark header strip */}
+                <div className="bg-rw-ink px-6 py-5 flex flex-wrap items-start justify-between gap-4">
                     <div>
-                        <p className="eyebrow mb-1">Order Reference</p>
-                        <p className="font-mono text-2xl sm:text-3xl font-bold text-[#1C0003] tracking-[0.1em]">
-                            {order.orderRef}
+                        <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em] mb-2">
+                            Order Reference
                         </p>
-                        <p className="text-xs text-[#9a8085] mt-1">
-                            Placed on {formatDate(order.createdAt)} at{" "}
+                        <p className="font-mono text-3xl sm:text-4xl font-black text-white tracking-[0.12em] leading-none flex items-center">
+                            {order.orderRef}
+                            <CopyButton textToCopy={order.orderRef} />
+                        </p>
+                        <p className="text-[11px] text-white/30 mt-2 font-medium">
+                            Placed {formatDate(order.createdAt)} at{" "}
                             {formatTime(order.createdAt)}
                         </p>
                     </div>
-                    <OrderStatusBadge status={order.status} />
+                    <div className="flex flex-col items-end gap-2">
+                        <OrderStatusBadge status={order.status} />
+                        {(order.status === "pending" ||
+                            order.status === "partially_paid" ||
+                            order.status === "flagged") && (
+                            <Link
+                                href={`/fulfil?ref=${order.orderRef}`}
+                                className="text-[10px] font-black text-rw-crimson hover:underline uppercase tracking-widest"
+                            >
+                                {order.status === "flagged" ? "Resolve →" : "Pay Now →"}
+                            </Link>
+                        )}
+                    </div>
                 </div>
 
-                {/* Status message banner */}
+                {/* Status message */}
                 <div
-                    className="rounded-xl px-4 py-3 text-sm flex items-center gap-3 mb-5"
+                    className="px-6 py-3 text-sm flex items-center gap-3 border-b border-[#e8d0d4]"
                     style={{ background: cfg.bg, color: cfg.color }}
                 >
-                    <span className="text-lg shrink-0">{cfg.icon}</span>
-                    <span className="font-medium">{cfg.message}</span>
+                    <span className="text-base shrink-0">{cfg.icon}</span>
+                    <span className="font-semibold leading-snug">{cfg.message}</span>
                 </div>
 
                 {/* Customer info */}
-                <div className="grid sm:grid-cols-3 gap-4 text-sm">
+                <div className="p-6 grid sm:grid-cols-3 gap-5 text-sm">
                     {[
                         { label: "Name", value: order.customerName },
                         { label: "Email", value: order.customerEmail },
@@ -278,12 +278,16 @@ function OrderDetailPanel({ order }: { order: Order }) {
                     ].map((f) => (
                         <div
                             key={f.label}
-                            className={f.label === "Note" ? "sm:col-span-3" : ""}
+                            className={
+                                f.label === "Note"
+                                    ? "sm:col-span-3 pt-4 border-t border-dashed border-[#e8d0d4]"
+                                    : ""
+                            }
                         >
-                            <p className="text-[10px] text-[#9a8085] mb-0.5 uppercase tracking-wide font-bold">
+                            <p className="text-[9px] text-[#9a8085] mb-1 uppercase tracking-[0.2em] font-black">
                                 {f.label}
                             </p>
-                            <p className="font-medium text-[#1C0003] break-all">
+                            <p className="font-semibold text-[#1C0003] break-all leading-snug">
                                 {f.value}
                             </p>
                         </div>
@@ -328,9 +332,12 @@ function OrderDetailPanel({ order }: { order: Order }) {
                                                 item.imageUrl ||
                                                 ph(40, 40, item.productName.slice(0, 6))
                                             }
+                                            minimal
                                             alt={item.productName}
                                             size="40px"
                                             config={{
+                                                // h: "h-[40px]",
+                                                // w: "w-[40px]",
                                                 className:
                                                     "rounded-lg overflow-hidden shrink-0 border border-[var(--rw-border)] bg-rw-bg-alt relative",
                                             }}
@@ -339,9 +346,9 @@ function OrderDetailPanel({ order }: { order: Order }) {
                                             <p className="font-semibold text-[#1C0003]">
                                                 {item.productName}
                                             </p>
-                                            <p className="text-xs text-[#9a8085] mt-0.5">
-                                                {item.variantLabel}
-                                            </p>
+                                            <VariantLabelDisplay
+                                                variants={item.variantLabel}
+                                            />
                                         </div>
                                     </div>
                                 </td>
@@ -349,7 +356,7 @@ function OrderDetailPanel({ order }: { order: Order }) {
                                     {item.quantity}
                                 </td>
                                 <td className="px-6 py-4 text-right font-semibold text-[#1C0003]">
-                                    {fmtNgn(item.unitPrice * item.quantity)}
+                                    {formatNaira(item.unitPrice * item.quantity)}
                                 </td>
                             </tr>
                         ))}
@@ -367,20 +374,20 @@ function OrderDetailPanel({ order }: { order: Order }) {
                     <div className="flex justify-between text-sm">
                         <span className="text-[#5c4048]">Order total</span>
                         <span className="font-semibold text-[#1C0003]">
-                            {fmtNgn(order.totalAmount)}
+                            {formatNaira(order.totalAmount)}
                         </span>
                     </div>
                     <div className="flex justify-between text-sm">
                         <span className="text-[#5c4048]">Amount confirmed</span>
                         <span className="font-semibold text-green-600">
-                            {fmtNgn(approvedSum)}
+                            {formatNaira(approvedSum)}
                         </span>
                     </div>
                     {pendingSum > 0 && (
                         <div className="flex justify-between text-sm">
                             <span className="text-[#5c4048]">Amount pending review</span>
                             <span className="font-semibold text-amber-600 animate-pulse">
-                                {fmtNgn(pendingSum)}
+                                {formatNaira(pendingSum)}
                             </span>
                         </div>
                     )}
@@ -390,7 +397,7 @@ function OrderDetailPanel({ order }: { order: Order }) {
                                 Balance due
                             </span>
                             <span className="font-bold text-[#FF0015]">
-                                {fmtNgn(remaining)}
+                                {formatNaira(remaining)}
                             </span>
                         </div>
                     )}
@@ -428,7 +435,7 @@ function OrderDetailPanel({ order }: { order: Order }) {
                 </div>
 
                 {/* CTA */}
-                {(order.status === "pending" ||
+                {/* {(order.status === "pending" ||
                     order.status === "partially_paid" ||
                     order.status === "flagged") && (
                     <Link
@@ -441,7 +448,7 @@ function OrderDetailPanel({ order }: { order: Order }) {
                             ? "Resolve Payment →"
                             : "Complete Payment →"}
                     </Link>
-                )}
+                )} */}
             </div>
         </div>
     );
@@ -502,19 +509,15 @@ export function OrdersClient() {
     const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
-        (() => {
-            const refs = getDeviceRefs();
-            setDeviceRefs(refs);
-            if (refs.length > 0) {
-                getOrdersByRefsAction(refs).then((orders) => {
-                    setDeviceOrders(orders);
-                    if (orders.length > 0 && !selectedRef) {
-                        setSelectedRef(orders[0].orderRef);
-                    }
-                });
-            }
-            setHasMounted(true);
-        })();
+        const refs = getDeviceRefs();
+        setDeviceRefs(refs);
+        if (refs.length > 0) {
+            getOrdersByRefsAction(refs).then((orders) => {
+                setDeviceOrders(orders);
+                if (orders.length > 0) setSelectedRef(orders[0].orderRef);
+            });
+        }
+        setHasMounted(true);
     }, []);
 
     useEffect(() => {
@@ -523,21 +526,23 @@ export function OrdersClient() {
     }, [query]);
 
     useEffect(() => {
-        (() => {
-            if (debouncedQuery) {
-                setIsSearching(true);
-                searchOrdersAction(debouncedQuery).then((results) => {
-                    setSearchResults(results);
-                    setIsSearching(false);
-                });
-            } else {
-                setSearchResults([]);
-                setIsSearching(false);
-            }
-        })();
+        if (!debouncedQuery) {
+            setSearchResults([]);
+            setIsSearching(false);
+            return;
+        }
+        setIsSearching(true);
+        searchOrdersAction(debouncedQuery).then((results) => {
+            setSearchResults(results);
+            setIsSearching(false);
+        });
     }, [debouncedQuery]);
 
-    const allOrdersToSelectFrom = [...deviceOrders, ...searchResults];
+    const deviceRefSet = new Set(deviceOrders.map((o) => o.orderRef));
+    const allOrdersToSelectFrom = [
+        ...deviceOrders,
+        ...searchResults.filter((o) => !deviceRefSet.has(o.orderRef)),
+    ];
     const selectedOrder = selectedRef
         ? (allOrdersToSelectFrom.find((o) => o.orderRef === selectedRef) ?? null)
         : null;
@@ -547,42 +552,10 @@ export function OrdersClient() {
     return (
         <div className="min-h-screen bg-[#fdf8f8]">
             {/* Page header */}
-            <div className="bg-white border-b border-[#e8d0d4]">
-                <div className="section-container py-8 sm:py-10">
-                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
-                        <div>
-                            <p className="eyebrow mb-1.5">Redemption Week &lsquo;26</p>
-                            <h1 className="section-heading text-3xl sm:text-4xl">
-                                My Orders
-                            </h1>
-                            <p className="mt-2 text-sm text-[#9a8085]">
-                                Track your merch orders — search by phone, email, or order
-                                reference.
-                            </p>
-                        </div>
-                        <Link
-                            href="/shop"
-                            className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#FF0015] px-5 text-sm
-                                       font-semibold text-white hover:bg-[#cc0011] transition-all
-                                       hover:shadow-[0_4px_16px_rgba(255,0,21,0.3)] self-start sm:self-auto"
-                        >
-                            <svg
-                                className="h-4 w-4"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z"
-                                />
-                            </svg>
-                            Shop Merch
-                        </Link>
-                    </div>
 
+            {/* Body */}
+            <div className="section-container py-8">
+                <div className="max-w-2xl mx-auto my-6">
                     <SearchInput
                         query={query}
                         onChange={(e) => {
@@ -596,10 +569,6 @@ export function OrdersClient() {
                         }}
                     />
                 </div>
-            </div>
-
-            {/* Body */}
-            <div className="section-container py-8">
                 {!hasMounted ? (
                     <div className="grid lg:grid-cols-[380px_1fr] gap-6 items-start">
                         <div className="flex flex-col gap-3">
@@ -619,9 +588,20 @@ export function OrdersClient() {
                             {debouncedQuery && (
                                 <div className="flex flex-col gap-3">
                                     <p className="text-xs font-bold uppercase tracking-wide text-[#FF0015] px-1">
-                                        Search Results ({searchResults.length})
+                                        {isSearching
+                                            ? "Searching…"
+                                            : `Search Results (${searchResults.length})`}
                                     </p>
-                                    {searchResults.length === 0 ? (
+                                    {isSearching ? (
+                                        <>
+                                            {[1, 2].map((i) => (
+                                                <div
+                                                    key={i}
+                                                    className="h-28 rounded-2xl bg-white border border-[#e8d0d4] animate-pulse"
+                                                />
+                                            ))}
+                                        </>
+                                    ) : searchResults.length === 0 ? (
                                         <div className="rw-card">
                                             <EmptyState mode="no-results" />
                                         </div>
@@ -672,32 +652,41 @@ export function OrdersClient() {
                             {selectedOrder ? (
                                 <OrderDetailPanel order={selectedOrder} />
                             ) : (
-                                <div className="rw-card flex flex-col items-center justify-center gap-4 py-24 text-center px-6">
+                                <div className="rw-card flex flex-col items-center justify-center gap-6 py-28 text-center px-6 relative overflow-hidden">
+                                    {/* Decorative */}
                                     <div
-                                        className="h-16 w-16 rounded-full bg-[#fdf8f8] border border-[#e8d0d4]
-                                                    flex items-center justify-center"
-                                    >
-                                        <svg
-                                            className="h-7 w-7 text-[#9a8085]"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth={1.5}
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"
-                                            />
-                                        </svg>
+                                        className="absolute inset-0 opacity-[0.03]"
+                                        style={{
+                                            backgroundImage:
+                                                "radial-gradient(circle, #FF0015 1px, transparent 1px)",
+                                            backgroundSize: "24px 24px",
+                                        }}
+                                    />
+                                    <div className="relative">
+                                        <div className="h-20 w-20 rounded-3xl bg-rw-bg-alt border border-[var(--rw-border-mid)] flex items-center justify-center mx-auto shadow-sm">
+                                            <svg
+                                                className="h-9 w-9 text-[#9a8085]"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth={1.5}
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2"
+                                                />
+                                            </svg>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="font-display font-bold text-lg text-[#1C0003]">
+                                    <div className="relative">
+                                        <h3 className="font-display font-black text-xl text-[#1C0003]">
                                             Select an order
                                         </h3>
-                                        <p className="mt-1 text-sm text-[#9a8085] max-w-xs">
-                                            Click any order on the left to see its full
-                                            details, status timeline, and payment info.
+                                        <p className="mt-2 text-sm text-[#9a8085] max-w-xs leading-relaxed">
+                                            Pick any order from the list to view its full
+                                            details, payment progress, and status
+                                            timeline.
                                         </p>
                                     </div>
                                 </div>

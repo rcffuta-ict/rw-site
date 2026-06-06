@@ -1,20 +1,62 @@
 {
+    // Editor - Indentation & Formatting
     "editor.tabSize": 4,
     "editor.insertSpaces": true,
     "editor.detectIndentation": false,
-
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnPaste": true,
 
+    // Editor - Behavior
+    "editor.wordWrap": "on",
+    "editor.wordWrapColumn": 100,
+    "editor.rulers": [80, 100, 120],
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": "active",
+    "editor.inlineSuggest.enabled": true,
+    "editor.snippetSuggestions": "top",
+
+    // File Handling
+    "files.eol": "\n",
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.watcherExclude": {
+        "**/node_modules": true,
+        "**/.next": true,
+        "**/dist": true,
+        "**/.git": true
+    },
+
+    // ESLint & Prettier Configuration
     "eslint.format.enable": false,
     "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+    "eslint.codeActionsOnSave.rules": ["!unused-imports/no-unused-imports-ts"],
 
     "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
     "[javascriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
     "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
     "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
 
-    "files.eol": "\n",
-    "files.trimTrailingWhitespace": true,
-    "files.insertFinalNewline": true
+    // Search Configuration
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/.next": true,
+        "**/dist": true,
+        "**/.git": true,
+        "pnpm-lock.yaml": true
+    },
+
+    // Git Configuration
+    "git.ignoreLimitWarning": true,
+    "git.autofetch": true,
+
+    // Other Recommendations
+    "workbench.colorTheme": "Atom One Dark",
+    "workbench.iconTheme": "material-icon-theme",
+
+    // TypeScript
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true
 }

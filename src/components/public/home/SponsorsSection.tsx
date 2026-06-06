@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { TENURE, FELLOWSHIP, SUPPORT_ACCOUNT, PROSPECTUS_URL, LOGOS } from "@/lib/config";
 import { SPONSORS, CONTACTS } from "@/lib/data/info";
+import { BrandDisplay } from "@/components/common/BrandDisplay";
 
 const TIER_STYLES: Record<string, { accent: string }> = {
     Diamond: { accent: "#5b7fff" },
@@ -67,34 +68,7 @@ export function SponsorsSection() {
                     <p className="text-center text-[10px] font-bold uppercase tracking-[0.22em] text-[#9a8085] mb-8">
                         Presented by
                     </p>
-                    <div className="flex items-center gap-6 sm:gap-14 overflow-x-auto scrollbar-hide pb-2 justify-start sm:justify-center flex-nowrap sm:flex-wrap px-2 sm:px-0">
-                        {[
-                            { src: LOGOS.rcfFuta, alt: "RCF FUTA", h: "h-10" },
-                            { src: LOGOS.crm, alt: "Christ the Redeemers'", h: "h-9" },
-                            {
-                                src: LOGOS.redemptionWeek,
-                                alt: "Redemption Week '26",
-                                h: "h-12",
-                            },
-                            {
-                                src: LOGOS.anniversary,
-                                alt: "38th Anniversary",
-                                h: "h-12",
-                            },
-                            {
-                                src: LOGOS.tenureIcon,
-                                alt: "The Lord's Witnesses",
-                                h: "h-10",
-                            },
-                        ].map((l) => (
-                            <img
-                                key={l.alt}
-                                src={l.src}
-                                alt={l.alt}
-                                className={`${l.h} w-auto object-contain opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0`}
-                            />
-                        ))}
-                    </div>
+                    <BrandDisplay />
                 </div>
             </div>
 
@@ -447,7 +421,9 @@ export function SponsorsSection() {
                                                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
                                                     <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.852L0 24l6.335-1.508A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.006-1.368l-.36-.214-3.72.885.938-3.615-.235-.374A9.79 9.79 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182 17.43 2.182 21.818 6.57 21.818 12c0 5.43-4.388 9.818-9.818 9.818z" />
                                                 </svg>
-                                                <span className="truncate">WhatsApp — {c.phone}</span>
+                                                <span className="truncate">
+                                                    WhatsApp — {c.phone}
+                                                </span>
                                             </a>
                                             <a
                                                 href={`mailto:${c.email}?subject=Support Inquiry — RW${TENURE.shortYear}`}
@@ -466,7 +442,9 @@ export function SponsorsSection() {
                                                         d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
                                                     />
                                                 </svg>
-                                                <span className="truncate">{c.email}</span>
+                                                <span className="truncate">
+                                                    {c.email}
+                                                </span>
                                             </a>
                                         </div>
                                     </div>

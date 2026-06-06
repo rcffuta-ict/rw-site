@@ -5,11 +5,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/forms/Button";
 import { PriceInput } from "@/components/ui/forms/PriceInput";
 import type { Order } from "@/lib/data/types";
-import { DEMO_MODE } from "@/lib/config";
 import type { GlobalSettings } from "@/lib/services/settings.service";
 import { analyzeReceipt, deleteReceiptImage } from "@/app/actions/receipt";
 import { attachPayment } from "@/lib/services/orders.service";
 import { toast } from "sonner";
+import { DEMO_MODE } from "@/lib/config";
+import { formatNaira } from "@/lib/utils/functions";
+import { PartialPaymentSelector } from "@/components/public/PartialPaymentSelector";
 
 interface ExtractionResult {
     senderName: string | null;
@@ -22,7 +24,15 @@ interface ExtractionResult {
     confidence: "high" | "medium" | "low";
 }
 
-const IS_REAL = !DEMO_MODE;
+// const IS_REAL = !DEMO_MODE;
+
+function rephrase(word: string | null) {
+    if (word?.toLowerCase() === "unknown") {
+        return "Nothing";
+    }
+
+    return word;
+}
 
 function RadioCard({
     selected,
@@ -70,6 +80,7 @@ export function PaymentFlow({
     const [customAmount, setCustomAmount] = useState<number | "">(
         settings.payment_min_amount
     );
+
     const [file, setFile] = useState<File | null>(null);
     const [stage, setStage] = useState<"idle" | "analysing" | "preview" | "done">("idle");
     const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
@@ -369,6 +380,17 @@ export function PaymentFlow({
             !extraction?.amount ||
             extraction.date === "—";
 
+        const isAmountMismatch = Boolean(
+            extraction?.amount && extraction.amount < payAmount
+        );
+        const isAmountWarning = Boolean(
+            paymentType === "full" &&
+            extraction?.amount &&
+            extraction.amount !== remaining
+        );
+        const hasMajorWarning =
+            (isMissingInfo || isAmountMismatch || isAmountWarning) && !DEMO_MODE;
+
         const prescribedNarration = `RW26-${order.orderRef}`;
         const isNarrationMismatch =
             extraction &&
@@ -382,11 +404,33 @@ export function PaymentFlow({
             extraction &&
             extraction.bank &&
             extraction.bank.toLowerCase() !== settings.bank_name.toLowerCase();
-        const isRecipientMismatch =
-            extraction &&
-            extraction.senderName &&
-            extraction.senderName.toLowerCase() !==
-                settings.bank_account_name.toLowerCase();
+
+        const isRecipientMismatch = (() => {
+            if (!extraction || !extraction.senderName) return false;
+            const ext = extraction.senderName.toLowerCase();
+            const exp = settings.bank_account_name.toLowerCase();
+            if (ext === exp) return false;
+
+            const extParts = ext.split(/\s+/).filter(Boolean);
+            const expParts = exp.split(/\s+/).filter(Boolean);
+
+            let matchCount = 0;
+            for (const part of extParts) {
+                if (expParts.includes(part)) {
+                    matchCount++;
+                }
+            }
+
+            if (
+                matchCount >= 2 ||
+                matchCount === extParts.length ||
+                matchCount === expParts.length
+            ) {
+                return false;
+            }
+
+            return true;
+        })();
         const hasAccountMismatch = Boolean(isBankMismatch || isRecipientMismatch);
 
         return (
@@ -496,7 +540,7 @@ export function PaymentFlow({
                                     </p>
                                     <p className="font-bold text-base text-rw-ink truncate">
                                         {extraction.amount
-                                            ? `₦${extraction.amount.toLocaleString()}`
+                                            ? formatNaira(extraction.amount)
                                             : "—"}
                                     </p>
                                 </div>
@@ -538,6 +582,55 @@ export function PaymentFlow({
 
                             {/* Row 4: Account Mismatch Warning */}
                             {hasAccountMismatch && (
+                                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex gap-3 items-start animate-fade-in">
+                                    <svg
+                                        className="w-5 h-5 text-amber-600 shrink-0 mt-0.5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                        />
+                                    </svg>
+                                    <div>
+                                        <p className="text-sm font-bold text-amber-800">
+                                            Account Mismatch
+                                        </p>
+                                        <p className="text-xs text-amber-700 mt-1">
+                                            This payment does not perfectly match our
+                                            expected account details. This is a minor
+                                            warning, but admins will verify it manually.
+                                        </p>
+                                        {isBankMismatch && (
+                                            <p
+                                                className="text-xs text-amber-600 font-mono mt-2 truncate max-w-xs"
+                                                title={extraction.bank || ""}
+                                            >
+                                                Expected Bank: <b>{settings.bank_name}</b>{" "}
+                                                | Found:{" "}
+                                                <b>{rephrase(extraction.bank)}</b>
+                                            </p>
+                                        )}
+                                        {isRecipientMismatch && (
+                                            <p
+                                                className="text-xs text-amber-600 font-mono mt-1 truncate max-w-xs"
+                                                title={extraction.senderName || ""}
+                                            >
+                                                Expected Recipient:{" "}
+                                                <b>{settings.bank_account_name}</b> |
+                                                Found: <b>{extraction.senderName}</b>
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Amount Mismatch Warning */}
+                            {(isAmountMismatch || isAmountWarning) && (
                                 <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex gap-3 items-start animate-fade-in">
                                     <svg
                                         className="w-5 h-5 text-red-600 shrink-0 mt-0.5"
@@ -554,32 +647,15 @@ export function PaymentFlow({
                                     </svg>
                                     <div>
                                         <p className="text-sm font-bold text-red-800">
-                                            Account Mismatch
+                                            Amount Mismatch
                                         </p>
                                         <p className="text-xs text-red-700 mt-1">
-                                            This payment does not match our expected
-                                            account details. You cannot proceed with this
-                                            receipt.
+                                            The amount on the receipt (₦
+                                            {extraction?.amount?.toLocaleString()}) does
+                                            not match the expected amount to pay (₦
+                                            {payAmount.toLocaleString()}). You cannot
+                                            proceed with this receipt.
                                         </p>
-                                        {isBankMismatch && (
-                                            <p
-                                                className="text-xs text-red-600 font-mono mt-2 truncate max-w-xs"
-                                                title={extraction.bank || ""}
-                                            >
-                                                Expected Bank: <b>{settings.bank_name}</b>{" "}
-                                                | Found: <b>{extraction.bank}</b>
-                                            </p>
-                                        )}
-                                        {isRecipientMismatch && (
-                                            <p
-                                                className="text-xs text-red-600 font-mono mt-1 truncate max-w-xs"
-                                                title={extraction.senderName || ""}
-                                            >
-                                                Expected Recipient:{" "}
-                                                <b>{settings.bank_account_name}</b> |
-                                                Found: <b>{extraction.senderName}</b>
-                                            </p>
-                                        )}
                                     </div>
                                 </div>
                             )}
@@ -671,13 +747,12 @@ export function PaymentFlow({
                             </div>
                         )}
 
-                        {accurate === true && isMissingInfo && (
+                        {accurate === true && hasMajorWarning && (
                             <div className="mt-5 p-4 rounded-xl bg-red-50 border border-red-200 animate-fade-in-down">
                                 <p className="text-sm text-red-800 font-medium mb-3">
-                                    <strong>Cannot Proceed:</strong> Important information
-                                    (Sender, Amount, or Date) is missing from the
-                                    extraction. We cannot accept this payment record
-                                    as-is. Please upload a clearer image.
+                                    <strong>Cannot Proceed:</strong> There is a major
+                                    issue with the receipt details. Please upload a
+                                    clearer or correct receipt.
                                 </p>
                                 <Button
                                     variant="outlined"
@@ -707,10 +782,8 @@ export function PaymentFlow({
                         size="lg"
                         onClick={handleConfirm}
                         disabled={
-                            accurate !== true ||
-                            submitting ||
-                            isMissingInfo ||
-                            (hasAccountMismatch && IS_REAL)
+                            accurate !== true || submitting || hasMajorWarning
+                            // || (hasAccountMismatch && IS_REAL)
                         }
                         loading={submitting}
                         id="confirm-receipt-btn"
@@ -812,7 +885,7 @@ export function PaymentFlow({
                         selected={paymentType === "full"}
                         onClick={() => setPaymentType("full")}
                         title="Pay in Full"
-                        desc={`₦${remaining.toLocaleString()}`}
+                        desc={formatNaira(remaining)}
                     />
                     <RadioCard
                         selected={paymentType === "partial"}
@@ -829,7 +902,7 @@ export function PaymentFlow({
                                 ? "Pay Minimum Deposit"
                                 : "Pay in Part (Disabled)"
                         }
-                        desc={`Min ₦${minPayable.toLocaleString()}`}
+                        desc={`Min ${formatNaira(minPayable)}`}
                         disabled={
                             !settings.payment_installment_allowed ||
                             remaining <= minPayable
@@ -840,39 +913,12 @@ export function PaymentFlow({
 
             {/* Partial amount picker */}
             {paymentType === "partial" && (
-                <div className="p-6 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)] animate-fade-in-down">
-                    <div className="flex flex-col gap-4 mb-4">
-                        <p className="text-sm font-semibold text-rw-ink">
-                            Enter Deposit Amount
-                        </p>
-                        <PriceInput
-                            value={customAmount}
-                            onChange={(val) => setCustomAmount(val)}
-                            className="bg-white !pl-10 font-display font-black text-lg"
-                        />
-                    </div>
-
-                    {typeof customAmount === "number" && customAmount < minPayable && (
-                        <p className="text-xs text-rw-crimson font-medium mb-4">
-                            Amount must be at least ₦{minPayable.toLocaleString()}
-                        </p>
-                    )}
-                    {typeof customAmount === "number" && customAmount > remaining && (
-                        <p className="text-xs text-rw-crimson font-medium mb-4">
-                            Amount cannot exceed remaining balance of ₦
-                            {remaining.toLocaleString()}
-                        </p>
-                    )}
-
-                    <div className="mt-6 pt-5 border-t border-[var(--rw-border)] flex items-end justify-between">
-                        <span className="text-sm font-medium text-rw-text-2">
-                            Amount to pay:
-                        </span>
-                        <span className="font-bold text-3xl text-rw-crimson">
-                            ₦{payAmount.toLocaleString()}
-                        </span>
-                    </div>
-                </div>
+                <PartialPaymentSelector
+                    minPayable={minPayable}
+                    remaining={remaining}
+                    selectedAmount={customAmount}
+                    onAmountSelect={(amount) => setCustomAmount(amount)}
+                />
             )}
 
             {/* Upload receipt */}
