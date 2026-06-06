@@ -226,6 +226,41 @@ export interface AdminUser {
     createdAt: string; // ISO 8601
 }
 
+// ─── Verdicts ─────────────────────────────────────────────────────────────────
+//
+// Verdicts are issued by admins to formally direct production & finance teams.
+// Each verdict covers a batch of confirmed/paid orders.
+// Issuing a verdict sets the covered orders to 'in_production'.
+// Marking a verdict 'ready' sets all covered orders to 'ready'.
+
+export type VerdictStatus = "active" | "ready" | "archived";
+
+export interface VerdictOrder {
+    verdictId: string;
+    orderId: string;
+    order?: Order; // populated when fetched with join
+}
+
+export interface Verdict {
+    id: string;
+    verdictRef: string; // e.g. 'VRD-0042'
+    issuedBy: string; // admin name (signature)
+    issuedAt: string; // ISO 8601
+    status: VerdictStatus;
+    pdfCloudinaryUrl: string | null;
+    pdfCloudinaryId: string | null;
+    totalAmount: number; // sum of all covered orders
+    notes: string | null;
+    orders: Order[]; // populated by service join
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface VerdictInput {
+    issuedBy: string;
+    orderIds: string[];
+    notes?: string | null;
+}
 // ─── Email Templates & Logs ───────────────────────────────────────────────────
 //
 // Transactional email system. Templates are stored in the database and edited

@@ -31,9 +31,7 @@ export default function OrderDetailClient({
 }: OrderDetailClientProps) {
     const [order, setOrder] = useState(initialOrder);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [selectedStatus, setSelectedStatus] = useState<OrderStatus>(
-        order.status,
-    );
+    const [selectedStatus, setSelectedStatus] = useState<OrderStatus>(order.status);
     const [isUpdating, setIsUpdating] = useState(false);
     const router = useRouter();
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -139,10 +137,7 @@ export default function OrderDetailClient({
                         </svg>
                         Full Info
                     </Link>
-                    <div
-                        className="relative group w-full sm:w-auto"
-                        ref={dropdownRef}
-                    >
+                    <div className="relative group w-full sm:w-auto" ref={dropdownRef}>
                         <button
                             disabled={isUpdating}
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -257,16 +252,40 @@ export default function OrderDetailClient({
                     className="flex items-center gap-3 p-4 rounded-2xl border border-purple-200 bg-purple-50/60 hover:border-purple-400 hover:bg-purple-50 transition-colors group"
                 >
                     <div className="h-9 w-9 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
-                        <svg className="h-5 w-5 text-purple-700" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                        <svg
+                            className="h-5 w-5 text-purple-700"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
+                            />
                         </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-black text-purple-500 uppercase tracking-[0.2em]">Covered by Verdict</p>
-                        <p className="font-mono font-black text-purple-900 text-sm group-hover:underline">{verdict.verdictRef} · Issued by {verdict.issuedBy}</p>
+                        <p className="text-[10px] font-black text-purple-500 uppercase tracking-[0.2em]">
+                            Covered by Verdict
+                        </p>
+                        <p className="font-mono font-black text-purple-900 text-sm group-hover:underline">
+                            {verdict.verdictRef} · Issued by {verdict.issuedBy}
+                        </p>
                     </div>
-                    <svg className="h-4 w-4 text-purple-400 group-hover:text-purple-700 transition-colors shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                    <svg
+                        className="h-4 w-4 text-purple-400 group-hover:text-purple-700 transition-colors shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+                        />
                     </svg>
                 </Link>
             )}
