@@ -225,6 +225,36 @@ export interface AdminUser {
     createdAt: string; // ISO 8601
 }
 
+// ─── Email Templates & Logs ───────────────────────────────────────────────────
+//
+// Transactional email system. Templates are stored in the database and edited
+// from the admin UI. Triggers fire when order/payment status changes, invoking
+// the Edge Function which fetches the template, injects variables, and sends.
+// All sends are logged for audit purposes.
+
+export interface EmailTemplate {
+    id: string;
+    templateKey: string; // e.g. "pending", "paid", "payment_approved" — unique key
+    label: string; // human-readable name e.g. "Order Confirmed"
+    subject: string; // email subject (supports {{variables}})
+    bodyHtml: string; // full HTML body (supports {{variables}})
+    isActive: boolean; // inactive templates are skipped by triggers
+    updatedAt: string; // ISO 8601
+    updatedBy: string | null; // email of the admin who last edited
+}
+
+export interface EmailLog {
+    id: string;
+    orderId: string | null;
+    paymentId: string | null;
+    templateKey: string;
+    recipientEmail: string;
+    subject: string | null;
+    success: boolean;
+    errorMessage: string | null;
+    sentAt: string; // ISO 8601
+}
+
 // ─── Service Input/Output Helpers ─────────────────────────────────────────────
 
 export interface ServiceResult<T = void> {
