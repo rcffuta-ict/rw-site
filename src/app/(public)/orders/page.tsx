@@ -54,7 +54,7 @@ export default function OrdersPage() {
                                 phone number. Official communications arrive exclusively
                                 from{" "}
                                 <span className="text-white/80 font-semibold">
-                                    info@rw.rcffuta.com
+                                    noreply@rw.rcffuta.com
                                 </span>
                                 .
                             </p>
@@ -95,7 +95,7 @@ export default function OrdersPage() {
                                     />
                                 ),
                                 label: "Official Email",
-                                value: "info@rw.rcffuta.com",
+                                value: "noreply@rw.rcffuta.com",
                                 sub: "All order updates sent here only",
                             },
                             {

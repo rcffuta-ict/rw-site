@@ -88,7 +88,7 @@ export default function PrivacyPage() {
                     <li>
                         &bull; <strong>Communication:</strong> To send order
                         confirmations, payment status updates, and delivery information
-                        exclusively from info@rw.rcffuta.com
+                        exclusively from noreply@rw.rcffuta.com
                     </li>
                     <li>
                         &bull; <strong>Customer Support:</strong> To respond to enquiries,
@@ -209,7 +209,7 @@ export default function PrivacyPage() {
                 <p className="text-rw-text-2 leading-relaxed mb-4">
                     <strong>8.1 Transactional Emails:</strong> We will send you order
                     confirmations, payment updates, and fulfilment information from{" "}
-                    <strong>info@rw.rcffuta.com</strong>. These are essential
+                    <strong>noreply@rw.rcffuta.com</strong>. These are essential
                     communications and cannot be opted out of while you have an active
                     order.
                 </p>

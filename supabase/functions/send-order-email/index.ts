@@ -29,9 +29,7 @@ const BATCH_SIZE = 25;
 serve(async (req) => {
     try {
         const body = await req.json().catch(() => ({}));
-        const ids: string[] = body.queue_id
-            ? [body.queue_id]
-            : await pendingIds();
+        const ids: string[] = body.queue_id ? [body.queue_id] : await pendingIds();
 
         let sent = 0;
         let failed = 0;
@@ -80,13 +78,18 @@ async function processRow(row: any): Promise<boolean> {
 
         await supabase
             .from("rw_email_queue")
-            .update({ status: "sent", sent_at: new Date().toISOString(), last_error: null })
+            .update({
+                status: "sent",
+                sent_at: new Date().toISOString(),
+                last_error: null,
+            })
             .eq("id", row.id);
 
         await supabase.from("rw_email_logs").insert({
             order_id: row.order_id,
             payment_id: row.payment_id,
-            template_key: row.template_key ?? (row.mode === "custom" ? "custom" : row.new_status),
+            template_key:
+                row.template_key ?? (row.mode === "custom" ? "custom" : row.new_status),
             recipient_email: recipient,
             subject,
             success: true,
@@ -107,7 +110,8 @@ async function processRow(row: any): Promise<boolean> {
         await supabase.from("rw_email_logs").insert({
             order_id: row.order_id,
             payment_id: row.payment_id,
-            template_key: row.template_key ?? (row.mode === "custom" ? "custom" : row.new_status),
+            template_key:
+                row.template_key ?? (row.mode === "custom" ? "custom" : row.new_status),
             recipient_email: row.recipient_email ?? "unknown",
             success: false,
             error_message: String(err),
@@ -129,7 +133,8 @@ async function render(row: any) {
     if (!recipient) throw new Error("No recipient email");
 
     if (row.mode === "custom") {
-        if (!row.subject || !row.body_html) throw new Error("Custom email missing subject/body");
+        if (!row.subject || !row.body_html)
+            throw new Error("Custom email missing subject/body");
         return {
             subject: injectVars(row.subject, vars),
             html: wrapInEmailShell(injectVars(row.body_html, vars), orderRef),
@@ -149,7 +154,7 @@ async function render(row: any) {
     if (!template.is_active) throw new Error(`Template ${row.template_key} is inactive`);
 
     return {
-        subject: injectVars(template.subject, vars),
+        subject: `${injectVars(template.subject, vars)} - Redemption Week RCFFUTA`,
         html: wrapInEmailShell(injectVars(template.body_html, vars), orderRef),
         recipient,
         recipientName,
@@ -208,38 +213,47 @@ function injectVars(template: string, vars: Record<string, string>): string {
 
 function buildItemsHtml(items: any[]): string {
     if (!items?.length) return "";
+
     const rows = items
         .map(
             (item) => `
     <tr>
-      <td style="padding:10px 8px;border-bottom:1px solid #e8d0d4;color:#1C0003;">${item.product_name || ""}</td>
-      <td style="padding:10px 8px;border-bottom:1px solid #e8d0d4;color:#9a8085;">${item.variant_label || ""}</td>
-      <td style="padding:10px 8px;border-bottom:1px solid #e8d0d4;text-align:center;color:#1C0003;">${item.quantity || 0}</td>
-      <td style="padding:10px 8px;border-bottom:1px solid #e8d0d4;text-align:right;color:#1C0003;">${naira(item.unit_price || 0)}</td>
+      <td style="padding:12px 8px; border-bottom:1px solid #e8d0d4; color:#1C0003; font-weight:500;">
+        ${item.product_name || ""}
+      </td>
+      <td style="padding:12px 8px; border-bottom:1px solid #e8d0d4; color:#5c4048;">
+        ${item.variant_label || ""}
+      </td>
+      <td style="padding:12px 8px; border-bottom:1px solid #e8d0d4; text-align:center; color:#1C0003;">
+        ${item.quantity || 0}
+      </td>
+      <td style="padding:12px 8px; border-bottom:1px solid #e8d0d4; text-align:right; color:#1C0003; font-weight:600;">
+        ${naira(item.unit_price || 0)}
+      </td>
     </tr>`
         )
         .join("");
 
     return `
-    <table style="width:100%;border-collapse:collapse;margin:20px 0;font-size:14px;">
+    <table style="width:100%; border-collapse:collapse; margin:24px 0; font-size:14px; table-layout:fixed;">
       <thead>
         <tr style="background:#fdf5f5;">
-          <th style="padding:10px 8px;text-align:left;color:#5c4048;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">Item</th>
-          <th style="padding:10px 8px;text-align:left;color:#5c4048;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">Variant</th>
-          <th style="padding:10px 8px;text-align:center;color:#5c4048;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">Qty</th>
-          <th style="padding:10px 8px;text-align:right;color:#5c4048;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">Price</th>
+          <th style="padding:12px 8px; text-align:left; color:#5c4048; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Item</th>
+          <th style="padding:12px 8px; text-align:left; color:#5c4048; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Variant</th>
+          <th style="padding:12px 8px; text-align:center; color:#5c4048; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Qty</th>
+          <th style="padding:12px 8px; text-align:right; color:#5c4048; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Price</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
     </table>`;
 }
-
 /** Branded shell — colours mirror the site theme (ink #1C0003, crimson #FF0015). */
-function wrapInEmailShell(bodyContent: string, orderRef: string): string {
+/** Professional Preorder Email Shell */
+function wrapInEmailShell(bodyContent: string, orderRef?: string): string {
     const refLine = orderRef
-        ? `<p style="margin:0;font-size:12px;color:#9a8085;font-family:Arial,Helvetica,sans-serif;">
-             Order reference: <strong style="color:#1C0003;">#${orderRef}</strong>
-           </p>`
+        ? `<p style="margin:0 0 8px 0; font-size:13px; color:#9a8085;">
+         Order Reference: <strong style="color:#1C0003;">#${orderRef}</strong>
+       </p>`
         : "";
 
     return `<!DOCTYPE html>
@@ -247,50 +261,92 @@ function wrapInEmailShell(bodyContent: string, orderRef: string): string {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RCF FUTA — Redemption Week '26</title>
+  <title>Preorder Confirmation - Redemption Week '26</title>
 </head>
-<body style="margin:0;padding:0;background:#fdf5f5;font-family:Arial,Helvetica,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#fdf5f5;padding:32px 0;">
+<body style="margin:0; padding:0; background-color:#fdf5f5; font-family:Arial,Helvetica,sans-serif; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#fdf5f5; padding:40px 0;">
     <tr>
       <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0"
-               style="background:#ffffff;border-radius:16px;overflow:hidden;
-                      border:1px solid #e8d0d4;max-width:600px;">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:900px; background:#ffffff; overflow:hidden; border:1px solid #e8d0d4;">
 
-          <!-- Header -->
+          <!-- HEADER -->
           <tr>
-            <td style="background:#1C0003;padding:28px 32px;text-align:center;">
-              <img src="${SITE_URL}/apple-touch-icon.png" alt="RCF FUTA" width="48" height="48"
-                   style="display:inline-block;border-radius:12px;margin-bottom:10px;" />
-              <p style="margin:0;color:#FF6A00;font-size:11px;letter-spacing:3px;
-                        text-transform:uppercase;">RCF FUTA</p>
-              <h1 style="margin:4px 0 0;color:#ffffff;font-size:22px;font-weight:bold;">
-                Redemption Week '26
-              </h1>
+            <td style="background:#1C0003; padding:20px 10px; text-align:center;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <!-- Flex-like header with icon + title -->
+                    <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                      <tr>
+                        <td style="padding-right:12px;">
+                          <img src="${SITE_URL}/images/logos/tenure-icon.png"
+                               alt="RCF FUTA" width="auto" height="70"
+                               style="display:block;" />
+                        </td>
+                        <td style="text-align:left; vertical-align:middle;">
+                          <p style="margin:0; color:#FF6A00; font-size:13px; font-weight:700; letter-spacing:3px; text-transform:uppercase;">
+                            RCF FUTA
+                          </p>
+                          <h1 style="margin:4px 0 0 0; color:#ffffff; font-size:26px; font-weight:700; line-height:1.1;">
+                            Redemption Week
+                          </h1>
+                          <p style="margin:2px 0 0 0; color:#FF6A00; font-size:15px; font-weight:600;">
+                            38th Anniversary
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
 
-          <!-- Accent bar -->
-          <tr><td style="height:4px;background:#FF0015;line-height:4px;font-size:0;">&nbsp;</td></tr>
-
-          <!-- Body -->
+          <!-- Accent -->
           <tr>
-            <td style="padding:32px;color:#18080a;font-size:15px;line-height:1.7;">
+            <td height="5" style="background:#FF0015; height:5px; font-size:0;">&nbsp;</td>
+          </tr>
+
+          <!-- BODY -->
+          <tr>
+            <td style="padding:26px 20px; color:#1C0003; font-size:15.5px; line-height:26px;">
               ${bodyContent}
             </td>
           </tr>
 
-          <!-- Footer -->
+          <!-- FOOTER -->
           <tr>
-            <td style="background:#fdf5f5;padding:20px 32px;border-top:1px solid #e8d0d4;text-align:center;">
+            <td style="background:#fdf5f5; padding:22px 0px; border-top:1px solid #e8d0d4; text-align:center;">
               ${refLine}
-              <p style="margin:8px 0 0;font-size:11px;color:#9a8085;font-family:Arial,Helvetica,sans-serif;">
-                RCF FUTA · Federal University of Technology, Akure<br />
-                <a href="https://rw.rcffuta.com" style="color:#FF0015;text-decoration:none;">rw.rcffuta.com</a>
+
+              <p style="margin:12px 0 8px; font-size:13px; color:#1C0003; font-weight:700;">
+                Redemption Week '26 • RCFFUTA
+              </p>
+              <p style="margin:0 0 16px; font-size:12px; color:#5c4048; font-style:italic;">
+                The Lord's Witnesses: The Purified Army
+              </p>
+
+              <hr style="border:0; border-top:1px solid #e8d0d4; width:70%; margin:20px auto;" />
+
+              <p style="margin:0; font-size:11px; color:#9a8085; line-height:1.5;">
+              <span>
+              This is an official communication from the Redemption Week Merch Team.<br>
+                Please do not reply to this email. For enquiries, contact the committee.
+              </span>
+              <span>
+                    You are receiving this email because you placed an order
+                    on the
+                    <a
+                        href="https://rw.rcffuta.com"
+                        className="text-rw-crimson hover:underline"
+                    >
+                        Redemption Week platform
+                    </a>
+                    .
+                </span>
               </p>
             </td>
           </tr>
-
         </table>
       </td>
     </tr>
@@ -314,8 +370,9 @@ async function sendEmail({
 }): Promise<void> {
     const token = Deno.env.get("ZEPTO_TOKEN");
     const fromAddress = Deno.env.get("ZEPTO_FROM") ?? "info@rw.rcffuta.com";
-    const fromName = Deno.env.get("ZEPTO_FROM_NAME") ?? "RCF FUTA";
-    const apiUrl = Deno.env.get("ZEPTO_API_URL") ?? "https://api.zeptomail.com/v1.1/email";
+    const fromName = Deno.env.get("ZEPTO_FROM_NAME") ?? "Redemption Week RCF FUTA";
+    const apiUrl =
+        Deno.env.get("ZEPTO_API_URL") ?? "https://api.zeptomail.com/v1.1/email";
 
     if (!token) throw new Error("ZEPTO_TOKEN not configured");
     if (!to) throw new Error("No recipient email address");
