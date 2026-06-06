@@ -1,0 +1,133 @@
+# feat: Email Integration System for Transactional Notifications
+
+## 📬 Summary
+
+Implements a complete **database-driven transactional email system** for the RCF FUTA Redemption Week '26 pre-order platform. Customers now receive automatic, branded email notifications at every stage of their order and payment journey.
+
+**Key achievement:** Customers are now automatically notified via email when their order or payment status changes — no manual intervention needed.
+
+## 🎯 What Changed
+
+### Database Layer
+- **schema.sql** → Added `pg_net` extension, email templates table, email logs table, and database triggers
+- **seed-email-templates.sql** → NEW file with 12 production-ready email templates
+
+### Backend Services
+- **email-templates.service.ts** → NEW service for template CRUD and email log queries
+
+### Supabase Edge Function
+- **send-order-email/index.ts** → NEW Deno function that fetches templates, renders HTML, and sends via Zoho SMTP
+
+### Admin UI
+- **EmailTemplateEditor.tsx** → NEW component for template editing with live preview
+- **EmailLogsViewer.tsx** → NEW component for email send audit logs
+- **email-templates/page.tsx** → NEW admin dashboard page with full template management
+- **types.ts** → Added EmailTemplate and EmailLog interfaces
+
+### Documentation
+- **IMPLEMENTATION_SUMMARY.md** → Complete setup guide and reference
+- **EMAIL_QUICK_START.md** → Quick reference guide
+- **PR_MESSAGE.md** → PR template
+
+## 💾 Database Schema
+
+### New Tables
+- `rw_email_templates` — Editable email templates with support for variable injection
+- `rw_email_logs` — Audit trail of all email send attempts (success/failure)
+
+### New Triggers
+- `notify_order_status_change()` → Fires when order status changes
+- `notify_payment_status_change()` → Fires when payment status changes
+
+## 📧 Email Triggers
+
+12 email templates across two categories:
+
+**Order Status** (8 emails):
+- `pending` → Order received, upload receipt
+- `partially_paid` → Partial payment confirmed
+- `paid` → Full payment confirmed
+- `confirmed` → Queued for production
+- `in_production` → Items being made
+- `delivered` → Ready for collection
+- `flagged` → Action required
+- `cancelled` → Order cancelled
+
+**Payment Status** (4 emails):
+- `payment_pending` → Receipt received
+- `payment_approved` → Payment verified
+- `payment_flagged` → Receipt has issue
+- `payment_rejected` → Payment rejected
+
+## 🎨 Features
+
+- ✅ Database-driven templates (edit from admin UI, no code redeploy)
+- ✅ Automatic triggers on status changes
+- ✅ RCF-branded professional HTML
+- ✅ Variable injection (`{{customer_name}}`, `{{order_ref}}`, `{{total_amount}}`, etc.)
+- ✅ Full admin dashboard for template management
+- ✅ Email send audit logs with success/failure tracking
+- ✅ 30-day email statistics
+- ✅ Zoho SMTP integration (TLS 465)
+- ✅ Error handling and logging
+- ✅ Admin attribution tracking
+
+## 🚀 Deployment (7 Steps)
+
+1. Run `docs/schema.sql` in Supabase SQL Editor
+2. Configure Supabase database settings (app.supabase_url, app.supabase_service_role_key)
+3. Generate Zoho SMTP credentials (mail.zoho.com → App Passwords)
+4. Set Edge Function secrets (ZOHO_SMTP_USER, ZOHO_SMTP_PASS)
+5. Deploy Edge Function: `supabase functions deploy send-order-email`
+6. Run `docs/seed-email-templates.sql` in Supabase SQL Editor
+7. Update `.env.local` with Supabase credentials
+
+**Full setup guide:** See `IMPLEMENTATION_SUMMARY.md`
+
+## ✅ Testing
+
+- [x] Schema migrations run cleanly
+- [x] 12 templates seed successfully  
+- [x] Trigger functions execute correctly
+- [x] Edge Function deploys without errors
+- [x] Admin UI components render properly
+- [x] Template editing persists to database
+- [x] Email variables inject correctly
+- [x] Email logs record all sends
+
+## 📖 Documentation
+
+- **IMPLEMENTATION_SUMMARY.md** → Complete reference (setup, API, monitoring, troubleshooting)
+- **EMAIL_QUICK_START.md** → Quick reference guide
+- **DELIVERY_SUMMARY.md** → Deliverables checklist
+- **EMAIL_IMPLEMENTATION_COMPLETE.md** → Visual overview
+
+## 🔐 Security
+
+- ✅ Zoho credentials stored in Supabase Secrets (not in code)
+- ✅ RLS enabled on email tables
+- ✅ Service role key used for Edge Function auth
+- ✅ All sends audited and logged
+- ✅ Admin attribution tracked
+
+## 📦 Dependencies
+
+Added: `date-fns` (for email log timestamp formatting)
+
+## 🎊 Impact
+
+Customers now receive:
+- Professional, branded email notifications
+- Automatic status updates (no manual emails)
+- Personalized content with order details
+- Clear calls-to-action
+- Consistent RCF branding
+- Timely communication throughout their pre-order journey
+
+## 🔗 Related
+
+Closes: [Add issue number if applicable]
+
+---
+
+**Ready to review!** See `IMPLEMENTATION_SUMMARY.md` for complete documentation.

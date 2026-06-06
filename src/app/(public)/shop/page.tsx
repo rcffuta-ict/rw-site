@@ -146,7 +146,7 @@ export default async function ShopPage() {
                                 checkout. You&rsquo;ll need a valid email address &mdash;
                                 all order updates are sent from{" "}
                                 <span className="font-bold text-rw-ink">
-                                    info@rw.rcffuta.com
+                                    noreply@rw.rcffuta.com
                                 </span>
                                 .
                             </p>

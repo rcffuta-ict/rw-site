@@ -3,7 +3,6 @@ import { OrdersClient } from "./OrdersClient";
 import Link from "next/link";
 import { Button } from "@/components/ui/forms/Button";
 import { FELLOWSHIP, TENURE } from "@/lib/config";
-import { HeaderBanner } from "@/components/common/HeaderBanner";
 import { SiteImage } from "@/components/ui/SiteImage";
 
 export const metadata: Metadata = {
@@ -55,7 +54,7 @@ export default function OrdersPage() {
                                 phone number. Official communications arrive exclusively
                                 from{" "}
                                 <span className="text-white/80 font-semibold">
-                                    info@rw.rcffuta.com
+                                    noreply@rw.rcffuta.com
                                 </span>
                                 .
                             </p>
@@ -96,7 +95,7 @@ export default function OrdersPage() {
                                     />
                                 ),
                                 label: "Official Email",
-                                value: "info@rw.rcffuta.com",
+                                value: "noreply@rw.rcffuta.com",
                                 sub: "All order updates sent here only",
                             },
                             {

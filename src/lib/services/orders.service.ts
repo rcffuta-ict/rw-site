@@ -5,6 +5,10 @@ import {
     createSupabaseAdminClient
 } from "@/lib/supabase/server";
 import { mapOrderFromDb, mapPaymentFromDb } from "@/lib/supabase/mappers";
+import {
+    enqueueOrderStatusEmail,
+    enqueuePaymentStatusEmail,
+} from "@/lib/services/email.service";
 import type {
     Order,
     OrderStatus,
@@ -219,6 +223,9 @@ export async function createOrder(
     if (!fullOrder)
         return { success: false, error: "Created but could not retrieve order." };
 
+    // 5. Queue the "order received" email (best-effort — never blocks the order).
+    await enqueueOrderStatusEmail(order.id, "pending", fullOrder.customerEmail);
+
     revalidateTag("orders", "max");
     return { success: true, data: fullOrder };
 }
@@ -248,6 +255,10 @@ export async function updateOrderStatus(
 
     const updated = await getOrderById(orderId);
     if (!updated) return { success: false, error: "Order not found after update." };
+
+    // Queue the customer notification for the new order status (best-effort).
+    await enqueueOrderStatusEmail(orderId, status, updated.customerEmail);
+
     revalidateTag("orders", "max");
     return { success: true, data: updated };
 }
@@ -331,8 +342,18 @@ export async function reviewPayment(
         }
         if (newStatus !== order.status) {
             await supabase.from("rw_orders").update({ status: newStatus }).eq("id", order.id);
+            // Order moved (e.g. → paid / partially_paid): tell the customer.
+            await enqueueOrderStatusEmail(order.id, newStatus, order.customerEmail);
         }
     }
+
+    // Queue the payment review outcome notification (best-effort).
+    await enqueuePaymentStatusEmail(
+        paymentData.order_id,
+        paymentData.id,
+        input.decision,
+        order?.customerEmail
+    );
 
     revalidateTag("orders", "max");
     return { success: true, data: mapPaymentFromDb(paymentData) };

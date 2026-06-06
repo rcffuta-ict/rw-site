@@ -10,6 +10,8 @@ import { analyzeReceipt, deleteReceiptImage } from "@/app/actions/receipt";
 import { attachPayment } from "@/lib/services/orders.service";
 import { toast } from "sonner";
 import { DEMO_MODE } from "@/lib/config";
+import { formatNaira } from "@/lib/utils/functions";
+import { PartialPaymentSelector } from "@/components/public/PartialPaymentSelector";
 
 interface ExtractionResult {
     senderName: string | null;
@@ -78,6 +80,7 @@ export function PaymentFlow({
     const [customAmount, setCustomAmount] = useState<number | "">(
         settings.payment_min_amount
     );
+
     const [file, setFile] = useState<File | null>(null);
     const [stage, setStage] = useState<"idle" | "analysing" | "preview" | "done">("idle");
     const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
@@ -537,7 +540,7 @@ export function PaymentFlow({
                                     </p>
                                     <p className="font-bold text-base text-rw-ink truncate">
                                         {extraction.amount
-                                            ? `₦${extraction.amount.toLocaleString()}`
+                                            ? formatNaira(extraction.amount)
                                             : "—"}
                                     </p>
                                 </div>
@@ -882,7 +885,7 @@ export function PaymentFlow({
                         selected={paymentType === "full"}
                         onClick={() => setPaymentType("full")}
                         title="Pay in Full"
-                        desc={`₦${remaining.toLocaleString()}`}
+                        desc={formatNaira(remaining)}
                     />
                     <RadioCard
                         selected={paymentType === "partial"}
@@ -899,7 +902,7 @@ export function PaymentFlow({
                                 ? "Pay Minimum Deposit"
                                 : "Pay in Part (Disabled)"
                         }
-                        desc={`Min ₦${minPayable.toLocaleString()}`}
+                        desc={`Min ${formatNaira(minPayable)}`}
                         disabled={
                             !settings.payment_installment_allowed ||
                             remaining <= minPayable
@@ -910,39 +913,12 @@ export function PaymentFlow({
 
             {/* Partial amount picker */}
             {paymentType === "partial" && (
-                <div className="p-6 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)] animate-fade-in-down">
-                    <div className="flex flex-col gap-4 mb-4">
-                        <p className="text-sm font-semibold text-rw-ink">
-                            Enter Deposit Amount
-                        </p>
-                        <PriceInput
-                            value={customAmount}
-                            onChange={(val) => setCustomAmount(val)}
-                            className="bg-white !pl-10 font-display font-black text-lg"
-                        />
-                    </div>
-
-                    {typeof customAmount === "number" && customAmount < minPayable && (
-                        <p className="text-xs text-rw-crimson font-medium mb-4">
-                            Amount must be at least ₦{minPayable.toLocaleString()}
-                        </p>
-                    )}
-                    {typeof customAmount === "number" && customAmount > remaining && (
-                        <p className="text-xs text-rw-crimson font-medium mb-4">
-                            Amount cannot exceed remaining balance of ₦
-                            {remaining.toLocaleString()}
-                        </p>
-                    )}
-
-                    <div className="mt-6 pt-5 border-t border-[var(--rw-border)] flex items-end justify-between">
-                        <span className="text-sm font-medium text-rw-text-2">
-                            Amount to pay:
-                        </span>
-                        <span className="font-bold text-3xl text-rw-crimson">
-                            ₦{payAmount.toLocaleString()}
-                        </span>
-                    </div>
-                </div>
+                <PartialPaymentSelector
+                    minPayable={minPayable}
+                    remaining={remaining}
+                    selectedAmount={customAmount}
+                    onAmountSelect={(amount) => setCustomAmount(amount)}
+                />
             )}
 
             {/* Upload receipt */}
