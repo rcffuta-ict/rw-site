@@ -44,7 +44,7 @@ function RwToaster() {
     );
 }
 
-function AdminLayoutInner({ children }: { children: React.ReactNode }) {
+function AdminLayoutInner({ children, pendingFinanceCount }: { children: React.ReactNode, pendingFinanceCount?: number }) {
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { loading } = useAdminAuth();
@@ -87,6 +87,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                     <AdminSidebar
                         isMobileOpen={isMobileMenuOpen}
                         onClose={() => setIsMobileMenuOpen(false)}
+                        pendingFinanceCount={pendingFinanceCount}
                     />
                 </div>
 
@@ -101,10 +102,10 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
     );
 }
 
-export function AdminLayoutWrapper({ children }: { children: React.ReactNode }) {
+export function AdminLayoutWrapper({ children, pendingFinanceCount }: { children: React.ReactNode, pendingFinanceCount?: number }) {
     return (
         <AdminAuthProvider>
-            <AdminLayoutInner>{children}</AdminLayoutInner>
+            <AdminLayoutInner pendingFinanceCount={pendingFinanceCount}>{children}</AdminLayoutInner>
         </AdminAuthProvider>
     );
 }

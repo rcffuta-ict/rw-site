@@ -41,6 +41,7 @@ DO $$ BEGIN
         'paid',             -- full amount covered by approved payments
         'confirmed',        -- moderator queues for production
         'in_production',    -- being produced
+        'ready',            -- physical merchandise is ready for collection
         'delivered',        -- handed to customer
         'flagged',          -- flagged for manual review
         'cancelled'
@@ -563,6 +564,94 @@ CREATE TABLE IF NOT EXISTS public.rw_audit_logs (
 );
 
 COMMENT ON TABLE public.rw_audit_logs IS 'Audit trail for admin/moderator actions.';
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 10. PRODUCTION VERDICTS
+-- ═══════════════════════════════════════════════════════════════════════════
+
+CREATE SEQUENCE IF NOT EXISTS public.rw_verdict_seq START 1 INCREMENT 1;
+
+CREATE OR REPLACE FUNCTION public.generate_verdict_ref()
+RETURNS TEXT AS $$
+BEGIN
+    RETURN 'VRD-' || LPAD(nextval('public.rw_verdict_seq')::TEXT, 4, '0');
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TABLE IF NOT EXISTS public.rw_verdicts (
+    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    verdict_ref         TEXT NOT NULL UNIQUE DEFAULT public.generate_verdict_ref(),
+    issued_by           TEXT NOT NULL,                      -- admin signature
+    issued_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    status              TEXT NOT NULL DEFAULT 'active'
+                            CHECK (status IN ('active', 'ready', 'archived')),
+    pdf_cloudinary_url  TEXT,
+    pdf_cloudinary_id   TEXT,
+    total_amount        INTEGER NOT NULL DEFAULT 0,
+    notes               TEXT,
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE public.rw_verdicts IS
+    'Official production directives issued by admins. Each verdict covers a batch of orders.';
+
+CREATE OR REPLACE TRIGGER verdicts_set_updated_at
+    BEFORE UPDATE ON public.rw_verdicts
+    FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+CREATE INDEX IF NOT EXISTS idx_verdicts_status ON public.rw_verdicts(status);
+CREATE INDEX IF NOT EXISTS idx_verdicts_issued_at ON public.rw_verdicts(issued_at DESC);
+
+CREATE TABLE IF NOT EXISTS public.rw_verdict_orders (
+    verdict_id  UUID NOT NULL REFERENCES public.rw_verdicts(id) ON DELETE CASCADE,
+    order_id    UUID NOT NULL REFERENCES public.rw_orders(id)   ON DELETE RESTRICT,
+    PRIMARY KEY (verdict_id, order_id)
+);
+
+COMMENT ON TABLE public.rw_verdict_orders IS
+    'Many-to-many junction between verdicts and the orders they cover.';
+
+CREATE INDEX IF NOT EXISTS idx_verdict_orders_verdict ON public.rw_verdict_orders(verdict_id);
+CREATE INDEX IF NOT EXISTS idx_verdict_orders_order   ON public.rw_verdict_orders(order_id);
+
+CREATE OR REPLACE FUNCTION public.set_orders_in_production()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE public.rw_orders
+    SET status = 'in_production'
+    WHERE id = NEW.order_id
+      AND status NOT IN ('in_production', 'ready', 'delivered', 'cancelled');
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS verdict_orders_set_in_production ON public.rw_verdict_orders;
+CREATE TRIGGER verdict_orders_set_in_production
+    AFTER INSERT ON public.rw_verdict_orders
+    FOR EACH ROW EXECUTE FUNCTION public.set_orders_in_production();
+
+CREATE OR REPLACE FUNCTION public.set_orders_ready_on_verdict()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status = 'ready' AND OLD.status <> 'ready' THEN
+        UPDATE public.rw_orders
+        SET status = 'ready'
+        WHERE id IN (
+            SELECT order_id FROM public.rw_verdict_orders WHERE verdict_id = NEW.id
+        )
+        AND status = 'in_production';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS verdict_ready_set_orders_ready ON public.rw_verdicts;
+CREATE TRIGGER verdict_ready_set_orders_ready
+    AFTER UPDATE OF status ON public.rw_verdicts
+    FOR EACH ROW EXECUTE FUNCTION public.set_orders_ready_on_verdict();
+
 
 -- Enable Row Level Security on all tables.
 -- Since there are no policies defined, all tables are closed to the anon key and authenticated users by default.

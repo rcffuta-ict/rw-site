@@ -18,9 +18,26 @@ const STATUS_TABS: { key: string; label: string }[] = [
     { key: "pending", label: "Pending" },
     { key: "partially_paid", label: "Partial" },
     { key: "paid", label: "Paid" },
-    { key: "queued", label: "Queued" },
+    { key: "confirmed", label: "Queued" },
+    { key: "in_production", label: "Production" },
+    { key: "ready", label: "Ready" },
+    { key: "delivered", label: "Delivered" },
     { key: "flagged", label: "Flagged" },
+    { key: "cancelled", label: "Cancelled" },
 ];
+
+const TAB_COLORS: Record<string, string> = {
+    all: "#1C0003",
+    pending: "#f59e0b",
+    partially_paid: "#f97316",
+    paid: "#10b981",
+    confirmed: "#3b82f6",
+    in_production: "#8b5cf6",
+    ready: "#06b6d4",
+    delivered: "#22c55e",
+    flagged: "#ef4444",
+    cancelled: "#9ca3af",
+};
 
 export default function OrdersClient({
     initialOrders,
@@ -44,7 +61,15 @@ export default function OrdersClient({
                 o.customerEmail.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesStatus && matchesSearch;
         });
-    }, [statusFilter, searchQuery]);
+    }, [statusFilter, searchQuery, initialOrders]);
+
+    const tabCounts = useMemo(() => {
+        const counts: Record<string, number> = { all: initialOrders.length };
+        STATUS_TABS.slice(1).forEach((t) => {
+            counts[t.key] = initialOrders.filter((o) => o.status === t.key).length;
+        });
+        return counts;
+    }, [initialOrders]);
 
     return (
         <div className="flex flex-col gap-8 animate-fade-in-up">
@@ -68,32 +93,56 @@ export default function OrdersClient({
             <OrderStats orders={initialOrders} />
 
             {/* Filter & Search Bar */}
-            <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-end justify-between bg-white p-6 rounded-[24px] border border-[var(--rw-border)] shadow-sm hover:shadow-md transition-shadow duration-300">
-                <div className="flex flex-col gap-4 w-full max-w-2xl">
+            <div className="flex flex-col xl:flex-row gap-6 items-start justify-between bg-white p-6 rounded-[24px] border border-[var(--rw-border)] shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div className="flex flex-col gap-3 w-full">
                     <div className="flex items-center gap-2 ml-1">
                         <span className="h-1 w-4 bg-rw-crimson rounded-full" />
                         <label className="text-[10px] font-bold text-rw-muted uppercase tracking-[0.2em]">
                             Filter by Status
                         </label>
                     </div>
-                    <div className="flex sm:flex-wrap gap-2 p-1.5 rounded-[18px] bg-rw-bg-alt border border-[var(--rw-border)] overflow-x-auto scrollbar-hide -mx-2 sm:mx-0">
-                        {STATUS_TABS.map((t) => (
-                            <button
-                                key={t.key}
-                                onClick={() => setStatusFilter(t.key)}
-                                className={`rounded-[14px] px-6 py-2.5 text-[11px] font-bold uppercase tracking-wider transition-all duration-200 whitespace-nowrap ${
-                                    t.key === statusFilter
-                                        ? "bg-white text-rw-crimson shadow-sm scale-[1.02] border border-[var(--rw-border)]"
-                                        : "text-rw-muted hover:text-rw-ink hover:bg-white/50"
-                                }`}
-                            >
-                                {t.label}
-                            </button>
-                        ))}
+                    <div className="flex flex-wrap gap-2">
+                        {STATUS_TABS.map((t) => {
+                            const count = tabCounts[t.key] ?? 0;
+                            const isActive = t.key === statusFilter;
+                            const color = TAB_COLORS[t.key] ?? "#1C0003";
+                            return (
+                                <button
+                                    key={t.key}
+                                    onClick={() => setStatusFilter(t.key)}
+                                    className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-[10px] font-bold uppercase tracking-wider transition-all duration-200 border ${
+                                        isActive
+                                            ? "text-white shadow-sm scale-[1.02]"
+                                            : "bg-white text-rw-muted border-[var(--rw-border)] hover:border-rw-ink hover:text-rw-ink"
+                                    }`}
+                                    style={
+                                        isActive
+                                            ? {
+                                                  backgroundColor: color,
+                                                  borderColor: color,
+                                              }
+                                            : undefined
+                                    }
+                                >
+                                    {t.label}
+                                    {count > 0 && (
+                                        <span
+                                            className={`rounded-full px-1.5 py-0.5 text-[9px] font-black leading-none ${
+                                                isActive
+                                                    ? "bg-white/20 text-white"
+                                                    : "bg-rw-bg-alt text-rw-muted"
+                                            }`}
+                                        >
+                                            {count}
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
 
-                <div className="w-full xl:max-w-md !mt-0 group">
+                <div className="w-full xl:max-w-md">
                     <SearchInput
                         query={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}

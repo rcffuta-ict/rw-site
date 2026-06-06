@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { getOrderByRef } from "@/lib/services/orders.service";
+import { getVerdictForOrder } from "@/lib/services/verdicts.service";
 import OrderDetailClient from "./OrderDetailClient";
 
 interface Props {
@@ -19,6 +20,7 @@ export default async function AdminOrderDetailPage({ params }: Props) {
     if (!order) notFound();
     
     const isAdmin = hdrs.get("x-admin-role") === "ADMIN";
+    const verdict = await getVerdictForOrder(order.id).catch(() => null);
 
-    return <OrderDetailClient order={order} isAdmin={isAdmin} />;
+    return <OrderDetailClient order={order} isAdmin={isAdmin} verdict={verdict} />;
 }

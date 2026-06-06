@@ -11,6 +11,10 @@ import CategoryDrawer from "@/components/admin/CategoryDrawer";
 import { updateProduct } from "@/lib/services/products.service";
 import type { Category, Product } from "@/lib/data/types";
 import { ProductImage } from "@/components/common/ProductImage";
+import {
+    ProductTutorial,
+    ProductTutorialTrigger,
+} from "@/components/admin/ProductTutorial";
 
 // ─── Color map ────────────────────────────────────────────────────────────────
 
@@ -308,6 +312,7 @@ export default function ProductsClient({
     const [searchQuery, setSearchQuery] = useState("");
     const [activeCategoryId, setActiveCategoryId] = useState<string | "all">("all");
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [tutorialOpen, setTutorialOpen] = useState(false);
     const [, startTransition] = useTransition();
 
     // Product counts per category (for CategoryDrawer delete guard)
@@ -364,6 +369,7 @@ export default function ProductsClient({
         {
             label: "Products",
             value: products.length,
+            sub: "Across all categories",
             icon: (
                 <svg
                     className="h-6 w-6"
@@ -471,26 +477,31 @@ export default function ProductsClient({
                         </p>
                     </div>
                     {isAdmin && (
-                        <Link
-                            href="/admin/products/new"
-                            id="btn-add-product"
-                            className="btn-primary !h-11 !px-6 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 shrink-0 animate-scale-in"
-                        >
-                            <svg
-                                className="h-4 w-4"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={2.5}
-                                viewBox="0 0 24 24"
+                        <div className="flex items-center gap-2">
+                            <ProductTutorialTrigger
+                                onOpen={() => setTutorialOpen(true)}
+                            />
+                            <Link
+                                href="/admin/products/new"
+                                id="btn-add-product"
+                                className="btn-primary !h-11 !px-6 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 shrink-0 animate-scale-in"
                             >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 4v16m8-8H4"
-                                />
-                            </svg>
-                            Add Product
-                        </Link>
+                                <svg
+                                    className="h-4 w-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={2.5}
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M12 4v16m8-8H4"
+                                    />
+                                </svg>
+                                Add Product
+                            </Link>
+                        </div>
                     )}
                 </div>
 
@@ -601,6 +612,10 @@ export default function ProductsClient({
                 categories={categories}
                 productCounts={productCounts}
                 onChanged={setCategories}
+            />
+            <ProductTutorial
+                isOpen={tutorialOpen}
+                onClose={() => setTutorialOpen(false)}
             />
         </>
     );

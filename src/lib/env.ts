@@ -42,6 +42,8 @@ export const env = {
         productsFolder: optional("CLOUDINARY_PRODUCTS_FOLDER") ?? "rw26/products",
         /** Cloudinary folder for payment receipts (customer-uploaded). */
         receiptsFolder: optional("CLOUDINARY_RECEIPTS_FOLDER") ?? "rw26/receipts",
+        /** Cloudinary folder for verdict PDFs (admin-generated). */
+        verdictsFolder: optional("CLOUDINARY_VERDICTS_FOLDER") ?? "rw26/verdicts",
     },
 
     adminEmails: (optional("RW_ADMIN_EMAILS") ?? "")
