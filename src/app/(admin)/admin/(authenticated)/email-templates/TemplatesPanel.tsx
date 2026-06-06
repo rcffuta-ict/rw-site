@@ -108,7 +108,9 @@ export function TemplatesPanel({ initialTemplates, loadError }: TemplatesPanelPr
     const handleSave = useCallback(async () => {
         const row = templates[activeKey];
         if (!row?.id) {
-            toast.error("This template isn't in the database yet. Run the setup SQL, then refresh.");
+            toast.error(
+                "This template isn't in the database yet. Run the setup SQL, then refresh."
+            );
             return;
         }
         setSavingKey(activeKey);
@@ -140,9 +142,9 @@ export function TemplatesPanel({ initialTemplates, loadError }: TemplatesPanelPr
             )}
             {!loadError && missingCount > 0 && (
                 <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-900">
-                    {missingCount} template{missingCount === 1 ? "" : "s"} not set up in the
-                    database yet. Run the setup SQL (docs/email-setup.sql) and refresh to
-                    enable saving.
+                    {missingCount} template{missingCount === 1 ? "" : "s"} not set up in
+                    the database yet. Run the setup SQL (docs/email-setup.sql) and refresh
+                    to enable saving.
                 </div>
             )}
 
@@ -155,15 +157,17 @@ export function TemplatesPanel({ initialTemplates, loadError }: TemplatesPanelPr
                                 {category === "order" ? "Order Status" : "Payment Status"}
                             </p>
                             <div className="flex flex-col gap-1">
-                                {TEMPLATES.filter((t) => t.category === category).map((t) => (
-                                    <SidebarItem
-                                        key={t.key}
-                                        template={t}
-                                        isActive={activeKey === t.key}
-                                        isDirty={!!dirty[t.key]}
-                                        onClick={(key: string) => setActiveKey(key)}
-                                    />
-                                ))}
+                                {TEMPLATES.filter((t) => t.category === category).map(
+                                    (t) => (
+                                        <SidebarItem
+                                            key={t.key}
+                                            template={t}
+                                            isActive={activeKey === t.key}
+                                            isDirty={!!dirty[t.key]}
+                                            onClick={(key: string) => setActiveKey(key)}
+                                        />
+                                    )
+                                )}
                             </div>
                         </div>
                     ))}
@@ -180,8 +184,7 @@ export function TemplatesPanel({ initialTemplates, loadError }: TemplatesPanelPr
                                     {activeTemplate?.label}
                                 </h2>
                                 <p className="text-xs text-rw-muted">
-                                    Sent when status becomes{" "}
-                                    <span className="font-mono">{activeKey}</span>
+                                    {activeTemplate?.description}
                                 </p>
                             </div>
                         </div>
@@ -191,7 +194,9 @@ export function TemplatesPanel({ initialTemplates, loadError }: TemplatesPanelPr
                                 <input
                                     type="checkbox"
                                     checked={current?.is_active ?? true}
-                                    onChange={(e) => updateField("is_active", e.target.checked)}
+                                    onChange={(e) =>
+                                        updateField("is_active", e.target.checked)
+                                    }
                                     className="rounded"
                                 />
                                 Active
@@ -245,7 +250,9 @@ export function TemplatesPanel({ initialTemplates, loadError }: TemplatesPanelPr
                                         label="Subject line"
                                         type="text"
                                         value={current?.subject || ""}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                        onChange={(
+                                            e: React.ChangeEvent<HTMLInputElement>
+                                        ) =>
                                             updateField("subject", e.currentTarget.value)
                                         }
                                         placeholder="e.g. Your order #{{order_ref}} is confirmed"
