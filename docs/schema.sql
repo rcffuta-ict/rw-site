@@ -30,7 +30,6 @@
 -- ─── Extensions ──────────────────────────────────────────────────────────────
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";  -- gen_random_uuid()
-CREATE EXTENSION IF NOT EXISTS "pg_net";     -- HTTP calls from triggers
 
 
 -- ─── Enum Types ───────────────────────────────────────────────────────────────
@@ -397,81 +396,50 @@ CREATE INDEX IF NOT EXISTS idx_email_logs_sent_at ON rw_email_logs(sent_at DESC)
 COMMENT ON TABLE rw_email_logs IS 'Audit log of email send attempts. Track success/failure and errors.';
 
 
--- ─── Database Trigger: notify on order status change ─────────────────────────
--- Fires when order.status changes and calls the Edge Function via pg_net
--- Note: Requires app.supabase_url and app.supabase_service_role_key DB settings
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 10b. EMAIL QUEUE
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Durable outbox. The app enqueues a row and returns instantly; the
+-- send-order-email Edge Function drains pending rows and sends via ZeptoMail,
+-- updating status + attempts (with retry) and writing to rw_email_logs.
 
-CREATE OR REPLACE FUNCTION notify_order_status_change()
-RETURNS TRIGGER AS $$
-BEGIN
-  -- Only fire when status actually changes
-  IF OLD.status IS DISTINCT FROM NEW.status THEN
-    -- Call the Edge Function asynchronously
-    PERFORM net.http_post(
-      url     := current_setting('app.supabase_url', 't')
-                 || '/functions/v1/send-order-email',
-      headers := jsonb_build_object(
-        'Content-Type',  'application/json',
-        'Authorization', 'Bearer ' || current_setting('app.supabase_service_role_key', 't')
-      ),
-      body    := jsonb_build_object(
-        'event_type',      'order_status',
-        'order_id',        NEW.id,
-        'new_status',      NEW.status,
-        'customer_email',  NEW.customer_email,
-        'customer_name',   NEW.customer_name,
-        'order_ref',       NEW.order_ref,
-        'total_amount',    NEW.total_amount,
-        'amount_paid',     NEW.amount_paid
-      )::text
-    );
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+CREATE TABLE IF NOT EXISTS rw_email_queue (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  mode            TEXT NOT NULL DEFAULT 'status',   -- 'status' | 'custom'
+  event_type      TEXT,                             -- 'order_status' | 'payment_status'
+  order_id        UUID REFERENCES rw_orders(id)   ON DELETE SET NULL,
+  payment_id      UUID REFERENCES rw_payments(id) ON DELETE SET NULL,
+  new_status      TEXT,
+  template_key    TEXT,                             -- resolved template for status mode
+  recipient_email TEXT,                             -- denormalised for display
+  subject         TEXT,                             -- custom mode only
+  body_html       TEXT,                             -- custom mode only
+  status          TEXT NOT NULL DEFAULT 'pending',  -- pending | sending | sent | failed
+  attempts        INTEGER NOT NULL DEFAULT 0,
+  max_attempts    INTEGER NOT NULL DEFAULT 5,
+  last_error      TEXT,
+  sent_at         TIMESTAMPTZ,
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
-CREATE OR REPLACE TRIGGER order_status_email_trigger
-  AFTER UPDATE OF status ON rw_orders
-  FOR EACH ROW EXECUTE FUNCTION notify_order_status_change();
+CREATE INDEX IF NOT EXISTS idx_email_queue_status ON rw_email_queue(status, created_at);
 
-COMMENT ON FUNCTION notify_order_status_change() IS
-  'Fires when order status changes. Calls the send-order-email Edge Function via pg_net. '
-  'Requires: app.supabase_url and app.supabase_service_role_key settings.';
+CREATE OR REPLACE TRIGGER email_queue_set_updated_at
+  BEFORE UPDATE ON rw_email_queue
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+COMMENT ON TABLE rw_email_queue IS 'Durable email outbox. Drained by the send-order-email Edge Function.';
 
 
--- ─── Database Trigger: notify on payment status change ────────────────────────
--- Fires when payment.status changes and calls the Edge Function via pg_net
-
-CREATE OR REPLACE FUNCTION notify_payment_status_change()
-RETURNS TRIGGER AS $$
-BEGIN
-  IF OLD.status IS DISTINCT FROM NEW.status THEN
-    PERFORM net.http_post(
-      url     := current_setting('app.supabase_url', 't')
-                 || '/functions/v1/send-order-email',
-      headers := jsonb_build_object(
-        'Content-Type',  'application/json',
-        'Authorization', 'Bearer ' || current_setting('app.supabase_service_role_key', 't')
-      ),
-      body    := jsonb_build_object(
-        'event_type',     'payment_status',
-        'order_id',       NEW.order_id,
-        'payment_id',     NEW.id,
-        'new_status',     NEW.status,
-        'payment_amount', NEW.amount_confirmed
-      )::text
-    );
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE OR REPLACE TRIGGER payment_status_email_trigger
-  AFTER UPDATE OF status ON rw_payments
-  FOR EACH ROW EXECUTE FUNCTION notify_payment_status_change();
-
-COMMENT ON FUNCTION notify_payment_status_change() IS
-  'Fires when payment status changes. Calls the send-order-email Edge Function via pg_net.';
+-- ─── Email notifications ─────────────────────────────────────────────────────
+-- Transactional emails are sent from the APPLICATION layer (Next.js), not from
+-- database triggers. The app enqueues into rw_email_queue and triggers the
+-- `send-order-email` Edge Function (over HTTPS) to drain it and send via ZeptoMail.
+--
+-- This deliberately avoids pg_net / the `net` schema (the source of the
+-- "schema net does not exist" error) and keeps a single, testable send path that
+-- also powers one-off admin messages. No email triggers are defined here.
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -521,13 +489,15 @@ COMMENT ON VIEW rw_order_payment_summary IS
 --
 --   2. Set DEMO_MODE = false in src/lib/config.ts when ready to go live.
 --
---   3. EMAIL INTEGRATION (Optional — enables transactional emails):
---      a. In Supabase Dashboard → Settings → Database → Postgres Settings:
---         Set app.supabase_url and app.supabase_service_role_key
---      b. Generate Zoho SMTP credentials and set in Supabase Edge Function secrets:
---         ZOHO_SMTP_USER, ZOHO_SMTP_PASS
---      c. Deploy the Edge Function: supabase functions deploy send-order-email
---      d. Seed default email templates using the seed script in docs/seed-email-templates.sql
+--   3. EMAIL INTEGRATION (enables transactional + admin emails):
+--      Sending happens from the app, not the DB — there is NOTHING to configure
+--      in Postgres settings (no app.supabase_url, no pg_net).
+--      a. Generate a ZeptoMail Send Mail token and set Edge Function secrets:
+--         ZEPTO_TOKEN, ZEPTO_FROM (e.g. info@rw.rcffuta.com)
+--      b. Deploy the Edge Function: supabase functions deploy send-order-email
+--      c. Ensure the app env has NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
+--      d. The default email templates are seeded automatically at the end of this
+--         file (section 11).
 --
 
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -608,7 +578,131 @@ ALTER TABLE public.rw_admin_moderators ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_email_templates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_email_logs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.rw_settings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.rw_email_templates ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.rw_email_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_email_queue ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_audit_logs ENABLE ROW LEVEL SECURITY;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 11. DEFAULT EMAIL TEMPLATES (seed)
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 12 templates: 8 order-status + 4 payment-status. ON CONFLICT DO NOTHING means
+-- this is safe on re-run and never overwrites templates edited in the admin UI.
+
+INSERT INTO rw_email_templates (template_key, label, subject, body_html, is_active)
+VALUES
+  ('pending',
+   'Order Received',
+   'Your RW''26 Pre-Order is Confirmed — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Thank you for your pre-order! We have received your order <strong>#{{order_ref}}</strong> totalling <strong>{{total_amount}}</strong>.</p>
+<p>Please upload your payment receipt to proceed. You can pay via bank transfer and submit the receipt in your order dashboard.</p>
+{{items_html}}
+<p>If you have any questions, please contact us at support@rcffuta.com</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('partially_paid',
+   'Partial Payment Confirmed',
+   'Partial Payment Received — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Thank you! We have confirmed a payment of <strong>{{amount_paid}}</strong> on your order <strong>#{{order_ref}}</strong>.</p>
+<p>Your outstanding balance is <strong>{{balance}}</strong>. Please submit payment for the remaining amount to complete your order.</p>
+{{items_html}}
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('paid',
+   'Full Payment Confirmed',
+   'Payment Complete — Your RW''26 Order is Fully Paid 🎉',
+   '<p>Hi {{customer_name}},</p>
+<p>Excellent! Your order <strong>#{{order_ref}}</strong> is now fully paid ({{total_amount}}).</p>
+<p>Your items are queued for production. We will notify you as soon as they are ready.</p>
+{{items_html}}
+<p>Thank you for your support!</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('confirmed',
+   'Order Confirmed for Production',
+   'Order #{{order_ref}} — Queued for Production',
+   '<p>Hi {{customer_name}},</p>
+<p>Great news! Your order <strong>#{{order_ref}}</strong> has been confirmed and is now queued for production.</p>
+<p>We will update you once your items are ready for collection. Typical turnaround is 2–3 weeks.</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('in_production',
+   'Order In Production',
+   'Your RW''26 Items Are Being Made — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Your order <strong>#{{order_ref}}</strong> is currently in production. We are working hard to make your items perfect!</p>
+<p>We will notify you as soon as your order is ready for collection.</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('delivered',
+   'Order Ready for Collection',
+   'Your RW''26 Order is Ready — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Wonderful news! Your order <strong>#{{order_ref}}</strong> is ready for collection!</p>
+<p>Please come collect your items at the designated pickup location. If you have any questions about timing or location, please contact us.</p>
+<p>We hope you love your items! Feel free to share photos or leave a review.</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('flagged',
+   'Order Flagged — Action Required',
+   'Action Required on Your Order #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Your order <strong>#{{order_ref}}</strong> has been flagged for review. This may be due to a payment verification issue or an inquiry we need to resolve with you.</p>
+<p>Please contact us at support@rcffuta.com or reply to this email as soon as possible so we can help.</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('cancelled',
+   'Order Cancelled',
+   'Your Order #{{order_ref}} Has Been Cancelled',
+   '<p>Hi {{customer_name}},</p>
+<p>We are writing to inform you that your order <strong>#{{order_ref}}</strong> has been cancelled.</p>
+<p>If you believe this is an error or would like to discuss this cancellation, please contact us immediately at support@rcffuta.com.</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('payment_pending',
+   'Payment Receipt Received',
+   'We Received Your Payment Receipt — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Your payment receipt for order <strong>#{{order_ref}}</strong> has been received and is under review.</p>
+<p>Our team will verify the payment details and confirm within 24 hours. We will notify you once it has been approved.</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('payment_approved',
+   'Payment Approved',
+   'Payment Approved — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Great! Your payment of <strong>{{amount_paid}}</strong> for order <strong>#{{order_ref}}</strong> has been verified and approved.</p>
+<p>Thank you for your payment. Your order is on track!</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('payment_flagged',
+   'Payment Receipt Flagged',
+   'Issue With Your Payment Receipt — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>There is an issue with the payment receipt you submitted for order <strong>#{{order_ref}}</strong>.</p>
+<p>This may be due to unclear image quality, missing details, or a discrepancy in the amount. Please contact us or resubmit a clear receipt at your earliest convenience.</p>
+<p>Contact: support@rcffuta.com</p>
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('payment_rejected',
+   'Payment Could Not Be Verified',
+   'Payment Verification Issue — #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Unfortunately, we could not verify the payment receipt you submitted for order <strong>#{{order_ref}}</strong>.</p>
+<p>The receipt details do not match our records or there may be another issue. Please contact us at support@rcffuta.com with your receipt details so we can help resolve this quickly.</p>
+<p>— RCF FUTA Team</p>',
+   true)
+
+ON CONFLICT (template_key) DO NOTHING;

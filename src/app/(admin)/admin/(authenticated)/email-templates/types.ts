@@ -32,3 +32,11 @@ export interface Variable {
 export type SaveState = null | "saving" | "saved" | "error";
 export type ViewMode = "editor" | "preview" | "split";
 export type FieldType = "subject" | "body_html";
+
+export interface Recipient {
+    id: string;
+    orderRef: string;
+    customerName: string;
+    customerEmail: string;
+    status: string;
+}

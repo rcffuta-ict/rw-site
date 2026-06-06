@@ -40,7 +40,7 @@ export async function getEmailTemplates(options?: {
     only_active?: boolean;
 }): Promise<ServiceResult<EmailTemplate[]>> {
     try {
-        const supabase = createSupabaseAdminClient();
+        const supabase = await createSupabaseAdminClient();
 
         let query = supabase.from("rw_email_templates").select("*");
 
@@ -67,7 +67,7 @@ export async function getEmailTemplate(
     idOrKey: string
 ): Promise<ServiceResult<EmailTemplate>> {
     try {
-        const supabase = createSupabaseAdminClient();
+        const supabase = await createSupabaseAdminClient();
 
         // Try by template_key first, then by id
         let { data, error } = await supabase
@@ -107,9 +107,9 @@ export async function updateEmailTemplate(
     adminEmail?: string
 ): Promise<ServiceResult<EmailTemplate>> {
     try {
-        const supabase = createSupabaseAdminClient();
+        const supabase = await createSupabaseAdminClient();
 
-        const updatePayload: any = { ...patch };
+        const updatePayload: Record<string, unknown> = { ...patch };
         if (adminEmail) {
             updatePayload.updated_by = adminEmail;
         }
@@ -138,7 +138,7 @@ export async function getEmailLogsForOrder(
     orderId: string
 ): Promise<ServiceResult<EmailLog[]>> {
     try {
-        const supabase = createSupabaseAdminClient();
+        const supabase = await createSupabaseAdminClient();
 
         const { data, error } = await supabase
             .from("rw_email_logs")
@@ -163,7 +163,7 @@ export async function getRecentEmailLogs(
     limit: number = 50
 ): Promise<ServiceResult<EmailLog[]>> {
     try {
-        const supabase = createSupabaseAdminClient();
+        const supabase = await createSupabaseAdminClient();
 
         const { data, error } = await supabase
             .from("rw_email_logs")
@@ -193,7 +193,7 @@ export async function getEmailStats(since?: Date): Promise<
     }>
 > {
     try {
-        const supabase = createSupabaseAdminClient();
+        const supabase = await createSupabaseAdminClient();
 
         let query = supabase.from("rw_email_logs").select("success", { count: "exact" });
 
@@ -208,7 +208,8 @@ export async function getEmailStats(since?: Date): Promise<
         }
 
         const total = count || 0;
-        const successful = data?.filter((d: any) => d.success).length || 0;
+        const successful =
+            data?.filter((d: { success: boolean }) => d.success).length || 0;
         const failed = total - successful;
         const successRate = total > 0 ? (successful / total) * 100 : 0;
 

@@ -2,11 +2,9 @@
 # This file is used by the Supabase CLI for local development and deployment
 
 [project]
-# Update these with your Supabase project details
-# supabase link --project-ref YOUR_PROJECT_REF
+# Handled via supabase link --project-ref kcyylplbizwgttqjdezf
 
 [api]
-# Port for local Supabase API
 port = 54321
 schemas = ["public"]
 extra_search_path = ["public", "extensions"]
@@ -15,22 +13,23 @@ max_rows = 1000
 [db]
 # Port for local PostgreSQL database
 port = 54322
-# Seed file for local development
-seed_file_path = "seed.sql"
+
+# ⚠️ MOVE SEED CONFIG OUT OF THE [db] BLOCK AND INTO ITS OWN BLOCK:
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
 
 [studio]
-# Port for Supabase Studio local UI
 port = 54323
 
 [inbucket]
-# Port for local email testing (optional)
 port = 54324
 
 [functions]
-# Function timeout in seconds (increase if emails take longer to send)
+
+[functions.send-order-email]
 verify_jwt = false
 
 [realtime]
-# Optional: realtime capabilities
 enabled = true
-max_bytes = 1048576
+# ⚠️ FIXED: Removed max_message_length entirely to let the CLI use its internal default

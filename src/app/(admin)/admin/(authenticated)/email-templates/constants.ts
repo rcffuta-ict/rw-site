@@ -41,19 +41,19 @@ export const DEFAULT_SUBJECTS: Record<string, string> = {
 
 export const DEFAULT_BODIES: Record<string, string> = {
   pending: `<p>Hi {{customer_name}},</p>
-<p>We have received your pre-order <strong>#{{order_ref}}</strong> totalling <strong>₦{{total_amount}}</strong>. Please upload your payment receipt to proceed with your order.</p>
+<p>We have received your pre-order <strong>#{{order_ref}}</strong> totalling <strong>{{total_amount}}</strong>. Please upload your payment receipt to proceed with your order.</p>
 {{items_html}}
 <p>If you have any questions, don't hesitate to reach out to us.</p>
 <p>God bless you — <strong>RCF FUTA Team</strong></p>`,
 
   partially_paid: `<p>Hi {{customer_name}},</p>
-<p>Thank you! We have confirmed a payment of <strong>₦{{amount_paid}}</strong> on your order <strong>#{{order_ref}}</strong>.</p>
-<p>Your outstanding balance is <strong>₦{{balance}}</strong>. Please complete your payment to move your order to production.</p>
+<p>Thank you! We have confirmed a payment of <strong>{{amount_paid}}</strong> on your order <strong>#{{order_ref}}</strong>.</p>
+<p>Your outstanding balance is <strong>{{balance}}</strong>. Please complete your payment to move your order to production.</p>
 {{items_html}}
 <p>— <strong>RCF FUTA Team</strong></p>`,
 
   paid: `<p>Hi {{customer_name}},</p>
-<p>Wonderful news! Your order <strong>#{{order_ref}}</strong> is fully paid (₦{{total_amount}}). 🎉</p>
+<p>Wonderful news! Your order <strong>#{{order_ref}}</strong> is fully paid ({{total_amount}}). 🎉</p>
 <p>We will notify you as soon as your order enters production. Thank you for being part of Redemption Week '26!</p>
 {{items_html}}
 <p>— <strong>RCF FUTA Team</strong></p>`,
@@ -89,7 +89,7 @@ export const DEFAULT_BODIES: Record<string, string> = {
 <p>— <strong>RCF FUTA Team</strong></p>`,
 
   payment_approved: `<p>Hi {{customer_name}},</p>
-<p>Your payment of <strong>₦{{amount_paid}}</strong> for order <strong>#{{order_ref}}</strong> has been approved! ✅</p>
+<p>Your payment of <strong>{{amount_paid}}</strong> for order <strong>#{{order_ref}}</strong> has been approved! ✅</p>
 <p>Your order is moving forward. We will keep you updated on every step.</p>
 <p>— <strong>RCF FUTA Team</strong></p>`,
 
@@ -107,9 +107,9 @@ export const DEFAULT_BODIES: Record<string, string> = {
 export const SAMPLE_DATA: SampleData = {
   customer_name: "Adaeze Okonkwo",
   order_ref: "FF3A9C",
-  total_amount: "15,500",
-  amount_paid: "8,000",
-  balance: "7,500",
+  total_amount: "₦15,500",
+  amount_paid: "₦8,000",
+  balance: "₦7,500",
   items_html: `<table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;">
     <thead><tr style="background:#f9f5f0;">
       <th style="padding:8px;text-align:left;color:#3d2e0e;border-bottom:2px solid #e8d5a3;">Item</th>
