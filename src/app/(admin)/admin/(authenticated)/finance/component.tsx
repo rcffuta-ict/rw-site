@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/forms/Button";
-import { Textarea } from "@/components/ui/forms/Textarea";
 import { useState } from "react";
 import { PriceInput } from "@/components/ui/forms/PriceInput";
 
@@ -255,15 +254,25 @@ export const FlagForm = ({
     const handleConfirm = async () => {
         setStatus("loading");
 
-        setTimeout(() => {
-            if (Math.random() > 0.1) {
-                setStatus("success");
-                setTimeout(() => onConfirm(reason), 1800);
-            } else {
-                setStatus("error");
-                setTimeout(() => setStatus("idle"), 2500);
-            }
-        }, 2200);
+        try {
+            onConfirm(reason);
+            setStatus("success");
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
+            setStatus("error");
+
+            setTimeout(() => setStatus("idle"), 2500);
+        }
+
+        // setTimeout(() => {
+
+        //     if (Math.random() > 0.1) {
+        //         setTimeout(() => onConfirm(reason), 1800);
+        //     } else {
+        //         setStatus("error");
+        //         setTimeout(() => setStatus("idle"), 2500);
+        //     }
+        // }, 2200);
     };
 
     return (
