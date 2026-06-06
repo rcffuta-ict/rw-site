@@ -49,6 +49,7 @@ localhost-key.pem
 
 # temporary
 temp
+.temp
 
 # AGENTIC AI
 .claude
