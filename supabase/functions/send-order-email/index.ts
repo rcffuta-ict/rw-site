@@ -248,6 +248,26 @@ function naira(amount: number): string {
     return `₦${formatNaira(amount)}`;
 }
 
+/**
+ * Force every link in the email body to be brand-coloured + underlined. Email
+ * clients ignore CSS classes/stylesheets, so the style must be inline on each
+ * <a> — this covers links from templates or raw HTML, not just ones inserted
+ * via the editor (which already carry the style).
+ */
+const LINK_STYLE = "color:#FF0015;text-decoration:underline;";
+function styleLinks(html: string): string {
+    return html.replace(/<a\b([^>]*)>/gi, (_full, attrs: string) => {
+        if (/\bstyle\s*=/i.test(attrs)) {
+            // Merge into the existing style attribute (don't clobber it).
+            return `<a${attrs.replace(
+                /\bstyle\s*=\s*"([^"]*)"/i,
+                (_m, s: string) => `style="${s};${LINK_STYLE}"`
+            )}>`;
+        }
+        return `<a${attrs} style="${LINK_STYLE}">`;
+    });
+}
+
 function injectVars(template: string, vars: Record<string, string>): string {
     return template.replace(
         /\{\{(\w+)\}\}/g,
@@ -365,7 +385,7 @@ function wrapInEmailShell(bodyContent: string, orderRef?: string): string {
           <!-- BODY -->
           <tr>
             <td style="padding:26px 20px; color:#1C0003; font-size:15.5px; line-height:26px;">
-              ${bodyContent}
+              ${styleLinks(bodyContent)}
             </td>
           </tr>
 
@@ -393,7 +413,7 @@ function wrapInEmailShell(bodyContent: string, orderRef?: string): string {
                     on the
                     <a
                         href="https://rw.rcffuta.com"
-                        className="text-rw-crimson hover:underline"
+                        style="color:#FF0015;text-decoration:underline;"
                     >
                         Redemption Week platform
                     </a>

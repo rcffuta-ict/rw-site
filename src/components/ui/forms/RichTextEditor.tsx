@@ -109,7 +109,16 @@ export function RichTextEditor({
         extensions: [
             StarterKit,
             Underline,
-            Link.configure({ openOnClick: false, autolink: true }),
+            Link.configure({
+                openOnClick: false,
+                autolink: true,
+                // Inline style so links stay underlined + brand-coloured in the
+                // editor AND in the sent email (email clients ignore CSS classes).
+                HTMLAttributes: {
+                    style: "color:#FF0015;text-decoration:underline;",
+                    rel: "noopener noreferrer",
+                },
+            }),
             Placeholder.configure({ placeholder }),
             // eslint-disable-next-line react-hooks/refs -- read lazily at "#" time, not during render
             createTemplateMention(() => variablesRef.current),
