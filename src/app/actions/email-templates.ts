@@ -42,11 +42,11 @@ export async function saveEmailTemplateAction(
 }
 
 /**
- * Resolve the selected orders, collapse them to distinct recipient emails, then
- * for each email gather EVERY order placed under that email and combine them
- * into a single send (the worker renders the message once, then a details block
- * per order — so a customer with two orders gets both item tables). Returns the
- * distinct recipient count and the order ids actually included.
+ * Group the SELECTED orders by recipient email, then enqueue one custom email
+ * per email. Orders the admin selected that share an address are combined into
+ * a single send (the worker merges their variables — refs side by side, an
+ * item table per order) instead of mailing the same person twice. Only the
+ * explicitly selected orders are included — we never pull in other orders.
  */
 async function enqueueGroupedCustom(
     orderIds: string[],
@@ -59,40 +59,24 @@ async function enqueueGroupedCustom(
     const ids = Array.from(new Set(orderIds)).filter(Boolean);
     if (ids.length === 0) return { success: false, error: "Pick a customer to message." };
 
-    // Distinct recipient emails across the selected orders.
-    const selected = (await Promise.all(ids.map((id) => getOrderById(id)))).filter(
+    const orders = (await Promise.all(ids.map((id) => getOrderById(id)))).filter(
         (o): o is NonNullable<typeof o> => Boolean(o)
     );
-    const emails = new Map<string, string>(); // lowercased key → original casing
-    for (const order of selected) {
+
+    // One group per recipient email, holding every selected order for it.
+    const groups = new Map<string, { email: string; ids: string[] }>();
+    for (const order of orders) {
         const key = order.customerEmail.trim().toLowerCase();
-        if (key && !emails.has(key)) emails.set(key, order.customerEmail);
+        if (!key) continue;
+        const group = groups.get(key);
+        if (group) group.ids.push(order.id);
+        else groups.set(key, { email: order.customerEmail, ids: [order.id] });
     }
-    if (emails.size === 0) return { success: false, error: "No valid recipients found." };
+    if (groups.size === 0) return { success: false, error: "No valid recipients found." };
 
-    // Expand each email to ALL of that customer's orders, so every order
-    // connected to the address is included in the one email.
-    const groups = await Promise.all(
-        Array.from(emails.values()).map(async (email) => {
-            const all = await getOrdersByEmail(email);
-            const allIds = all.map((o) => o.id);
-            // Fall back to the originally-selected order(s) if the lookup is empty.
-            const groupIds =
-                allIds.length > 0
-                    ? allIds
-                    : selected
-                          .filter(
-                              (o) =>
-                                  o.customerEmail.trim().toLowerCase() ===
-                                  email.trim().toLowerCase()
-                          )
-                          .map((o) => o.id);
-            return { email, ids: groupIds };
-        })
-    );
-
+    const groupArr = Array.from(groups.values());
     const results = await Promise.all(
-        groups.map((group) =>
+        groupArr.map((group) =>
             enqueueCustomEmail({
                 orderId: group.ids[0],
                 orderIds: group.ids,
@@ -106,8 +90,8 @@ async function enqueueGroupedCustom(
     const failed = results.find((r) => !r.success);
     if (failed) return { success: false, error: failed.error ?? "Failed to queue message." };
 
-    const sentOrderIds = groups.flatMap((g) => g.ids);
-    return { success: true, sent: groups.length, sentOrderIds };
+    const sentOrderIds = groupArr.flatMap((g) => g.ids);
+    return { success: true, sent: groupArr.length, sentOrderIds };
 }
 
 /**

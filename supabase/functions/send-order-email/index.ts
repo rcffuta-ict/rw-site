@@ -136,30 +136,27 @@ async function render(row: any) {
         if (!row.subject || !row.body_html)
             throw new Error("Custom email missing subject/body");
 
-        // Several orders that share this email were combined into one send:
-        // render the admin's message once (using the primary order's
-        // variables), then append a details block for each order.
+        // Several selected orders that share this email were combined into one
+        // send: render the message ONCE with merged variables — {{order_ref}}
+        // lists every ref, {{items_html}} renders one captioned table per order
+        // (so items stay attributed), and the money fields are summed.
         const orderIds: string[] = Array.isArray(row.order_ids) ? row.order_ids : [];
         if (orderIds.length > 1) {
             const orders = (await Promise.all(orderIds.map(fetchOrder))).filter(
                 Boolean
             );
-            const primary = orders[0] ?? order;
-            const primaryVars = primary ? buildVariables(primary) : vars;
-            // The message is rendered once with the primary order's variables;
-            // its items table is omitted here because every order's items appear
-            // in the per-order detail blocks appended below.
-            const messageVars = { ...primaryVars, items_html: "" };
-            const blocks = orders.map(buildOrderBlock).join("");
-            return {
-                subject: injectVars(row.subject, primaryVars),
-                html: wrapInEmailShell(
-                    injectVars(row.body_html, messageVars) + blocks,
-                    primary?.order_ref || orderRef
-                ),
-                recipient,
-                recipientName: primary?.customer_name || recipientName,
-            };
+            if (orders.length > 1) {
+                const combinedVars = buildCombinedVariables(orders);
+                return {
+                    subject: injectVars(row.subject, combinedVars),
+                    html: wrapInEmailShell(
+                        injectVars(row.body_html, combinedVars),
+                        joinRefsForFooter(orders)
+                    ),
+                    recipient,
+                    recipientName: orders[0].customer_name || recipientName,
+                };
+            }
         }
 
         return {
@@ -214,21 +211,32 @@ function buildVariables(order: any): Record<string, string> {
 }
 
 /**
- * A per-order section appended to a combined custom email — the order
- * reference, its amounts, and its items table.
+ * Merged variables for a combined send (several selected orders, one email):
+ * every order ref listed together, the money fields summed, and one captioned
+ * items table per order so items stay attributed to the right order.
  */
-function buildOrderBlock(order: any): string {
-    const balance = (order.total_amount || 0) - (order.amount_paid || 0);
-    return `
-    <div style="margin-top:24px; padding-top:16px; border-top:1px solid #e8d0d4;">
-      <p style="margin:0 0 4px; font-size:14px; font-weight:700; color:#1C0003;">
-        Order #${order.order_ref || ""}
-      </p>
-      <p style="margin:0 0 8px; font-size:13px; color:#5c4048;">
-        Total ${naira(order.total_amount || 0)} · Paid ${naira(order.amount_paid || 0)} · Balance ${naira(balance)}
-      </p>
-      ${buildItemsHtml(order.items || [])}
-    </div>`;
+function buildCombinedVariables(orders: any[]): Record<string, string> {
+    const totalAmount = orders.reduce((s, o) => s + (o.total_amount || 0), 0);
+    const amountPaid = orders.reduce((s, o) => s + (o.amount_paid || 0), 0);
+    return {
+        customer_name: orders[0]?.customer_name || "",
+        // Joined as "FF3A9C, #AB12CD" — injectVars adds the leading "#" so the
+        // result reads "#FF3A9C, #AB12CD" (and legacy "#{{order_ref}}" templates
+        // stay correct too).
+        order_ref: orders.map((o) => o.order_ref || "").join(", #"),
+        total_amount: naira(totalAmount),
+        amount_paid: naira(amountPaid),
+        balance: naira(totalAmount - amountPaid),
+        items_html: orders
+            .map((o) => buildItemsHtml(o.items || [], o.order_ref || ""))
+            .join(""),
+    };
+}
+
+/** Footer reference for a combined send, e.g. "FF3A9C, #AB12CD" (the shell
+ * prefixes the leading "#"). */
+function joinRefsForFooter(orders: any[]): string {
+    return orders.map((o) => o.order_ref || "").join(", #");
 }
 
 // ─── Formatting helpers ──────────────────────────────────────────────────────
@@ -290,8 +298,13 @@ function injectVars(template: string, vars: Record<string, string>): string {
     );
 }
 
-function buildItemsHtml(items: any[]): string {
+function buildItemsHtml(items: any[], caption?: string): string {
     if (!items?.length) return "";
+
+    // Used in combined sends to label which order a table belongs to.
+    const heading = caption
+        ? `<p style="margin:24px 0 4px; font-size:13px; font-weight:700; color:#1C0003;">Order #${caption}</p>`
+        : "";
 
     const rows = items
         .map(
@@ -313,8 +326,8 @@ function buildItemsHtml(items: any[]): string {
         )
         .join("");
 
-    return `
-    <table style="width:100%; border-collapse:collapse; margin:24px 0; font-size:14px; table-layout:fixed;">
+    return `${heading}
+    <table style="width:100%; border-collapse:collapse; margin:${caption ? "4px" : "24px"} 0 24px; font-size:14px; table-layout:fixed;">
       <thead>
         <tr style="background:#fdf5f5;">
           <th style="padding:12px 8px; text-align:left; color:#5c4048; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Item</th>
