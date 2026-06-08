@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { headers } from "next/headers";
+import { RefreshButton } from "@/components/admin/RefreshButton";
 import { OrderStatusBadge } from "@/components/ui/Badge";
 import { listOrders } from "@/lib/services/orders.service";
 import { formatNaira } from "@/lib/utils/functions";
@@ -55,6 +56,7 @@ export default async function AdminDashboard() {
                     </p>
                 </div>
                 <div className="flex gap-3">
+                    <RefreshButton />
                     <Link href="/admin/orders" className="btn-secondary !h-10 !px-5 text-sm">
                         All Orders
                     </Link>

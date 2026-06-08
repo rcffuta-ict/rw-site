@@ -5,6 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { formatNaira, productImageUrl } from "@/lib/utils/functions";
 import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
+import { RefreshButton } from "@/components/admin/RefreshButton";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { AdminStats, AdminStatItem } from "@/components/admin/AdminStats";
 import CategoryDrawer from "@/components/admin/CategoryDrawer";
@@ -470,28 +471,31 @@ export default function ProductsClient({
                             Pre-order inventory — Redemption Week &apos;26 catalog
                         </p>
                     </div>
-                    {isAdmin && (
-                        <Link
-                            href="/admin/products/new"
-                            id="btn-add-product"
-                            className="btn-primary !h-11 !px-6 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 shrink-0 animate-scale-in"
-                        >
-                            <svg
-                                className="h-4 w-4"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={2.5}
-                                viewBox="0 0 24 24"
+                    <div className="flex items-center gap-3 shrink-0 animate-scale-in">
+                        <RefreshButton />
+                        {isAdmin && (
+                            <Link
+                                href="/admin/products/new"
+                                id="btn-add-product"
+                                className="btn-primary !h-11 !px-6 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2"
                             >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 4v16m8-8H4"
-                                />
-                            </svg>
-                            Add Product
-                        </Link>
-                    )}
+                                <svg
+                                    className="h-4 w-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={2.5}
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M12 4v16m8-8H4"
+                                    />
+                                </svg>
+                                Add Product
+                            </Link>
+                        )}
+                    </div>
                 </div>
 
                 {/* Stats */}

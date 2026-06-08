@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AdminTabs, type TabItem } from "@/components/admin/AdminTabs";
+import { RefreshButton } from "@/components/admin/RefreshButton";
 import { TemplatesPanel } from "./TemplatesPanel";
 import { ComposePanel } from "./ComposePanel";
 import { FollowUpPanel } from "./FollowUpPanel";
@@ -82,11 +83,14 @@ export default function CommunicationClient({
                         Customer emails for orders &amp; payments · one-off messages
                     </p>
                 </div>
-                <AdminTabs
-                    tabs={tabs}
-                    activeTab={activeTab}
-                    onChange={(key) => setActiveTab(key as CommTab)}
-                />
+                <div className="flex items-center gap-3">
+                    <RefreshButton />
+                    <AdminTabs
+                        tabs={tabs}
+                        activeTab={activeTab}
+                        onChange={(key) => setActiveTab(key as CommTab)}
+                    />
+                </div>
             </div>
 
             {activeTab === "templates" && (

@@ -146,11 +146,15 @@ async function render(row: any) {
             );
             const primary = orders[0] ?? order;
             const primaryVars = primary ? buildVariables(primary) : vars;
+            // The message is rendered once with the primary order's variables;
+            // its items table is omitted here because every order's items appear
+            // in the per-order detail blocks appended below.
+            const messageVars = { ...primaryVars, items_html: "" };
             const blocks = orders.map(buildOrderBlock).join("");
             return {
                 subject: injectVars(row.subject, primaryVars),
                 html: wrapInEmailShell(
-                    injectVars(row.body_html, primaryVars) + blocks,
+                    injectVars(row.body_html, messageVars) + blocks,
                     primary?.order_ref || orderRef
                 ),
                 recipient,
