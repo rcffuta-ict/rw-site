@@ -135,6 +135,29 @@ async function render(row: any) {
     if (row.mode === "custom") {
         if (!row.subject || !row.body_html)
             throw new Error("Custom email missing subject/body");
+
+        // Several orders that share this email were combined into one send:
+        // render the admin's message once (using the primary order's
+        // variables), then append a details block for each order.
+        const orderIds: string[] = Array.isArray(row.order_ids) ? row.order_ids : [];
+        if (orderIds.length > 1) {
+            const orders = (await Promise.all(orderIds.map(fetchOrder))).filter(
+                Boolean
+            );
+            const primary = orders[0] ?? order;
+            const primaryVars = primary ? buildVariables(primary) : vars;
+            const blocks = orders.map(buildOrderBlock).join("");
+            return {
+                subject: injectVars(row.subject, primaryVars),
+                html: wrapInEmailShell(
+                    injectVars(row.body_html, primaryVars) + blocks,
+                    primary?.order_ref || orderRef
+                ),
+                recipient,
+                recipientName: primary?.customer_name || recipientName,
+            };
+        }
+
         return {
             subject: injectVars(row.subject, vars),
             html: wrapInEmailShell(injectVars(row.body_html, vars), orderRef),
@@ -186,6 +209,24 @@ function buildVariables(order: any): Record<string, string> {
     };
 }
 
+/**
+ * A per-order section appended to a combined custom email — the order
+ * reference, its amounts, and its items table.
+ */
+function buildOrderBlock(order: any): string {
+    const balance = (order.total_amount || 0) - (order.amount_paid || 0);
+    return `
+    <div style="margin-top:24px; padding-top:16px; border-top:1px solid #e8d0d4;">
+      <p style="margin:0 0 4px; font-size:14px; font-weight:700; color:#1C0003;">
+        Order #${order.order_ref || ""}
+      </p>
+      <p style="margin:0 0 8px; font-size:13px; color:#5c4048;">
+        Total ${naira(order.total_amount || 0)} · Paid ${naira(order.amount_paid || 0)} · Balance ${naira(balance)}
+      </p>
+      ${buildItemsHtml(order.items || [])}
+    </div>`;
+}
+
 // ─── Formatting helpers ──────────────────────────────────────────────────────
 
 function json(body: unknown, status: number): Response {
@@ -208,7 +249,21 @@ function naira(amount: number): string {
 }
 
 function injectVars(template: string, vars: Record<string, string>): string {
-    return template.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? `{{${key}}}`);
+    return template.replace(
+        /\{\{(\w+)\}\}/g,
+        (match: string, key: string, offset: number, source: string) => {
+            const value = vars[key];
+            if (value === undefined) return match;
+            // Order refs are stored bare (e.g. FF3A9C) but shown with a leading
+            // "#". Add it automatically — unless the author already typed one
+            // right before the token (e.g. legacy "#{{order_ref}}") so we never
+            // double it up.
+            if (key === "order_ref" && value && source[offset - 1] !== "#") {
+                return `#${value}`;
+            }
+            return value;
+        }
+    );
 }
 
 function buildItemsHtml(items: any[]): string {

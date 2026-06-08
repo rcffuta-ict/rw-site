@@ -80,8 +80,15 @@ create table if not exists rw_email_queue (
   max_attempts    integer not null default 5,
   last_error      text,
   sent_at         timestamptz,
+  -- When a custom message targets several orders that share one email address,
+  -- they are combined into a single send. order_id holds the primary order (for
+  -- the footer reference + logs) and order_ids holds every order in the combine.
+  order_ids       jsonb,
   updated_at      timestamptz not null default now()
 );
+
+-- For existing deployments, add the combine column in place.
+alter table rw_email_queue add column if not exists order_ids jsonb;
 
 create index if not exists idx_email_queue_status on rw_email_queue(status, created_at);
 

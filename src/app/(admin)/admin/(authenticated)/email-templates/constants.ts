@@ -89,7 +89,7 @@ export const TEMPLATES: Template[] = [
 
 export const VARIABLES: Variable[] = [
     { name: "customer_name", desc: "Customer's full name" },
-    { name: "order_ref", desc: "6-char order reference e.g. FF3A9C" },
+    { name: "order_ref", desc: "Order reference, auto-shown as #FF3A9C" },
     { name: "total_amount", desc: "Order total in Naira" },
     { name: "amount_paid", desc: "Amount paid so far" },
     { name: "balance", desc: "Remaining balance" },
@@ -97,84 +97,99 @@ export const VARIABLES: Variable[] = [
 ] as const;
 
 export const DEFAULT_SUBJECTS: Record<string, string> = {
-    pending: "Your RW'26 Pre-Order is Confirmed — #{{order_ref}}",
-    partially_paid: "Partial Payment Received — #{{order_ref}}",
+    pending: "Your RW'26 Pre-Order is Confirmed — {{order_ref}}",
+    partially_paid: "Partial Payment Received — {{order_ref}}",
     paid: "Payment Complete — Your RW'26 Order is Fully Paid 🎉",
-    confirmed: "Order #{{order_ref}} — Queued for Production",
-    in_production: "Your RW'26 Items Are Being Made — #{{order_ref}}",
-    delivered: "Your RW'26 Order is Ready for Collection — #{{order_ref}}",
-    flagged: "Action Required on Your Order #{{order_ref}}",
-    cancelled: "Your Order #{{order_ref}} Has Been Cancelled",
-    payment_pending: "We Received Your Payment Receipt — #{{order_ref}}",
-    payment_approved: "Payment Approved — #{{order_ref}}",
-    payment_flagged: "Issue With Your Payment Receipt — #{{order_ref}}",
-    payment_rejected: "Payment Could Not Be Verified — #{{order_ref}}",
+    confirmed: "Order {{order_ref}} — Queued for Production",
+    in_production: "Your RW'26 Items Are Being Made — {{order_ref}}",
+    delivered: "Your RW'26 Order is Ready for Collection — {{order_ref}}",
+    flagged: "Action Required on Your Order {{order_ref}}",
+    cancelled: "Your Order {{order_ref}} Has Been Cancelled",
+    payment_pending: "We Received Your Payment Receipt — {{order_ref}}",
+    payment_approved: "Payment Approved — {{order_ref}}",
+    payment_flagged: "Issue With Your Payment Receipt — {{order_ref}}",
+    payment_rejected: "Payment Could Not Be Verified — {{order_ref}}",
 };
 
 export const DEFAULT_BODIES: Record<string, string> = {
     pending: `<p>Hi {{customer_name}},</p>
-<p>We have received your pre-order <strong>#{{order_ref}}</strong> totalling <strong>{{total_amount}}</strong>. Please upload your payment receipt to proceed with your order.</p>
+<p>We have received your pre-order <strong>{{order_ref}}</strong> totalling <strong>{{total_amount}}</strong>. Please upload your payment receipt to proceed with your order.</p>
 {{items_html}}
 <p>If you have any questions, don't hesitate to reach out to us.</p>
 <p>God bless you — <strong>RCF FUTA Team</strong></p>`,
 
     partially_paid: `<p>Hi {{customer_name}},</p>
-<p>Thank you! We have confirmed a payment of <strong>{{amount_paid}}</strong> on your order <strong>#{{order_ref}}</strong>.</p>
+<p>Thank you! We have confirmed a payment of <strong>{{amount_paid}}</strong> on your order <strong>{{order_ref}}</strong>.</p>
 <p>Your outstanding balance is <strong>{{balance}}</strong>. Please complete your payment to move your order to production.</p>
 {{items_html}}
 <p>— <strong>RCF FUTA Team</strong></p>`,
 
     paid: `<p>Hi {{customer_name}},</p>
-<p>Wonderful news! Your order <strong>#{{order_ref}}</strong> is fully paid ({{total_amount}}). 🎉</p>
+<p>Wonderful news! Your order <strong>{{order_ref}}</strong> is fully paid ({{total_amount}}). 🎉</p>
 <p>We will notify you as soon as your order enters production. Thank you for being part of Redemption Week '26!</p>
 {{items_html}}
 <p>— <strong>RCF FUTA Team</strong></p>`,
 
     confirmed: `<p>Hi {{customer_name}},</p>
-<p>Great news! Your order <strong>#{{order_ref}}</strong> has been confirmed and queued for production.</p>
+<p>Great news! Your order <strong>{{order_ref}}</strong> has been confirmed and queued for production.</p>
 <p>We will send you another update when your items are being made. Stay blessed!</p>
 <p>— <strong>RCF FUTA Team</strong></p>`,
 
     in_production: `<p>Hi {{customer_name}},</p>
-<p>Your order <strong>#{{order_ref}}</strong> is currently in production — your items are being made!</p>
+<p>Your order <strong>{{order_ref}}</strong> is currently in production — your items are being made!</p>
 <p>We will notify you once they are ready for collection. Watch this space!</p>
 <p>— <strong>RCF FUTA Team</strong></p>`,
 
     delivered: `<p>Hi {{customer_name}},</p>
-<p>Your order <strong>#{{order_ref}}</strong> is <strong>ready for collection</strong>! 🎉</p>
+<p>Your order <strong>{{order_ref}}</strong> is <strong>ready for collection</strong>! 🎉</p>
 <p>Please come and pick up your Redemption Week '26 items. We hope you absolutely love them and that they are a blessing to you.</p>
 <p>To God be the glory — <strong>RCF FUTA Team</strong></p>`,
 
     flagged: `<p>Hi {{customer_name}},</p>
-<p>Your order <strong>#{{order_ref}}</strong> has been flagged for review and requires your attention.</p>
+<p>Your order <strong>{{order_ref}}</strong> has been flagged for review and requires your attention.</p>
 <p>Please contact us as soon as possible so we can resolve this quickly and get your order back on track.</p>
 <p>— <strong>RCF FUTA Team</strong></p>`,
 
     cancelled: `<p>Hi {{customer_name}},</p>
-<p>We regret to inform you that your order <strong>#{{order_ref}}</strong> has been cancelled.</p>
+<p>We regret to inform you that your order <strong>{{order_ref}}</strong> has been cancelled.</p>
 <p>If you believe this is an error or would like more information, please contact us immediately.</p>
 <p>— <strong>RCF FUTA Team</strong></p>`,
 
     payment_pending: `<p>Hi {{customer_name}},</p>
-<p>We have received your payment receipt for order <strong>#{{order_ref}}</strong> and it is currently under review.</p>
+<p>We have received your payment receipt for order <strong>{{order_ref}}</strong> and it is currently under review.</p>
 <p>We will notify you once your payment has been verified. This usually takes a few hours.</p>
 <p>— <strong>RCF FUTA Team</strong></p>`,
 
     payment_approved: `<p>Hi {{customer_name}},</p>
-<p>Your payment of <strong>{{amount_paid}}</strong> for order <strong>#{{order_ref}}</strong> has been approved! ✅</p>
+<p>Your payment of <strong>{{amount_paid}}</strong> for order <strong>{{order_ref}}</strong> has been approved! ✅</p>
 <p>Your order is moving forward. We will keep you updated on every step.</p>
 <p>— <strong>RCF FUTA Team</strong></p>`,
 
     payment_flagged: `<p>Hi {{customer_name}},</p>
-<p>There is an issue with the payment receipt you submitted for order <strong>#{{order_ref}}</strong>.</p>
+<p>There is an issue with the payment receipt you submitted for order <strong>{{order_ref}}</strong>.</p>
 <p>Please contact us or submit a clearer copy of your receipt so we can verify your payment promptly.</p>
 <p>— <strong>RCF FUTA Team</strong></p>`,
 
     payment_rejected: `<p>Hi {{customer_name}},</p>
-<p>Unfortunately, the payment receipt for order <strong>#{{order_ref}}</strong> could not be verified.</p>
+<p>Unfortunately, the payment receipt for order <strong>{{order_ref}}</strong> could not be verified.</p>
 <p>Please contact us with your bank transaction details so we can resolve this as quickly as possible.</p>
 <p>— <strong>RCF FUTA Team</strong></p>`,
 };
+
+// Default days of inactivity before an order is considered "stale" and shown
+// in the Follow-up tab.
+export const FOLLOW_UP_DEFAULT_DAYS = 2;
+
+// One-click reminder sent to customers whose orders have gone quiet. Uses the
+// same {{variables}} as everything else (order_ref auto-prefixed with #).
+export const FOLLOW_UP_SUBJECT = "A gentle reminder about your order {{order_ref}}";
+
+export const FOLLOW_UP_BODY = `<p>Hi {{customer_name}},</p>
+<p>We noticed your Redemption Week '26 order <strong>{{order_ref}}</strong> still has an outstanding balance of <strong>{{balance}}</strong>. We'd love to help you complete it!</p>
+<p>Please upload your payment receipt in your order dashboard so we can move your order forward. If you've already paid, kindly ignore this message.</p>
+{{items_html}}
+<p>If you have any questions or need help, just reach out — we're happy to assist.</p>
+<p>God bless you — <strong>RCF FUTA Team</strong></p>`;
 
 export const SAMPLE_DATA: SampleData = {
     customer_name: "Adaeze Okonkwo",

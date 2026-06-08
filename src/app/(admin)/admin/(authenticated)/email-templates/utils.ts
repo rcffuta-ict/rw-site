@@ -1,10 +1,25 @@
 import type { SampleData } from "./types";
 
 /**
- * Injects sample data into template by replacing {{variable}} placeholders
+ * Injects sample data into template by replacing {{variable}} placeholders.
+ *
+ * `order_ref` is stored bare (e.g. FF3A9C) but shown with a leading "#", added
+ * automatically here — unless the author already typed one right before the
+ * token (legacy "#{{order_ref}}") so we never double it up. This mirrors the
+ * email worker's injectVars so the preview matches what gets sent.
  */
 export function injectSampleData(html: string, sampleData: SampleData): string {
-  return html.replace(/\{\{(\w+)\}\}/g, (_: string, key: string) => sampleData[key] || `{{${key}}}`);
+  return html.replace(
+    /\{\{(\w+)\}\}/g,
+    (match: string, key: string, offset: number, source: string) => {
+      const value = sampleData[key];
+      if (value === undefined) return match;
+      if (key === "order_ref" && value && source[offset - 1] !== "#") {
+        return `#${value}`;
+      }
+      return value;
+    }
+  );
 }
 
 /**

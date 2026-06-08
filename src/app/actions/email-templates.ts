@@ -36,10 +36,11 @@ export async function saveEmailTemplateAction(
 }
 
 /**
- * Send a one-off custom message to an order's customer from the admin area.
+ * Send a one-off custom message to one or more orders' customers from the admin
+ * area. Orders that share an email address are combined into a single send.
  */
 export async function sendCustomEmailAction(input: {
-    orderId: string;
+    orderIds: string[];
     subject: string;
     bodyHtml: string;
 }) {
@@ -47,24 +48,45 @@ export async function sendCustomEmailAction(input: {
         await getAdminEmail(); // authorize: admin session required
         const subject = input.subject?.trim();
         const bodyHtml = input.bodyHtml?.trim();
-        if (!input.orderId) return { success: false as const, error: "Pick a customer to message." };
+        const orderIds = Array.from(new Set(input.orderIds ?? [])).filter(Boolean);
+        if (orderIds.length === 0)
+            return { success: false as const, error: "Pick a customer to message." };
         if (!subject) return { success: false as const, error: "Add a subject line." };
         if (!bodyHtml) return { success: false as const, error: "Write a message first." };
 
-        // Resolve the recipient up front so it shows in the Delivery tab.
-        const order = await getOrderById(input.orderId);
-        if (!order) return { success: false as const, error: "Order not found." };
-
-        const res = await enqueueCustomEmail({
-            orderId: input.orderId,
-            recipientEmail: order.customerEmail,
-            subject,
-            bodyHtml,
-        });
-        if (!res.success) {
-            return { success: false as const, error: res.error ?? "Failed to queue message." };
+        // Resolve every order up front, then group by recipient email so a
+        // customer with several selected orders gets one combined email.
+        const orders = await Promise.all(orderIds.map((id) => getOrderById(id)));
+        const groups = new Map<string, { email: string; ids: string[] }>();
+        for (const order of orders) {
+            if (!order) continue;
+            const key = order.customerEmail.trim().toLowerCase();
+            if (!key) continue;
+            const group = groups.get(key);
+            if (group) group.ids.push(order.id);
+            else groups.set(key, { email: order.customerEmail, ids: [order.id] });
         }
-        return { success: true as const };
+
+        if (groups.size === 0)
+            return { success: false as const, error: "No valid recipients found." };
+
+        const results = await Promise.all(
+            Array.from(groups.values()).map((group) =>
+                enqueueCustomEmail({
+                    orderId: group.ids[0],
+                    orderIds: group.ids,
+                    recipientEmail: group.email,
+                    subject,
+                    bodyHtml,
+                })
+            )
+        );
+
+        const failed = results.find((r) => !r.success);
+        if (failed) {
+            return { success: false as const, error: failed.error ?? "Failed to queue message." };
+        }
+        return { success: true as const, sent: groups.size };
     } catch (e) {
         return { success: false as const, error: (e as Error).message };
     }

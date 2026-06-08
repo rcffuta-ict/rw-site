@@ -41,3 +41,17 @@ export interface Recipient {
     customerEmail: string;
     status: string;
 }
+
+/** A candidate stale order shown in the Follow-up tab. */
+export interface StaleOrder {
+    id: string;
+    orderRef: string;
+    customerName: string;
+    customerEmail: string;
+    status: string;
+    totalAmount: number;
+    amountPaid: number;
+    balance: number;
+    /** ISO 8601 — most recent of order update / latest payment. */
+    lastActivityAt: string;
+}

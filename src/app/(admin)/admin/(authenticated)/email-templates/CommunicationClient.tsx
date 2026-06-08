@@ -4,19 +4,21 @@ import { useState } from "react";
 import { AdminTabs, type TabItem } from "@/components/admin/AdminTabs";
 import { TemplatesPanel } from "./TemplatesPanel";
 import { ComposePanel } from "./ComposePanel";
+import { FollowUpPanel } from "./FollowUpPanel";
 import { DeliveryPanel } from "./DeliveryPanel";
 import type { EmailTemplate } from "@/lib/services/email-templates.service";
 import type { EmailQueueRow } from "@/lib/services/email-queue.service";
-import type { Recipient } from "./types";
+import type { Recipient, StaleOrder } from "./types";
 
 interface CommunicationClientProps {
     initialTemplates: EmailTemplate[];
     loadError: string | null;
     recipients: Recipient[];
+    staleOrders: StaleOrder[];
     deliveries: EmailQueueRow[];
 }
 
-type CommTab = "templates" | "compose" | "delivery";
+type CommTab = "templates" | "compose" | "followup" | "delivery";
 
 const tabs: TabItem[] = [
     {
@@ -38,6 +40,15 @@ const tabs: TabItem[] = [
         ),
     },
     {
+        key: "followup",
+        label: "Follow-up",
+        icon: (
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+        ),
+    },
+    {
         key: "delivery",
         label: "Delivery",
         icon: (
@@ -52,6 +63,7 @@ export default function CommunicationClient({
     initialTemplates,
     loadError,
     recipients,
+    staleOrders,
     deliveries,
 }: CommunicationClientProps) {
     const [activeTab, setActiveTab] = useState<CommTab>("templates");
@@ -80,6 +92,7 @@ export default function CommunicationClient({
                 <TemplatesPanel initialTemplates={initialTemplates} loadError={loadError} />
             )}
             {activeTab === "compose" && <ComposePanel recipients={recipients} />}
+            {activeTab === "followup" && <FollowUpPanel staleOrders={staleOrders} />}
             {activeTab === "delivery" && <DeliveryPanel deliveries={deliveries} />}
         </div>
     );
