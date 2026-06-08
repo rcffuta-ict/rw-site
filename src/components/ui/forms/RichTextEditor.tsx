@@ -77,6 +77,8 @@ export function RichTextEditor({
     const [mode, setMode] = useState<"visual" | "code">("visual");
     const [showFields, setShowFields] = useState(false);
 
+    // TODO: Ensure that read text editor is up to date especially with incoming data
+
     // Load content into the visual editor only when the record changes or we
     // switch back from code view — NOT on every keystroke (which resets the caret).
     useEffect(() => {
