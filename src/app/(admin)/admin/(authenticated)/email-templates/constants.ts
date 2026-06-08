@@ -85,6 +85,13 @@ export const TEMPLATES: Template[] = [
         icon: "🚫",
         description: "Sent when a pre-order is rejected",
     },
+    {
+        key: "follow_up",
+        label: "Follow-up Reminder",
+        category: "follow-up",
+        icon: "📬",
+        description: "Gentle reminder sent from the Follow-up tab to stale orders",
+    },
 ];
 
 export const VARIABLES: Variable[] = [
@@ -109,6 +116,7 @@ export const DEFAULT_SUBJECTS: Record<string, string> = {
     payment_approved: "Payment Approved — {{order_ref}}",
     payment_flagged: "Issue With Your Payment Receipt — {{order_ref}}",
     payment_rejected: "Payment Could Not Be Verified — {{order_ref}}",
+    follow_up: "A gentle reminder about your order {{order_ref}}",
 };
 
 export const DEFAULT_BODIES: Record<string, string> = {
@@ -174,22 +182,20 @@ export const DEFAULT_BODIES: Record<string, string> = {
 <p>Unfortunately, the payment receipt for order <strong>{{order_ref}}</strong> could not be verified.</p>
 <p>Please contact us with your bank transaction details so we can resolve this as quickly as possible.</p>
 <p>— <strong>RCF FUTA Team</strong></p>`,
-};
 
-// Default days of inactivity before an order is considered "stale" and shown
-// in the Follow-up tab.
-export const FOLLOW_UP_DEFAULT_DAYS = 2;
-
-// One-click reminder sent to customers whose orders have gone quiet. Uses the
-// same {{variables}} as everything else (order_ref auto-prefixed with #).
-export const FOLLOW_UP_SUBJECT = "A gentle reminder about your order {{order_ref}}";
-
-export const FOLLOW_UP_BODY = `<p>Hi {{customer_name}},</p>
+    follow_up: `<p>Hi {{customer_name}},</p>
 <p>We noticed your Redemption Week '26 order <strong>{{order_ref}}</strong> still has an outstanding balance of <strong>{{balance}}</strong>. We'd love to help you complete it!</p>
 <p>Please upload your payment receipt in your order dashboard so we can move your order forward. If you've already paid, kindly ignore this message.</p>
 {{items_html}}
 <p>If you have any questions or need help, just reach out — we're happy to assist.</p>
-<p>God bless you — <strong>RCF FUTA Team</strong></p>`;
+<p>God bless you — <strong>RCF FUTA Team</strong></p>`,
+};
+
+// Default days of inactivity before an order is considered "stale" and shown
+// in the Follow-up tab. The editable reminder content lives in the "follow_up"
+// template (DEFAULT_SUBJECTS/DEFAULT_BODIES, and rw_email_templates once seeded).
+export const FOLLOW_UP_DEFAULT_DAYS = 2;
+export const FOLLOW_UP_TEMPLATE_KEY = "follow_up";
 
 export const SAMPLE_DATA: SampleData = {
     customer_name: "Adaeze Okonkwo",

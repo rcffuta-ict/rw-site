@@ -1,12 +1,8 @@
 "use client";
 
-import {
-    forwardRef,
-    useEffect,
-    useImperativeHandle,
-    useState,
-} from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import type { EditorVariable } from "../RichTextEditor";
+import clsx from "clsx";
 
 export interface MentionListRef {
     onKeyDown: (props: { event: KeyboardEvent }) => boolean;
@@ -15,6 +11,7 @@ export interface MentionListRef {
 interface MentionListProps {
     items: EditorVariable[];
     command: (item: EditorVariable) => void;
+    className?: string;
 }
 
 /**
@@ -24,7 +21,7 @@ interface MentionListProps {
  * a pill. Keyboard: ↑/↓ to move, Enter to choose.
  */
 export const MentionList = forwardRef<MentionListRef, MentionListProps>(
-    function MentionList({ items, command }, ref) {
+    function MentionList({ items, command, className }, ref) {
         const [selectedIndex, setSelectedIndex] = useState(0);
 
         useEffect(() => setSelectedIndex(0), [items]);
@@ -62,7 +59,12 @@ export const MentionList = forwardRef<MentionListRef, MentionListProps>(
         }
 
         return (
-            <div className="w-64 max-h-64 overflow-y-auto rounded-lg border border-(--rw-border) bg-white shadow-xl py-1">
+            <div
+                className={clsx(
+                    "w-64 max-h-64 overflow-y-auto rounded-lg border border-(--rw-border) bg-white shadow-xl py-1",
+                    className
+                )}
+            >
                 <p className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-rw-muted font-bold">
                     Auto-filled per customer
                 </p>

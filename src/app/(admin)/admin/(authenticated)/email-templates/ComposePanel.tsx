@@ -7,6 +7,10 @@ import {
     RichTextEditor,
     type EditorVariable,
 } from "@/components/ui/forms/RichTextEditor";
+import {
+    PillInput,
+    type PillInputHandle,
+} from "@/components/ui/forms/richtext/PillInput";
 import { VariableChip, PreviewPane } from "./components";
 import { VARIABLES } from "./constants";
 import { sendCustomEmailAction } from "@/app/actions/email-templates";
@@ -18,7 +22,7 @@ interface ComposePanelProps {
 
 const VARIABLE_LABELS: Record<string, string> = {
     customer_name: "Customer name",
-    order_ref: "Order number",
+    order_ref: "Order Reference",
     total_amount: "Order total",
     amount_paid: "Amount paid",
     balance: "Balance left",
@@ -38,9 +42,9 @@ export function ComposePanel({ recipients }: ComposePanelProps) {
     const [subject, setSubject] = useState("");
     const [body, setBody] = useState("");
     const [sending, setSending] = useState(false);
-    // Bumped after a successful send to reset the rich-text editor's content.
+    // Bumped after a successful send to reset the editors' content.
     const [composeKey, setComposeKey] = useState(0);
-    const subjectRef = useRef<HTMLInputElement>(null);
+    const subjectPillRef = useRef<PillInputHandle>(null);
 
     const selected = useMemo(
         () =>
@@ -52,8 +56,7 @@ export function ComposePanel({ recipients }: ComposePanelProps) {
 
     // Distinct recipient emails across the selected orders (combined on send).
     const recipientCount = useMemo(
-        () =>
-            new Set(selected.map((r) => r.customerEmail.trim().toLowerCase())).size,
+        () => new Set(selected.map((r) => r.customerEmail.trim().toLowerCase())).size,
         [selected]
     );
 
@@ -72,19 +75,8 @@ export function ComposePanel({ recipients }: ComposePanelProps) {
     }, [query, recipients, selectedIds]);
 
     const insertIntoSubject = (name: string) => {
-        const token = `{{${name}}}`;
-        const el = subjectRef.current;
-        if (el && document.activeElement === el) {
-            const start = el.selectionStart ?? subject.length;
-            const end = el.selectionEnd ?? subject.length;
-            setSubject(subject.slice(0, start) + token + subject.slice(end));
-            requestAnimationFrame(() => {
-                el.focus();
-                el.setSelectionRange(start + token.length, start + token.length);
-            });
-        } else {
-            setSubject(subject + token);
-        }
+        const v = EDITOR_VARIABLES.find((x) => x.name === name);
+        if (v) subjectPillRef.current?.insertVariable(v);
     };
 
     const handleSend = async () => {
@@ -102,10 +94,9 @@ export function ComposePanel({ recipients }: ComposePanelProps) {
         });
         if (res.success) {
             const n = res.sent ?? recipientCount;
-            toast.success(
-                n === 1 ? "Message sent" : `Message sent to ${n} customers`,
-                { id: toastId }
-            );
+            toast.success(n === 1 ? "Message sent" : `Message sent to ${n} customers`, {
+                id: toastId,
+            });
             setSubject("");
             setBody("");
             setSelectedIds([]);
@@ -217,17 +208,7 @@ export function ComposePanel({ recipients }: ComposePanelProps) {
             <div className="flex gap-4 h-[560px]">
                 <div className="flex flex-col gap-4 min-h-0 flex-1">
                     <div>
-                        <Input
-                            ref={subjectRef}
-                            label="Subject line"
-                            type="text"
-                            value={subject}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                setSubject(e.currentTarget.value)
-                            }
-                            placeholder="e.g. An update on your order #{{order_ref}}"
-                        />
-                        <div className="flex flex-wrap gap-1.5 mt-2">
+                        <div className="flex flex-wrap gap-1.5 mb-2">
                             {VARIABLES.map((v) => (
                                 <VariableChip
                                     key={v.name}
@@ -237,6 +218,15 @@ export function ComposePanel({ recipients }: ComposePanelProps) {
                                 />
                             ))}
                         </div>
+                        <PillInput
+                            ref={subjectPillRef}
+                            label="Subject line"
+                            value={subject}
+                            onChange={setSubject}
+                            variables={EDITOR_VARIABLES}
+                            reloadKey={`compose-${composeKey}`}
+                            placeholder="e.g. An update on your order {{order_ref}}"
+                        />
                     </div>
 
                     <RichTextEditor

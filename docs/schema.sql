@@ -190,12 +190,20 @@ CREATE TABLE IF NOT EXISTS rw_orders (
     -- amount_paid is a cached/denormalised value — kept in sync by payment triggers.
     -- Source of truth is the payments table.
     amount_paid     INTEGER NOT NULL DEFAULT 0,
+    -- Follow-up reminders for stale orders (see the admin Follow-up tab).
+    follow_up_count   INTEGER NOT NULL DEFAULT 0,
+    last_follow_up_at TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- For existing deployments, add the follow-up tracking columns in place.
+ALTER TABLE rw_orders ADD COLUMN IF NOT EXISTS follow_up_count   INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE rw_orders ADD COLUMN IF NOT EXISTS last_follow_up_at TIMESTAMPTZ;
+
 COMMENT ON TABLE rw_orders IS 'Customer pre-orders. Status manually updated by moderators.';
 COMMENT ON COLUMN rw_orders.amount_paid IS 'Cached sum of approved payments. Derived via order_payment_summary view.';
+COMMENT ON COLUMN rw_orders.follow_up_count IS 'How many follow-up reminder emails have been sent for this stale order.';
 
 CREATE OR REPLACE TRIGGER orders_set_updated_at
     BEFORE UPDATE ON rw_orders

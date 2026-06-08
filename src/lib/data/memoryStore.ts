@@ -103,6 +103,8 @@ export const MemoryStore = {
             orderRef:      Math.random().toString(36).substring(2, 8).toUpperCase(),
             createdAt:     new Date().toISOString(),
             updatedAt:     new Date().toISOString(),
+            followUpCount: 0,
+            lastFollowUpAt: null,
             status:        "pending",
             customerName:  input.customerName,
             customerPhone: input.customerPhone,

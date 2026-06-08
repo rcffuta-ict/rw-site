@@ -8,6 +8,7 @@ import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { createTemplateMention } from "./richtext/templateMention";
 import { tokensToEditorHtml, editorHtmlToTokens } from "./richtext/serialize";
+import { MentionList } from "./richtext/MentionList";
 
 export interface EditorVariable {
     /** Token name as stored, e.g. "customer_name" */
@@ -277,36 +278,11 @@ export function RichTextEditor({
                                                         setShowFields(false)
                                                     }
                                                 />
-                                                <div className="absolute left-0 top-full mt-1 z-20 w-64 max-h-64 overflow-y-auto rounded-lg border border-(--rw-border) bg-white shadow-xl py-1">
-                                                    <p className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-rw-muted font-bold">
-                                                        Auto-filled per customer
-                                                    </p>
-                                                    {variables.map((v) => (
-                                                        <button
-                                                            key={v.name}
-                                                            type="button"
-                                                            onMouseDown={(e) => {
-                                                                e.preventDefault();
-                                                                insertField(v);
-                                                            }}
-                                                            className="w-full text-left px-3 py-2 hover:bg-rw-bg-alt transition-colors"
-                                                        >
-                                                            <span className="flex items-center justify-between gap-2">
-                                                                <span className="text-sm font-medium text-rw-ink">
-                                                                    {v.label}
-                                                                </span>
-                                                                <span className="text-[11px] text-rw-muted font-mono shrink-0">
-                                                                    {`{{${v.name}}}`}
-                                                                </span>
-                                                            </span>
-                                                            {v.description && (
-                                                                <span className="block text-[11px] text-rw-muted leading-snug mt-0.5">
-                                                                    {v.description}
-                                                                </span>
-                                                            )}
-                                                        </button>
-                                                    ))}
-                                                </div>
+                                                <MentionList
+                                                    items={variables}
+                                                    command={insertField}
+                                                    className="absolute right-0 top-full bg-white shadow-xl z-10"
+                                                />
                                             </>
                                         )}
                                     </div>

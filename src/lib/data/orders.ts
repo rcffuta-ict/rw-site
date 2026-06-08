@@ -137,6 +137,8 @@ export const DEMO_ORDERS: Order[] = [
         payments: demoPayments["FF3A9C"]!,
         createdAt: "2026-05-02T14:00:00Z",
         updatedAt: "2026-05-02T14:35:00Z",
+        followUpCount: 0,
+        lastFollowUpAt: null,
     },
     {
         id: "ord-002",
@@ -156,6 +158,8 @@ export const DEMO_ORDERS: Order[] = [
         payments: demoPayments["FF7B2D"]!,
         createdAt: "2026-05-03T09:00:00Z",
         updatedAt: "2026-05-03T09:18:00Z",
+        followUpCount: 0,
+        lastFollowUpAt: null,
     },
     {
         id: "ord-003",
@@ -173,6 +177,8 @@ export const DEMO_ORDERS: Order[] = [
         payments: demoPayments["FFCD01"]!,
         createdAt: "2026-05-03T16:30:00Z",
         updatedAt: "2026-05-03T16:30:00Z",
+        followUpCount: 0,
+        lastFollowUpAt: null,
     },
     {
         id: "ord-004",
@@ -190,6 +196,8 @@ export const DEMO_ORDERS: Order[] = [
         payments: demoPayments["FF891E"]!,
         createdAt: "2026-04-30T17:50:00Z",
         updatedAt: "2026-04-30T18:05:00Z",
+        followUpCount: 0,
+        lastFollowUpAt: null,
     },
     {
         id: "ord-005",
@@ -209,6 +217,8 @@ export const DEMO_ORDERS: Order[] = [
         payments: demoPayments["FF0F4A"]!,
         createdAt: "2026-05-01T11:30:00Z",
         updatedAt: "2026-05-01T11:47:00Z",
+        followUpCount: 0,
+        lastFollowUpAt: null,
     },
     {
         id: "ord-006",
@@ -228,6 +238,8 @@ export const DEMO_ORDERS: Order[] = [
         payments: [],
         createdAt: "2026-04-28T10:00:00Z",
         updatedAt: "2026-04-29T15:00:00Z",
+        followUpCount: 0,
+        lastFollowUpAt: null,
     },
 ];
 

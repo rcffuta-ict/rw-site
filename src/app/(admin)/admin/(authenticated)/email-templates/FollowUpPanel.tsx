@@ -3,16 +3,20 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import {
-    FOLLOW_UP_BODY,
-    FOLLOW_UP_DEFAULT_DAYS,
-    FOLLOW_UP_SUBJECT,
-} from "./constants";
-import { sendCustomEmailAction } from "@/app/actions/email-templates";
-import type { StaleOrder } from "./types";
+import { AdminTable } from "@/components/admin/AdminTable";
+import { OrderRefCell } from "@/components/admin/OrderRefCell";
+import { FOLLOW_UP_DEFAULT_DAYS } from "./constants";
+import { sendFollowUpAction } from "@/app/actions/email-templates";
+import type { Order } from "@/lib/data/types";
 
 interface FollowUpPanelProps {
-    staleOrders: StaleOrder[];
+    staleOrders: Order[];
+}
+
+interface FollowRow {
+    order: Order;
+    daysStale: number;
+    balance: number;
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -20,30 +24,55 @@ const STATUS_LABELS: Record<string, string> = {
     partially_paid: "Partially paid",
 };
 
+const PAGE_SIZE = 12;
+const BULK = "__bulk__";
+
 const naira = (amount: number) =>
     `₦${new Intl.NumberFormat("en-NG", { maximumFractionDigits: 0 }).format(amount)}`;
 
+const lastActivityOf = (o: Order): string => {
+    const lastPayment = o.payments.reduce<string>(
+        (latest, p) => (p.createdAt > latest ? p.createdAt : latest),
+        ""
+    );
+    return [o.updatedAt, lastPayment].filter(Boolean).sort().pop() ?? o.createdAt;
+};
+
 const daysSince = (iso: string) =>
     Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+
+const timeAgo = (iso: string): string => {
+    const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60_000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
+};
+
+const sentToday = (iso: string | null) =>
+    !!iso && Date.now() - new Date(iso).getTime() < 86_400_000;
 
 export function FollowUpPanel({ staleOrders }: FollowUpPanelProps) {
     const router = useRouter();
     const [days, setDays] = useState(FOLLOW_UP_DEFAULT_DAYS);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
-    // Token of the in-flight send: a row id, "__bulk__", or null when idle.
     const [busy, setBusy] = useState<string | null>(null);
-    const BULK = "__bulk__";
 
-    // Orders quiet for at least `days`, oldest first.
-    const stale = useMemo(() => {
+    const rows = useMemo<FollowRow[]>(() => {
         const threshold = Math.max(0, days);
         return staleOrders
-            .map((o) => ({ ...o, daysStale: daysSince(o.lastActivityAt) }))
-            .filter((o) => o.daysStale >= threshold)
+            .map((order) => ({
+                order,
+                daysStale: daysSince(lastActivityOf(order)),
+                balance: order.totalAmount - order.amountPaid,
+            }))
+            .filter((r) => r.daysStale >= threshold)
             .sort((a, b) => b.daysStale - a.daysStale);
     }, [staleOrders, days]);
 
-    const visibleIds = stale.map((o) => o.id);
+    const visibleIds = rows.map((r) => r.order.id);
     const allSelected =
         visibleIds.length > 0 && visibleIds.every((id) => selectedIds.includes(id));
 
@@ -52,18 +81,13 @@ export function FollowUpPanel({ staleOrders }: FollowUpPanelProps) {
             ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]
         );
 
-    const toggleAll = () =>
-        setSelectedIds(allSelected ? [] : visibleIds);
+    const toggleAll = () => setSelectedIds(allSelected ? [] : visibleIds);
 
     const send = async (orderIds: string[], token: string) => {
         if (orderIds.length === 0) return;
         setBusy(token);
         const toastId = toast.loading("Sending follow-up…");
-        const res = await sendCustomEmailAction({
-            orderIds,
-            subject: FOLLOW_UP_SUBJECT,
-            bodyHtml: FOLLOW_UP_BODY,
-        });
+        const res = await sendFollowUpAction({ orderIds });
         if (res.success) {
             const n = res.sent ?? orderIds.length;
             toast.success(
@@ -95,10 +119,8 @@ export function FollowUpPanel({ staleOrders }: FollowUpPanelProps) {
                     />
                     <span className="text-rw-muted">
                         day{days === 1 ? "" : "s"} ·{" "}
-                        <span className="font-semibold text-rw-ink">
-                            {stale.length}
-                        </span>{" "}
-                        order{stale.length === 1 ? "" : "s"}
+                        <span className="font-semibold text-rw-ink">{rows.length}</span>{" "}
+                        order{rows.length === 1 ? "" : "s"}
                     </span>
                 </div>
 
@@ -115,90 +137,142 @@ export function FollowUpPanel({ staleOrders }: FollowUpPanelProps) {
                 )}
             </div>
 
-            {stale.length === 0 ? (
-                <div className="rounded-xl border border-(--rw-border) bg-rw-bg-alt/40 px-6 py-12 text-center">
-                    <p className="text-sm text-rw-muted">
-                        No stale orders — every pending order has had recent activity. 🎉
-                    </p>
-                </div>
-            ) : (
-                <div className="overflow-x-auto rounded-2xl border border-(--rw-border) bg-white">
-                    <table className="w-full text-sm">
-                        <thead className="bg-rw-bg-alt/50 border-b border-(--rw-border)">
-                            <tr className="text-left">
-                                <th className="px-4 py-3 w-10">
-                                    <input
-                                        type="checkbox"
-                                        checked={allSelected}
-                                        onChange={toggleAll}
-                                        aria-label="Select all"
-                                    />
-                                </th>
-                                {["Customer", "Status", "Stale for", "Balance", ""].map(
-                                    (h) => (
-                                        <th
-                                            key={h}
-                                            className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-rw-muted"
+            <AdminTable<FollowRow>
+                data={rows}
+                keyExtractor={(r) => r.order.id}
+                pageSize={PAGE_SIZE}
+                emptyMessage="No stale orders — every pending order has had recent activity. 🎉"
+                footer={
+                    rows.length > 0 ? (
+                        <span className="text-xs text-rw-muted">
+                            Reminders go out once a day per order — re-sending is allowed,
+                            but the count shows how many have already been sent.
+                        </span>
+                    ) : undefined
+                }
+                columns={[
+                    {
+                        key: "select",
+                        label: (
+                            <input
+                                type="checkbox"
+                                checked={allSelected}
+                                onChange={toggleAll}
+                                aria-label="Select all"
+                            />
+                        ),
+                        className: "w-10",
+                        render: (r) => (
+                            <input
+                                type="checkbox"
+                                checked={selectedIds.includes(r.order.id)}
+                                onChange={() => toggle(r.order.id)}
+                                aria-label={`Select ${r.order.customerName}`}
+                            />
+                        ),
+                    },
+                    {
+                        key: "ref",
+                        label: "Order",
+                        render: (r) => <OrderRefCell order={r.order} />,
+                    },
+                    {
+                        key: "customer",
+                        label: "Customer",
+                        render: (r) => (
+                            <div className="flex flex-col">
+                                <span className="font-bold text-rw-ink">
+                                    {r.order.customerName}
+                                </span>
+                                <span className="text-[10px] text-rw-muted truncate max-w-[200px]">
+                                    {r.order.customerEmail}
+                                </span>
+                            </div>
+                        ),
+                    },
+                    {
+                        key: "status",
+                        label: "Status",
+                        render: (r) => (
+                            <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700">
+                                {STATUS_LABELS[r.order.status] ?? r.order.status}
+                            </span>
+                        ),
+                    },
+                    {
+                        key: "stale",
+                        label: "Stale for",
+                        render: (r) => (
+                            <span className="text-rw-text-2 whitespace-nowrap">
+                                {r.daysStale} day{r.daysStale === 1 ? "" : "s"}
+                            </span>
+                        ),
+                    },
+                    {
+                        key: "followups",
+                        label: "Follow-ups",
+                        render: (r) => {
+                            const count = r.order.followUpCount;
+                            const last = r.order.lastFollowUpAt;
+                            if (count === 0)
+                                return <span className="text-rw-muted">—</span>;
+                            return (
+                                <div className="flex flex-col">
+                                    <span className="font-semibold text-rw-ink tabular-nums">
+                                        {count}× sent
+                                    </span>
+                                    {last && (
+                                        <span
+                                            className={`text-[10px] ${
+                                                sentToday(last)
+                                                    ? "text-amber-600 font-semibold"
+                                                    : "text-rw-muted"
+                                            }`}
                                         >
-                                            {h}
-                                        </th>
-                                    )
-                                )}
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-(--rw-border)">
-                            {stale.map((o) => (
-                                <tr
-                                    key={o.id}
-                                    className="hover:bg-rw-bg-alt/30 transition-colors"
-                                >
-                                    <td className="px-4 py-3">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedIds.includes(o.id)}
-                                            onChange={() => toggle(o.id)}
-                                            aria-label={`Select ${o.customerName}`}
-                                        />
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <p className="text-sm font-medium text-rw-ink">
-                                            {o.customerName}{" "}
-                                            <span className="font-mono text-xs text-rw-muted">
-                                                #{o.orderRef}
-                                            </span>
-                                        </p>
-                                        <p className="text-xs text-rw-muted truncate max-w-[220px]">
-                                            {o.customerEmail}
-                                        </p>
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700">
-                                            {STATUS_LABELS[o.status] ?? o.status}
+                                            {sentToday(last)
+                                                ? `sent ${timeAgo(last)}`
+                                                : timeAgo(last)}
                                         </span>
-                                    </td>
-                                    <td className="px-4 py-3 text-rw-text-2 whitespace-nowrap">
-                                        {o.daysStale} day{o.daysStale === 1 ? "" : "s"}
-                                    </td>
-                                    <td className="px-4 py-3 text-rw-ink tabular-nums whitespace-nowrap">
-                                        {naira(o.balance)}
-                                    </td>
-                                    <td className="px-4 py-3 text-right">
-                                        <button
-                                            onClick={() => send([o.id], o.id)}
-                                            disabled={busy !== null}
-                                            className="text-xs font-semibold text-rw-crimson hover:underline disabled:opacity-50 whitespace-nowrap"
-                                        >
-                                            {busy === o.id
-                                                ? "Sending…"
-                                                : "Send follow-up"}
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                                    )}
+                                </div>
+                            );
+                        },
+                    },
+                    {
+                        key: "balance",
+                        label: "Balance",
+                        align: "right",
+                        render: (r) => (
+                            <span className="font-display font-black text-rw-ink tabular-nums whitespace-nowrap">
+                                {naira(r.balance)}
+                            </span>
+                        ),
+                    },
+                    {
+                        key: "action",
+                        label: "",
+                        align: "right",
+                        render: (r) => (
+                            <button
+                                onClick={() => send([r.order.id], r.order.id)}
+                                disabled={busy !== null}
+                                className="text-xs font-semibold text-rw-crimson hover:underline disabled:opacity-50 whitespace-nowrap"
+                                title={
+                                    sentToday(r.order.lastFollowUpAt)
+                                        ? "A follow-up already went out today"
+                                        : undefined
+                                }
+                            >
+                                {busy === r.order.id
+                                    ? "Sending…"
+                                    : r.order.followUpCount > 0
+                                      ? "Send again"
+                                      : "Send follow-up"}
+                            </button>
+                        ),
+                    },
+                ]}
+            />
         </div>
     );
 }

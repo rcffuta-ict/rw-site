@@ -154,6 +154,8 @@ export function mapOrderFromDb(row: any): Order {
         amountPaid: row.amount_paid,
         items: Array.isArray(row.items) ? row.items.map(mapOrderItemFromDb) : [],
         payments: Array.isArray(row.payments) ? row.payments.map(mapPaymentFromDb) : [],
+        followUpCount: row.follow_up_count ?? 0,
+        lastFollowUpAt: row.last_follow_up_at ?? null,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
     });

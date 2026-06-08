@@ -1,5 +1,6 @@
 interface VariableChipProps {
   name: string;
+  /** Friendly label shown on the pill, e.g. "Order number". */
   desc: string;
   onInsert: (name: string) => void;
 }
@@ -7,11 +8,17 @@ interface VariableChipProps {
 export function VariableChip({ name, desc, onInsert }: VariableChipProps) {
   return (
     <button
-      onClick={() => onInsert(name)}
+      type="button"
+      onMouseDown={(e) => {
+        // Keep the editor's selection so the tag inserts at the caret.
+        e.preventDefault();
+        onInsert(name);
+      }}
       title={`Insert {{${name}}} — ${desc}`}
-      className="px-2.5 py-1 bg-rw-bg-alt border border-(--rw-border) rounded-md text-xs font-mono text-rw-text-2 hover:text-rw-ink hover:bg-white transition-colors"
+      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rw-crimson/10 text-rw-crimson border border-rw-crimson/15 text-xs font-medium hover:bg-rw-crimson/15 transition-colors"
     >
-      {"{{" + name + "}}"}
+      <span className="text-rw-crimson/50 font-bold leading-none">#</span>
+      {desc}
     </button>
   );
 }
