@@ -1,5 +1,6 @@
 import { ph } from "@/lib/utils/functions";
 import { TENURE, FELLOWSHIP } from "@/lib/config";
+import { ResponsiveSiteImage } from "@/components/ui/SiteImage";
 
 const AIMS = [
     {
@@ -34,13 +35,49 @@ const AIMS = [
     },
 ];
 
-// Three staggered photo placeholders with different colored tones
-const PHOTO_GRID = [
-    { w: 340, h: 280, label: "Fellowship Community", bg: "fdf0f0", fg: "FF0015" },
-    { w: 340, h: 280, label: "Praise & Worship", bg: "f0f0fd", fg: "5544cc" },
-    { w: 700, h: 220, label: "Campus Gathering", bg: "f0fdf0", fg: "022400" },
-    { w: 340, h: 240, label: "Word & Teaching", bg: "fdf8f0", fg: "cc6600" },
-    { w: 340, h: 240, label: "Prayer Night", bg: "fdf0fd", fg: "884499" },
+// Real Cloudinary photos (desktop + mobile variants). Campus Gathering has no
+// real asset yet, so it stays a placeholder.
+type PhotoSlot = {
+    desktopSrc?: string;
+    mobileSrc?: string;
+    alt: string;
+    w?: number;
+    h?: number;
+    label?: string;
+    bg?: string;
+    fg?: string;
+};
+
+const PHOTO_GRID: PhotoSlot[] = [
+    {
+        desktopSrc: "340X280_fellowship_community_znuzhc",
+        mobileSrc: "170x140_fellowship_community_la0lrf",
+        alt: "Fellowship community",
+    },
+    {
+        desktopSrc: "340X280_worship_n7oe10",
+        mobileSrc: "170x140_worship_ir1r9q",
+        alt: "Praise and worship",
+    },
+    {
+        // Placeholder — no real asset yet
+        w: 700,
+        h: 220,
+        label: "Campus Gathering",
+        bg: "f0fdf0",
+        fg: "022400",
+        alt: "Campus gathering",
+    },
+    {
+        desktopSrc: "340X240_bible_study_ozqi7d",
+        mobileSrc: "170x120_bible_study_gghmog",
+        alt: "Word and teaching",
+    },
+    {
+        desktopSrc: "340X240_prayer_night_i7e7kl",
+        mobileSrc: "170x120_prayer_night_cefyct",
+        alt: "Prayer night",
+    },
 ];
 
 export function AboutSection() {
@@ -64,60 +101,29 @@ export function AboutSection() {
 
                         {/* Photo collage — 5 images in an asymmetric stagger */}
                         <div className="mt-10 grid grid-cols-2 gap-3">
-                            <picture>
-                                <source
-                                    media="(max-width: 640px)"
-                                    srcSet={ph(
-                                        Math.round(PHOTO_GRID[0].w / 2),
-                                        Math.round(PHOTO_GRID[0].h / 2),
-                                        PHOTO_GRID[0].label,
-                                        PHOTO_GRID[0].bg,
-                                        PHOTO_GRID[0].fg
-                                    )}
+                            <div className="relative w-full h-44 rounded-2xl overflow-hidden hover-lift">
+                                <ResponsiveSiteImage
+                                    desktopSrc={PHOTO_GRID[0].desktopSrc!}
+                                    mobileSrc={PHOTO_GRID[0].mobileSrc!}
+                                    alt={PHOTO_GRID[0].alt}
                                 />
-                                <img
-                                    src={ph(
-                                        PHOTO_GRID[0].w,
-                                        PHOTO_GRID[0].h,
-                                        PHOTO_GRID[0].label,
-                                        PHOTO_GRID[0].bg,
-                                        PHOTO_GRID[0].fg
-                                    )}
-                                    alt="Fellowship community"
-                                    className="rounded-2xl object-cover w-full h-44 hover-lift"
-                                />
-                            </picture>
+                            </div>
 
-                            <picture>
-                                <source
-                                    media="(max-width: 640px)"
-                                    srcSet={ph(
-                                        Math.round(PHOTO_GRID[1].w / 2),
-                                        Math.round(PHOTO_GRID[1].h / 2),
-                                        PHOTO_GRID[1].label,
-                                        PHOTO_GRID[1].bg,
-                                        PHOTO_GRID[1].fg
-                                    )}
+                            <div className="relative w-full h-44 rounded-2xl overflow-hidden hover-lift mt-6">
+                                <ResponsiveSiteImage
+                                    desktopSrc={PHOTO_GRID[1].desktopSrc!}
+                                    mobileSrc={PHOTO_GRID[1].mobileSrc!}
+                                    alt={PHOTO_GRID[1].alt}
                                 />
-                                <img
-                                    src={ph(
-                                        PHOTO_GRID[1].w,
-                                        PHOTO_GRID[1].h,
-                                        PHOTO_GRID[1].label,
-                                        PHOTO_GRID[1].bg,
-                                        PHOTO_GRID[1].fg
-                                    )}
-                                    alt="Praise and worship"
-                                    className="rounded-2xl object-cover w-full h-44 hover-lift mt-6"
-                                />
-                            </picture>
+                            </div>
 
+                            {/* Campus Gathering — placeholder (no real asset yet) */}
                             <picture className="col-span-2">
                                 <source
                                     media="(max-width: 640px)"
                                     srcSet={ph(
-                                        Math.round(PHOTO_GRID[2].w / 2),
-                                        Math.round(PHOTO_GRID[2].h / 2),
+                                        Math.round(PHOTO_GRID[2].w! / 2),
+                                        Math.round(PHOTO_GRID[2].h! / 2),
                                         PHOTO_GRID[2].label,
                                         PHOTO_GRID[2].bg,
                                         PHOTO_GRID[2].fg
@@ -125,64 +131,32 @@ export function AboutSection() {
                                 />
                                 <img
                                     src={ph(
-                                        PHOTO_GRID[2].w,
-                                        PHOTO_GRID[2].h,
+                                        PHOTO_GRID[2].w!,
+                                        PHOTO_GRID[2].h!,
                                         PHOTO_GRID[2].label,
                                         PHOTO_GRID[2].bg,
                                         PHOTO_GRID[2].fg
                                     )}
-                                    alt="Campus gathering"
+                                    alt={PHOTO_GRID[2].alt}
                                     className="rounded-2xl object-cover w-full h-36 hover-lift"
                                 />
                             </picture>
 
-                            <picture>
-                                <source
-                                    media="(max-width: 640px)"
-                                    srcSet={ph(
-                                        Math.round(PHOTO_GRID[3].w / 2),
-                                        Math.round(PHOTO_GRID[3].h / 2),
-                                        PHOTO_GRID[3].label,
-                                        PHOTO_GRID[3].bg,
-                                        PHOTO_GRID[3].fg
-                                    )}
+                            <div className="relative w-full h-36 rounded-2xl overflow-hidden hover-lift">
+                                <ResponsiveSiteImage
+                                    desktopSrc={PHOTO_GRID[3].desktopSrc!}
+                                    mobileSrc={PHOTO_GRID[3].mobileSrc!}
+                                    alt={PHOTO_GRID[3].alt}
                                 />
-                                <img
-                                    src={ph(
-                                        PHOTO_GRID[3].w,
-                                        PHOTO_GRID[3].h,
-                                        PHOTO_GRID[3].label,
-                                        PHOTO_GRID[3].bg,
-                                        PHOTO_GRID[3].fg
-                                    )}
-                                    alt="Word and teaching"
-                                    className="rounded-2xl object-cover w-full h-36 hover-lift"
-                                />
-                            </picture>
+                            </div>
 
-                            <picture>
-                                <source
-                                    media="(max-width: 640px)"
-                                    srcSet={ph(
-                                        Math.round(PHOTO_GRID[4].w / 2),
-                                        Math.round(PHOTO_GRID[4].h / 2),
-                                        PHOTO_GRID[4].label,
-                                        PHOTO_GRID[4].bg,
-                                        PHOTO_GRID[4].fg
-                                    )}
+                            <div className="relative w-full h-36 rounded-2xl overflow-hidden hover-lift">
+                                <ResponsiveSiteImage
+                                    desktopSrc={PHOTO_GRID[4].desktopSrc!}
+                                    mobileSrc={PHOTO_GRID[4].mobileSrc!}
+                                    alt={PHOTO_GRID[4].alt}
                                 />
-                                <img
-                                    src={ph(
-                                        PHOTO_GRID[4].w,
-                                        PHOTO_GRID[4].h,
-                                        PHOTO_GRID[4].label,
-                                        PHOTO_GRID[4].bg,
-                                        PHOTO_GRID[4].fg
-                                    )}
-                                    alt="Prayer night"
-                                    className="rounded-2xl object-cover w-full h-36 hover-lift"
-                                />
-                            </picture>
+                            </div>
                         </div>
                     </div>
 
