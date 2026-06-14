@@ -12,7 +12,7 @@ export const NIGHTS = [
         name: "Word Night",
         unit: "Bible Study Unit",
         desc: "An evening of the undiluted Word. Hearts fed, faith built, doctrine grounded.",
-        img: "480X640_word_night_tsrup0",
+        img: "480X640_word_night_maptbp",
         thumb: "265x160_word_jdhxvb",
     },
     {
