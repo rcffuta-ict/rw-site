@@ -452,7 +452,7 @@ export function HeroSection() {
             {/* ── Root section ───────────────────────────────────────────── */}
             <section
                 ref={sectionRef}
-                className="hero-root hero-grain relative min-h-[100svh] overflow-hidden bg-[#0a0002]"
+                className="hero-root hero-grain relative -mt-16 min-h-[100svh] overflow-hidden bg-[#0a0002]"
             >
                 {/* background image */}
                 <div className="absolute inset-0 z-0">

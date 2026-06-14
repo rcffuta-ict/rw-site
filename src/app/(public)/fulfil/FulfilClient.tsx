@@ -2,6 +2,7 @@
 
 import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import type { Order } from "@/lib/data/types";
 
 import { LookupForm } from "./components/LookupForm";
@@ -13,6 +14,32 @@ import { PaymentTutorialModal } from "@/components/public/PaymentTutorialModal";
 import { PAYMENT_CONFIG } from "@/lib/config";
 import type { GlobalSettings } from "@/lib/services/settings.service";
 
+function WhatsAppIcon({ className = "w-5 h-5" }: { className?: string }) {
+    return (
+        <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden>
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+        </svg>
+    );
+}
+
+const NEXT_STEPS = [
+    {
+        n: "1",
+        title: "Transfer & upload",
+        desc: "Send your transfer to the account above, then upload your receipt right here on this page.",
+    },
+    {
+        n: "2",
+        title: "We verify it",
+        desc: "Our finance admin, Sis. Mercy, reviews every payment by hand — so approval isn't instant.",
+    },
+    {
+        n: "3",
+        title: "You're approved",
+        desc: "Once confirmed, your order status updates. Track it anytime under My Orders.",
+    },
+];
+
 function FulfilContent({ settings }: { settings: GlobalSettings }) {
     const params = useSearchParams();
     const router = useRouter();
@@ -21,7 +48,8 @@ function FulfilContent({ settings }: { settings: GlobalSettings }) {
     const [paymentStage, setPaymentStage] = useState<
         "idle" | "analysing" | "preview" | "done"
     >("idle");
-    const [countdown, setCountdown] = useState(3);
+    const REDIRECT_SECONDS = 6;
+    const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
     const [tutorialOpen, setTutorialOpen] = useState(false);
 
     useEffect(() => {
@@ -38,14 +66,14 @@ function FulfilContent({ settings }: { settings: GlobalSettings }) {
                     setPaymentStage("idle");
                     // Redirect to /fulfil
                     router.replace("/fulfil");
-                }, 3000);
+                }, REDIRECT_SECONDS * 1000);
 
                 return () => {
                     clearInterval(interval);
                     clearTimeout(timer);
                 };
             } else {
-                setCountdown(3);
+                setCountdown(REDIRECT_SECONDS);
             }
         })();
     }, [paymentStage, router]);
@@ -90,9 +118,16 @@ function FulfilContent({ settings }: { settings: GlobalSettings }) {
                     Payment Submitted!
                 </h1>
 
-                <p className="text-rw-muted font-medium text-lg max-w-[420px] mb-8 leading-relaxed">
-                    Your receipt has been successfully uploaded. Redemption Week
-                    administrators will review and approve it shortly.
+                <p className="text-rw-muted font-medium text-lg max-w-[460px] mb-4 leading-relaxed">
+                    Your receipt is uploaded and now{" "}
+                    <strong className="text-rw-ink">awaiting approval</strong>. Sis. Mercy
+                    reviews each payment by hand, so it may take a little while — you can
+                    track the status under{" "}
+                    <strong className="text-rw-ink">My Orders</strong>.
+                </p>
+                <p className="text-rw-muted/80 text-sm max-w-[420px] mb-8 leading-relaxed">
+                    No need to send your receipt anywhere else — we never collect receipts
+                    in DMs.
                 </p>
 
                 <div className="flex flex-col items-center gap-6 w-full max-w-sm">
@@ -100,7 +135,7 @@ function FulfilContent({ settings }: { settings: GlobalSettings }) {
                     <div className="w-48 h-1 bg-[var(--rw-border)] rounded-full overflow-hidden relative">
                         <div
                             className="h-full bg-emerald-500 transition-all duration-1000 ease-linear rounded-full"
-                            style={{ width: `${(countdown / 3) * 100}%` }}
+                            style={{ width: `${(countdown / REDIRECT_SECONDS) * 100}%` }}
                         />
                     </div>
 
@@ -194,67 +229,191 @@ function FulfilContent({ settings }: { settings: GlobalSettings }) {
                 onClose={() => setTutorialOpen(false)}
             />
 
-            {/* Support Contacts & Guide CTA */}
-            <div className="my-16 border-t border-[var(--rw-border)] pt-8 space-y-8">
-                {/* Guide CTA */}
-                <div className="rw-card p-6 md:p-8 bg-blue-50 border-l-4 border-l-blue-500">
-                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            {/* ── Guidance + Support ──────────────────────────────────────── */}
+            <div className="my-16 border-t border-[var(--rw-border)] pt-12 space-y-10">
+                {/* What happens next */}
+                <div>
+                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
                         <div>
-                            <p className="text-sm font-bold text-blue-600 uppercase tracking-widest mb-2">
-                                Need Help?
+                            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#FF6A00] mb-2">
+                                After your transfer
                             </p>
-                            <p className="text-rw-ink font-semibold">
-                                Check out our interactive tutorial to learn the payment
-                                process step-by-step.
-                            </p>
+                            <h3 className="font-display font-bold text-2xl text-rw-ink">
+                                What happens next?
+                            </h3>
                         </div>
                         <button
                             onClick={() => setTutorialOpen(true)}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap"
+                            className="inline-flex items-center gap-2 px-5 h-11 rounded-xl font-bold text-sm
+                                       border-2 border-rw-ink text-rw-ink bg-white
+                                       hover:bg-rw-ink hover:text-white transition-all whitespace-nowrap self-start sm:self-auto"
                         >
-                            View Tutorial
                             <svg
                                 className="w-4 h-4"
                                 fill="none"
                                 stroke="currentColor"
+                                strokeWidth={2}
                                 viewBox="0 0 24 24"
                             >
                                 <path
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M9 5l7 7-7 7"
+                                    d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
                                 />
                             </svg>
+                            Watch the walkthrough
                         </button>
+                    </div>
+
+                    <div data-reveal-group className="grid sm:grid-cols-3 gap-4">
+                        {NEXT_STEPS.map((s) => (
+                            <div
+                                key={s.n}
+                                data-reveal="up"
+                                className="rw-card p-5 flex flex-col gap-3"
+                            >
+                                <span className="h-9 w-9 rounded-xl bg-[#FF0015]/10 text-rw-crimson font-display font-extrabold flex items-center justify-center">
+                                    {s.n}
+                                </span>
+                                <div>
+                                    <p className="font-bold text-rw-ink text-sm mb-1">
+                                        {s.title}
+                                    </p>
+                                    <p className="text-sm text-rw-muted leading-relaxed">
+                                        {s.desc}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                {/* Support Contacts */}
-                <div className="text-center text-rw-muted text-sm font-medium">
-                    <p className="mb-3">
-                        Need help or facing issues with your payment? Contact our support
-                        team via WhatsApp:
-                    </p>
-                    <div className="flex flex-wrap items-center justify-center gap-3">
-                        {PAYMENT_CONFIG.supportContacts.map((c) => (
-                            <a
-                                key={c.phone}
-                                href={`https://wa.me/${c.phone}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 text-rw-ink hover:text-rw-crimson transition-colors bg-rw-surface-1 px-4 py-2 rounded-full border border-[var(--rw-border)] shadow-sm font-semibold"
+                {/* Manual approval + no-DM-receipts note */}
+                <div className="rounded-2xl border border-[#FF6A00]/30 bg-[#fff8f0] p-6 md:p-7">
+                    <div className="flex items-start gap-4">
+                        <span className="shrink-0 h-10 w-10 rounded-xl bg-[#FF6A00]/15 text-[#FF6A00] flex items-center justify-center">
+                            <svg
+                                className="h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={1.8}
+                                viewBox="0 0 24 24"
                             >
-                                <svg
-                                    className="w-5 h-5 text-green-500"
-                                    fill="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-                                </svg>
-                                {c.name}
-                            </a>
-                        ))}
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                />
+                            </svg>
+                        </span>
+                        <div className="min-w-0">
+                            <p className="font-bold text-rw-ink mb-1.5">
+                                Approvals are done manually — kindly be patient
+                            </p>
+                            <p className="text-sm text-rw-text-2 leading-relaxed">
+                                Once you upload your receipt, your payment joins a review
+                                queue. Our finance admin{" "}
+                                <strong className="text-rw-ink">Sis. Mercy</strong>{" "}
+                                verifies each one by hand, so it won&rsquo;t be approved
+                                instantly. If it&rsquo;s taking unusually long, message
+                                her on WhatsApp below and she&rsquo;ll help.
+                            </p>
+
+                            <div className="mt-4 rounded-xl bg-[#FF0015]/5 border border-[#FF0015]/15 p-4">
+                                <p className="text-sm font-bold text-rw-crimson flex items-center gap-2">
+                                    <span aria-hidden>⚠️</span>
+                                    We never collect payment receipts in DMs
+                                </p>
+                                <p className="text-sm text-rw-text-2 leading-relaxed mt-1.5">
+                                    Please upload your receipt here on this page —{" "}
+                                    <strong className="text-rw-ink">never</strong> send it
+                                    over WhatsApp or social media DMs. For the full
+                                    process, read our{" "}
+                                    <Link
+                                        href="/docs"
+                                        className="font-semibold text-rw-crimson underline underline-offset-2 hover:text-rw-ink transition-colors"
+                                    >
+                                        Payment Guide
+                                    </Link>{" "}
+                                    and{" "}
+                                    <Link
+                                        href="/terms"
+                                        className="font-semibold text-rw-crimson underline underline-offset-2 hover:text-rw-ink transition-colors"
+                                    >
+                                        Terms of Use
+                                    </Link>
+                                    .
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* WhatsApp contacts */}
+                <div>
+                    <p className="text-center text-sm text-rw-muted font-medium mb-4">
+                        Have a question or your approval is delayed? Reach our team on
+                        WhatsApp.
+                    </p>
+                    <div className="flex flex-col sm:flex-row items-stretch justify-center gap-3 max-w-2xl mx-auto">
+                        {/* Primary — Sis. Mercy (approvals) */}
+                        <a
+                            href={`https://wa.me/${PAYMENT_CONFIG.supportContacts[0].phone}?text=${encodeURIComponent(
+                                `Hi Sis. Mercy, I made a payment for my Redemption Week order (Ref: ${order.orderRef}) and wanted to follow up on the approval.`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex-1 flex items-center gap-3 rounded-2xl bg-[#1C0003] text-white px-5 py-4
+                                       shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                        >
+                            <span className="shrink-0 h-10 w-10 rounded-xl bg-[#25D366]/20 text-[#25D366] flex items-center justify-center">
+                                <WhatsAppIcon />
+                            </span>
+                            <span className="min-w-0">
+                                <span className="block text-[11px] font-semibold uppercase tracking-wider text-white/50">
+                                    Payment approvals
+                                </span>
+                                <span className="block font-bold leading-tight text-rw-bg-alt">
+                                    Chat with Sis. Mercy
+                                </span>
+                            </span>
+                            <svg
+                                className="ml-auto h-5 w-5 text-white/40 group-hover:text-white transition-colors shrink-0"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M9 5l7 7-7 7"
+                                />
+                            </svg>
+                        </a>
+
+                        {/* Secondary — technical help */}
+                        <a
+                            href={`https://wa.me/${PAYMENT_CONFIG.supportContacts[1].phone}?text=${encodeURIComponent(
+                                `Hi, I need technical help with my Redemption Week payment (Ref: ${order.orderRef}).`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex-1 flex items-center gap-3 rounded-2xl bg-white text-rw-ink px-5 py-4
+                                       border border-[var(--rw-border)] shadow-sm hover:border-rw-ink hover:-translate-y-0.5 transition-all"
+                        >
+                            <span className="shrink-0 h-10 w-10 rounded-xl bg-[#25D366]/15 text-[#25D366] flex items-center justify-center">
+                                <WhatsAppIcon />
+                            </span>
+                            <span className="min-w-0">
+                                <span className="block text-[11px] font-semibold uppercase tracking-wider text-rw-muted">
+                                    Technical help
+                                </span>
+                                <span className="block font-bold leading-tight">
+                                    ICT Support
+                                </span>
+                            </span>
+                        </a>
                     </div>
                 </div>
             </div>

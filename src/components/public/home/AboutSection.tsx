@@ -75,21 +75,29 @@ export function AboutSection() {
             <div className="section-container">
                 <div className="grid lg:grid-cols-2 gap-16 xl:gap-24 items-start">
                     {/* Left: images + intro */}
-                    <div>
-                        <p className="eyebrow mb-4">Why We Gather</p>
-                        <h2 className="section-heading text-3xl sm:text-4xl lg:text-5xl">
+                    <div data-reveal-group>
+                        <p data-reveal="up" className="eyebrow mb-4">
+                            Why We Gather
+                        </p>
+                        <h2
+                            data-reveal="up"
+                            className="section-heading text-3xl sm:text-4xl lg:text-5xl"
+                        >
                             The heart of
                             <br />
                             <span className="text-[#FF0015]">Redemption Week</span>
                         </h2>
-                        <p className="mt-5 text-rw-text-2 leading-relaxed text-lg max-w-[44ch]">
+                        <p
+                            data-reveal="up"
+                            className="mt-5 text-rw-text-2 leading-relaxed text-lg max-w-[44ch]"
+                        >
                             The Redeemed Christian Fellowship, FUTA — shaping hearts and
                             lives since {FELLOWSHIP.founded}. A spiritual home, a family,
                             a legacy.
                         </p>
 
                         {/* Photo collage — 5 images in an asymmetric stagger */}
-                        <div className="mt-10 grid grid-cols-2 gap-3">
+                        <div data-reveal="up" className="mt-10 grid grid-cols-2 gap-3">
                             <div className="relative w-full h-44 rounded-2xl overflow-hidden hover-lift">
                                 <ResponsiveSiteImage
                                     desktopSrc={PHOTO_GRID[0].desktopSrc!}
@@ -138,10 +146,11 @@ export function AboutSection() {
                     {/* Right: aims list */}
                     <div>
                         <p className="eyebrow mb-8">Our Five Aims</p>
-                        <ul className="flex flex-col">
+                        <ul data-reveal-group className="flex flex-col">
                             {AIMS.map((a) => (
                                 <li
                                     key={a.title}
+                                    data-reveal="up"
                                     className="group flex gap-6 py-7 border-b border-[#e8d0d4] last:border-0
                                                hover:bg-[#fdf8f8] -mx-4 px-4 rounded-xl transition-colors duration-200"
                                 >

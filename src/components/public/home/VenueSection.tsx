@@ -201,10 +201,11 @@ export function VenueSection() {
                     {/* Directions */}
                     <div>
                         <p className="eyebrow mb-6">How to Get Here</p>
-                        <div className="flex flex-col gap-4">
+                        <div data-reveal-group className="flex flex-col gap-4">
                             {HOW_TO_GET_THERE.map((d) => (
                                 <div
                                     key={d.title}
+                                    data-reveal="up"
                                     className="group flex gap-4 rounded-2xl border border-[#e8d0d4] bg-white p-6
                                                hover:border-[#FF0015]/30 hover:shadow-md transition-all duration-300"
                                 >
