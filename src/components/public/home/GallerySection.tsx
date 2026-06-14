@@ -375,10 +375,7 @@ export function GallerySection() {
 
             {/* Heading */}
             <div className="section-container pb-12! relative z-10">
-                <div
-                    data-reveal="up"
-                    className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6"
-                >
+                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
                     <div>
                         <p className="eyebrow mb-4 !text-[#FF6A00]">The Archives</p>
                         <h2 className="section-heading text-4xl sm:text-5xl lg:text-6xl text-white">

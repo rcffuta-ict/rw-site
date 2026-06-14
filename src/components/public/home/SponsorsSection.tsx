@@ -89,10 +89,7 @@ export function SponsorsSection() {
                     </div>
 
                     {/* Stats row */}
-                    <div
-                        data-reveal-group
-                        className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-20"
-                    >
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-20">
                         {[
                             { value: FELLOWSHIP.stats.alumni, label: "Alumni Network" },
                             { value: FELLOWSHIP.stats.members, label: "Active Members" },
@@ -101,7 +98,6 @@ export function SponsorsSection() {
                         ].map((s) => (
                             <div
                                 key={s.label}
-                                data-reveal="scale"
                                 className="rounded-2xl border border-[#e8d0d4] bg-[#fdf8f8] px-5 py-6 text-center"
                             >
                                 <p className="font-display font-extrabold text-3xl text-[#FF0015] mb-1">
@@ -115,14 +111,10 @@ export function SponsorsSection() {
                     </div>
 
                     {/* Why Support */}
-                    <div
-                        data-reveal-group
-                        className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-20"
-                    >
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-20">
                         {WHY_SUPPORT.map((w) => (
                             <div
                                 key={w.title}
-                                data-reveal="up"
                                 className="rounded-2xl border border-[#e8d0d4] bg-white p-6 hover:shadow-md hover:border-[#FF0015]/20 transition-all"
                             >
                                 <span className="text-3xl block mb-4">{w.icon}</span>

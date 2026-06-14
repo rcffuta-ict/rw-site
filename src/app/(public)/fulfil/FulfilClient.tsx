@@ -265,11 +265,10 @@ function FulfilContent({ settings }: { settings: GlobalSettings }) {
                         </button>
                     </div>
 
-                    <div data-reveal-group className="grid sm:grid-cols-3 gap-4">
+                    <div className="grid sm:grid-cols-3 gap-4">
                         {NEXT_STEPS.map((s) => (
                             <div
                                 key={s.n}
-                                data-reveal="up"
                                 className="rw-card p-5 flex flex-col gap-3"
                             >
                                 <span className="h-9 w-9 rounded-xl bg-[#FF0015]/10 text-rw-crimson font-display font-extrabold flex items-center justify-center">

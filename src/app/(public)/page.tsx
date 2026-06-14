@@ -16,10 +16,7 @@ export default async function LandingPage() {
     const products = await getProducts();
 
     return (
-        // -mt-16 pulls the hero up under the sticky header so the transparent
-        // header overlays the hero (header height = h-16). The header restores
-        // its solid background once you scroll past the hero.
-        <>
+        <div className="bg-white overflow-x-hidden">
             <HeroSection />
             <StatsSection />
             <MarqueeSection />
@@ -46,6 +43,6 @@ export default async function LandingPage() {
             <VenueSection />
             <SponsorsSection />
             <CtaBannerSection />
-        </>
+        </div>
     );
 }

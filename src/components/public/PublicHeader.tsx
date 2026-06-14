@@ -21,8 +21,6 @@ export function PublicHeader() {
     const { itemCount, openCart } = useCart();
     const [open, setOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
-    // True while the header is still floating over the page's hero section.
-    const [overHero, setOverHero] = useState(false);
 
     useEffect(() => {
         (() => {
@@ -30,51 +28,11 @@ export function PublicHeader() {
         })();
     }, [pathname]);
 
-    // useEffect(() => {
-    //     // Re-query each time: the hero belongs to an async (streamed) server
-    //     // component, so it may not be in the DOM yet when this effect first runs.
-    //     const compute = () => {
-    //         const hero = document.querySelector<HTMLElement>(".hero-root");
-    //         const y = window.scrollY;
-    //         setScrolled(y > 8);
-    //         // Transparent only while the header overlaps the hero. Switch to the
-    //         // solid treatment a little before the hero fully exits for a smooth feel.
-    //         console.log("Scrolling", {
-    //             hero,
-    //         });
-    //         if (hero) {
-    //             const heroBottom = hero.offsetTop + hero.offsetHeight;
-    //             setOverHero(y < heroBottom - 72);
-    //         } else {
-    //             setOverHero(false);
-    //         }
-    //     };
-
-    //     compute();
-    //     window.addEventListener("scroll", compute, { passive: true });
-    //     window.addEventListener("resize", compute);
-
-    //     // The hero can stream into the DOM after this effect runs, so recompute
-    //     // whenever the document changes — stop once it's found (scroll/resize
-    //     // keep it in sync after that), or after a short grace period.
-    //     const mo = new MutationObserver(() => {
-    //         compute();
-    //         if (document.querySelector(".hero-root")) mo.disconnect();
-    //     });
-    //     mo.observe(document.body, { childList: true, subtree: true });
-    //     const stopWatching = window.setTimeout(() => mo.disconnect(), 4000);
-
-    //     return () => {
-    //         window.removeEventListener("scroll", compute);
-    //         window.removeEventListener("resize", compute);
-    //         mo.disconnect();
-    //         window.clearTimeout(stopWatching);
-    //     };
-    // }, [pathname]);
-
-    // While the mobile menu is open we always show the solid header so the
-    // dropdown panel reads cleanly.
-    const light = overHero && !open;
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 8);
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     const isActive = (href: string) => {
         if (href.includes("#")) return false; // anchor links never get active state
@@ -87,15 +45,12 @@ export function PublicHeader() {
 
     return (
         <header
-            className={`sticky top-0 z-50 transition-all duration-500 ease-out ${
-                light
-                    ? "bg-transparent border-b border-transparent"
-                    : `bg-white/95 backdrop-blur-md border-b border-[#e8d0d4] ${scrolled ? "shadow-sm" : ""}`
-            }`}
+            className={`sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#e8d0d4]
+                        transition-all duration-200 ${scrolled ? "shadow-sm" : ""}`}
         >
             <div className="section-container flex h-16 items-center justify-between gap-4">
                 {/* Identity / Logo */}
-                <Identity dark={light} />
+                <Identity />
 
                 {/* Desktop nav */}
                 <nav className="hidden lg:flex items-center gap-0.5" aria-label="Primary">
@@ -105,22 +60,17 @@ export function PublicHeader() {
                             href={l.href}
                             className={`relative rounded-lg px-3.5 py-2 text-[13px] font-medium transition-colors ${
                                 isActive(l.href)
-                                    ? light
-                                        ? "text-white font-semibold bg-white/10"
-                                        : "text-[#FF0015] font-semibold bg-[#FF0015]/5"
-                                    : light
-                                      ? "text-white/80 hover:text-white hover:bg-white/10"
-                                      : l.href === "/#support"
-                                        ? "text-[#FF0015]/80 hover:text-[#FF0015] hover:bg-[#FF0015]/5"
-                                        : "text-[#5c4048] hover:text-[#1C0003] hover:bg-[#fdf8f8]"
+                                    ? "text-[#FF0015] font-semibold bg-[#FF0015]/5"
+                                    : l.href === "/#support"
+                                      ? "text-[#FF0015]/80 hover:text-[#FF0015] hover:bg-[#FF0015]/5"
+                                      : "text-[#5c4048] hover:text-[#1C0003] hover:bg-[#fdf8f8]"
                             }`}
                         >
                             {l.label}
                             {isActive(l.href) && (
                                 <span
-                                    className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-4 rounded-full ${
-                                        light ? "bg-white" : "bg-[#FF0015]"
-                                    }`}
+                                    className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-4
+                                                 bg-[#FF0015] rounded-full"
                                 />
                             )}
                         </Link>
@@ -137,9 +87,7 @@ export function PublicHeader() {
                         className={`relative rounded-lg p-2.5 transition-colors ${
                             isCheckoutActive
                                 ? "text-[#FF0015] bg-[#fff0f0]"
-                                : light
-                                  ? "text-white hover:bg-white/10"
-                                  : "text-[#5c4048] hover:text-[#1C0003] hover:bg-[#fdf8f8]"
+                                : "text-[#5c4048] hover:text-[#1C0003] hover:bg-[#fdf8f8]"
                         }`}
                     >
                         <svg
@@ -173,9 +121,7 @@ export function PublicHeader() {
                         className={`hidden sm:inline-flex h-9 items-center gap-1.5 rounded-lg border px-4 text-[13px] font-semibold transition-all ${
                             isOrdersActive
                                 ? "border-[#FF0015] bg-[#fff0f0] text-[#FF0015]"
-                                : light
-                                  ? "border-white/30 bg-white/10 text-white hover:bg-white/20 hover:border-white/50"
-                                  : "border-[#e8d0d4] bg-white text-[#1C0003] hover:border-[#FF0015] hover:text-[#FF0015]"
+                                : "border-[#e8d0d4] bg-white text-[#1C0003] hover:border-[#FF0015] hover:text-[#FF0015]"
                         }`}
                     >
                         <svg
@@ -197,11 +143,7 @@ export function PublicHeader() {
 
                     {/* Hamburger — mobile */}
                     <button
-                        className={`lg:hidden rounded-lg p-2 transition-colors ${
-                            light
-                                ? "text-white hover:bg-white/10"
-                                : "text-[#5c4048] hover:text-[#1C0003] hover:bg-[#fdf8f8]"
-                        }`}
+                        className="lg:hidden rounded-lg p-2 text-[#5c4048] hover:text-[#1C0003] hover:bg-[#fdf8f8] transition-colors"
                         onClick={() => setOpen((o) => !o)}
                         aria-label="Toggle menu"
                         aria-expanded={open}

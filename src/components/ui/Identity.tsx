@@ -59,7 +59,7 @@ export function Identity({
                     className={`${rcfLogoH} w-auto flex items-center justify-center group-hover:scale-[1.03] transition-transform duration-300 ease-out`}
                 >
                     <img
-                        src={isDark ? LOGOS.rcfFutaLight : LOGOS.rcfFutaMix}
+                        src={LOGOS.rcfFutaMix}
                         alt="RCF FUTA Corporate Logo"
                         className="h-full w-auto object-cover filter max-w-none antialiased"
                     />

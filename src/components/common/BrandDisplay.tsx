@@ -24,7 +24,6 @@ const BRAND_LOGOS = [
 export function BrandDisplay({ className = "", center = true }: BrandDisplayProps) {
     return (
         <div
-            data-reveal-group
             className={clsx(
                 "flex flex-wrap items-center gap-x-6 gap-y-5 md:gap-x-12",
                 center ? "justify-center" : "justify-center sm:justify-start",
@@ -34,7 +33,6 @@ export function BrandDisplay({ className = "", center = true }: BrandDisplayProp
             {BRAND_LOGOS.map((l) => (
                 <img
                     key={l.alt}
-                    data-reveal="up"
                     src={l.src}
                     alt={l.alt}
                     loading="lazy"
