@@ -17,13 +17,13 @@ const LOGO_ASSETS: LogoAsset[] = [
         name: "Redemption Week 2026",
         desc: "Primary event logo. Use for all RW '26 communications.",
         src: LOGOS.redemptionWeek,
-        surface: "dark",
+        surface: "light",
     },
     {
         name: "38th Anniversary Mark",
         desc: "Commemorative anniversary stamp for the 2026 tenure.",
         src: LOGOS.anniversary,
-        surface: "dark",
+        surface: "light",
     },
     {
         name: "RCF FUTA — Dark",
@@ -182,7 +182,9 @@ export function BrandAssetsClient() {
                                 >
                                     <span
                                         className={`text-[11px] font-bold uppercase tracking-wider ${
-                                            c.onDark ? "text-white/80" : "text-[#1C0003]/60"
+                                            c.onDark
+                                                ? "text-white/80"
+                                                : "text-[#1C0003]/60"
                                         }`}
                                     >
                                         {c.name}

@@ -1,45 +1,46 @@
 import { LOGOS } from "@/lib/config";
 import { clsx } from "clsx";
+import Image from "next/image";
 
 type BrandDisplayProps = {
     /** Optional className for the container */
     className?: string;
-    center?: boolean; // if true, centers the logos; otherwise, left-aligns
+    /** If true, centers the logos on all sizes; otherwise left-aligns from sm up. */
+    center?: boolean;
 };
+
+const BRAND_LOGOS = [
+    { src: LOGOS.rcfFutaMix, alt: "RCF FUTA", h: "h-20 md:h-25 w-auto md:w-30!" },
+    {
+        src: LOGOS.crm,
+        alt: "Christ the Redeemer's Ministries",
+        h: "h-12 md:h-20 w-auto",
+    },
+    { src: LOGOS.tenureIcon, alt: "The Lord's Witnesses", h: "h-12 md:h-20 w-auto" },
+    { src: LOGOS.redemptionWeek, alt: "Redemption Week '26", h: "h-12 md:h-20 w-auto" },
+    { src: LOGOS.anniversary, alt: "38th Anniversary", h: "h-12 md:h-20 w-auto" },
+];
 
 export function BrandDisplay({ className = "", center = true }: BrandDisplayProps) {
     return (
         <div
             className={clsx(
-                "flex items-center gap-6 sm:gap-14 overflow-x-auto scrollbar-hide pb-2 flex-nowrap sm:flex-wrap px-2 sm:px-0",
-                className,
-                center ? "justify-center" : "justify-start"
+                "flex flex-wrap items-center gap-x-6 gap-y-5 md:gap-x-12",
+                center ? "justify-center" : "justify-center sm:justify-start",
+                className
             )}
         >
-            {[
-                { src: LOGOS.rcfFutaMix, alt: "RCF FUTA", h: "h-14 md:h-20" },
-                { src: LOGOS.crm, alt: "Christ the Redeemers'", h: "h-9" },
-                {
-                    src: LOGOS.tenureIcon,
-                    alt: "The Lord's Witnesses",
-                    h: "h-10",
-                },
-                {
-                    src: LOGOS.redemptionWeek,
-                    alt: "Redemption Week '26",
-                    h: "h-12",
-                },
-                {
-                    src: LOGOS.anniversary,
-                    alt: "38th Anniversary",
-                    h: "h-12",
-                },
-            ].map((l) => (
+            {BRAND_LOGOS.map((l) => (
                 <img
                     key={l.alt}
                     src={l.src}
                     alt={l.alt}
-                    className={`${l.h} w-auto object-cover opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0`}
+                    loading="lazy"
+                    className={clsx(
+                        l.h,
+                        "object-cover opacity-90 transition-all duration-300",
+                        "hover:opacity-100 hover:-translate-y-0.5"
+                    )}
                 />
             ))}
         </div>

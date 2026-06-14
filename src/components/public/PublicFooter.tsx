@@ -87,9 +87,12 @@ export function PublicFooter() {
         <footer className="bg-rw-bg-warm border-t border-[#e8d0d4] text-[#1C0003] print:hidden">
             {/* ── Top brand band ─────────────────────────────────────────────── */}
             <div className="border-b border-[#e8d0d4]">
-                <div className="section-container !pt-6 lg:pt-16 !pb-10 !lg:pb-12 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-8 text-center lg:text-left">
+                <div className="section-container py-6! flex flex-col lg:flex-row items-center justify-between gap-x-8 text-center lg:text-left">
                     <Identity className="justify-center lg:justify-start" />
-                    <BrandDisplay />
+
+                    <div className="hidden md:block">
+                        <BrandDisplay />
+                    </div>
                 </div>
             </div>
 
