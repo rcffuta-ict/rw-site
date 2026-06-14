@@ -22,6 +22,7 @@ const QUICK_LINKS = [
     { href: "/fulfil", label: "Pay an Order" },
     { href: "/orders", label: "My Orders" },
     { href: "/docs", label: "How to Order" },
+    { href: "/brand-assets", label: "Brand & Media Kit" },
     { href: "/terms", label: "Terms of Service" },
     { href: "/privacy", label: "Privacy Policy" },
     // { href: "/admin", label: "Admin Dashboard" },

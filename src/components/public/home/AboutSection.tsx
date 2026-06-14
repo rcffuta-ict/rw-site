@@ -1,4 +1,3 @@
-import { ph } from "@/lib/utils/functions";
 import { TENURE, FELLOWSHIP } from "@/lib/config";
 import { ResponsiveSiteImage } from "@/components/ui/SiteImage";
 
@@ -35,17 +34,11 @@ const AIMS = [
     },
 ];
 
-// Real Cloudinary photos (desktop + mobile variants). Campus Gathering has no
-// real asset yet, so it stays a placeholder.
+// Real Cloudinary photos (desktop + mobile variants).
 type PhotoSlot = {
-    desktopSrc?: string;
-    mobileSrc?: string;
+    desktopSrc: string;
+    mobileSrc: string;
     alt: string;
-    w?: number;
-    h?: number;
-    label?: string;
-    bg?: string;
-    fg?: string;
 };
 
 const PHOTO_GRID: PhotoSlot[] = [
@@ -60,12 +53,8 @@ const PHOTO_GRID: PhotoSlot[] = [
         alt: "Praise and worship",
     },
     {
-        // Placeholder — no real asset yet
-        w: 700,
-        h: 220,
-        label: "Campus Gathering",
-        bg: "f0fdf0",
-        fg: "022400",
+        desktopSrc: "700X220_campus_gathering_vy3p1t",
+        mobileSrc: "350x110_campus_gathering_wjngjl",
         alt: "Campus gathering",
     },
     {
@@ -117,36 +106,22 @@ export function AboutSection() {
                                 />
                             </div>
 
-                            {/* Campus Gathering — placeholder (no real asset yet) */}
-                            <picture className="col-span-2">
-                                <source
-                                    media="(max-width: 640px)"
-                                    srcSet={ph(
-                                        Math.round(PHOTO_GRID[2].w! / 2),
-                                        Math.round(PHOTO_GRID[2].h! / 2),
-                                        PHOTO_GRID[2].label,
-                                        PHOTO_GRID[2].bg,
-                                        PHOTO_GRID[2].fg
-                                    )}
-                                />
-                                <img
-                                    src={ph(
-                                        PHOTO_GRID[2].w!,
-                                        PHOTO_GRID[2].h!,
-                                        PHOTO_GRID[2].label,
-                                        PHOTO_GRID[2].bg,
-                                        PHOTO_GRID[2].fg
-                                    )}
+                            {/* Campus Gathering — full-width banner */}
+                            <div className="col-span-2 relative w-full h-36 rounded-2xl overflow-hidden hover-lift">
+                                <ResponsiveSiteImage
+                                    desktopSrc={PHOTO_GRID[2].desktopSrc!}
+                                    mobileSrc={PHOTO_GRID[2].mobileSrc!}
                                     alt={PHOTO_GRID[2].alt}
-                                    className="rounded-2xl object-cover w-full h-36 hover-lift"
+                                    imageTop
                                 />
-                            </picture>
+                            </div>
 
                             <div className="relative w-full h-36 rounded-2xl overflow-hidden hover-lift">
                                 <ResponsiveSiteImage
                                     desktopSrc={PHOTO_GRID[3].desktopSrc!}
                                     mobileSrc={PHOTO_GRID[3].mobileSrc!}
                                     alt={PHOTO_GRID[3].alt}
+                                    imageTop
                                 />
                             </div>
 

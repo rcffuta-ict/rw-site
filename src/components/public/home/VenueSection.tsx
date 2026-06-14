@@ -64,7 +64,7 @@ const HOW_TO_GET_THERE = [
 const QUICK_FACTS = [
     { label: "Entry", value: "Free — All 7 Nights" },
     { label: "Time", value: "6:00 PM Daily" },
-    { label: "Dates", value: "July 6–12, 2026" },
+    { label: "Dates", value: "July 13–19, 2026" },
     { label: "Venue", value: "Southgate Auditorium" },
 ];
 
