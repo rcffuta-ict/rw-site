@@ -135,6 +135,30 @@ async function render(row: any) {
     if (row.mode === "custom") {
         if (!row.subject || !row.body_html)
             throw new Error("Custom email missing subject/body");
+
+        // Several selected orders that share this email were combined into one
+        // send: render the message ONCE with merged variables — {{order_ref}}
+        // lists every ref, {{items_html}} renders one captioned table per order
+        // (so items stay attributed), and the money fields are summed.
+        const orderIds: string[] = Array.isArray(row.order_ids) ? row.order_ids : [];
+        if (orderIds.length > 1) {
+            const orders = (await Promise.all(orderIds.map(fetchOrder))).filter(
+                Boolean
+            );
+            if (orders.length > 1) {
+                const combinedVars = buildCombinedVariables(orders);
+                return {
+                    subject: injectVars(row.subject, combinedVars),
+                    html: wrapInEmailShell(
+                        injectVars(row.body_html, combinedVars),
+                        joinRefsForFooter(orders)
+                    ),
+                    recipient,
+                    recipientName: orders[0].customer_name || recipientName,
+                };
+            }
+        }
+
         return {
             subject: injectVars(row.subject, vars),
             html: wrapInEmailShell(injectVars(row.body_html, vars), orderRef),
@@ -186,6 +210,35 @@ function buildVariables(order: any): Record<string, string> {
     };
 }
 
+/**
+ * Merged variables for a combined send (several selected orders, one email):
+ * every order ref listed together, the money fields summed, and one captioned
+ * items table per order so items stay attributed to the right order.
+ */
+function buildCombinedVariables(orders: any[]): Record<string, string> {
+    const totalAmount = orders.reduce((s, o) => s + (o.total_amount || 0), 0);
+    const amountPaid = orders.reduce((s, o) => s + (o.amount_paid || 0), 0);
+    return {
+        customer_name: orders[0]?.customer_name || "",
+        // Joined as "FF3A9C, #AB12CD" — injectVars adds the leading "#" so the
+        // result reads "#FF3A9C, #AB12CD" (and legacy "#{{order_ref}}" templates
+        // stay correct too).
+        order_ref: orders.map((o) => o.order_ref || "").join(", #"),
+        total_amount: naira(totalAmount),
+        amount_paid: naira(amountPaid),
+        balance: naira(totalAmount - amountPaid),
+        items_html: orders
+            .map((o) => buildItemsHtml(o.items || [], o.order_ref || ""))
+            .join(""),
+    };
+}
+
+/** Footer reference for a combined send, e.g. "FF3A9C, #AB12CD" (the shell
+ * prefixes the leading "#"). */
+function joinRefsForFooter(orders: any[]): string {
+    return orders.map((o) => o.order_ref || "").join(", #");
+}
+
 // ─── Formatting helpers ──────────────────────────────────────────────────────
 
 function json(body: unknown, status: number): Response {
@@ -207,12 +260,51 @@ function naira(amount: number): string {
     return `₦${formatNaira(amount)}`;
 }
 
-function injectVars(template: string, vars: Record<string, string>): string {
-    return template.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? `{{${key}}}`);
+/**
+ * Force every link in the email body to be brand-coloured + underlined. Email
+ * clients ignore CSS classes/stylesheets, so the style must be inline on each
+ * <a> — this covers links from templates or raw HTML, not just ones inserted
+ * via the editor (which already carry the style).
+ */
+const LINK_STYLE = "color:#FF0015;text-decoration:underline;";
+function styleLinks(html: string): string {
+    return html.replace(/<a\b([^>]*)>/gi, (_full, attrs: string) => {
+        if (/\bstyle\s*=/i.test(attrs)) {
+            // Merge into the existing style attribute (don't clobber it).
+            return `<a${attrs.replace(
+                /\bstyle\s*=\s*"([^"]*)"/i,
+                (_m, s: string) => `style="${s};${LINK_STYLE}"`
+            )}>`;
+        }
+        return `<a${attrs} style="${LINK_STYLE}">`;
+    });
 }
 
-function buildItemsHtml(items: any[]): string {
+function injectVars(template: string, vars: Record<string, string>): string {
+    return template.replace(
+        /\{\{(\w+)\}\}/g,
+        (match: string, key: string, offset: number, source: string) => {
+            const value = vars[key];
+            if (value === undefined) return match;
+            // Order refs are stored bare (e.g. FF3A9C) but shown with a leading
+            // "#". Add it automatically — unless the author already typed one
+            // right before the token (e.g. legacy "#{{order_ref}}") so we never
+            // double it up.
+            if (key === "order_ref" && value && source[offset - 1] !== "#") {
+                return `#${value}`;
+            }
+            return value;
+        }
+    );
+}
+
+function buildItemsHtml(items: any[], caption?: string): string {
     if (!items?.length) return "";
+
+    // Used in combined sends to label which order a table belongs to.
+    const heading = caption
+        ? `<p style="margin:24px 0 4px; font-size:13px; font-weight:700; color:#1C0003;">Order #${caption}</p>`
+        : "";
 
     const rows = items
         .map(
@@ -234,8 +326,8 @@ function buildItemsHtml(items: any[]): string {
         )
         .join("");
 
-    return `
-    <table style="width:100%; border-collapse:collapse; margin:24px 0; font-size:14px; table-layout:fixed;">
+    return `${heading}
+    <table style="width:100%; border-collapse:collapse; margin:${caption ? "4px" : "24px"} 0 24px; font-size:14px; table-layout:fixed;">
       <thead>
         <tr style="background:#fdf5f5;">
           <th style="padding:12px 8px; text-align:left; color:#5c4048; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Item</th>
@@ -310,7 +402,7 @@ function wrapInEmailShell(bodyContent: string, orderRef?: string): string {
           <!-- BODY -->
           <tr>
             <td style="padding:26px 20px; color:#1C0003; font-size:15.5px; line-height:26px;">
-              ${bodyContent}
+              ${styleLinks(bodyContent)}
             </td>
           </tr>
 
@@ -338,7 +430,7 @@ function wrapInEmailShell(bodyContent: string, orderRef?: string): string {
                     on the
                     <a
                         href="https://rw.rcffuta.com"
-                        className="text-rw-crimson hover:underline"
+                        style="color:#FF0015;text-decoration:underline;"
                     >
                         Redemption Week platform
                     </a>

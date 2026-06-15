@@ -66,7 +66,8 @@ export function EmailPreview({ subject, bodyHtml }: EmailPreviewProps) {
                        [&_p]:my-3 [&_strong]:font-semibold
                        [&_h2]:text-xl [&_h2]:font-bold [&_h2]:my-4
                        [&_table]:w-full [&_th]:text-left
-                       [&_td]:py-3"
+                       [&_td]:py-3
+                       [&_a]:text-rw-crimson [&_a]:underline"
                         dangerouslySetInnerHTML={{
                             __html: body || "<p><em>No content yet.</em></p>",
                         }}

@@ -2,11 +2,14 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/forms/Input";
 import {
     RichTextEditor,
     type EditorVariable,
 } from "@/components/ui/forms/RichTextEditor";
+import {
+    PillInput,
+    type PillInputHandle,
+} from "@/components/ui/forms/richtext/PillInput";
 import { SidebarItem, VariableChip, PreviewPane } from "./components";
 import { TEMPLATES, VARIABLES, DEFAULT_SUBJECTS, DEFAULT_BODIES } from "./constants";
 import { saveEmailTemplateAction } from "@/app/actions/email-templates";
@@ -27,7 +30,7 @@ interface TemplateState {
 
 const VARIABLE_LABELS: Record<string, string> = {
     customer_name: "Customer name",
-    order_ref: "Order number",
+    order_ref: "Order Reference",
     total_amount: "Order total",
     amount_paid: "Amount paid",
     balance: "Balance left",
@@ -65,7 +68,7 @@ export function TemplatesPanel({ initialTemplates, loadError }: TemplatesPanelPr
     const [dirty, setDirty] = useState<Record<string, boolean>>({});
     const [savingKey, setSavingKey] = useState<string | null>(null);
     const [view, setView] = useState<ViewMode>("split");
-    const subjectRef = useRef<HTMLInputElement>(null);
+    const subjectPillRef = useRef<PillInputHandle>(null);
 
     const current = templates[activeKey];
     const activeTemplate = TEMPLATES.find((t) => t.key === activeKey);
@@ -85,25 +88,10 @@ export function TemplatesPanel({ initialTemplates, loadError }: TemplatesPanelPr
         [activeKey]
     );
 
-    const insertIntoSubject = useCallback(
-        (name: string) => {
-            const token = `{{${name}}}`;
-            const el = subjectRef.current;
-            const value = current?.subject ?? "";
-            if (el && document.activeElement === el) {
-                const start = el.selectionStart ?? value.length;
-                const end = el.selectionEnd ?? value.length;
-                updateField("subject", value.slice(0, start) + token + value.slice(end));
-                requestAnimationFrame(() => {
-                    el.focus();
-                    el.setSelectionRange(start + token.length, start + token.length);
-                });
-            } else {
-                updateField("subject", value + token);
-            }
-        },
-        [current?.subject, updateField]
-    );
+    const insertIntoSubject = useCallback((name: string) => {
+        const v = EDITOR_VARIABLES.find((x) => x.name === name);
+        if (v) subjectPillRef.current?.insertVariable(v);
+    }, []);
 
     const handleSave = useCallback(async () => {
         const row = templates[activeKey];
@@ -151,10 +139,14 @@ export function TemplatesPanel({ initialTemplates, loadError }: TemplatesPanelPr
             <div className="flex gap-6">
                 {/* Sidebar */}
                 <div className="w-56 shrink-0 flex flex-col gap-4">
-                    {(["order", "payment"] as const).map((category) => (
+                    {(["order", "payment", "follow-up"] as const).map((category) => (
                         <div key={category}>
                             <p className="text-xs font-bold text-rw-muted uppercase tracking-wider mb-3 px-2">
-                                {category === "order" ? "Order Status" : "Payment Status"}
+                                {category === "order"
+                                    ? "Order Status"
+                                    : category === "payment"
+                                      ? "Payment Status"
+                                      : "Follow-up"}
                             </p>
                             <div className="flex flex-col gap-1">
                                 {TEMPLATES.filter((t) => t.category === category).map(
@@ -245,19 +237,7 @@ export function TemplatesPanel({ initialTemplates, loadError }: TemplatesPanelPr
                                 className={`flex flex-col gap-4 min-h-0 ${view === "split" ? "flex-1" : "w-full"}`}
                             >
                                 <div>
-                                    <Input
-                                        ref={subjectRef}
-                                        label="Subject line"
-                                        type="text"
-                                        value={current?.subject || ""}
-                                        onChange={(
-                                            e: React.ChangeEvent<HTMLInputElement>
-                                        ) =>
-                                            updateField("subject", e.currentTarget.value)
-                                        }
-                                        placeholder="e.g. Your order #{{order_ref}} is confirmed"
-                                    />
-                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                    <div className="flex flex-wrap gap-1.5 mb-2">
                                         {VARIABLES.map((v) => (
                                             <VariableChip
                                                 key={v.name}
@@ -267,6 +247,15 @@ export function TemplatesPanel({ initialTemplates, loadError }: TemplatesPanelPr
                                             />
                                         ))}
                                     </div>
+                                    <PillInput
+                                        ref={subjectPillRef}
+                                        label="Subject line"
+                                        value={current?.subject || ""}
+                                        onChange={(text) => updateField("subject", text)}
+                                        variables={EDITOR_VARIABLES}
+                                        reloadKey={activeKey}
+                                        placeholder="e.g. Your order {{order_ref}} is confirmed"
+                                    />
                                 </div>
 
                                 <RichTextEditor

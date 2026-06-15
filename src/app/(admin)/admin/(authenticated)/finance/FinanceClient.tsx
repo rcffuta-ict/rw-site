@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { AdminTabs, TabItem } from "@/components/admin/AdminTabs";
+import { RefreshButton } from "@/components/admin/RefreshButton";
 import { FinanceAnalytics } from "./FinanceAnalytics";
 import { FinancePayments } from "./FinancePayments";
 import { FinanceRecords } from "./FinanceRecords";
@@ -146,11 +147,14 @@ export default function FinanceClient({
                         Transaction monitor · payment review · audit trail
                     </p>
                 </div>
-                <AdminTabs
-                    tabs={tabs}
-                    activeTab={activeTab}
-                    onChange={(key) => setActiveTab(key as FinanceTab)}
-                />
+                <div className="flex items-center gap-3">
+                    <RefreshButton />
+                    <AdminTabs
+                        tabs={tabs}
+                        activeTab={activeTab}
+                        onChange={(key) => setActiveTab(key as FinanceTab)}
+                    />
+                </div>
             </div>
 
             {/* Summary Cards */}

@@ -23,11 +23,19 @@ export default async function CommunicationPage() {
         status: o.status,
     }));
 
+    // Candidate stale orders for the Follow-up tab: those still awaiting the
+    // customer (pending / partially paid). Full orders are passed so the tab can
+    // open an order quick-preview; the day threshold is applied client-side.
+    const staleOrders = orders.filter(
+        (o) => o.status === "pending" || o.status === "partially_paid"
+    );
+
     return (
         <CommunicationClient
             initialTemplates={templatesResult.success ? (templatesResult.data ?? []) : []}
             loadError={templatesResult.success ? null : (templatesResult.error ?? "Unknown error")}
             recipients={recipients}
+            staleOrders={staleOrders}
             deliveries={queueResult.success ? (queueResult.data ?? []) : []}
         />
     );

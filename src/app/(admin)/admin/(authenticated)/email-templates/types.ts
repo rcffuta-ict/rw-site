@@ -3,7 +3,7 @@
 export interface Template {
     key: string;
     label: string;
-    category: "order" | "payment";
+    category: "order" | "payment" | "follow-up";
     icon: string;
     description: string;
 }

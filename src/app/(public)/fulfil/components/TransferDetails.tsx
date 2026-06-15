@@ -40,11 +40,11 @@ export function TransferDetails({
                         </p>
                     </div>
                     <div className="p-5 rounded-2xl bg-rw-crimson/5 border border-rw-crimson/20 sm:col-span-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div>
+                        <div className="min-w-0">
                             <p className="text-xs text-rw-crimson font-bold uppercase tracking-wider mb-2">
                                 Account Number
                             </p>
-                            <p className="font-mono font-bold text-3xl text-rw-ink tracking-widest">
+                            <p className="font-mono font-bold text-2xl sm:text-3xl text-rw-ink tracking-wider sm:tracking-widest break-all">
                                 {settings.bank_account_number}
                             </p>
                         </div>
@@ -55,17 +55,17 @@ export function TransferDetails({
                                     settings.bank_account_number
                                 )
                             }
-                            className="shrink-0 bg-white"
+                            className="w-full sm:w-auto shrink-0 bg-white"
                         >
                             Copy Number
                         </Button>
                     </div>
 
                     <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 sm:col-span-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div>
+                        <div className="min-w-0">
                             <p className="text-xs text-amber-800 font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                 <svg
-                                    className="w-4 h-4"
+                                    className="w-4 h-4 shrink-0"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -79,7 +79,7 @@ export function TransferDetails({
                                 </svg>
                                 Prescribed Narration
                             </p>
-                            <p className="font-mono font-bold text-2xl text-rw-ink tracking-widest">
+                            <p className="font-mono font-bold text-xl sm:text-2xl text-rw-ink tracking-wider sm:tracking-widest break-all">
                                 {prescribedNarration}
                             </p>
                             <p className="text-xs text-amber-700 mt-1 max-w-[35ch]">
@@ -92,7 +92,7 @@ export function TransferDetails({
                             onClick={() =>
                                 navigator.clipboard.writeText(prescribedNarration)
                             }
-                            className="shrink-0 bg-white border-amber-300 text-amber-900 hover:bg-amber-100"
+                            className="w-full sm:w-auto shrink-0 bg-white border-amber-300 text-amber-900 hover:bg-amber-100"
                         >
                             Copy Narration
                         </Button>

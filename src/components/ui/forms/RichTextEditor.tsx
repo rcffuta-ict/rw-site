@@ -1,12 +1,22 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useEditor, EditorContent, type Editor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import Link from "@tiptap/extension-link";
+import Placeholder from "@tiptap/extension-placeholder";
+import { createTemplateMention } from "./richtext/templateMention";
+import { tokensToEditorHtml, editorHtmlToTokens } from "./richtext/serialize";
+import { MentionList } from "./richtext/MentionList";
 
 export interface EditorVariable {
     /** Token name as stored, e.g. "customer_name" */
     name: string;
     /** Friendly label shown to non-technical users, e.g. "Customer name" */
     label: string;
+    /** One-line explanation shown in the "#" picker. */
+    description?: string;
 }
 
 export interface RichTextEditorProps {
@@ -53,13 +63,15 @@ function ToolbarButton({ onClick, title, children, active }: ToolbarButtonProps)
 }
 
 /**
- * A friendly WYSIWYG editor that outputs HTML — a shared form primitive
- * alongside Input / Textarea.
+ * A friendly WYSIWYG editor (Tiptap) that outputs HTML — a shared form
+ * primitive alongside Input / Textarea.
  *
  * - "Visual" mode lets non-technical users format text (bold, headings,
  *   lists, links) without touching HTML.
  * - "Code" mode exposes the raw HTML for power users.
- * - The optional "Insert field" menu drops placeholders at the cursor.
+ * - Template tags render as pills. Typing "#" (or the "Insert field" menu)
+ *   inserts one. Pills are UI-only — `onChange` always emits canonical
+ *   `{{name}}` tokens so the email worker substitutes them unchanged.
  */
 export function RichTextEditor({
     value,
@@ -73,46 +85,95 @@ export function RichTextEditor({
     required,
     containerClassName = "",
 }: RichTextEditorProps) {
-    const editorRef = useRef<HTMLDivElement>(null);
     const [mode, setMode] = useState<"visual" | "code">("visual");
     const [showFields, setShowFields] = useState(false);
 
-    // Load content into the visual editor only when the record changes or we
-    // switch back from code view — NOT on every keystroke (which resets the caret).
+    // Read the latest props from inside Tiptap callbacks without rebuilding the
+    // editor (which would lose focus/selection on every render). The refs are
+    // kept fresh in an effect; the closures below only read them lazily (on a
+    // keystroke / "#" trigger), never during render.
+    const onChangeRef = useRef(onChange);
+    const variablesRef = useRef(variables);
     useEffect(() => {
-        if (mode === "visual" && editorRef.current) {
-            editorRef.current.innerHTML = value || "";
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [reloadKey, mode]);
+        onChangeRef.current = onChange;
+        variablesRef.current = variables;
+    });
 
-    const emit = useCallback(() => {
-        if (editorRef.current) onChange(editorRef.current.innerHTML);
-    }, [onChange]);
+    const labelFor = useCallback(
+        (name: string) => variables.find((v) => v.name === name)?.label,
+        [variables]
+    );
 
-    const exec = useCallback(
-        (command: string, arg?: string) => {
-            editorRef.current?.focus();
-            document.execCommand(command, false, arg);
-            emit();
+    const editor = useEditor({
+        immediatelyRender: false, // avoids SSR hydration mismatch in Next
+        extensions: [
+            StarterKit,
+            Underline,
+            Link.configure({
+                openOnClick: false,
+                autolink: true,
+                // Inline style so links stay underlined + brand-coloured in the
+                // editor AND in the sent email (email clients ignore CSS classes).
+                HTMLAttributes: {
+                    style: "color:#FF0015;text-decoration:underline;",
+                    rel: "noopener noreferrer",
+                },
+            }),
+            Placeholder.configure({ placeholder }),
+            // eslint-disable-next-line react-hooks/refs -- read lazily at "#" time, not during render
+            createTemplateMention(() => variablesRef.current),
+        ],
+        content: tokensToEditorHtml(value, labelFor),
+        onUpdate: ({ editor }) => {
+            onChangeRef.current(editorHtmlToTokens(editor.getHTML()));
         },
-        [emit]
+    });
+
+    // Reload `value` into the editor only when the record changes (reloadKey) —
+    // NOT on every keystroke, which would reset the caret. Skip the first run
+    // since the initial content is set at construction.
+    const prevReloadKey = useRef(reloadKey);
+    useEffect(() => {
+        if (!editor) return;
+        if (prevReloadKey.current === reloadKey) return;
+        prevReloadKey.current = reloadKey;
+        editor.commands.setContent(tokensToEditorHtml(value, labelFor), false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [reloadKey, editor]);
+
+    const run = useCallback(
+        (fn: (chain: ReturnType<Editor["chain"]>) => ReturnType<Editor["chain"]>) => {
+            if (!editor) return;
+            fn(editor.chain().focus()).run();
+        },
+        [editor]
     );
 
     const insertField = useCallback(
-        (name: string) => {
-            editorRef.current?.focus();
-            document.execCommand("insertText", false, `{{${name}}}`);
+        (v: EditorVariable) => {
+            if (!editor) return;
+            editor
+                .chain()
+                .focus()
+                .insertContent([
+                    { type: "mention", attrs: { id: v.name, label: v.label } },
+                    { type: "text", text: " " },
+                ])
+                .run();
             setShowFields(false);
-            emit();
         },
-        [emit]
+        [editor]
     );
 
     const addLink = useCallback(() => {
         const url = window.prompt("Link address (e.g. https://rcffuta.com)");
-        if (url) exec("createLink", url);
-    }, [exec]);
+        if (url) run((c) => c.extendMarkRange("link").setLink({ href: url }));
+    }, [run]);
+
+    const switchToVisual = useCallback(() => {
+        editor?.commands.setContent(tokensToEditorHtml(value, labelFor), false);
+        setMode("visual");
+    }, [editor, value, labelFor]);
 
     return (
         <div className={`flex flex-col gap-2 w-full ${containerClassName}`}>
@@ -134,15 +195,24 @@ export function RichTextEditor({
                 <div className="flex items-center gap-1 flex-wrap px-2 py-1.5 border-b border-(--rw-border) bg-rw-bg-alt/40">
                     {mode === "visual" ? (
                         <>
-                            <ToolbarButton onClick={() => exec("bold")} title="Bold">
+                            <ToolbarButton
+                                onClick={() => run((c) => c.toggleBold())}
+                                title="Bold"
+                                active={editor?.isActive("bold")}
+                            >
                                 <span className="font-bold">B</span>
                             </ToolbarButton>
-                            <ToolbarButton onClick={() => exec("italic")} title="Italic">
+                            <ToolbarButton
+                                onClick={() => run((c) => c.toggleItalic())}
+                                title="Italic"
+                                active={editor?.isActive("italic")}
+                            >
                                 <span className="italic font-serif">I</span>
                             </ToolbarButton>
                             <ToolbarButton
-                                onClick={() => exec("underline")}
+                                onClick={() => run((c) => c.toggleUnderline())}
                                 title="Underline"
+                                active={editor?.isActive("underline")}
                             >
                                 <span className="underline">U</span>
                             </ToolbarButton>
@@ -150,37 +220,45 @@ export function RichTextEditor({
                             <span className="w-px h-5 bg-(--rw-border) mx-1" />
 
                             <ToolbarButton
-                                onClick={() => exec("formatBlock", "h2")}
+                                onClick={() => run((c) => c.toggleHeading({ level: 2 }))}
                                 title="Heading"
+                                active={editor?.isActive("heading", { level: 2 })}
                             >
                                 <span className="font-bold text-xs">H</span>
                             </ToolbarButton>
                             <ToolbarButton
-                                onClick={() => exec("formatBlock", "p")}
+                                onClick={() => run((c) => c.setParagraph())}
                                 title="Normal text"
+                                active={editor?.isActive("paragraph")}
                             >
                                 <span className="text-xs">¶</span>
                             </ToolbarButton>
                             <ToolbarButton
-                                onClick={() => exec("insertUnorderedList")}
+                                onClick={() => run((c) => c.toggleBulletList())}
                                 title="Bullet list"
+                                active={editor?.isActive("bulletList")}
                             >
                                 <span className="text-xs">• —</span>
                             </ToolbarButton>
                             <ToolbarButton
-                                onClick={() => exec("insertOrderedList")}
+                                onClick={() => run((c) => c.toggleOrderedList())}
                                 title="Numbered list"
+                                active={editor?.isActive("orderedList")}
                             >
                                 <span className="text-xs">1.</span>
                             </ToolbarButton>
 
                             <span className="w-px h-5 bg-(--rw-border) mx-1" />
 
-                            <ToolbarButton onClick={addLink} title="Add link">
+                            <ToolbarButton
+                                onClick={addLink}
+                                title="Add link"
+                                active={editor?.isActive("link")}
+                            >
                                 <span className="text-xs">🔗</span>
                             </ToolbarButton>
                             <ToolbarButton
-                                onClick={() => exec("unlink")}
+                                onClick={() => run((c) => c.unsetLink())}
                                 title="Remove link"
                             >
                                 <span className="text-xs line-through">🔗</span>
@@ -197,6 +275,7 @@ export function RichTextEditor({
                                                 setShowFields((s) => !s);
                                             }}
                                             className="h-8 px-3 inline-flex items-center gap-1.5 rounded-md text-xs font-semibold bg-rw-ink text-white hover:bg-rw-ink/90 transition-colors"
+                                            title="Insert a template tag (or type # in the message)"
                                         >
                                             + Insert field
                                         </button>
@@ -208,29 +287,11 @@ export function RichTextEditor({
                                                         setShowFields(false)
                                                     }
                                                 />
-                                                <div className="absolute left-0 top-full mt-1 z-20 w-56 max-h-64 overflow-y-auto rounded-lg border border-(--rw-border) bg-white shadow-xl py-1">
-                                                    <p className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-rw-muted font-bold">
-                                                        Auto-filled per customer
-                                                    </p>
-                                                    {variables.map((v) => (
-                                                        <button
-                                                            key={v.name}
-                                                            type="button"
-                                                            onMouseDown={(e) => {
-                                                                e.preventDefault();
-                                                                insertField(v.name);
-                                                            }}
-                                                            className="w-full text-left px-3 py-2 hover:bg-rw-bg-alt transition-colors"
-                                                        >
-                                                            <span className="block text-sm font-medium text-rw-ink">
-                                                                {v.label}
-                                                            </span>
-                                                            <span className="block text-[11px] text-rw-muted font-mono">
-                                                                {`{{${v.name}}}`}
-                                                            </span>
-                                                        </button>
-                                                    ))}
-                                                </div>
+                                                <MentionList
+                                                    items={variables}
+                                                    command={insertField}
+                                                    className="absolute right-0 top-full bg-white shadow-xl z-10"
+                                                />
                                             </>
                                         )}
                                     </div>
@@ -246,7 +307,7 @@ export function RichTextEditor({
                     <div className="ml-auto">
                         <ToolbarButton
                             onClick={() =>
-                                setMode((m) => (m === "visual" ? "code" : "visual"))
+                                mode === "visual" ? setMode("code") : switchToVisual()
                             }
                             title={
                                 mode === "visual"
@@ -261,25 +322,21 @@ export function RichTextEditor({
                 </div>
 
                 {/* Editing surface */}
-                {mode === "visual" ? (
-                    <div
-                        ref={editorRef}
-                        contentEditable
-                        suppressContentEditableWarning
-                        onInput={emit}
-                        onFocus={() =>
-                            document.execCommand("defaultParagraphSeparator", false, "p")
-                        }
-                        data-placeholder={placeholder}
-                        className="flex-1 min-h-[220px] overflow-y-auto px-4 py-3 text-sm text-rw-ink leading-relaxed focus:outline-none
-                            [&:empty]:before:content-[attr(data-placeholder)] [&:empty]:before:text-rw-muted/50
-                            [&_h2]:text-lg [&_h2]:font-bold [&_h2]:my-2
-                            [&_p]:my-2 [&_strong]:font-semibold
-                            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-2
-                            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-2
-                            [&_a]:text-rw-crimson [&_a]:underline"
-                    />
-                ) : (
+                <EditorContent
+                    editor={editor}
+                    className={`flex-1 min-h-0 overflow-y-auto text-sm text-rw-ink leading-relaxed ${
+                        mode === "code" ? "hidden" : ""
+                    }
+                        [&_.ProseMirror]:min-h-[220px] [&_.ProseMirror]:px-4 [&_.ProseMirror]:py-3 [&_.ProseMirror]:outline-none
+                        [&_.ProseMirror_h2]:text-lg [&_.ProseMirror_h2]:font-bold [&_.ProseMirror_h2]:my-2
+                        [&_.ProseMirror_p]:my-2 [&_.ProseMirror_strong]:font-semibold
+                        [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-6 [&_.ProseMirror_ul]:my-2
+                        [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-6 [&_.ProseMirror_ol]:my-2
+                        [&_.ProseMirror_a]:text-rw-crimson [&_.ProseMirror_a]:underline
+                        [&_.rw-tag-pill]:inline-flex [&_.rw-tag-pill]:items-center [&_.rw-tag-pill]:rounded-md [&_.rw-tag-pill]:bg-rw-crimson/10 [&_.rw-tag-pill]:text-rw-crimson [&_.rw-tag-pill]:px-1.5 [&_.rw-tag-pill]:py-0.5 [&_.rw-tag-pill]:mx-0.5 [&_.rw-tag-pill]:text-[0.85em] [&_.rw-tag-pill]:font-medium [&_.rw-tag-pill]:whitespace-nowrap
+                        [&_.ProseMirror_.is-editor-empty:first-child]:before:content-[attr(data-placeholder)] [&_.ProseMirror_.is-editor-empty:first-child]:before:text-rw-muted/50 [&_.ProseMirror_.is-editor-empty:first-child]:before:float-left [&_.ProseMirror_.is-editor-empty:first-child]:before:h-0 [&_.ProseMirror_.is-editor-empty:first-child]:before:pointer-events-none`}
+                />
+                {mode === "code" && (
                     <textarea
                         value={value}
                         onChange={(e) => onChange(e.currentTarget.value)}

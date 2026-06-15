@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { AdminTable } from "@/components/admin/AdminTable";
 import { TEMPLATES } from "./constants";
 import { retryEmailAction } from "@/app/actions/email-templates";
 import type { EmailQueueRow } from "@/lib/services/email-queue.service";
@@ -57,69 +58,75 @@ export function DeliveryPanel({ deliveries }: DeliveryPanelProps) {
         setRetrying(null);
     };
 
-    if (deliveries.length === 0) {
-        return (
-            <div className="rounded-xl border border-(--rw-border) bg-rw-bg-alt/40 px-6 py-12 text-center">
-                <p className="text-sm text-rw-muted">
-                    No emails sent yet. Status updates and messages will appear here.
-                </p>
-            </div>
-        );
-    }
-
     return (
-        <div className="overflow-x-auto rounded-2xl border border-(--rw-border) bg-white">
-            <table className="w-full text-sm">
-                <thead className="bg-rw-bg-alt/50 border-b border-(--rw-border)">
-                    <tr className="text-left">
-                        {["When", "To", "Message", "Status", "Tries", ""].map((h) => (
-                            <th
-                                key={h}
-                                className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-rw-muted"
+        <AdminTable<EmailQueueRow>
+            data={deliveries}
+            keyExtractor={(row) => row.id}
+            pageSize={12}
+            emptyMessage="No emails sent yet. Status updates and messages will appear here."
+            columns={[
+                {
+                    key: "when",
+                    label: "When",
+                    render: (row) => (
+                        <span className="whitespace-nowrap text-rw-muted">
+                            {when(row.created_at)}
+                        </span>
+                    ),
+                },
+                {
+                    key: "to",
+                    label: "To",
+                    render: (row) => (
+                        <span className="block text-rw-ink truncate max-w-[180px]">
+                            {row.recipient_email || "—"}
+                        </span>
+                    ),
+                },
+                {
+                    key: "message",
+                    label: "Message",
+                    render: (row) => (
+                        <span className="block text-rw-text-2 truncate max-w-[260px]">
+                            {describe(row)}
+                        </span>
+                    ),
+                },
+                {
+                    key: "status",
+                    label: "Status",
+                    render: (row) => (
+                        <span
+                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${STATUS_STYLES[row.status]}`}
+                            title={row.last_error ?? undefined}
+                        >
+                            {row.status}
+                        </span>
+                    ),
+                },
+                {
+                    key: "tries",
+                    label: "Tries",
+                    render: (row) => (
+                        <span className="text-rw-muted tabular-nums">{row.attempts}</span>
+                    ),
+                },
+                {
+                    key: "action",
+                    label: "",
+                    align: "right",
+                    render: (row) =>
+                        row.status === "failed" || row.status === "sending" ? (
+                            <button
+                                onClick={() => handleRetry(row.id)}
+                                disabled={retrying === row.id}
+                                className="text-xs font-semibold text-rw-crimson hover:underline disabled:opacity-50"
                             >
-                                {h}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-(--rw-border)">
-                    {deliveries.map((row) => (
-                        <tr key={row.id} className="hover:bg-rw-bg-alt/30 transition-colors">
-                            <td className="px-4 py-3 whitespace-nowrap text-rw-muted">
-                                {when(row.created_at)}
-                            </td>
-                            <td className="px-4 py-3 text-rw-ink truncate max-w-[180px]">
-                                {row.recipient_email || "—"}
-                            </td>
-                            <td className="px-4 py-3 text-rw-text-2 truncate max-w-[260px]">
-                                {describe(row)}
-                            </td>
-                            <td className="px-4 py-3">
-                                <span
-                                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${STATUS_STYLES[row.status]}`}
-                                    title={row.last_error ?? undefined}
-                                >
-                                    {row.status}
-                                </span>
-                            </td>
-                            <td className="px-4 py-3 text-rw-muted tabular-nums">
-                                {row.attempts}
-                            </td>
-                            <td className="px-4 py-3 text-right">
-                                {(row.status === "failed" || row.status === "sending") && (
-                                    <button
-                                        onClick={() => handleRetry(row.id)}
-                                        disabled={retrying === row.id}
-                                        className="text-xs font-semibold text-rw-crimson hover:underline disabled:opacity-50"
-                                    >
-                                        {retrying === row.id ? "…" : "Retry"}
-                                    </button>
-                                )}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+                                {retrying === row.id ? "…" : "Retry"}
+                            </button>
+                        ) : null,
+                },
+            ]}
+        />
     );
 }

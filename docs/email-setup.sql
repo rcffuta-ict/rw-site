@@ -80,8 +80,15 @@ create table if not exists rw_email_queue (
   max_attempts    integer not null default 5,
   last_error      text,
   sent_at         timestamptz,
+  -- When a custom message targets several orders that share one email address,
+  -- they are combined into a single send. order_id holds the primary order (for
+  -- the footer reference + logs) and order_ids holds every order in the combine.
+  order_ids       jsonb,
   updated_at      timestamptz not null default now()
 );
+
+-- For existing deployments, add the combine column in place.
+alter table rw_email_queue add column if not exists order_ids jsonb;
 
 create index if not exists idx_email_queue_status on rw_email_queue(status, created_at);
 
@@ -224,9 +231,24 @@ values
 <p>Unfortunately, we could not verify the payment receipt you submitted for order <strong>#{{order_ref}}</strong>.</p>
 <p>The receipt details do not match our records or there may be another issue. Please contact us at support@rcffuta.com with your receipt details so we can help resolve this quickly.</p>
 <p>— RCF FUTA Team</p>',
+   true),
+
+  ('follow_up',
+   'Follow-up Reminder',
+   'A gentle reminder about your order #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>We noticed your Redemption Week ''26 order <strong>#{{order_ref}}</strong> still has an outstanding balance of <strong>{{balance}}</strong>. We''d love to help you complete it!</p>
+<p>Please upload your payment receipt in your order dashboard so we can move your order forward. If you''ve already paid, kindly ignore this message.</p>
+{{items_html}}
+<p>If you have any questions or need help, just reach out — we''re happy to assist.</p>
+<p>God bless you — <strong>RCF FUTA Team</strong></p>',
    true)
 
 on conflict (template_key) do nothing;
+
+-- Follow-up tracking columns on rw_orders (used by the admin Follow-up tab).
+alter table rw_orders add column if not exists follow_up_count   integer not null default 0;
+alter table rw_orders add column if not exists last_follow_up_at timestamptz;
 
 
 -- 7. Normalise money placeholders in existing templates -----------------------

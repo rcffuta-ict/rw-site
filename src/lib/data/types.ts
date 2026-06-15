@@ -193,6 +193,8 @@ export interface Order {
     amountPaid: number; // sum of approved payments — derived/cached
     items: OrderItem[];
     payments: Payment[];
+    followUpCount: number; // how many follow-up reminders have been sent
+    lastFollowUpAt: string | null; // ISO 8601 — last follow-up reminder, or null
     createdAt: string; // ISO 8601
     updatedAt: string; // ISO 8601
 }

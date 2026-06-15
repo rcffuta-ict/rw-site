@@ -230,6 +230,38 @@ export async function createOrder(
     return { success: true, data: fullOrder };
 }
 
+/**
+ * Record that a follow-up reminder was sent for each given order — bumps
+ * follow_up_count and stamps last_follow_up_at. Best-effort; the email send is
+ * the important part, so tracking failures don't surface to the caller.
+ */
+export async function recordFollowUps(orderIds: string[]): Promise<void> {
+    if (orderIds.length === 0) return;
+    try {
+        const supabase = await createSupabaseAdminClient();
+        const { data } = await supabase
+            .from("rw_orders")
+            .select("id, follow_up_count")
+            .in("id", orderIds);
+
+        const now = new Date().toISOString();
+        await Promise.all(
+            (data ?? []).map((row: { id: string; follow_up_count: number | null }) =>
+                supabase
+                    .from("rw_orders")
+                    .update({
+                        follow_up_count: (row.follow_up_count ?? 0) + 1,
+                        last_follow_up_at: now,
+                    })
+                    .eq("id", row.id)
+            )
+        );
+        revalidateTag("orders", "max");
+    } catch (err) {
+        console.error("recordFollowUps failed:", err);
+    }
+}
+
 // ─── Status ───────────────────────────────────────────────────────────────────
 
 export async function updateOrderStatus(

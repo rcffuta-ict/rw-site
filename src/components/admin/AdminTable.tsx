@@ -1,7 +1,9 @@
-import React from "react";
+"use client";
+
+import React, { useMemo, useState } from "react";
 
 interface Column<T> {
-    label: string;
+    label: React.ReactNode;
     key: string;
     align?: "left" | "right" | "center";
     className?: string;
@@ -15,6 +17,8 @@ interface AdminTableProps<T> {
     emptyMessage?: string;
     footer?: React.ReactNode;
     className?: string;
+    /** When set, the table paginates client-side with this many rows per page. */
+    pageSize?: number;
 }
 
 export function AdminTable<T>({
@@ -24,7 +28,24 @@ export function AdminTable<T>({
     emptyMessage = "No data found",
     footer,
     className = "",
+    pageSize,
 }: AdminTableProps<T>) {
+    const [page, setPage] = useState(0);
+
+    const totalPages = pageSize ? Math.max(1, Math.ceil(data.length / pageSize)) : 1;
+    // Clamp during render so a shrinking dataset never leaves us past the end.
+    const safePage = Math.min(page, totalPages - 1);
+
+    const pageData = useMemo(() => {
+        if (!pageSize) return data;
+        const start = safePage * pageSize;
+        return data.slice(start, start + pageSize);
+    }, [data, safePage, pageSize]);
+
+    const showPager = !!pageSize && data.length > pageSize;
+    const rangeStart = data.length === 0 ? 0 : safePage * (pageSize ?? 0) + 1;
+    const rangeEnd = Math.min(data.length, (safePage + 1) * (pageSize ?? data.length));
+
     return (
         <div className={`rw-card overflow-hidden border-none shadow-xl ring-1 ring-[var(--rw-border)] ${className}`}>
             <div className="overflow-x-auto">
@@ -58,7 +79,7 @@ export function AdminTable<T>({
                                 </td>
                             </tr>
                         ) : (
-                            data.map((item) => (
+                            pageData.map((item) => (
                                 <tr key={keyExtractor(item)} className="hover:bg-rw-bg-alt/30 transition-colors group">
                                     {columns.map((col, idx) => (
                                         <td
@@ -76,9 +97,37 @@ export function AdminTable<T>({
                     </tbody>
                 </table>
             </div>
-            {footer && (
-                <div className="bg-rw-bg-alt/50 px-6 py-4 border-t border-[var(--rw-border)]">
-                    {footer}
+            {(footer || showPager) && (
+                <div className="bg-rw-bg-alt/50 px-6 py-4 border-t border-[var(--rw-border)] flex items-center justify-between gap-4">
+                    <div className="min-w-0">{footer}</div>
+                    {showPager && (
+                        <div className="flex items-center gap-3 shrink-0">
+                            <span className="text-xs text-rw-muted tabular-nums">
+                                {rangeStart}–{rangeEnd} of {data.length}
+                            </span>
+                            <div className="flex items-center gap-1">
+                                <button
+                                    type="button"
+                                    onClick={() => setPage(Math.max(0, safePage - 1))}
+                                    disabled={safePage === 0}
+                                    className="h-7 px-2.5 rounded-md text-xs font-semibold text-rw-text-2 hover:bg-white disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                                >
+                                    ‹ Prev
+                                </button>
+                                <span className="text-xs text-rw-muted tabular-nums px-1">
+                                    {safePage + 1}/{totalPages}
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => setPage(Math.min(totalPages - 1, safePage + 1))}
+                                    disabled={safePage >= totalPages - 1}
+                                    className="h-7 px-2.5 rounded-md text-xs font-semibold text-rw-text-2 hover:bg-white disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                                >
+                                    Next ›
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

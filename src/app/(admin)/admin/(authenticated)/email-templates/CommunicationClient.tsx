@@ -2,26 +2,30 @@
 
 import { useState } from "react";
 import { AdminTabs, type TabItem } from "@/components/admin/AdminTabs";
+import { RefreshButton } from "@/components/admin/RefreshButton";
 import { TemplatesPanel } from "./TemplatesPanel";
 import { ComposePanel } from "./ComposePanel";
+import { FollowUpPanel } from "./FollowUpPanel";
 import { DeliveryPanel } from "./DeliveryPanel";
 import type { EmailTemplate } from "@/lib/services/email-templates.service";
 import type { EmailQueueRow } from "@/lib/services/email-queue.service";
+import type { Order } from "@/lib/data/types";
 import type { Recipient } from "./types";
 
 interface CommunicationClientProps {
     initialTemplates: EmailTemplate[];
     loadError: string | null;
     recipients: Recipient[];
+    staleOrders: Order[];
     deliveries: EmailQueueRow[];
 }
 
-type CommTab = "templates" | "compose" | "delivery";
+type CommTab = "templates" | "compose" | "followup" | "delivery";
 
 const tabs: TabItem[] = [
     {
         key: "templates",
-        label: "Auto Emails",
+        label: "Templates",
         icon: (
             <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -34,6 +38,15 @@ const tabs: TabItem[] = [
         icon: (
             <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.27 3.27a.5.5 0 0 1 .68-.62l17.5 8.23a.5.5 0 0 1 0 .9L4 19.35a.5.5 0 0 1-.68-.62L6 12Zm0 0h6" />
+            </svg>
+        ),
+    },
+    {
+        key: "followup",
+        label: "Follow-up",
+        icon: (
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg>
         ),
     },
@@ -52,6 +65,7 @@ export default function CommunicationClient({
     initialTemplates,
     loadError,
     recipients,
+    staleOrders,
     deliveries,
 }: CommunicationClientProps) {
     const [activeTab, setActiveTab] = useState<CommTab>("templates");
@@ -69,17 +83,21 @@ export default function CommunicationClient({
                         Customer emails for orders &amp; payments · one-off messages
                     </p>
                 </div>
-                <AdminTabs
-                    tabs={tabs}
-                    activeTab={activeTab}
-                    onChange={(key) => setActiveTab(key as CommTab)}
-                />
+                <div className="flex items-center gap-3">
+                    <RefreshButton />
+                    <AdminTabs
+                        tabs={tabs}
+                        activeTab={activeTab}
+                        onChange={(key) => setActiveTab(key as CommTab)}
+                    />
+                </div>
             </div>
 
             {activeTab === "templates" && (
                 <TemplatesPanel initialTemplates={initialTemplates} loadError={loadError} />
             )}
             {activeTab === "compose" && <ComposePanel recipients={recipients} />}
+            {activeTab === "followup" && <FollowUpPanel staleOrders={staleOrders} />}
             {activeTab === "delivery" && <DeliveryPanel deliveries={deliveries} />}
         </div>
     );

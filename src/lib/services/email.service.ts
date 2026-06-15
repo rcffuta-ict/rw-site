@@ -99,16 +99,26 @@ export async function enqueuePaymentStatusEmail(
     });
 }
 
-/** Queue a one-off custom message to an order's customer. */
+/**
+ * Queue a one-off custom message to an order's customer.
+ *
+ * `orderIds` lets several orders that share one recipient be combined into a
+ * single send (the worker renders the message once, then a detail block per
+ * order). `orderId` is the primary order — used for the footer reference and
+ * logging — and is also the first entry of `orderIds` when combining.
+ */
 export async function enqueueCustomEmail(input: {
     orderId: string;
+    orderIds?: string[];
     recipientEmail?: string;
     subject: string;
     bodyHtml: string;
 }): Promise<EnqueueResult> {
+    const combined = input.orderIds && input.orderIds.length > 1;
     return enqueue({
         mode: "custom",
         order_id: input.orderId,
+        order_ids: combined ? input.orderIds : null,
         recipient_email: input.recipientEmail ?? null,
         subject: input.subject,
         body_html: input.bodyHtml,

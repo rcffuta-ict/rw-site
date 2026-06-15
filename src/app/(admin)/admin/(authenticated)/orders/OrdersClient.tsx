@@ -12,6 +12,7 @@ import { OrderVerdictActions } from "@/components/admin/orders/OrderVerdictActio
 import { Order } from "@/lib/data/types";
 import { getEffectiveStatus } from "@/lib/utils/functions";
 import { OrdersTable } from "@/components/admin/OrdersTable";
+import { RefreshButton } from "@/components/admin/RefreshButton";
 
 const STATUS_TABS: { key: string; label: string }[] = [
     { key: "all", label: "All" },
@@ -60,7 +61,8 @@ export default function OrdersClient({
                         Manage fulfillment and track payments across the platform
                     </p>
                 </div>
-                <div className="w-full sm:w-auto animate-scale-in">
+                <div className="w-full sm:w-auto flex items-center gap-3 animate-scale-in">
+                    <RefreshButton />
                     {isAdmin && <OrderVerdictActions />}
                 </div>
             </div>

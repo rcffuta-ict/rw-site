@@ -5,6 +5,7 @@ import Link from "next/link";
 import { VerdictDownloadButton, VerdictDocument } from "./component";
 import { useAdminModal } from "@/context/AdminModalContext";
 import { AdminStatItem } from "@/components/admin/AdminStats";
+import { RefreshButton } from "@/components/admin/RefreshButton";
 import type { Order } from "@/lib/data/types";
 
 const MOCK_VERDICTS = [
@@ -123,27 +124,30 @@ export default function VerdictsClient({
                         Official administrative documents for approved order bundles
                     </p>
                 </div>
-                {isAdmin && (
-                    <Link
-                        href="/admin/verdicts/new"
-                        className="h-14 px-10 rounded-2xl bg-rw-crimson text-white font-display font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 shadow-xl shadow-rw-crimson/20"
-                    >
-                        <svg
-                            className="h-4 w-4"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth={3}
-                            viewBox="0 0 24 24"
+                <div className="flex items-center gap-3">
+                    <RefreshButton />
+                    {isAdmin && (
+                        <Link
+                            href="/admin/verdicts/new"
+                            className="h-14 px-10 rounded-2xl bg-rw-crimson text-white font-display font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 shadow-xl shadow-rw-crimson/20"
                         >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 4v16m8-8H4"
-                            />
-                        </svg>
-                        New Verdict
-                    </Link>
-                )}
+                            <svg
+                                className="h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={3}
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 4v16m8-8H4"
+                                />
+                            </svg>
+                            New Verdict
+                        </Link>
+                    )}
+                </div>
             </div>
 
             {/* Non-admin notice */}
