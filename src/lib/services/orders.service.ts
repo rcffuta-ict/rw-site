@@ -9,6 +9,7 @@ import {
     enqueueOrderStatusEmail,
     enqueuePaymentStatusEmail,
 } from "@/lib/services/email.service";
+import { getSettings } from "@/lib/services/settings.service";
 import type {
     Order,
     OrderStatus,
@@ -132,6 +133,15 @@ export async function createOrder(
     input: CreateOrderInput
 ): Promise<ServiceResult<Order>> {
     const supabase = await createSupabaseAdminClient();
+
+    // Gate: respect the storefront master switch.
+    const settings = await getSettings();
+    if (!settings.preorders_enabled) {
+        return {
+            success: false,
+            error: "Pre-orders are currently closed. Please check back later.",
+        };
+    }
 
     // 0. Validate that all variant IDs exist in the database and are valid UUIDs
     const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -301,6 +311,15 @@ export async function attachPayment(
     input: AttachPaymentInput
 ): Promise<ServiceResult<Order>> {
     const supabase = await createSupabaseAdminClient();
+
+    // Gate: respect the payments master switch.
+    const settings = await getSettings();
+    if (!settings.payments_enabled) {
+        return {
+            success: false,
+            error: "Payments are currently closed. Please check back later.",
+        };
+    }
 
     // Compute percent of total
     const order = await getOrderById(input.orderId);

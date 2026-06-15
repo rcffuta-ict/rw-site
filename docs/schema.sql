@@ -519,9 +519,21 @@ CREATE TABLE IF NOT EXISTS public.rw_settings (
   bank_account_number text NOT NULL DEFAULT '3012345678',
   payment_min_amount integer NOT NULL DEFAULT 2000,
   payment_installment_allowed boolean NOT NULL DEFAULT true,
+  -- Master switch for the storefront. When false, products are hidden and no
+  -- orders/checkout can be placed.
+  preorders_enabled boolean NOT NULL DEFAULT true,
+  -- Master switch for payment submission on /fulfil. When false, orders can be
+  -- looked up but no part/full payment can be submitted.
+  payments_enabled boolean NOT NULL DEFAULT true,
   updated_by uuid REFERENCES public.profiles(id),
   updated_at timestamptz DEFAULT now()
 );
+
+-- For databases created before these switches existed:
+ALTER TABLE public.rw_settings
+  ADD COLUMN IF NOT EXISTS preorders_enabled boolean NOT NULL DEFAULT true;
+ALTER TABLE public.rw_settings
+  ADD COLUMN IF NOT EXISTS payments_enabled boolean NOT NULL DEFAULT true;
 
 COMMENT ON TABLE public.rw_settings IS 'Global application settings (singleton row).';
 
@@ -551,9 +563,21 @@ CREATE TABLE IF NOT EXISTS public.rw_settings (
   bank_account_number text NOT NULL DEFAULT '3012345678',
   payment_min_amount integer NOT NULL DEFAULT 2000,
   payment_installment_allowed boolean NOT NULL DEFAULT true,
+  -- Master switch for the storefront. When false, products are hidden and no
+  -- orders/checkout can be placed.
+  preorders_enabled boolean NOT NULL DEFAULT true,
+  -- Master switch for payment submission on /fulfil. When false, orders can be
+  -- looked up but no part/full payment can be submitted.
+  payments_enabled boolean NOT NULL DEFAULT true,
   updated_by uuid REFERENCES public.profiles(id),
   updated_at timestamptz DEFAULT now()
 );
+
+-- For databases created before these switches existed:
+ALTER TABLE public.rw_settings
+  ADD COLUMN IF NOT EXISTS preorders_enabled boolean NOT NULL DEFAULT true;
+ALTER TABLE public.rw_settings
+  ADD COLUMN IF NOT EXISTS payments_enabled boolean NOT NULL DEFAULT true;
 
 COMMENT ON TABLE public.rw_settings IS 'Global application settings (singleton row).';
 

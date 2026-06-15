@@ -22,6 +22,68 @@ function WhatsAppIcon({ className = "w-5 h-5" }: { className?: string }) {
     );
 }
 
+function PaymentsClosedNotice({ orderRef }: { orderRef: string }) {
+    return (
+        <div className="rw-card p-8 sm:p-10 flex flex-col items-center text-center gap-5 border-t-[3px] border-t-[#FF6A00]">
+            <div className="h-16 w-16 rounded-2xl bg-[#FF6A00]/10 border border-[#FF6A00]/20 flex items-center justify-center">
+                <svg
+                    className="h-8 w-8 text-[#FF6A00]"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.8}
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+                    />
+                </svg>
+            </div>
+            <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#FF6A00] mb-2">
+                    Temporarily Closed
+                </p>
+                <h2 className="font-display font-bold text-2xl text-rw-ink mb-3">
+                    Payments are closed right now
+                </h2>
+                <p className="text-rw-text-2 text-sm leading-relaxed max-w-sm mx-auto">
+                    Your order{" "}
+                    <span className="font-mono font-bold text-rw-ink">{orderRef}</span> was
+                    found, but new payments aren&rsquo;t being accepted at the moment.
+                    Please check back later — or reach our team on WhatsApp below if you
+                    have a question.
+                </p>
+            </div>
+            <div className="w-full flex flex-col sm:flex-row gap-3 mt-1">
+                {PAYMENT_CONFIG.supportContacts.map((contact) => (
+                    <a
+                        key={contact.phone}
+                        href={`https://wa.me/${contact.phone}?text=${encodeURIComponent(
+                            `Hi, I have a question about paying for my Redemption Week order (Ref: ${orderRef}).`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex-1 flex items-center gap-3 rounded-2xl bg-[#1C0003] text-white px-5 py-4 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                    >
+                        <span className="shrink-0 h-9 w-9 rounded-xl bg-[#25D366]/20 text-[#25D366] flex items-center justify-center">
+                            <WhatsAppIcon className="w-4 h-4" />
+                        </span>
+                        <span className="min-w-0 text-left">
+                            <span className="block text-[10px] font-semibold uppercase tracking-wider text-white/50">
+                                WhatsApp
+                            </span>
+                            <span className="block font-bold leading-tight text-rw-bg-alt truncate text-sm">
+                                {contact.name}
+                            </span>
+                        </span>
+                    </a>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 const NEXT_STEPS = [
     {
         n: "1",
@@ -210,16 +272,25 @@ function FulfilContent({ settings }: { settings: GlobalSettings }) {
 
                 {/* RIGHT COLUMN: Transfer & Submit */}
                 <div className="flex flex-col gap-6 animate-slide-in-right">
-                    {/* Bank details */}
-                    <TransferDetails orderRef={order.orderRef} settings={settings} />
+                    {settings.payments_enabled ? (
+                        <>
+                            {/* Bank details */}
+                            <TransferDetails
+                                orderRef={order.orderRef}
+                                settings={settings}
+                            />
 
-                    {/* Payment form */}
-                    <PaymentFlow
-                        order={order}
-                        onResetOrder={handleResetOrder}
-                        onStageChange={setPaymentStage}
-                        settings={settings}
-                    />
+                            {/* Payment form */}
+                            <PaymentFlow
+                                order={order}
+                                onResetOrder={handleResetOrder}
+                                onStageChange={setPaymentStage}
+                                settings={settings}
+                            />
+                        </>
+                    ) : (
+                        <PaymentsClosedNotice orderRef={order.orderRef} />
+                    )}
                 </div>
             </div>
 

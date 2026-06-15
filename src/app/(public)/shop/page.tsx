@@ -1,7 +1,9 @@
 import { getProducts } from "@/lib/services/products.service";
+import { getSettings } from "@/lib/services/settings.service";
 import { ShopClient } from "./ShopClient";
 import { FELLOWSHIP, TENURE } from "@/lib/config";
 import { HeaderBanner } from "@/components/common/HeaderBanner";
+import { PreordersClosed } from "@/components/public/PreordersClosed";
 import { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/forms/Button";
@@ -12,6 +14,22 @@ export const metadata: Metadata = {
 };
 
 export default async function ShopPage() {
+    const settings = await getSettings();
+
+    if (!settings.preorders_enabled) {
+        return (
+            <div className="min-h-screen bg-white">
+                <HeaderBanner
+                    bannerDescription="Official Merch Banner Background"
+                    title={`${TENURE.brandLabelShort} Merch Sales`}
+                    description="Pre-ordering is currently paused."
+                    header="Official Merchandise"
+                />
+                <PreordersClosed />
+            </div>
+        );
+    }
+
     const products = await getProducts();
 
     return (

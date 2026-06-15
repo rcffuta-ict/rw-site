@@ -86,6 +86,19 @@ export default function SettingsClient({
     );
 }
 
+function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+    return (
+        <div
+            onClick={onToggle}
+            className={`h-8 w-14 shrink-0 rounded-full border p-1 flex items-center cursor-pointer transition-colors ${on ? "bg-rw-crimson/10 border-rw-crimson/20" : "bg-gray-100 border-gray-300"}`}
+        >
+            <div
+                className={`h-6 w-6 rounded-full shadow-md transition-transform ${on ? "bg-rw-crimson translate-x-6" : "bg-gray-400 translate-x-0"}`}
+            />
+        </div>
+    );
+}
+
 function AddModeratorForm({ onSuccess }: { onSuccess: () => void }) {
     const [email, setEmail] = useState("");
     const [isPending, startTransition] = useTransition();
@@ -167,6 +180,68 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
 
     return (
         <div className="max-w-3xl space-y-10">
+            {/* Store Availability Card */}
+            <section className="rw-card overflow-hidden border-none shadow-xl ring-1 ring-rw-ink/5">
+                <div className="p-8 border-b border-[var(--rw-border)]">
+                    <h3 className="font-display font-black text-xl text-rw-ink uppercase tracking-tight">
+                        Store Availability
+                    </h3>
+                    <p className="text-xs text-rw-muted font-medium mt-1 italic">
+                        Master switches that control the public storefront and payments.
+                    </p>
+                </div>
+                <div className="p-8 space-y-8">
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-1 pr-6">
+                            <p className="text-sm font-black text-rw-ink uppercase tracking-tight">
+                                Pre-orders Open
+                            </p>
+                            <p className="text-[10px] text-rw-muted font-bold uppercase tracking-widest leading-relaxed">
+                                When off, products are hidden and no one can checkout or
+                                place orders
+                            </p>
+                        </div>
+                        <Toggle
+                            on={formState.preorders_enabled}
+                            onToggle={() =>
+                                setFormState((s) => ({
+                                    ...s,
+                                    preorders_enabled: !s.preorders_enabled,
+                                }))
+                            }
+                        />
+                    </div>
+                    <div className="flex items-center justify-between pt-6 border-t border-[var(--rw-border)] border-dashed">
+                        <div className="space-y-1 pr-6">
+                            <p className="text-sm font-black text-rw-ink uppercase tracking-tight">
+                                Payments Open
+                            </p>
+                            <p className="text-[10px] text-rw-muted font-bold uppercase tracking-widest leading-relaxed">
+                                When off, orders can still be looked up but no part/full
+                                payment can be submitted
+                            </p>
+                        </div>
+                        <Toggle
+                            on={formState.payments_enabled}
+                            onToggle={() =>
+                                setFormState((s) => ({
+                                    ...s,
+                                    payments_enabled: !s.payments_enabled,
+                                }))
+                            }
+                        />
+                    </div>
+
+                    <button
+                        onClick={handleSave}
+                        disabled={isPending}
+                        className="btn-primary !h-12 !px-8 text-xs font-black uppercase tracking-widest shadow-lg shadow-rw-crimson/20 disabled:opacity-50"
+                    >
+                        {isPending ? "Saving..." : "Save Availability"}
+                    </button>
+                </div>
+            </section>
+
             {/* Bank Config Card */}
             <section className="rw-card overflow-hidden border-none shadow-xl ring-1 ring-rw-ink/5">
                 <div className="p-8 border-b border-[var(--rw-border)]">

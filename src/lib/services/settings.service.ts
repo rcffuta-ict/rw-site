@@ -2,7 +2,7 @@
 "use server";
 
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
-import { revalidateTag } from "next/cache";
+import { revalidateTag, revalidatePath } from "next/cache";
 import type { ServiceResult } from "@/lib/data/types";
 
 export interface GlobalSettings {
@@ -11,6 +11,12 @@ export interface GlobalSettings {
     bank_account_number: string;
     payment_min_amount: number;
     payment_installment_allowed: boolean;
+    /** Master switch for the storefront. When false, no one can browse products,
+     * checkout, or place orders. */
+    preorders_enabled: boolean;
+    /** Master switch for payment submission on /fulfil. When false, orders can
+     * still be looked up but no part/full payment can be submitted. */
+    payments_enabled: boolean;
 }
 
 export interface AdminModerator {
@@ -42,6 +48,8 @@ export async function getSettings(): Promise<GlobalSettings> {
             bank_account_number: "",
             payment_min_amount: 0,
             payment_installment_allowed: false,
+            preorders_enabled: true,
+            payments_enabled: true,
         };
     }
     return data;
@@ -71,6 +79,11 @@ export async function updateSettings(
     });
 
     revalidateTag("settings", "max");
+    // The pre-orders / payments master switches gate these public pages, so
+    // purge them to reflect the change immediately.
+    revalidatePath("/shop");
+    revalidatePath("/checkout");
+    revalidatePath("/fulfil");
     return { success: true, data };
 }
 
