@@ -13,7 +13,7 @@ export const env = {
     siteUrl: optional("NEXT_PUBLIC_SITE_URL") ?? "http://localhost:3000",
 
     /** ISO 8601 date-time string for the countdown timer. Change via NEXT_PUBLIC_EVENT_START_DATE. */
-    eventStartDate: optional("NEXT_PUBLIC_EVENT_START_DATE") ?? "2026-07-06T18:00:00",
+    eventStartDate: optional("NEXT_PUBLIC_EVENT_START_DATE") ?? "2026-07-13T18:00:00",
 
     supabase: {
         url: optional("NEXT_PUBLIC_SUPABASE_URL"),

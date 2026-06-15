@@ -1,18 +1,37 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { ph } from "@/lib/utils/functions";
+import clsx from "clsx";
+import { SiteImage } from "@/components/ui/SiteImage";
+
+type GalleryItemType = {
+    w: number;
+    h: number;
+    label: string;
+    bg: string;
+    fg: string;
+    span: string;
+    /** [desktop, tablet, mobile] Cloudinary public IDs. Omit for placeholder. */
+    imgs?: [string, string, string];
+    imagePosition: "top" | "center" | "bottom";
+};
 
 // Completely optimized grid spans for a seamless mosaic on ALL screens
-const GALLERY_ITEMS = [
+const GALLERY_ITEMS: GalleryItemType[] = [
     {
         w: 900,
         h: 900,
         label: "Worship Night",
         bg: "1C0003",
         fg: "FF6A00",
+        imgs: [
+            "900X900_worship_night_i8ozec",
+            "750X750_worship_night_qdd0r3",
+            "600x600_worship_night_prqvu9",
+        ],
         // Large square: Takes full width on mobile, massive block on desktop
         span: "col-span-2 row-span-2 sm:col-span-4 sm:row-span-4 lg:col-span-4 lg:row-span-4",
+        imagePosition: "top",
     },
     {
         w: 600,
@@ -20,8 +39,14 @@ const GALLERY_ITEMS = [
         label: "Opening Ceremony",
         bg: "2d0008",
         fg: "ffaaaa",
+        imgs: [
+            "600X400_opening_ceremony_t3et5b",
+            "500x333_opening_ceremony_makkgt",
+            "400x267_opening_ceremony_iaki5f",
+        ],
         // Wide rectangle: Full width on mobile, wide banner on desktop
         span: "col-span-2 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-4 lg:row-span-2",
+        imagePosition: "center",
     },
     {
         w: 400,
@@ -29,8 +54,14 @@ const GALLERY_ITEMS = [
         label: "Drama Night",
         bg: "3d1500",
         fg: "ff8844",
+        imgs: [
+            "400X800_drama_night_gu4nfm",
+            "333x667_drama_night_gec2od",
+            "257x533_drama_night_xgexnj",
+        ],
         // Portrait tall: 1 column on mobile (so things can flow next to it!), tall on desktop
         span: "col-span-1 row-span-2 sm:col-span-2 sm:row-span-4 lg:col-span-2 lg:row-span-4",
+        imagePosition: "top",
     },
     {
         w: 400,
@@ -38,8 +69,14 @@ const GALLERY_ITEMS = [
         label: "Choir Concert",
         bg: "002a15",
         fg: "66ffaa",
+        imgs: [
+            "400X400_choir_concert_b9l4vp",
+            "333x333_choir_concert_m8vikt",
+            "267x267_choir_concert_skyasp",
+        ],
         // Small Square: Fits perfectly next to tall portrait items on mobile
         span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
+        imagePosition: "top",
     },
     {
         w: 400,
@@ -47,7 +84,13 @@ const GALLERY_ITEMS = [
         label: "Power Night",
         bg: "15004a",
         fg: "aa66ff",
+        imgs: [
+            "400X400_power_night_byarph",
+            "333x333_power_night_cagpof",
+            "267x267_power_night_k2aujr",
+        ],
         span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
+        imagePosition: "center",
     },
     {
         w: 800,
@@ -55,7 +98,13 @@ const GALLERY_ITEMS = [
         label: "Word Night",
         bg: "001540",
         fg: "66aaff",
+        imgs: [
+            "800X400_word_night_ksp7qn",
+            "667X333_word_night_knm6rw",
+            "533x267_word_night_v42yp7",
+        ],
         span: "col-span-2 row-span-1 sm:col-span-4 sm:row-span-2 lg:col-span-4 lg:row-span-2",
+        imagePosition: "center",
     },
     {
         w: 400,
@@ -63,7 +112,9 @@ const GALLERY_ITEMS = [
         label: "Alumni Reunion",
         bg: "2a1c00",
         fg: "ffcc44",
+        imgs: ["400X400_alumni_i4o9kp", "333x333_alumni_oldlna", "267x267_alumni_pjl0qq"],
         span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
+        imagePosition: "top",
     },
     {
         w: 400,
@@ -71,7 +122,13 @@ const GALLERY_ITEMS = [
         label: "Handing Over",
         bg: "003322",
         fg: "aaffcc",
+        imgs: [
+            "400X800_handing_over_lri25b",
+            "333x667_handing_over_bufpjj",
+            "267x533_handing_over_v0lvb6",
+        ],
         span: "col-span-1 row-span-2 sm:col-span-2 sm:row-span-4 lg:col-span-2 lg:row-span-4",
+        imagePosition: "top",
     },
     {
         w: 800,
@@ -79,7 +136,13 @@ const GALLERY_ITEMS = [
         label: "Fellowship Moments",
         bg: "200010",
         fg: "FF6A00",
+        imgs: [
+            "800X800_fellowship_moment_lqw51w",
+            "667X667_fellowship_moment_lxh6un",
+            "533x533_fellowship_moment_vtmqnv",
+        ],
         span: "col-span-2 row-span-2 sm:col-span-4 sm:row-span-4 lg:col-span-4 lg:row-span-4",
+        imagePosition: "top",
     },
     {
         w: 400,
@@ -87,7 +150,13 @@ const GALLERY_ITEMS = [
         label: "Campus Life",
         bg: "0a1800",
         fg: "88ff88",
+        imgs: [
+            "400X400_campus_life_ovbpbj",
+            "333x333_campus_life_dh1eeh",
+            "267x267_campus_life_frsuy9",
+        ],
         span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
+        imagePosition: "top",
     },
     {
         w: 400,
@@ -95,7 +164,13 @@ const GALLERY_ITEMS = [
         label: "Community",
         bg: "1C0003",
         fg: "ffaaaa",
+        imgs: [
+            "400X400_COMMUNITY_111749_rptmpb",
+            "333x333_community_012909_pvpvcp",
+            "267x267_community_114840_hecgxh",
+        ],
         span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
+        imagePosition: "center",
     },
     {
         w: 800,
@@ -103,7 +178,13 @@ const GALLERY_ITEMS = [
         label: "Prayer Night",
         bg: "0d0028",
         fg: "ccaaff",
+        imgs: [
+            "800X400_prayer_night_uqoyq4",
+            "667X333_prayer_night_qlxvpu",
+            "533x267_prayer_night_f772e0",
+        ],
         span: "col-span-2 row-span-1 sm:col-span-4 sm:row-span-2 lg:col-span-4 lg:row-span-2",
+        imagePosition: "top",
     },
     {
         w: 400,
@@ -111,7 +192,13 @@ const GALLERY_ITEMS = [
         label: "Praise & Worship",
         bg: "300005",
         fg: "FF6A00",
+        imgs: [
+            "400X400_praise_worship_y4mltv",
+            "333x333_praise_worship_z2orvd",
+            "267x267_praise_worship_lafi40",
+        ],
         span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
+        imagePosition: "center",
     },
     {
         w: 400,
@@ -119,7 +206,13 @@ const GALLERY_ITEMS = [
         label: "RIFE Night",
         bg: "1a1800",
         fg: "ffff88",
+        imgs: [
+            "400X400_rife_night_wiol6m",
+            "333x333_rife_night_e91a1f",
+            "267x267_rife_night_pcn2zd",
+        ],
         span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
+        imagePosition: "top",
     },
     {
         w: 800,
@@ -127,7 +220,9 @@ const GALLERY_ITEMS = [
         label: "Southgate Auditorium",
         bg: "001820",
         fg: "44ddff",
+        // No real asset yet — stays a placeholder.
         span: "col-span-2 row-span-1 sm:col-span-4 sm:row-span-2 lg:col-span-4 lg:row-span-2",
+        imagePosition: "center",
     },
     {
         w: 400,
@@ -135,7 +230,13 @@ const GALLERY_ITEMS = [
         label: "Drama Team",
         bg: "380000",
         fg: "ffaaaa",
+        imgs: [
+            "400X400_drama_team_iihsxo",
+            "333x333_drama_team_pdy1xt",
+            "267x267_drama_team_hru9vn",
+        ],
         span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
+        imagePosition: "center",
     },
     {
         w: 400,
@@ -143,7 +244,9 @@ const GALLERY_ITEMS = [
         label: "Choir",
         bg: "003010",
         fg: "aaffaa",
+        imgs: ["400X400_choir_kpsggn", "333x333_choir_nydooq", "267x267_choir_l4nbdf"],
         span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
+        imagePosition: "top",
     },
     {
         w: 400,
@@ -151,17 +254,17 @@ const GALLERY_ITEMS = [
         label: "Bible Study",
         bg: "0d0028",
         fg: "aaffaa",
+        imgs: [
+            "400X400_bible_study_p2u9gj",
+            "333x333_bible_study_tleteh",
+            "267x267_bible_study_dtpifw",
+        ],
         span: "col-span-1 row-span-1 sm:col-span-2 sm:row-span-2 lg:col-span-2 lg:row-span-2",
+        imagePosition: "center",
     },
 ];
 
-function GalleryItem({
-    item,
-    index,
-}: {
-    item: (typeof GALLERY_ITEMS)[0];
-    index: number;
-}) {
+function GalleryItem({ item, index }: { item: GalleryItemType; index: number }) {
     const ref = useRef<HTMLDivElement>(null);
     const [visible, setVisible] = useState(false);
 
@@ -186,33 +289,22 @@ function GalleryItem({
             }`}
             style={{ transitionDelay: `${(index % 5) * 80}ms` }}
         >
-            <picture className="w-full h-full block">
-                <source
-                    media="(max-width: 640px)"
-                    srcSet={ph(
-                        Math.round(item.w / 1.5),
-                        Math.round(item.h / 1.5),
-                        item.label,
-                        item.bg,
-                        item.fg
-                    )}
-                />
-                <source
-                    media="(max-width: 1024px)"
-                    srcSet={ph(
-                        Math.round(item.w / 1.2),
-                        Math.round(item.h / 1.2),
-                        item.label,
-                        item.bg,
-                        item.fg
-                    )}
-                />
-                <img
-                    src={ph(item.w, item.h, item.label, item.bg, item.fg)}
-                    alt={item.label}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                />
-            </picture>
+            <SiteImage
+                src={item.imgs?.[0]}
+                alt={item.label}
+                fill
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                placeholderLabel={item.label}
+                colors={{ bg: item.bg, fg: item.fg }}
+                className={clsx(
+                    "w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out",
+                    {
+                        "object-top": item.imagePosition === "top",
+                        "object-center": item.imagePosition === "center",
+                        "object-bottom": item.imagePosition === "bottom",
+                    }
+                )}
+            />
 
             {/* Gradient hover overlay */}
             <div

@@ -178,14 +178,16 @@ export function PaymentTutorialModal({ isOpen, onClose }: PaymentTutorialModalPr
                                     <p className="text-xs text-rw-muted uppercase tracking-wide">
                                         Bank
                                     </p>
-                                    <p className="font-bold text-rw-ink">Access Bank</p>
+                                    <p className="font-bold text-rw-ink">
+                                        [Whatever was Stated]
+                                    </p>
                                 </div>
                                 <div>
                                     <p className="text-xs text-rw-muted uppercase tracking-wide">
                                         Account Name
                                     </p>
                                     <p className="font-bold text-rw-ink">
-                                        RCF Headquarters
+                                        [Whatever was Stated]
                                     </p>
                                 </div>
                                 <div>
@@ -193,7 +195,7 @@ export function PaymentTutorialModal({ isOpen, onClose }: PaymentTutorialModalPr
                                         Account Number
                                     </p>
                                     <p className="font-mono text-lg font-bold text-rw-crimson">
-                                        0701545220
+                                        [Whatever was Stated]
                                     </p>
                                 </div>
                             </div>

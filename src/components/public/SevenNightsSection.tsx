@@ -1,14 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { ph } from "@/lib/utils/functions";
 import { TENURE } from "@/lib/config";
+import { SiteImage } from "@/components/ui/SiteImage";
 
 interface Night {
     day: string;
     name: string;
     unit: string;
     desc: string;
+    /** 480×640 portrait Cloudinary public ID for the sticky card. */
+    img?: string;
+    /** 265×160 Cloudinary public ID for the mobile horizontal-scroll card. */
+    thumb?: string;
 }
 
 const NIGHT_COLORS = [
@@ -178,10 +182,14 @@ export function SevenNightsSection({ nights }: { nights: Night[] }) {
                             className="relative rounded-3xl overflow-hidden shadow-2xl"
                             style={{ aspectRatio: "3/4" }}
                         >
-                            <img
+                            <SiteImage
                                 key={active}
-                                src={ph(480, 640, `Night ${String(active + 1).padStart(2, "0")}\n${night.name}`, imgPal.bg, imgPal.fg)}
+                                src={night.img}
                                 alt={night.name}
+                                fill
+                                sizes="480px"
+                                placeholderLabel={`Night ${String(active + 1).padStart(2, "0")}\n${night.name}`}
+                                colors={{ bg: imgPal.bg, fg: imgPal.fg }}
                                 className="w-full h-full object-cover animate-fade-in"
                             />
 
@@ -276,11 +284,17 @@ export function SevenNightsSection({ nights }: { nights: Night[] }) {
                                     boxShadow: active === i ? `0 0 0 2px ${pal.accent}33` : undefined,
                                 }}
                             >
-                                <img
-                                    src={ph(256, 160, `Night ${String(i + 1).padStart(2, "0")}\n${n.name}`, ip.bg, ip.fg)}
-                                    alt={n.name}
-                                    className="w-full h-36 object-cover"
-                                />
+                                <div className="relative w-full h-36">
+                                    <SiteImage
+                                        src={n.thumb}
+                                        alt={n.name}
+                                        fill
+                                        sizes="256px"
+                                        placeholderLabel={`Night ${String(i + 1).padStart(2, "0")}\n${n.name}`}
+                                        colors={{ bg: ip.bg, fg: ip.fg }}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
                                 <div className="p-4 bg-white">
                                     <div className="flex items-center gap-2 mb-2">
                                         <span className="font-display font-bold text-lg" style={{ color: pal.accent }}>

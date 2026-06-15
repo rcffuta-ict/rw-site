@@ -22,15 +22,22 @@ export const TENURE = {
     /** Event theme */
     theme: "The Lord's Witnesses: The Purified Army",
     /** Event dates — ISO strings */
-    startDate: "2026-07-06T18:00:00",
-    endDate: "2026-07-12T23:59:00",
+    startDate: "2026-07-13T18:00:00",
+    endDate: "2026-07-19T23:59:00",
     /** Human-readable date range */
-    dateRange: "July 6–12, 2026",
+    dateRange: "July 13–19, 2026",
     /** Venue */
     venue: "RCFFUTA Southgate Auditorium, Akure",
-    /** Google Maps navigation URL — replace with real link when available */
-    googleMapsUrl:
-        "https://www.google.com/maps/dir/?api=1&destination=7.325683648594797,5.188835270364391",
+    /** Exact venue coordinates */
+    coordinates: { lat: 7.292981908522477, lng: 5.154444984239195 },
+    /** Google Maps turn-by-turn navigation URL to the venue */
+    get googleMapsUrl() {
+        return `https://www.google.com/maps/dir/?api=1&destination=${this.coordinates.lat},${this.coordinates.lng}`;
+    },
+    /** Keyless interactive Google Maps embed URL (for iframes) */
+    get mapEmbedUrl() {
+        return `https://maps.google.com/maps?q=${this.coordinates.lat},${this.coordinates.lng}&z=16&hl=en&output=embed`;
+    },
     /** Venue short address */
     venueAddress: "Besides His Grace Pavilion, FUTA Southgate, Akure",
     /** Full branding label */

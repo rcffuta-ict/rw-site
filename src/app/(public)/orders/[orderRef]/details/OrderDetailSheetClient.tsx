@@ -738,7 +738,7 @@ export default function OrderDetailSheetClient({ order }: OrderDetailSheetClient
                                         Redemption Week 2026
                                     </p>
                                     <p className="text-[10px] text-rw-muted font-medium">
-                                        July 6th – July 12th, 2026
+                                        July 13th – July 19th, 2026
                                     </p>
                                 </div>
 

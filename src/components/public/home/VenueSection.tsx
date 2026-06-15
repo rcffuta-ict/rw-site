@@ -64,7 +64,7 @@ const HOW_TO_GET_THERE = [
 const QUICK_FACTS = [
     { label: "Entry", value: "Free — All 7 Nights" },
     { label: "Time", value: "6:00 PM Daily" },
-    { label: "Dates", value: "July 6–12, 2026" },
+    { label: "Dates", value: "July 13–19, 2026" },
     { label: "Venue", value: "Southgate Auditorium" },
 ];
 
@@ -245,147 +245,64 @@ export function VenueSection() {
                         </div>
                     </div>
 
-                    {/* Map card — light themed */}
+                    {/* Map card — real interactive Google Maps embed */}
                     <div className="lg:sticky lg:top-24">
                         <div
                             className="relative rounded-3xl overflow-hidden border border-[#e8d0d4] shadow-xl bg-white"
                             style={{ aspectRatio: "4/5" }}
                         >
-                            {/* Map grid bg */}
-                            <div className="absolute inset-0 bg-[#eaf2ea]">
-                                <div
-                                    className="absolute inset-0 opacity-40"
-                                    style={{
-                                        backgroundImage: [
-                                            "linear-gradient(0deg, rgba(255,255,255,0.7) 2px, transparent 2px)",
-                                            "linear-gradient(90deg, rgba(255,255,255,0.7) 2px, transparent 2px)",
-                                            "linear-gradient(0deg, rgba(200,230,200,0.4) 1px, transparent 1px)",
-                                            "linear-gradient(90deg, rgba(200,230,200,0.4) 1px, transparent 1px)",
-                                        ].join(", "),
-                                        backgroundSize:
-                                            "80px 80px, 80px 80px, 20px 20px, 20px 20px",
-                                    }}
-                                />
-                                <div
-                                    className="absolute"
-                                    style={{
-                                        top: "10%",
-                                        left: "5%",
-                                        width: "35%",
-                                        height: "25%",
-                                        background: "rgba(200,220,200,0.5)",
-                                        borderRadius: 4,
-                                    }}
-                                />
-                                <div
-                                    className="absolute"
-                                    style={{
-                                        top: "40%",
-                                        left: "55%",
-                                        width: "40%",
-                                        height: "20%",
-                                        background: "rgba(210,225,210,0.5)",
-                                        borderRadius: 4,
-                                    }}
-                                />
-                                <div
-                                    className="absolute"
-                                    style={{
-                                        top: "60%",
-                                        left: "8%",
-                                        width: "28%",
-                                        height: "18%",
-                                        background: "rgba(205,222,205,0.5)",
-                                        borderRadius: 4,
-                                    }}
-                                />
-                                <div
-                                    className="absolute"
-                                    style={{
-                                        top: "15%",
-                                        right: "5%",
-                                        width: "22%",
-                                        height: "30%",
-                                        background: "rgba(215,228,215,0.5)",
-                                        borderRadius: 4,
-                                    }}
-                                />
-                                {/* Roads */}
-                                <div
-                                    className="absolute"
-                                    style={{
-                                        top: "50%",
-                                        left: 0,
-                                        right: 0,
-                                        height: 8,
-                                        background: "rgba(255,255,255,0.9)",
-                                        boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-                                    }}
-                                />
-                                <div
-                                    className="absolute"
-                                    style={{
-                                        left: "42%",
-                                        top: 0,
-                                        bottom: 0,
-                                        width: 8,
-                                        background: "rgba(255,255,255,0.9)",
-                                        boxShadow: "1px 0 3px rgba(0,0,0,0.08)",
-                                    }}
-                                />
-                            </div>
+                            {/* Live, pannable map */}
+                            <iframe
+                                title="Map to RCFFUTA Southgate Auditorium"
+                                src={TENURE.mapEmbedUrl}
+                                className="absolute inset-0 h-full w-full"
+                                style={{ border: 0 }}
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                                allowFullScreen
+                            />
 
-                            {/* Pin */}
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="relative">
-                                    <div className="absolute inset-0 rounded-full bg-[#FF0015]/20 animate-ping scale-150" />
-                                    <div className="absolute inset-0 rounded-full bg-[#FF0015]/10 scale-[2.5]" />
-                                    <div className="relative h-14 w-14 rounded-full bg-[#FF0015] flex items-center justify-center shadow-[0_4px_24px_rgba(255,0,21,0.4)] text-white z-10">
-                                        <svg
-                                            className="h-6 w-6"
-                                            fill="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                fillRule="evenodd"
-                                                d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-2.079 3.208-4.196 3.208-6.797a6.5 6.5 0 00-13 0c0 2.601 1.265 4.719 3.208 6.797a19.58 19.58 0 002.684 2.282 16.975 16.975 0 001.144.742zM12 9a2 2 0 100 4 2 2 0 000-4z"
-                                                clipRule="evenodd"
-                                            />
-                                        </svg>
-                                    </div>
-                                    {/* Bubble */}
-                                    <div className="absolute -top-14 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white rounded-xl px-3 py-2 shadow-lg border border-[#e8d0d4]">
-                                        <p className="text-[11px] font-bold text-[#1C0003]">
-                                            RCFFUTA Southgate Auditorium
-                                        </p>
-                                        <p className="text-[10px] text-[#9a8085]">
-                                            Beside His Grace Pavilion
-                                        </p>
-                                        <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 h-3 w-3 bg-white border-r border-b border-[#e8d0d4] rotate-45" />
-                                    </div>
+                            {/* Floating venue label (top) — pointer-events off so the map stays usable */}
+                            <div className="pointer-events-none absolute top-4 left-4 right-4 flex">
+                                <div className="rounded-xl bg-white/95 backdrop-blur-sm px-3.5 py-2.5 shadow-lg border border-[#e8d0d4]">
+                                    <p className="text-[11px] font-bold text-[#1C0003] leading-tight">
+                                        RCFFUTA Southgate Auditorium
+                                    </p>
+                                    <p className="text-[10px] text-[#9a8085] mt-0.5">
+                                        Beside His Grace Pavilion
+                                    </p>
                                 </div>
                             </div>
 
-                            {/* Compass */}
-                            <div className="absolute top-4 right-4 h-9 w-9 rounded-full bg-white border border-[#e8d0d4] shadow flex items-center justify-center text-[#1C0003] font-bold text-xs">
-                                N↑
-                            </div>
-
-                            {/* CTA overlay */}
-                            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white/95 to-transparent pt-16">
+                            {/* CTA — only the button captures clicks, the rest of the map stays interactive */}
+                            <div className="pointer-events-none absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white/95 to-transparent pt-16">
                                 <Link
                                     href={TENURE.googleMapsUrl}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="flex items-center justify-center gap-2.5 h-12 w-full rounded-2xl
-                                               bg-[#1C0003] text-white font-bold text-sm shadow-md
+                                    className="pointer-events-auto flex items-center justify-center gap-2.5 h-12 w-full rounded-2xl
+                                               bg-[#1C0003] text-white! hover:text-rw-forest! font-bold text-sm shadow-md
                                                hover:bg-[#FF0015] transition-all duration-300
                                                hover:shadow-[0_4px_20px_rgba(255,0,21,0.3)]"
                                 >
-                                    Open Navigation in Google Maps
+                                    <svg
+                                        className="h-[18px] w-[18px]"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth={2}
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z"
+                                        />
+                                    </svg>
+                                    Get Directions
                                 </Link>
-                                <p className="text-center text-[11px] text-[#9a8085] mt-2.5">
-                                    Real navigation · 7.3257°N, 5.1888°E
+                                <p className="pointer-events-none text-center text-[11px] text-[#9a8085] mt-2.5">
+                                    {TENURE.coordinates.lat.toFixed(4)}°N,{" "}
+                                    {TENURE.coordinates.lng.toFixed(4)}°E
                                 </p>
                             </div>
                         </div>

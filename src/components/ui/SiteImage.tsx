@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { ph } from "@/lib/utils/functions";
 import cloudinaryLoader, { getCloudinaryPublicId } from "@/lib/utils/cloudinaryLoader";
+import clsx from "clsx";
 
 export interface SiteImageProps {
     src?: string | null;
@@ -21,10 +22,17 @@ export interface SiteImageProps {
 
 export interface ResponsiveSiteImageProps {
     desktopSrc: string;
-    mobileSrc: string;
+    /**
+     * Optional lower-res variant. No longer required for responsiveness —
+     * next/image generates the responsive srcset from `desktopSrc` and the
+     * Cloudinary loader serves the best size/format (WebP/AVIF) per device.
+     */
+    mobileSrc?: string;
     alt: string;
     priority?: boolean;
     className?: string;
+    sizes?: string;
+    imageTop?: boolean;
 }
 
 export function SiteImage({
@@ -82,35 +90,30 @@ export function SiteImage({
 
 export function ResponsiveSiteImage({
     desktopSrc,
-    mobileSrc,
     alt,
     priority = false,
     className = "",
+    sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
+    imageTop = false,
 }: ResponsiveSiteImageProps) {
-    const desktopId = getCloudinaryPublicId(desktopSrc);
-    const mobileId = getCloudinaryPublicId(mobileSrc);
+    const publicId = getCloudinaryPublicId(desktopSrc);
+    if (!publicId) return null;
 
-    if (!desktopId || !mobileId) return null;
-
-    // Generate responsive transformed URLs directly from your loader logic
-    const mobileUrl = cloudinaryLoader({ src: mobileId, width: 640, quality: 80 });
-    const tabletUrl = cloudinaryLoader({ src: desktopId, width: 1024, quality: 80 });
-    const desktopUrl = cloudinaryLoader({ src: desktopId, width: 1920, quality: 80 });
-
+    // next/image + the Cloudinary loader (c_fill, g_auto, f_auto) build the
+    // responsive srcset and serve WebP/AVIF at the optimal size per device.
     return (
-        <picture className={className}>
-            {/* Desktop Viewports */}
-            <source media="(min-width: 1024px)" srcSet={desktopUrl} />
-            {/* Tablet Viewports */}
-            <source media="(min-width: 640px)" srcSet={tabletUrl} />
-            {/* Mobile Viewports / Fallback Img */}
-            <img
-                src={mobileUrl}
-                alt={alt}
-                loading={priority ? "eager" : "lazy"}
-                fetchPriority={priority ? "high" : "low"}
-                className="absolute inset-0 w-full h-full object-cover object-center"
-            />
-        </picture>
+        <Image
+            loader={cloudinaryLoader}
+            src={publicId}
+            alt={alt}
+            fill
+            priority={priority}
+            sizes={sizes}
+            className={clsx(
+                "object-cover",
+                { "object-top": imageTop === true },
+                className
+            )}
+        />
     );
 }
