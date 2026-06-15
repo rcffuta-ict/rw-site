@@ -29,7 +29,7 @@ export function PreordersClosed({
             `If you have a question, reach out to our team below.`;
 
     return (
-        <div className="section-container py-20 lg:py-28">
+        <div className="section-container py-20 lg:py-28 my-20">
             <div className="rw-card max-w-2xl mx-auto p-8 sm:p-12 text-center flex flex-col items-center gap-6">
                 <div className="h-20 w-20 rounded-[2rem] bg-rw-crimson/10 border border-rw-crimson/20 flex items-center justify-center">
                     <svg
@@ -86,10 +86,24 @@ export function PreordersClosed({
                     ))}
                 </div>
 
-                <Link href="/" className="mt-2">
-                    <Button variant="outlined" size="sm">
-                        Back to Home
-                    </Button>
+                <Link
+                    href="/"
+                    className="btn-primary !h-14 px-8 w-full sm:w-auto text-[11px] font-bold uppercase tracking-widest shadow-xl shadow-rw-crimson/20 hover:shadow-rw-crimson/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
+                >
+                    <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-1.125 1.125-1.125V9.75M8.25 21h8.25"
+                        />
+                    </svg>
+                    Return Home
                 </Link>
             </div>
         </div>

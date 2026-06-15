@@ -81,6 +81,7 @@ export async function updateSettings(
     revalidateTag("settings", "max");
     // The pre-orders / payments master switches gate these public pages, so
     // purge them to reflect the change immediately.
+    revalidatePath("/");
     revalidatePath("/shop");
     revalidatePath("/checkout");
     revalidatePath("/fulfil");

@@ -11,9 +11,12 @@ import { SponsorsSection } from "@/components/public/home/SponsorsSection";
 import { CtaBannerSection } from "@/components/public/home/CtaBannerSection";
 import { VenueSection } from "@/components/public/home/VenueSection";
 import { getProducts } from "@/lib/services/products.service";
+import { getSettings } from "@/lib/services/settings.service";
 
 export default async function LandingPage() {
-    const products = await getProducts();
+    const settings = await getSettings();
+    // When pre-orders are closed, products are hidden across the site.
+    const products = settings.preorders_enabled ? await getProducts() : [];
 
     return (
         <div className="bg-white overflow-x-hidden">
@@ -28,7 +31,9 @@ export default async function LandingPage() {
             </div>
 
             <AboutSection />
-            <MerchPreviewSection products={products} />
+            {settings.preorders_enabled && (
+                <MerchPreviewSection products={products} />
+            )}
 
             {/* <div className="section-container">
                 <div className="section-divider" />
