@@ -196,12 +196,12 @@ export function FinancePayments({
             </div>
 
             {/* Split View */}
-            <div className="grid lg:grid-cols-5 gap-0 rounded-3xl overflow-hidden border border-[var(--rw-border)] bg-rw-bg-alt/20 min-h-[750px] shadow-2xl shadow-rw-ink/5">
+            <div className="grid lg:grid-cols-5 gap-0 rounded-3xl overflow-hidden border border-[var(--rw-border)] bg-rw-bg-alt/20 h-[calc(100vh-19rem)] min-h-[600px] max-h-[860px] shadow-2xl shadow-rw-ink/5">
                 {/* Left List */}
                 <div
-                    className={`${selectedPaymentId ? "hidden lg:block" : ""} lg:col-span-2 border-r border-[var(--rw-border)] bg-white flex flex-col`}
+                    className={`${selectedPaymentId ? "hidden lg:block" : ""} lg:col-span-2 border-r border-[var(--rw-border)] bg-white flex flex-col min-h-0 overflow-hidden`}
                 >
-                    <div className="p-4 border-b border-[var(--rw-border)] bg-rw-bg-alt/30">
+                    <div className="p-4 border-b border-[var(--rw-border)] bg-rw-bg-alt/30 shrink-0">
                         <Input
                             placeholder="Search by order or name..."
                             className="!rounded-xl border-none shadow-sm"
@@ -209,6 +209,11 @@ export function FinancePayments({
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
+                        <p className="mt-2 px-1 text-[10px] font-bold text-rw-muted uppercase tracking-[0.15em]">
+                            {filteredPayments.length}{" "}
+                            {filter === "all" ? "total" : filter}{" "}
+                            {filteredPayments.length === 1 ? "payment" : "payments"}
+                        </p>
                     </div>
                     <div className="overflow-y-auto flex-1 scrollbar-hide">
                         {filteredPayments.length === 0 ? (
@@ -310,15 +315,49 @@ export function FinancePayments({
                                             <p className="text-xs font-mono text-rw-muted">
                                                 {selectedPayment.order.customerPhone}
                                             </p>
-                                            <div className="mt-3 pt-3 border-t border-[var(--rw-border)]">
-                                                <span className="text-[10px] font-bold text-rw-muted uppercase tracking-[0.2em] block mb-1">
-                                                    Transfer Bank
-                                                </span>
-                                                <p className="font-bold text-sm text-rw-ink">
-                                                    {selectedPayment.extractedBank ||
-                                                        "Unknown"}
-                                                </p>
+                                            <div className="mt-3 pt-3 border-t border-[var(--rw-border)] grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-rw-muted uppercase tracking-[0.2em] block mb-1">
+                                                        Sender (on receipt)
+                                                    </span>
+                                                    <p
+                                                        className="font-bold text-sm text-rw-ink truncate"
+                                                        title={
+                                                            selectedPayment.extractedSenderName ||
+                                                            "Unknown"
+                                                        }
+                                                    >
+                                                        {selectedPayment.extractedSenderName ||
+                                                            "Unknown"}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-rw-muted uppercase tracking-[0.2em] block mb-1">
+                                                        Transfer Bank
+                                                    </span>
+                                                    <p className="font-bold text-sm text-rw-ink truncate">
+                                                        {selectedPayment.extractedBank ||
+                                                            "Unknown"}
+                                                    </p>
+                                                </div>
                                             </div>
+                                            {selectedPayment.extractedTransactionRef && (
+                                                <div className="mt-3 pt-3 border-t border-[var(--rw-border)]">
+                                                    <span className="text-[10px] font-bold text-rw-muted uppercase tracking-[0.2em] block mb-1">
+                                                        Transaction Ref
+                                                    </span>
+                                                    <p
+                                                        className="font-mono text-xs text-rw-ink break-all"
+                                                        title={
+                                                            selectedPayment.extractedTransactionRef
+                                                        }
+                                                    >
+                                                        {
+                                                            selectedPayment.extractedTransactionRef
+                                                        }
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="p-4 rounded-2xl bg-white border-2 border-dashed border-[var(--rw-border)] shadow-sm">
@@ -415,17 +454,103 @@ export function FinancePayments({
                                             </Button>
                                         </div>
                                     ) : (
-                                        <div className="text-center p-4 bg-gray-50 rounded-2xl border border-dashed">
-                                            <p className="text-sm font-bold">
-                                                Judged by{" "}
-                                                {selectedPayment.moderatorName ||
-                                                    "System"}
-                                            </p>
-                                            <p className="text-[10px] text-gray-500 mt-1">
-                                                {selectedPayment.reviewNote ||
-                                                    "No notes provided"}
-                                            </p>
-                                        </div>
+                                        (() => {
+                                            const verdict = {
+                                                approved: {
+                                                    label: "Approved",
+                                                    accent: "text-green-700",
+                                                    ring: "border-green-200 bg-green-50/60",
+                                                    dot: "bg-green-500",
+                                                },
+                                                flagged: {
+                                                    label: "Flagged",
+                                                    accent: "text-amber-700",
+                                                    ring: "border-amber-200 bg-amber-50/60",
+                                                    dot: "bg-amber-500",
+                                                },
+                                                rejected: {
+                                                    label: "Rejected",
+                                                    accent: "text-red-700",
+                                                    ring: "border-red-200 bg-red-50/60",
+                                                    dot: "bg-red-500",
+                                                },
+                                            }[selectedPayment.status] ?? {
+                                                label: selectedPayment.status,
+                                                accent: "text-gray-700",
+                                                ring: "border-gray-200 bg-gray-50",
+                                                dot: "bg-gray-400",
+                                            };
+
+                                            const moderator =
+                                                selectedPayment.moderatorName || "System";
+                                            const initials = moderator
+                                                .split(/\s+/)
+                                                .map((w) => w[0])
+                                                .filter(Boolean)
+                                                .slice(0, 2)
+                                                .join("")
+                                                .toUpperCase();
+
+                                            return (
+                                                <div
+                                                    className={`rounded-2xl border ${verdict.ring} p-5`}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="h-11 w-11 shrink-0 rounded-full bg-white border border-[var(--rw-border)] flex items-center justify-center font-display font-black text-sm text-rw-ink shadow-sm">
+                                                            {initials || "SY"}
+                                                        </div>
+                                                        <div className="min-w-0 flex-1">
+                                                            <div className="flex items-center gap-2">
+                                                                <span
+                                                                    className={`h-1.5 w-1.5 rounded-full ${verdict.dot}`}
+                                                                />
+                                                                <span
+                                                                    className={`text-[10px] font-black uppercase tracking-[0.2em] ${verdict.accent}`}
+                                                                >
+                                                                    {verdict.label} by
+                                                                </span>
+                                                            </div>
+                                                            <p className="font-bold text-rw-ink text-sm truncate mt-0.5">
+                                                                {moderator}
+                                                            </p>
+                                                            {selectedPayment.moderatorEmail && (
+                                                                <p className="text-[11px] font-mono text-rw-muted truncate">
+                                                                    {
+                                                                        selectedPayment.moderatorEmail
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                        {selectedPayment.status ===
+                                                            "approved" && (
+                                                            <div className="text-right shrink-0">
+                                                                <p className="text-[9px] font-bold text-rw-muted uppercase tracking-widest">
+                                                                    Confirmed
+                                                                </p>
+                                                                <p className="font-display font-black text-green-700">
+                                                                    {formatNaira(
+                                                                        selectedPayment.amountConfirmed ??
+                                                                            selectedPayment.extractedAmount
+                                                                    )}
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="mt-4 pt-3 border-t border-[var(--rw-border)]/60">
+                                                        <p className="text-[9px] font-bold text-rw-muted uppercase tracking-[0.2em] mb-1">
+                                                            Review Note
+                                                        </p>
+                                                        <p
+                                                            className={`text-xs leading-relaxed ${selectedPayment.reviewNote ? "text-rw-ink" : "text-rw-muted italic"}`}
+                                                        >
+                                                            {selectedPayment.reviewNote ||
+                                                                "No notes were left for this decision."}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()
                                     )}
                                 </div>
                             </div>

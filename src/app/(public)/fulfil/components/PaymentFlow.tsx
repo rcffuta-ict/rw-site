@@ -14,13 +14,24 @@ import { formatNaira } from "@/lib/utils/functions";
 import { PartialPaymentSelector } from "@/components/public/PartialPaymentSelector";
 
 interface ExtractionResult {
+    // Who sent the money (the customer paying)
     senderName: string | null;
+    senderBank: string | null;
+    // Who received it — should resolve to the fellowship account
+    recipientName: string | null;
+    recipientBank: string | null;
+    recipientAccount: string | null;
+    // Money
     amount: number | null;
+    fee: number | null;
+    // When
     date: string | null;
     time: string | null;
-    bank: string | null;
+    // Trace
     transactionRef: string | null;
     narration: string | null;
+    status: "successful" | "failed" | "pending" | "reversed" | null;
+    platform: string | null;
     confidence: "high" | "medium" | "low";
 }
 
@@ -188,15 +199,37 @@ export function PaymentFlow({
                     }
                 }
 
+                // Derive a confidence score from how much of the receipt the
+                // model could actually resolve. The more critical fields we
+                // recover (amount, recipient, reference, a successful status),
+                // the more we trust the extraction.
+                const signals = [
+                    tx.amount != null,
+                    Boolean(tx.recipient_name),
+                    Boolean(tx.recipient_bank),
+                    Boolean(tx.reference),
+                    Boolean(tx.transaction_date),
+                    tx.status === "successful",
+                ];
+                const score = signals.filter(Boolean).length;
+                const confidence: "high" | "medium" | "low" =
+                    score >= 5 ? "high" : score >= 3 ? "medium" : "low";
+
                 setExtraction({
-                    senderName: tx.sender || "Unknown",
-                    amount: tx.amount || null,
+                    senderName: tx.sender_name || "Unknown",
+                    senderBank: tx.sender_bank || null,
+                    recipientName: tx.recipient_name || null,
+                    recipientBank: tx.recipient_bank || null,
+                    recipientAccount: tx.recipient_account || null,
+                    amount: tx.amount ?? null,
+                    fee: tx.fee ?? null,
                     date: formattedDate,
                     time: formattedTime,
-                    bank: tx.bank || "Unknown",
                     transactionRef: tx.reference || "—",
-                    narration: (tx as any).narration || (tx as any).description || null,
-                    confidence: "high" as const,
+                    narration: tx.narration || null,
+                    status: tx.status ?? null,
+                    platform: tx.platform || null,
+                    confidence,
                 });
                 updateStage("preview");
             } else {
@@ -269,7 +302,7 @@ export function PaymentFlow({
                 orderId: order.id,
                 extractedAmount: extraction.amount ?? payAmount,
                 extractedSenderName: extraction.senderName,
-                extractedBank: extraction.bank,
+                extractedBank: extraction.senderBank,
                 extractedDate: extraction.date,
                 extractedTime: extraction.time,
                 extractedTransactionRef:
@@ -375,10 +408,19 @@ export function PaymentFlow({
     // Preview state
     if (stage === "preview") {
         const isMissingInfo =
-            !extraction?.senderName ||
-            extraction.senderName === "Unknown" ||
             !extraction?.amount ||
-            extraction.date === "—";
+            extraction.date === "—" ||
+            !extraction?.transactionRef ||
+            extraction.transactionRef === "—";
+
+        // The receipt itself reports a non-successful outcome (failed / pending /
+        // reversed transfer). Money never actually landed — hard block.
+        const isFailedTransaction = Boolean(
+            extraction?.status &&
+            extraction.status !== "successful" &&
+            extraction.status !== "pending"
+        );
+        const isPendingTransaction = extraction?.status === "pending";
 
         const isAmountMismatch = Boolean(
             extraction?.amount && extraction.amount < payAmount
@@ -389,7 +431,11 @@ export function PaymentFlow({
             extraction.amount !== remaining
         );
         const hasMajorWarning =
-            (isMissingInfo || isAmountMismatch || isAmountWarning) && !DEMO_MODE;
+            (isMissingInfo ||
+                isAmountMismatch ||
+                isAmountWarning ||
+                isFailedTransaction) &&
+            !DEMO_MODE;
 
         const prescribedNarration = `RW26-${order.orderRef}`;
         const isNarrationMismatch =
@@ -399,15 +445,16 @@ export function PaymentFlow({
                     .toLowerCase()
                     .includes(prescribedNarration.toLowerCase()));
 
-        // Validate bank and recipient name match defaults
+        // Validate the money actually went INTO the fellowship account: the
+        // receipt's recipient bank + name must line up with our settings.
         const isBankMismatch =
             extraction &&
-            extraction.bank &&
-            extraction.bank.toLowerCase() !== settings.bank_name.toLowerCase();
+            extraction.recipientBank &&
+            extraction.recipientBank.toLowerCase() !== settings.bank_name.toLowerCase();
 
         const isRecipientMismatch = (() => {
-            if (!extraction || !extraction.senderName) return false;
-            const ext = extraction.senderName.toLowerCase();
+            if (!extraction || !extraction.recipientName) return false;
+            const ext = extraction.recipientName.toLowerCase();
             const exp = settings.bank_account_name.toLowerCase();
             if (ext === exp) return false;
 
@@ -519,20 +566,70 @@ export function PaymentFlow({
                         </div>
                     ) : extraction ? (
                         <div className="flex flex-col gap-4">
-                            {/* Row 1 */}
-                            <div className="p-4 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)]">
-                                <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">
-                                    Sender Name
-                                </p>
-                                <p
-                                    className="font-bold text-base text-rw-ink truncate"
-                                    title={extraction.senderName || "—"}
+                            {/* Transfer status badge */}
+                            {extraction.status && (
+                                <div
+                                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-bold ${
+                                        extraction.status === "successful"
+                                            ? "bg-green-50 text-green-700 border-green-200"
+                                            : extraction.status === "pending"
+                                              ? "bg-amber-50 text-amber-700 border-amber-200"
+                                              : "bg-red-50 text-red-700 border-red-200"
+                                    }`}
                                 >
-                                    {extraction.senderName || "—"}
-                                </p>
+                                    <span className="h-2 w-2 rounded-full bg-current" />
+                                    Transfer {extraction.status}
+                                    {extraction.platform && (
+                                        <span className="ml-auto text-[10px] font-bold uppercase tracking-wider opacity-70">
+                                            via {extraction.platform}
+                                        </span>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Paid By → Paid To */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)]">
+                                    <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">
+                                        Paid By
+                                    </p>
+                                    <p
+                                        className="font-bold text-base text-rw-ink truncate"
+                                        title={extraction.senderName || "—"}
+                                    >
+                                        {extraction.senderName || "—"}
+                                    </p>
+                                    {extraction.senderBank && (
+                                        <p
+                                            className="text-xs text-rw-muted truncate mt-0.5"
+                                            title={extraction.senderBank}
+                                        >
+                                            {extraction.senderBank}
+                                        </p>
+                                    )}
+                                </div>
+                                <div className="p-4 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)]">
+                                    <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">
+                                        Paid To
+                                    </p>
+                                    <p
+                                        className="font-bold text-base text-rw-ink truncate"
+                                        title={extraction.recipientName || "—"}
+                                    >
+                                        {extraction.recipientName || "—"}
+                                    </p>
+                                    {extraction.recipientBank && (
+                                        <p
+                                            className="text-xs text-rw-muted truncate mt-0.5"
+                                            title={extraction.recipientBank}
+                                        >
+                                            {extraction.recipientBank}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
 
-                            {/* Row 2 */}
+                            {/* Amount + Date */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-4 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)]">
                                     <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">
@@ -543,6 +640,11 @@ export function PaymentFlow({
                                             ? formatNaira(extraction.amount)
                                             : "—"}
                                     </p>
+                                    {extraction.fee ? (
+                                        <p className="text-xs text-rw-muted mt-0.5">
+                                            + {formatNaira(extraction.fee)} fee
+                                        </p>
+                                    ) : null}
                                 </div>
                                 <div className="p-4 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)]">
                                     <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">
@@ -556,29 +658,62 @@ export function PaymentFlow({
                                 </div>
                             </div>
 
-                            {/* Row 3 */}
+                            {/* Reference */}
                             <div className="p-4 rounded-2xl bg-rw-bg-alt border border-[var(--rw-border)]">
                                 <p className="text-xs text-rw-muted font-medium uppercase tracking-wider mb-1">
-                                    Bank & Reference
+                                    Transaction Reference
                                 </p>
-                                <div className="flex flex-col">
-                                    <p
-                                        className="font-bold text-base text-rw-ink truncate"
-                                        title={extraction.bank || "—"}
-                                    >
-                                        {extraction.bank || "—"}
-                                    </p>
+                                <p
+                                    className="text-sm text-rw-ink truncate font-mono"
+                                    title={extraction.transactionRef || "—"}
+                                >
                                     {extraction.transactionRef &&
-                                        extraction.transactionRef !== "—" && (
-                                            <p
-                                                className="text-sm text-rw-text-2 truncate font-mono mt-0.5"
-                                                title={extraction.transactionRef || ""}
-                                            >
-                                                Ref: {extraction.transactionRef}
-                                            </p>
-                                        )}
-                                </div>
+                                    extraction.transactionRef !== "—"
+                                        ? extraction.transactionRef
+                                        : "—"}
+                                </p>
                             </div>
+
+                            {/* Failed / pending transfer — hard block */}
+                            {(isFailedTransaction || isPendingTransaction) && (
+                                <div
+                                    className={`p-4 rounded-xl border flex gap-3 items-start animate-fade-in ${
+                                        isFailedTransaction
+                                            ? "bg-red-50 border-red-200"
+                                            : "bg-amber-50 border-amber-200"
+                                    }`}
+                                >
+                                    <svg
+                                        className={`w-5 h-5 shrink-0 mt-0.5 ${isFailedTransaction ? "text-red-600" : "text-amber-600"}`}
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                        />
+                                    </svg>
+                                    <div>
+                                        <p
+                                            className={`text-sm font-bold ${isFailedTransaction ? "text-red-800" : "text-amber-800"}`}
+                                        >
+                                            {isFailedTransaction
+                                                ? "Transfer Not Successful"
+                                                : "Transfer Still Pending"}
+                                        </p>
+                                        <p
+                                            className={`text-xs mt-1 ${isFailedTransaction ? "text-red-700" : "text-amber-700"}`}
+                                        >
+                                            {isFailedTransaction
+                                                ? `This receipt reports a "${extraction.status}" transfer — the funds did not arrive. Please upload a successful transfer receipt.`
+                                                : "This transfer is still pending settlement. Admins will verify once the funds clear."}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Row 4: Account Mismatch Warning */}
                             {hasAccountMismatch && (
@@ -608,21 +743,22 @@ export function PaymentFlow({
                                         {isBankMismatch && (
                                             <p
                                                 className="text-xs text-amber-600 font-mono mt-2 truncate max-w-xs"
-                                                title={extraction.bank || ""}
+                                                title={extraction.recipientBank || ""}
                                             >
                                                 Expected Bank: <b>{settings.bank_name}</b>{" "}
                                                 | Found:{" "}
-                                                <b>{rephrase(extraction.bank)}</b>
+                                                <b>{rephrase(extraction.recipientBank)}</b>
                                             </p>
                                         )}
                                         {isRecipientMismatch && (
                                             <p
                                                 className="text-xs text-amber-600 font-mono mt-1 truncate max-w-xs"
-                                                title={extraction.senderName || ""}
+                                                title={extraction.recipientName || ""}
                                             >
                                                 Expected Recipient:{" "}
                                                 <b>{settings.bank_account_name}</b> |
-                                                Found: <b>{extraction.senderName}</b>
+                                                Found:{" "}
+                                                <b>{rephrase(extraction.recipientName)}</b>
                                             </p>
                                         )}
                                     </div>

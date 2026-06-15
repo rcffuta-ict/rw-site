@@ -25,6 +25,17 @@ export async function analyzeReceipt(base64Image: string, mimeType: string) {
 
         const result = await extractor.extractFromBase64(cleanBase64, mimeType as any);
 
+        // The model could not resolve any structured transaction from the image
+        // (blurry shot, non-receipt photo, unsupported layout, etc.).
+        if (!result.transaction) {
+            return {
+                success: false,
+                error:
+                    result.error ||
+                    "We couldn't read a transaction from this image. Please upload a clearer screenshot of the transfer receipt.",
+            };
+        }
+
         return {
             success: true,
             transaction: result.transaction,

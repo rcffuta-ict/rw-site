@@ -1,91 +1,10 @@
-lockfileVersion: "9.0"
+lockfileVersion: '9.0'
 
 settings:
-    autoInstallPeers: true
-    excludeLinksFromLockfile: false
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
 
 importers:
-    .:
-        dependencies:
-            "@rcffuta/ict-lib":
-                specifier: ^3.3.4
-                version: 3.3.4
-            "@supabase/ssr":
-                specifier: ^0.10.2
-                version: 0.10.3(@supabase/supabase-js@2.106.1)
-            "@supabase/supabase-js":
-                specifier: ^2.104.1
-                version: 2.106.1
-            "@tailwindcss/postcss":
-                specifier: ^4.2.4
-                version: 4.3.0
-            clsx:
-                specifier: ^2.1.1
-                version: 2.1.1
-            date-fns:
-                specifier: ^4.1.0
-                version: 4.1.0
-            groq-sdk:
-                specifier: ^1.2.0
-                version: 1.2.0
-            next:
-                specifier: 16.2.4
-                version: 16.2.4(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-            react:
-                specifier: 19.2.4
-                version: 19.2.4
-            react-dom:
-                specifier: 19.2.4
-                version: 19.2.4(react@19.2.4)
-            receipt-ocr-ng:
-                specifier: ^1.1.0
-                version: 1.1.0(groq-sdk@1.2.0)
-            sonner:
-                specifier: ^2.0.7
-                version: 2.0.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-            zod:
-                specifier: ^4.3.6
-                version: 4.4.3
-            zustand:
-                specifier: ^5.0.13
-                version: 5.0.13(@types/react@19.2.15)(react@19.2.4)
-        devDependencies:
-            "@types/node":
-                specifier: ^20
-                version: 20.19.41
-            "@types/react":
-                specifier: ^19
-                version: 19.2.15
-            "@types/react-dom":
-                specifier: ^19
-                version: 19.2.3(@types/react@19.2.15)
-            autoprefixer:
-                specifier: ^10.4.22
-                version: 10.5.0(postcss@8.5.15)
-            eslint:
-                specifier: ^9
-                version: 9.39.4(jiti@2.7.0)
-            eslint-config-next:
-                specifier: 16.2.4
-                version: 16.2.4(@typescript-eslint/parser@8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
-            eslint-config-prettier:
-                specifier: ^10.1.8
-                version: 10.1.8(eslint@9.39.4(jiti@2.7.0))
-            local-ssl-proxy:
-                specifier: ^2.0.5
-                version: 2.0.5
-            postcss:
-                specifier: ^8.5.10
-                version: 8.5.15
-            prettier:
-                specifier: ^3.8.3
-                version: 3.8.3
-            tailwindcss:
-                specifier: ^4.2.2
-                version: 4.3.0
-            typescript:
-                specifier: ^5
-                version: 5.9.3
 
   .:
     dependencies:
@@ -106,7 +25,7 @@ importers:
         version: 2.1.1
       date-fns:
         specifier: ^4.1.0
-        version: 4.1.0
+        version: 4.4.0
       groq-sdk:
         specifier: ^1.2.0
         version: 1.2.0
@@ -120,8 +39,8 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       receipt-ocr-ng:
-        specifier: ^1.1.0
-        version: 1.1.0(groq-sdk@1.2.0)
+        specifier: ^1.4.1
+        version: 1.4.1(groq-sdk@1.2.0)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -339,89 +258,105 @@ packages:
     resolution: {integrity: sha512-excjX8DfsIcJ10x1Kzr4RcWe1edC9PquDRRPx3YVCvQv+U5p7Yin2s32ftzikXojb1PIFc/9Mt28/y+iRklkrw==}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-arm@1.2.4':
     resolution: {integrity: sha512-bFI7xcKFELdiNCVov8e44Ia4u2byA+l3XtsAj+Q8tfCwO6BQ8iDojYdvoPMqsKDkuoOo+X6HZA0s0q11ANMQ8A==}
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-ppc64@1.2.4':
     resolution: {integrity: sha512-FMuvGijLDYG6lW+b/UvyilUWu5Ayu+3r2d1S8notiGCIyYU/76eig1UfMmkZ7vwgOrzKzlQbFSuQfgm7GYUPpA==}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-riscv64@1.2.4':
     resolution: {integrity: sha512-oVDbcR4zUC0ce82teubSm+x6ETixtKZBh/qbREIOcI3cULzDyb18Sr/Wcyx7NRQeQzOiHTNbZFF1UwPS2scyGA==}
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-s390x@1.2.4':
     resolution: {integrity: sha512-qmp9VrzgPgMoGZyPvrQHqk02uyjA0/QrTO26Tqk6l4ZV0MPWIW6LTkqOIov+J1yEu7MbFQaDpwdwJKhbJvuRxQ==}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-x64@1.2.4':
     resolution: {integrity: sha512-tJxiiLsmHc9Ax1bz3oaOYBURTXGIRDODBqhveVHonrHJ9/+k89qbLl0bcJns+e4t4rvaNBxaEZsFtSfAdquPrw==}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linuxmusl-arm64@1.2.4':
     resolution: {integrity: sha512-FVQHuwx1IIuNow9QAbYUzJ+En8KcVm9Lk5+uGUQJHaZmMECZmOlix9HnH7n1TRkXMS0pGxIJokIVB9SuqZGGXw==}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-libvips-linuxmusl-x64@1.2.4':
     resolution: {integrity: sha512-+LpyBk7L44ZIXwz/VYfglaX/okxezESc6UxDSoyo2Ks6Jxc4Y7sGjpgU9s4PMgqgjj1gZCylTieNamqA1MF7Dg==}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-linux-arm64@0.34.5':
     resolution: {integrity: sha512-bKQzaJRY/bkPOXyKx5EVup7qkaojECG6NLYswgktOZjaXecSAeCWiZwwiFf3/Y+O1HrauiE3FVsGxFg8c24rZg==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-arm@0.34.5':
     resolution: {integrity: sha512-9dLqsvwtg1uuXBGZKsxem9595+ujv0sJ6Vi8wcTANSFpwV/GONat5eCkzQo/1O6zRIkh0m/8+5BjrRr7jDUSZw==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-ppc64@0.34.5':
     resolution: {integrity: sha512-7zznwNaqW6YtsfrGGDA6BRkISKAAE1Jo0QdpNYXNMHu2+0dTrPflTLNkpc8l7MUP5M16ZJcUvysVWWrMefZquA==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-riscv64@0.34.5':
     resolution: {integrity: sha512-51gJuLPTKa7piYPaVs8GmByo7/U7/7TZOq+cnXJIHZKavIRHAP77e3N2HEl3dgiqdD/w0yUfiJnII77PuDDFdw==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-s390x@0.34.5':
     resolution: {integrity: sha512-nQtCk0PdKfho3eC5MrbQoigJ2gd1CgddUMkabUj+rBevs8tZ2cULOx46E7oyX+04WGfABgIwmMC0VqieTiR4jg==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-x64@0.34.5':
     resolution: {integrity: sha512-MEzd8HPKxVxVenwAa+JRPwEC7QFjoPWuS5NZnBt6B3pu7EG2Ge0id1oLHZpPJdn3OQK+BQDiw9zStiHBTJQQQQ==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linuxmusl-arm64@0.34.5':
     resolution: {integrity: sha512-fprJR6GtRsMt6Kyfq44IsChVZeGN97gTD331weR1ex1c1rypDEABN6Tm2xa1wE6lYb5DdEnk03NZPqA7Id21yg==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-linuxmusl-x64@0.34.5':
     resolution: {integrity: sha512-Jg8wNT1MUzIvhBFxViqrEhWDGzqymo3sV7z7ZsaWbZNDLXRJZoRGrjulp60YYtV4wfY8VIKcWidjojlLcWrd8Q==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-wasm32@0.34.5':
     resolution: {integrity: sha512-OdWTEiVkY2PHwqkbBI8frFxQQFekHaSSkUIJkwzclWZe64O1X4UlUjqqqLaPbUpMOQk6FBu/HtlGXNblIs0huw==}
@@ -491,24 +426,28 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@next/swc-linux-arm64-musl@16.2.4':
     resolution: {integrity: sha512-iVMMp14514u7Nup2umQS03nT/bN9HurK8ufylC3FZNykrwjtx7V1A7+4kvhbDSCeonTVqV3Txnv0Lu+m2oDXNg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@next/swc-linux-x64-gnu@16.2.4':
     resolution: {integrity: sha512-EZOvm1aQWgnI/N/xcWOlnS3RQBk0VtVav5Zo7n4p0A7UKyTDx047k8opDbXgBpHl4CulRqRfbw3QrX2w5UOXMQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@next/swc-linux-x64-musl@16.2.4':
     resolution: {integrity: sha512-h9FxsngCm9cTBf71AR4fGznDEDx1hS7+kSEiIRjq5kO1oXWm07DxVGZjCvk0SGx7TSjlUqhI8oOyz7NfwAdPoA==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@next/swc-win32-arm64-msvc@16.2.4':
     resolution: {integrity: sha512-3NdJV5OXMSOeJYijX+bjaLge3mJBlh4ybydbT4GFoB/2hAojWHtMhl3CYlYoMrjPuodp0nzFVi4Tj2+WaMg+Ow==}
@@ -620,24 +559,28 @@ packages:
     engines: {node: '>= 20'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@tailwindcss/oxide-linux-arm64-musl@4.3.0':
     resolution: {integrity: sha512-Z6sukiQsngnWO+l39X4pPbiWT81IC+PLKF+PHxIlyZbGNb9MODfYlXEVlFvej5BOZInWX01kVyzeLvHsXhfczQ==}
     engines: {node: '>= 20'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@tailwindcss/oxide-linux-x64-gnu@4.3.0':
     resolution: {integrity: sha512-DRNdQRpSGzRGfARVuVkxvM8Q12nh19l4BF/G7zGA1oe+9wcC6saFBHTISrpIcKzhiXtSrlSrluCfvMuledoCTQ==}
     engines: {node: '>= 20'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@tailwindcss/oxide-linux-x64-musl@4.3.0':
     resolution: {integrity: sha512-Z0IADbDo8bh6I7h2IQMx601AdXBLfFpEdUotft86evd/8ZPflZe9COPO8Q1vw+pfLWIUo9zN/JGZvwuAJqduqg==}
     engines: {node: '>= 20'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@tailwindcss/oxide-wasm32-wasi@4.3.0':
     resolution: {integrity: sha512-HNZGOUxEmElksYR7S6sC5jTeNGpobAsy9u7Gu0AskJ8/20FR9GqebUyB+HBcU/ax6BHuiuJi+Oda4B+YX6H1yA==}
@@ -791,51 +734,61 @@ packages:
     resolution: {integrity: sha512-zJc0H99FEPoFfSrNpa91HYfxzfAJCr502oxNK1cfdC9hlaFI43RT+JFCann9JUgZmLzzntChHyn13Sgn9ljHNg==}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@unrs/resolver-binding-linux-arm64-musl@1.12.2':
     resolution: {integrity: sha512-KQ3Lki6l+Pz1k/eBipN41ES+YUK30beLGb9YqcB1O542cyLCNE6GaxrfcY3T6EezmGGk84wb5XyO9loTM9tkcA==}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@unrs/resolver-binding-linux-loong64-gnu@1.12.2':
     resolution: {integrity: sha512-3SJGEh1DborhG6pyxvhPzCT4bbSIVihsvgJc13P1bHG7KLdNDaF9T3gsTwFc7Jw/5Y5/iWOjkEx7Zy0NvCGX3Q==}
     cpu: [loong64]
     os: [linux]
+    libc: [glibc]
 
   '@unrs/resolver-binding-linux-loong64-musl@1.12.2':
     resolution: {integrity: sha512-jiuG/Obbel7uw1PwHNFfrkiKhLAF6mnyZ6aWlOAVN9WqKm8v0OFGnciJIHu8+CMvXLQ8AD51LPzAoUfT21D5Ew==}
     cpu: [loong64]
     os: [linux]
+    libc: [musl]
 
   '@unrs/resolver-binding-linux-ppc64-gnu@1.12.2':
     resolution: {integrity: sha512-q7xRvVpmcfeL+LlZg8Pbbo6QaTZwDU5BaGZbwfhkEsXJn3Was8xYfE0RBH266xZt0rM6B7i8xAYIvjthuUIWHg==}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@unrs/resolver-binding-linux-riscv64-gnu@1.12.2':
     resolution: {integrity: sha512-0CVdx6lcnT3Q9inOH8tsMIOJ6ImndllMjqJHg8RLVdB7Vq4SfkEXl9mCSsVNuNA4MCYycRicCUxPCabVHJRr6A==}
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@unrs/resolver-binding-linux-riscv64-musl@1.12.2':
     resolution: {integrity: sha512-iOwlRo9vnp6R6ohHQS11n0NnfdXx/omhkocmIfaPRpQhKZ+3BDMkkdRVh53qjkFkpPddf+FETA28NwGN7l5l+w==}
     cpu: [riscv64]
     os: [linux]
+    libc: [musl]
 
   '@unrs/resolver-binding-linux-s390x-gnu@1.12.2':
     resolution: {integrity: sha512-HYJtLfXq94q8iZNFT1lknx258wlkkWhZeUXJRqzKBBUJ00CvZ+N33zgbCqimLjsyw5Va6uUxhVa12mI+kaveEw==}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@unrs/resolver-binding-linux-x64-gnu@1.12.2':
     resolution: {integrity: sha512-mPsUhunKKDih5O96Y6enDQyHc1SqBPlY1E/SfMWDM3EdJ95Z9CArPeCVwCCqbP45ljvivdEk8Fxn+SIb1rDAJQ==}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@unrs/resolver-binding-linux-x64-musl@1.12.2':
     resolution: {integrity: sha512-azrt6+5ydLd8Vt210AAFis/lZevSfPw93EJRIJG+xPu4WCJ8K0kppCTpMyLPcKT7H15M4Jnt2tMp5bOvCkRC6A==}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@unrs/resolver-binding-openharmony-arm64@1.12.2':
     resolution: {integrity: sha512-YZ9hP4O0X9PQb8eO980qmLNGH4zT3I9+SZTdt0Pr0YyuGQhYKoOZkV02VzrzyOZJ5xIJ3UFIenKkUkGg8GjgWQ==}
@@ -1049,8 +1002,8 @@ packages:
     resolution: {integrity: sha512-BS8PfmtDGnrgYdOonGZQdLZslWIeCGFP9tpan0hi1Co2Zr2NKADsvGYA8XxuG/4UWgJ6Cjtv+YJnB6MM69QGlQ==}
     engines: {node: '>= 0.4'}
 
-  date-fns@4.1.0:
-    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
+  date-fns@4.4.0:
+    resolution: {integrity: sha512-+1UMbeh68lH1SegH83CGWwpb6OHHbpSgr3+s5Eww5M4CAgswBpoWS0AjTOfEJ33HiYKz1hdj/KTFprzXHmq/6w==}
 
   debug@3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
@@ -1663,24 +1616,28 @@ packages:
     engines: {node: '>= 12.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   lightningcss-linux-arm64-musl@1.32.0:
     resolution: {integrity: sha512-UpQkoenr4UJEzgVIYpI80lDFvRmPVg6oqboNHfoH4CQIfNA+HOrZ7Mo7KZP02dC6LjghPQJeBsvXhJod/wnIBg==}
     engines: {node: '>= 12.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   lightningcss-linux-x64-gnu@1.32.0:
     resolution: {integrity: sha512-V7Qr52IhZmdKPVr+Vtw8o+WLsQJYCTd8loIfpDaMRWGUZfBOYEJeyJIkqGIDMZPwPx24pUMfwSxxI8phr/MbOA==}
     engines: {node: '>= 12.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   lightningcss-linux-x64-musl@1.32.0:
     resolution: {integrity: sha512-bYcLp+Vb0awsiXg/80uCRezCYHNg1/l3mt0gzHnWV9XP1W5sKa5/TCdGWaR/zBM2PeF/HbsQv/j2URNOiVuxWg==}
     engines: {node: '>= 12.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   lightningcss-win32-arm64-msvc@1.32.0:
     resolution: {integrity: sha512-8SbC8BR40pS6baCM8sbtYDSwEVQd4JlFTOlaD3gWGHfThTcABnNDBda6eTZeqbofalIJhFx0qKzgHJmcPTnGdw==}
@@ -1913,8 +1870,8 @@ packages:
     resolution: {integrity: sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ==}
     engines: {node: '>=0.10.0'}
 
-  receipt-ocr-ng@1.1.0:
-    resolution: {integrity: sha512-gTYMjMOnGNUj3kwCJeZv4H75n7Q0jEp5ZA8lkEr39sEJYeUBputTxUtiWVQwOMJ5neZ2Mg8/FWYu5B1j8KMnEg==}
+  receipt-ocr-ng@1.4.1:
+    resolution: {integrity: sha512-Inrs3MEGmHFG2KCZTY3Y3NMqq6XAviUQ7LldcyFx30fddWYVvO7DdH9u1GzthX3ZXl0qyDOsDNedN7ugYQ2BOA==}
     peerDependencies:
       groq-sdk: ^1.1.2
 
@@ -2243,809 +2200,809 @@ snapshots:
       js-tokens: 4.0.0
       picocolors: 1.1.1
 
-    "@babel/compat-data@7.29.3": {}
-
-    "@babel/core@7.29.0":
-        dependencies:
-            "@babel/code-frame": 7.29.0
-            "@babel/generator": 7.29.1
-            "@babel/helper-compilation-targets": 7.28.6
-            "@babel/helper-module-transforms": 7.28.6(@babel/core@7.29.0)
-            "@babel/helpers": 7.29.2
-            "@babel/parser": 7.29.3
-            "@babel/template": 7.28.6
-            "@babel/traverse": 7.29.0
-            "@babel/types": 7.29.0
-            "@jridgewell/remapping": 2.3.5
-            convert-source-map: 2.0.0
-            debug: 4.4.3
-            gensync: 1.0.0-beta.2
-            json5: 2.2.3
-            semver: 6.3.1
-        transitivePeerDependencies:
-            - supports-color
-
-    "@babel/generator@7.29.1":
-        dependencies:
-            "@babel/parser": 7.29.3
-            "@babel/types": 7.29.0
-            "@jridgewell/gen-mapping": 0.3.13
-            "@jridgewell/trace-mapping": 0.3.31
-            jsesc: 3.1.0
-
-    "@babel/helper-compilation-targets@7.28.6":
-        dependencies:
-            "@babel/compat-data": 7.29.3
-            "@babel/helper-validator-option": 7.27.1
-            browserslist: 4.28.2
-            lru-cache: 5.1.1
-            semver: 6.3.1
-
-    "@babel/helper-globals@7.28.0": {}
-
-    "@babel/helper-module-imports@7.28.6":
-        dependencies:
-            "@babel/traverse": 7.29.0
-            "@babel/types": 7.29.0
-        transitivePeerDependencies:
-            - supports-color
-
-    "@babel/helper-module-transforms@7.28.6(@babel/core@7.29.0)":
-        dependencies:
-            "@babel/core": 7.29.0
-            "@babel/helper-module-imports": 7.28.6
-            "@babel/helper-validator-identifier": 7.28.5
-            "@babel/traverse": 7.29.0
-        transitivePeerDependencies:
-            - supports-color
-
-    "@babel/helper-string-parser@7.27.1": {}
-
-    "@babel/helper-validator-identifier@7.28.5": {}
-
-    "@babel/helper-validator-option@7.27.1": {}
-
-    "@babel/helpers@7.29.2":
-        dependencies:
-            "@babel/template": 7.28.6
-            "@babel/types": 7.29.0
-
-    "@babel/parser@7.29.3":
-        dependencies:
-            "@babel/types": 7.29.0
-
-    "@babel/template@7.28.6":
-        dependencies:
-            "@babel/code-frame": 7.29.0
-            "@babel/parser": 7.29.3
-            "@babel/types": 7.29.0
-
-    "@babel/traverse@7.29.0":
-        dependencies:
-            "@babel/code-frame": 7.29.0
-            "@babel/generator": 7.29.1
-            "@babel/helper-globals": 7.28.0
-            "@babel/parser": 7.29.3
-            "@babel/template": 7.28.6
-            "@babel/types": 7.29.0
-            debug: 4.4.3
-        transitivePeerDependencies:
-            - supports-color
-
-    "@babel/types@7.29.0":
-        dependencies:
-            "@babel/helper-string-parser": 7.27.1
-            "@babel/helper-validator-identifier": 7.28.5
-
-    "@emnapi/core@1.10.0":
-        dependencies:
-            "@emnapi/wasi-threads": 1.2.1
-            tslib: 2.8.1
-        optional: true
-
-    "@emnapi/runtime@1.10.0":
-        dependencies:
-            tslib: 2.8.1
-        optional: true
-
-    "@emnapi/wasi-threads@1.2.1":
-        dependencies:
-            tslib: 2.8.1
-        optional: true
-
-    "@eslint-community/eslint-utils@4.9.1(eslint@9.39.4(jiti@2.7.0))":
-        dependencies:
-            eslint: 9.39.4(jiti@2.7.0)
-            eslint-visitor-keys: 3.4.3
-
-    "@eslint-community/regexpp@4.12.2": {}
+  '@babel/compat-data@7.29.3': {}
+
+  '@babel/core@7.29.0':
+    dependencies:
+      '@babel/code-frame': 7.29.0
+      '@babel/generator': 7.29.1
+      '@babel/helper-compilation-targets': 7.28.6
+      '@babel/helper-module-transforms': 7.28.6(@babel/core@7.29.0)
+      '@babel/helpers': 7.29.2
+      '@babel/parser': 7.29.3
+      '@babel/template': 7.28.6
+      '@babel/traverse': 7.29.0
+      '@babel/types': 7.29.0
+      '@jridgewell/remapping': 2.3.5
+      convert-source-map: 2.0.0
+      debug: 4.4.3
+      gensync: 1.0.0-beta.2
+      json5: 2.2.3
+      semver: 6.3.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/generator@7.29.1':
+    dependencies:
+      '@babel/parser': 7.29.3
+      '@babel/types': 7.29.0
+      '@jridgewell/gen-mapping': 0.3.13
+      '@jridgewell/trace-mapping': 0.3.31
+      jsesc: 3.1.0
+
+  '@babel/helper-compilation-targets@7.28.6':
+    dependencies:
+      '@babel/compat-data': 7.29.3
+      '@babel/helper-validator-option': 7.27.1
+      browserslist: 4.28.2
+      lru-cache: 5.1.1
+      semver: 6.3.1
+
+  '@babel/helper-globals@7.28.0': {}
+
+  '@babel/helper-module-imports@7.28.6':
+    dependencies:
+      '@babel/traverse': 7.29.0
+      '@babel/types': 7.29.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/helper-module-transforms@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-module-imports': 7.28.6
+      '@babel/helper-validator-identifier': 7.28.5
+      '@babel/traverse': 7.29.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/helper-string-parser@7.27.1': {}
+
+  '@babel/helper-validator-identifier@7.28.5': {}
+
+  '@babel/helper-validator-option@7.27.1': {}
+
+  '@babel/helpers@7.29.2':
+    dependencies:
+      '@babel/template': 7.28.6
+      '@babel/types': 7.29.0
+
+  '@babel/parser@7.29.3':
+    dependencies:
+      '@babel/types': 7.29.0
+
+  '@babel/template@7.28.6':
+    dependencies:
+      '@babel/code-frame': 7.29.0
+      '@babel/parser': 7.29.3
+      '@babel/types': 7.29.0
+
+  '@babel/traverse@7.29.0':
+    dependencies:
+      '@babel/code-frame': 7.29.0
+      '@babel/generator': 7.29.1
+      '@babel/helper-globals': 7.28.0
+      '@babel/parser': 7.29.3
+      '@babel/template': 7.28.6
+      '@babel/types': 7.29.0
+      debug: 4.4.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/types@7.29.0':
+    dependencies:
+      '@babel/helper-string-parser': 7.27.1
+      '@babel/helper-validator-identifier': 7.28.5
+
+  '@emnapi/core@1.10.0':
+    dependencies:
+      '@emnapi/wasi-threads': 1.2.1
+      tslib: 2.8.1
+    optional: true
+
+  '@emnapi/runtime@1.10.0':
+    dependencies:
+      tslib: 2.8.1
+    optional: true
+
+  '@emnapi/wasi-threads@1.2.1':
+    dependencies:
+      tslib: 2.8.1
+    optional: true
+
+  '@eslint-community/eslint-utils@4.9.1(eslint@9.39.4(jiti@2.7.0))':
+    dependencies:
+      eslint: 9.39.4(jiti@2.7.0)
+      eslint-visitor-keys: 3.4.3
+
+  '@eslint-community/regexpp@4.12.2': {}
 
-    "@eslint/config-array@0.21.2":
-        dependencies:
-            "@eslint/object-schema": 2.1.7
-            debug: 4.4.3
-            minimatch: 3.1.5
-        transitivePeerDependencies:
-            - supports-color
-
-    "@eslint/config-helpers@0.4.2":
-        dependencies:
-            "@eslint/core": 0.17.0
-
-    "@eslint/core@0.17.0":
-        dependencies:
-            "@types/json-schema": 7.0.15
-
-    "@eslint/eslintrc@3.3.5":
-        dependencies:
-            ajv: 6.15.0
-            debug: 4.4.3
-            espree: 10.4.0
-            globals: 14.0.0
-            ignore: 5.3.2
-            import-fresh: 3.3.1
-            js-yaml: 4.1.1
-            minimatch: 3.1.5
-            strip-json-comments: 3.1.1
-        transitivePeerDependencies:
-            - supports-color
-
-    "@eslint/js@9.39.4": {}
-
-    "@eslint/object-schema@2.1.7": {}
-
-    "@eslint/plugin-kit@0.4.1":
-        dependencies:
-            "@eslint/core": 0.17.0
-            levn: 0.4.1
-
-    "@humanfs/core@0.19.2":
-        dependencies:
-            "@humanfs/types": 0.15.0
-
-    "@humanfs/node@0.16.8":
-        dependencies:
-            "@humanfs/core": 0.19.2
-            "@humanfs/types": 0.15.0
-            "@humanwhocodes/retry": 0.4.3
-
-    "@humanfs/types@0.15.0": {}
-
-    "@humanwhocodes/module-importer@1.0.1": {}
-
-    "@humanwhocodes/retry@0.4.3": {}
-
-    "@img/colour@1.1.0":
-        optional: true
-
-    "@img/sharp-darwin-arm64@0.34.5":
-        optionalDependencies:
-            "@img/sharp-libvips-darwin-arm64": 1.2.4
-        optional: true
-
-    "@img/sharp-darwin-x64@0.34.5":
-        optionalDependencies:
-            "@img/sharp-libvips-darwin-x64": 1.2.4
-        optional: true
-
-    "@img/sharp-libvips-darwin-arm64@1.2.4":
-        optional: true
-
-    "@img/sharp-libvips-darwin-x64@1.2.4":
-        optional: true
-
-    "@img/sharp-libvips-linux-arm64@1.2.4":
-        optional: true
-
-    "@img/sharp-libvips-linux-arm@1.2.4":
-        optional: true
-
-    "@img/sharp-libvips-linux-ppc64@1.2.4":
-        optional: true
-
-    "@img/sharp-libvips-linux-riscv64@1.2.4":
-        optional: true
-
-    "@img/sharp-libvips-linux-s390x@1.2.4":
-        optional: true
-
-    "@img/sharp-libvips-linux-x64@1.2.4":
-        optional: true
-
-    "@img/sharp-libvips-linuxmusl-arm64@1.2.4":
-        optional: true
-
-    "@img/sharp-libvips-linuxmusl-x64@1.2.4":
-        optional: true
-
-    "@img/sharp-linux-arm64@0.34.5":
-        optionalDependencies:
-            "@img/sharp-libvips-linux-arm64": 1.2.4
-        optional: true
+  '@eslint/config-array@0.21.2':
+    dependencies:
+      '@eslint/object-schema': 2.1.7
+      debug: 4.4.3
+      minimatch: 3.1.5
+    transitivePeerDependencies:
+      - supports-color
+
+  '@eslint/config-helpers@0.4.2':
+    dependencies:
+      '@eslint/core': 0.17.0
+
+  '@eslint/core@0.17.0':
+    dependencies:
+      '@types/json-schema': 7.0.15
+
+  '@eslint/eslintrc@3.3.5':
+    dependencies:
+      ajv: 6.15.0
+      debug: 4.4.3
+      espree: 10.4.0
+      globals: 14.0.0
+      ignore: 5.3.2
+      import-fresh: 3.3.1
+      js-yaml: 4.1.1
+      minimatch: 3.1.5
+      strip-json-comments: 3.1.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@eslint/js@9.39.4': {}
+
+  '@eslint/object-schema@2.1.7': {}
+
+  '@eslint/plugin-kit@0.4.1':
+    dependencies:
+      '@eslint/core': 0.17.0
+      levn: 0.4.1
+
+  '@humanfs/core@0.19.2':
+    dependencies:
+      '@humanfs/types': 0.15.0
+
+  '@humanfs/node@0.16.8':
+    dependencies:
+      '@humanfs/core': 0.19.2
+      '@humanfs/types': 0.15.0
+      '@humanwhocodes/retry': 0.4.3
+
+  '@humanfs/types@0.15.0': {}
+
+  '@humanwhocodes/module-importer@1.0.1': {}
+
+  '@humanwhocodes/retry@0.4.3': {}
+
+  '@img/colour@1.1.0':
+    optional: true
+
+  '@img/sharp-darwin-arm64@0.34.5':
+    optionalDependencies:
+      '@img/sharp-libvips-darwin-arm64': 1.2.4
+    optional: true
+
+  '@img/sharp-darwin-x64@0.34.5':
+    optionalDependencies:
+      '@img/sharp-libvips-darwin-x64': 1.2.4
+    optional: true
+
+  '@img/sharp-libvips-darwin-arm64@1.2.4':
+    optional: true
+
+  '@img/sharp-libvips-darwin-x64@1.2.4':
+    optional: true
+
+  '@img/sharp-libvips-linux-arm64@1.2.4':
+    optional: true
+
+  '@img/sharp-libvips-linux-arm@1.2.4':
+    optional: true
+
+  '@img/sharp-libvips-linux-ppc64@1.2.4':
+    optional: true
+
+  '@img/sharp-libvips-linux-riscv64@1.2.4':
+    optional: true
+
+  '@img/sharp-libvips-linux-s390x@1.2.4':
+    optional: true
+
+  '@img/sharp-libvips-linux-x64@1.2.4':
+    optional: true
+
+  '@img/sharp-libvips-linuxmusl-arm64@1.2.4':
+    optional: true
+
+  '@img/sharp-libvips-linuxmusl-x64@1.2.4':
+    optional: true
+
+  '@img/sharp-linux-arm64@0.34.5':
+    optionalDependencies:
+      '@img/sharp-libvips-linux-arm64': 1.2.4
+    optional: true
 
-    "@img/sharp-linux-arm@0.34.5":
-        optionalDependencies:
-            "@img/sharp-libvips-linux-arm": 1.2.4
-        optional: true
+  '@img/sharp-linux-arm@0.34.5':
+    optionalDependencies:
+      '@img/sharp-libvips-linux-arm': 1.2.4
+    optional: true
 
-    "@img/sharp-linux-ppc64@0.34.5":
-        optionalDependencies:
-            "@img/sharp-libvips-linux-ppc64": 1.2.4
-        optional: true
-
-    "@img/sharp-linux-riscv64@0.34.5":
-        optionalDependencies:
-            "@img/sharp-libvips-linux-riscv64": 1.2.4
-        optional: true
+  '@img/sharp-linux-ppc64@0.34.5':
+    optionalDependencies:
+      '@img/sharp-libvips-linux-ppc64': 1.2.4
+    optional: true
+
+  '@img/sharp-linux-riscv64@0.34.5':
+    optionalDependencies:
+      '@img/sharp-libvips-linux-riscv64': 1.2.4
+    optional: true
 
-    "@img/sharp-linux-s390x@0.34.5":
-        optionalDependencies:
-            "@img/sharp-libvips-linux-s390x": 1.2.4
-        optional: true
+  '@img/sharp-linux-s390x@0.34.5':
+    optionalDependencies:
+      '@img/sharp-libvips-linux-s390x': 1.2.4
+    optional: true
 
-    "@img/sharp-linux-x64@0.34.5":
-        optionalDependencies:
-            "@img/sharp-libvips-linux-x64": 1.2.4
-        optional: true
+  '@img/sharp-linux-x64@0.34.5':
+    optionalDependencies:
+      '@img/sharp-libvips-linux-x64': 1.2.4
+    optional: true
 
-    "@img/sharp-linuxmusl-arm64@0.34.5":
-        optionalDependencies:
-            "@img/sharp-libvips-linuxmusl-arm64": 1.2.4
-        optional: true
-
-    "@img/sharp-linuxmusl-x64@0.34.5":
-        optionalDependencies:
-            "@img/sharp-libvips-linuxmusl-x64": 1.2.4
-        optional: true
+  '@img/sharp-linuxmusl-arm64@0.34.5':
+    optionalDependencies:
+      '@img/sharp-libvips-linuxmusl-arm64': 1.2.4
+    optional: true
+
+  '@img/sharp-linuxmusl-x64@0.34.5':
+    optionalDependencies:
+      '@img/sharp-libvips-linuxmusl-x64': 1.2.4
+    optional: true
 
-    "@img/sharp-wasm32@0.34.5":
-        dependencies:
-            "@emnapi/runtime": 1.10.0
-        optional: true
+  '@img/sharp-wasm32@0.34.5':
+    dependencies:
+      '@emnapi/runtime': 1.10.0
+    optional: true
 
-    "@img/sharp-win32-arm64@0.34.5":
-        optional: true
+  '@img/sharp-win32-arm64@0.34.5':
+    optional: true
 
-    "@img/sharp-win32-ia32@0.34.5":
-        optional: true
+  '@img/sharp-win32-ia32@0.34.5':
+    optional: true
 
-    "@img/sharp-win32-x64@0.34.5":
-        optional: true
+  '@img/sharp-win32-x64@0.34.5':
+    optional: true
 
-    "@jridgewell/gen-mapping@0.3.13":
-        dependencies:
-            "@jridgewell/sourcemap-codec": 1.5.5
-            "@jridgewell/trace-mapping": 0.3.31
+  '@jridgewell/gen-mapping@0.3.13':
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.5
+      '@jridgewell/trace-mapping': 0.3.31
 
-    "@jridgewell/remapping@2.3.5":
-        dependencies:
-            "@jridgewell/gen-mapping": 0.3.13
-            "@jridgewell/trace-mapping": 0.3.31
+  '@jridgewell/remapping@2.3.5':
+    dependencies:
+      '@jridgewell/gen-mapping': 0.3.13
+      '@jridgewell/trace-mapping': 0.3.31
 
-    "@jridgewell/resolve-uri@3.1.2": {}
+  '@jridgewell/resolve-uri@3.1.2': {}
 
-    "@jridgewell/sourcemap-codec@1.5.5": {}
+  '@jridgewell/sourcemap-codec@1.5.5': {}
 
-    "@jridgewell/trace-mapping@0.3.31":
-        dependencies:
-            "@jridgewell/resolve-uri": 3.1.2
-            "@jridgewell/sourcemap-codec": 1.5.5
-
-    "@napi-rs/wasm-runtime@1.1.4(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)":
-        dependencies:
-            "@emnapi/core": 1.10.0
-            "@emnapi/runtime": 1.10.0
-            "@tybys/wasm-util": 0.10.2
-        optional: true
-
-    "@next/env@16.2.4": {}
-
-    "@next/eslint-plugin-next@16.2.4":
-        dependencies:
-            fast-glob: 3.3.1
-
-    "@next/swc-darwin-arm64@16.2.4":
-        optional: true
-
-    "@next/swc-darwin-x64@16.2.4":
-        optional: true
-
-    "@next/swc-linux-arm64-gnu@16.2.4":
-        optional: true
-
-    "@next/swc-linux-arm64-musl@16.2.4":
-        optional: true
-
-    "@next/swc-linux-x64-gnu@16.2.4":
-        optional: true
-
-    "@next/swc-linux-x64-musl@16.2.4":
-        optional: true
-
-    "@next/swc-win32-arm64-msvc@16.2.4":
-        optional: true
-
-    "@next/swc-win32-x64-msvc@16.2.4":
-        optional: true
-
-    "@nodelib/fs.scandir@2.1.5":
-        dependencies:
-            "@nodelib/fs.stat": 2.0.5
-            run-parallel: 1.2.0
-
-    "@nodelib/fs.stat@2.0.5": {}
+  '@jridgewell/trace-mapping@0.3.31':
+    dependencies:
+      '@jridgewell/resolve-uri': 3.1.2
+      '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@napi-rs/wasm-runtime@1.1.4(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
+    dependencies:
+      '@emnapi/core': 1.10.0
+      '@emnapi/runtime': 1.10.0
+      '@tybys/wasm-util': 0.10.2
+    optional: true
+
+  '@next/env@16.2.4': {}
+
+  '@next/eslint-plugin-next@16.2.4':
+    dependencies:
+      fast-glob: 3.3.1
+
+  '@next/swc-darwin-arm64@16.2.4':
+    optional: true
+
+  '@next/swc-darwin-x64@16.2.4':
+    optional: true
+
+  '@next/swc-linux-arm64-gnu@16.2.4':
+    optional: true
+
+  '@next/swc-linux-arm64-musl@16.2.4':
+    optional: true
+
+  '@next/swc-linux-x64-gnu@16.2.4':
+    optional: true
+
+  '@next/swc-linux-x64-musl@16.2.4':
+    optional: true
+
+  '@next/swc-win32-arm64-msvc@16.2.4':
+    optional: true
+
+  '@next/swc-win32-x64-msvc@16.2.4':
+    optional: true
+
+  '@nodelib/fs.scandir@2.1.5':
+    dependencies:
+      '@nodelib/fs.stat': 2.0.5
+      run-parallel: 1.2.0
+
+  '@nodelib/fs.stat@2.0.5': {}
 
-    "@nodelib/fs.walk@1.2.8":
-        dependencies:
-            "@nodelib/fs.scandir": 2.1.5
-            fastq: 1.20.1
+  '@nodelib/fs.walk@1.2.8':
+    dependencies:
+      '@nodelib/fs.scandir': 2.1.5
+      fastq: 1.20.1
 
-    "@nolyfill/is-core-module@1.0.39": {}
+  '@nolyfill/is-core-module@1.0.39': {}
 
-    "@rcffuta/ict-lib@3.3.4":
-        dependencies:
-            "@supabase/supabase-js": 2.106.1
-            dotenv: 17.4.2
-            nodemailer: 7.0.13
-            resend: 6.12.3
-            zod: 4.4.3
-        transitivePeerDependencies:
-            - "@react-email/render"
-
-    "@rtsao/scc@1.1.0": {}
-
-    "@stablelib/base64@1.0.1": {}
-
-    "@supabase/auth-js@2.106.1":
-        dependencies:
-            tslib: 2.8.1
-
-    "@supabase/functions-js@2.106.1":
-        dependencies:
-            tslib: 2.8.1
-
-    "@supabase/phoenix@0.4.2": {}
-
-    "@supabase/postgrest-js@2.106.1":
-        dependencies:
-            tslib: 2.8.1
-
-    "@supabase/realtime-js@2.106.1":
-        dependencies:
-            "@supabase/phoenix": 0.4.2
-            tslib: 2.8.1
-
-    "@supabase/ssr@0.10.3(@supabase/supabase-js@2.106.1)":
-        dependencies:
-            "@supabase/supabase-js": 2.106.1
-            cookie: 1.1.1
-
-    "@supabase/storage-js@2.106.1":
-        dependencies:
-            iceberg-js: 0.8.1
-            tslib: 2.8.1
-
-    "@supabase/supabase-js@2.106.1":
-        dependencies:
-            "@supabase/auth-js": 2.106.1
-            "@supabase/functions-js": 2.106.1
-            "@supabase/postgrest-js": 2.106.1
-            "@supabase/realtime-js": 2.106.1
-            "@supabase/storage-js": 2.106.1
-
-    "@swc/helpers@0.5.15":
-        dependencies:
-            tslib: 2.8.1
-
-    "@tailwindcss/node@4.3.0":
-        dependencies:
-            "@jridgewell/remapping": 2.3.5
-            enhanced-resolve: 5.22.0
-            jiti: 2.7.0
-            lightningcss: 1.32.0
-            magic-string: 0.30.21
-            source-map-js: 1.2.1
-            tailwindcss: 4.3.0
-
-    "@tailwindcss/oxide-android-arm64@4.3.0":
-        optional: true
-
-    "@tailwindcss/oxide-darwin-arm64@4.3.0":
-        optional: true
-
-    "@tailwindcss/oxide-darwin-x64@4.3.0":
-        optional: true
-
-    "@tailwindcss/oxide-freebsd-x64@4.3.0":
-        optional: true
-
-    "@tailwindcss/oxide-linux-arm-gnueabihf@4.3.0":
-        optional: true
-
-    "@tailwindcss/oxide-linux-arm64-gnu@4.3.0":
-        optional: true
-
-    "@tailwindcss/oxide-linux-arm64-musl@4.3.0":
-        optional: true
-
-    "@tailwindcss/oxide-linux-x64-gnu@4.3.0":
-        optional: true
-
-    "@tailwindcss/oxide-linux-x64-musl@4.3.0":
-        optional: true
-
-    "@tailwindcss/oxide-wasm32-wasi@4.3.0":
-        optional: true
-
-    "@tailwindcss/oxide-win32-arm64-msvc@4.3.0":
-        optional: true
-
-    "@tailwindcss/oxide-win32-x64-msvc@4.3.0":
-        optional: true
-
-    "@tailwindcss/oxide@4.3.0":
-        optionalDependencies:
-            "@tailwindcss/oxide-android-arm64": 4.3.0
-            "@tailwindcss/oxide-darwin-arm64": 4.3.0
-            "@tailwindcss/oxide-darwin-x64": 4.3.0
-            "@tailwindcss/oxide-freebsd-x64": 4.3.0
-            "@tailwindcss/oxide-linux-arm-gnueabihf": 4.3.0
-            "@tailwindcss/oxide-linux-arm64-gnu": 4.3.0
-            "@tailwindcss/oxide-linux-arm64-musl": 4.3.0
-            "@tailwindcss/oxide-linux-x64-gnu": 4.3.0
-            "@tailwindcss/oxide-linux-x64-musl": 4.3.0
-            "@tailwindcss/oxide-wasm32-wasi": 4.3.0
-            "@tailwindcss/oxide-win32-arm64-msvc": 4.3.0
-            "@tailwindcss/oxide-win32-x64-msvc": 4.3.0
-
-    "@tailwindcss/postcss@4.3.0":
-        dependencies:
-            "@alloc/quick-lru": 5.2.0
-            "@tailwindcss/node": 4.3.0
-            "@tailwindcss/oxide": 4.3.0
-            postcss: 8.5.15
-            tailwindcss: 4.3.0
-
-    "@tybys/wasm-util@0.10.2":
-        dependencies:
-            tslib: 2.8.1
-        optional: true
-
-    "@types/estree@1.0.9": {}
-
-    "@types/json-schema@7.0.15": {}
-
-    "@types/json5@0.0.29": {}
-
-    "@types/node@20.19.41":
-        dependencies:
-            undici-types: 6.21.0
-
-    "@types/react-dom@19.2.3(@types/react@19.2.15)":
-        dependencies:
-            "@types/react": 19.2.15
-
-    "@types/react@19.2.15":
-        dependencies:
-            csstype: 3.2.3
-
-    "@typescript-eslint/eslint-plugin@8.59.4(@typescript-eslint/parser@8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)":
-        dependencies:
-            "@eslint-community/regexpp": 4.12.2
-            "@typescript-eslint/parser": 8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
-            "@typescript-eslint/scope-manager": 8.59.4
-            "@typescript-eslint/type-utils": 8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
-            "@typescript-eslint/utils": 8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
-            "@typescript-eslint/visitor-keys": 8.59.4
-            eslint: 9.39.4(jiti@2.7.0)
-            ignore: 7.0.5
-            natural-compare: 1.4.0
-            ts-api-utils: 2.5.0(typescript@5.9.3)
-            typescript: 5.9.3
-        transitivePeerDependencies:
-            - supports-color
-
-    "@typescript-eslint/parser@8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)":
-        dependencies:
-            "@typescript-eslint/scope-manager": 8.59.4
-            "@typescript-eslint/types": 8.59.4
-            "@typescript-eslint/typescript-estree": 8.59.4(typescript@5.9.3)
-            "@typescript-eslint/visitor-keys": 8.59.4
-            debug: 4.4.3
-            eslint: 9.39.4(jiti@2.7.0)
-            typescript: 5.9.3
-        transitivePeerDependencies:
-            - supports-color
-
-    "@typescript-eslint/project-service@8.59.4(typescript@5.9.3)":
-        dependencies:
-            "@typescript-eslint/tsconfig-utils": 8.59.4(typescript@5.9.3)
-            "@typescript-eslint/types": 8.59.4
-            debug: 4.4.3
-            typescript: 5.9.3
-        transitivePeerDependencies:
-            - supports-color
-
-    "@typescript-eslint/scope-manager@8.59.4":
-        dependencies:
-            "@typescript-eslint/types": 8.59.4
-            "@typescript-eslint/visitor-keys": 8.59.4
-
-    "@typescript-eslint/tsconfig-utils@8.59.4(typescript@5.9.3)":
-        dependencies:
-            typescript: 5.9.3
-
-    "@typescript-eslint/type-utils@8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)":
-        dependencies:
-            "@typescript-eslint/types": 8.59.4
-            "@typescript-eslint/typescript-estree": 8.59.4(typescript@5.9.3)
-            "@typescript-eslint/utils": 8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
-            debug: 4.4.3
-            eslint: 9.39.4(jiti@2.7.0)
-            ts-api-utils: 2.5.0(typescript@5.9.3)
-            typescript: 5.9.3
-        transitivePeerDependencies:
-            - supports-color
-
-    "@typescript-eslint/types@8.59.4": {}
-
-    "@typescript-eslint/typescript-estree@8.59.4(typescript@5.9.3)":
-        dependencies:
-            "@typescript-eslint/project-service": 8.59.4(typescript@5.9.3)
-            "@typescript-eslint/tsconfig-utils": 8.59.4(typescript@5.9.3)
-            "@typescript-eslint/types": 8.59.4
-            "@typescript-eslint/visitor-keys": 8.59.4
-            debug: 4.4.3
-            minimatch: 10.2.5
-            semver: 7.8.1
-            tinyglobby: 0.2.16
-            ts-api-utils: 2.5.0(typescript@5.9.3)
-            typescript: 5.9.3
-        transitivePeerDependencies:
-            - supports-color
-
-    "@typescript-eslint/utils@8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)":
-        dependencies:
-            "@eslint-community/eslint-utils": 4.9.1(eslint@9.39.4(jiti@2.7.0))
-            "@typescript-eslint/scope-manager": 8.59.4
-            "@typescript-eslint/types": 8.59.4
-            "@typescript-eslint/typescript-estree": 8.59.4(typescript@5.9.3)
-            eslint: 9.39.4(jiti@2.7.0)
-            typescript: 5.9.3
-        transitivePeerDependencies:
-            - supports-color
-
-    "@typescript-eslint/visitor-keys@8.59.4":
-        dependencies:
-            "@typescript-eslint/types": 8.59.4
-            eslint-visitor-keys: 5.0.1
-
-    "@unrs/resolver-binding-android-arm-eabi@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-android-arm64@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-darwin-arm64@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-darwin-x64@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-freebsd-x64@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-linux-arm-gnueabihf@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-linux-arm-musleabihf@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-linux-arm64-gnu@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-linux-arm64-musl@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-linux-loong64-gnu@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-linux-loong64-musl@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-linux-ppc64-gnu@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-linux-riscv64-gnu@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-linux-riscv64-musl@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-linux-s390x-gnu@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-linux-x64-gnu@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-linux-x64-musl@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-openharmony-arm64@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-wasm32-wasi@1.12.2":
-        dependencies:
-            "@emnapi/core": 1.10.0
-            "@emnapi/runtime": 1.10.0
-            "@napi-rs/wasm-runtime": 1.1.4(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
-        optional: true
-
-    "@unrs/resolver-binding-win32-arm64-msvc@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-win32-ia32-msvc@1.12.2":
-        optional: true
-
-    "@unrs/resolver-binding-win32-x64-msvc@1.12.2":
-        optional: true
-
-    acorn-jsx@5.3.2(acorn@8.16.0):
-        dependencies:
-            acorn: 8.16.0
-
-    acorn@8.16.0: {}
-
-    ajv@6.15.0:
-        dependencies:
-            fast-deep-equal: 3.1.3
-            fast-json-stable-stringify: 2.1.0
-            json-schema-traverse: 0.4.1
-            uri-js: 4.4.1
-
-    ansi-colors@4.1.3: {}
-
-    ansi-styles@4.3.0:
-        dependencies:
-            color-convert: 2.0.1
-
-    argparse@2.0.1: {}
-
-    aria-query@5.3.2: {}
-
-    array-buffer-byte-length@1.0.2:
-        dependencies:
-            call-bound: 1.0.4
-            is-array-buffer: 3.0.5
-
-    array-includes@3.1.9:
-        dependencies:
-            call-bind: 1.0.9
-            call-bound: 1.0.4
-            define-properties: 1.2.1
-            es-abstract: 1.24.2
-            es-object-atoms: 1.1.2
-            get-intrinsic: 1.3.0
-            is-string: 1.1.1
-            math-intrinsics: 1.1.0
-
-    array.prototype.findlast@1.2.5:
-        dependencies:
-            call-bind: 1.0.9
-            define-properties: 1.2.1
-            es-abstract: 1.24.2
-            es-errors: 1.3.0
-            es-object-atoms: 1.1.2
-            es-shim-unscopables: 1.1.0
-
-    array.prototype.findlastindex@1.2.6:
-        dependencies:
-            call-bind: 1.0.9
-            call-bound: 1.0.4
-            define-properties: 1.2.1
-            es-abstract: 1.24.2
-            es-errors: 1.3.0
-            es-object-atoms: 1.1.2
-            es-shim-unscopables: 1.1.0
-
-    array.prototype.flat@1.3.3:
-        dependencies:
-            call-bind: 1.0.9
-            define-properties: 1.2.1
-            es-abstract: 1.24.2
-            es-shim-unscopables: 1.1.0
-
-    array.prototype.flatmap@1.3.3:
-        dependencies:
-            call-bind: 1.0.9
-            define-properties: 1.2.1
-            es-abstract: 1.24.2
-            es-shim-unscopables: 1.1.0
-
-    array.prototype.tosorted@1.1.4:
-        dependencies:
-            call-bind: 1.0.9
-            define-properties: 1.2.1
-            es-abstract: 1.24.2
-            es-errors: 1.3.0
-            es-shim-unscopables: 1.1.0
-
-    arraybuffer.prototype.slice@1.0.4:
-        dependencies:
-            array-buffer-byte-length: 1.0.2
-            call-bind: 1.0.9
-            define-properties: 1.2.1
-            es-abstract: 1.24.2
-            es-errors: 1.3.0
-            get-intrinsic: 1.3.0
-            is-array-buffer: 3.0.5
-
-    ast-types-flow@0.0.8: {}
-
-    async-function@1.0.0: {}
-
-    autoprefixer@10.5.0(postcss@8.5.15):
-        dependencies:
-            browserslist: 4.28.2
-            caniuse-lite: 1.0.30001793
-            fraction.js: 5.3.4
-            picocolors: 1.1.1
-            postcss: 8.5.15
-            postcss-value-parser: 4.2.0
-
-    available-typed-arrays@1.0.7:
-        dependencies:
-            possible-typed-array-names: 1.1.0
-
-    axe-core@4.11.4: {}
-
-    axobject-query@4.1.0: {}
-
-    balanced-match@1.0.2: {}
-
-    balanced-match@4.0.4: {}
-
-    baseline-browser-mapping@2.10.32: {}
-
-    brace-expansion@1.1.14:
-        dependencies:
-            balanced-match: 1.0.2
-            concat-map: 0.0.1
-
-    brace-expansion@5.0.6:
-        dependencies:
-            balanced-match: 4.0.4
-
-    braces@3.0.3:
-        dependencies:
-            fill-range: 7.1.1
-
-    browserslist@4.28.2:
-        dependencies:
-            baseline-browser-mapping: 2.10.32
-            caniuse-lite: 1.0.30001793
-            electron-to-chromium: 1.5.361
-            node-releases: 2.0.46
-            update-browserslist-db: 1.2.3(browserslist@4.28.2)
-
-    call-bind-apply-helpers@1.0.2:
-        dependencies:
-            es-errors: 1.3.0
-            function-bind: 1.1.2
-
-    call-bind@1.0.9:
-        dependencies:
-            call-bind-apply-helpers: 1.0.2
-            es-define-property: 1.0.1
-            get-intrinsic: 1.3.0
-            set-function-length: 1.2.2
-
-    call-bound@1.0.4:
-        dependencies:
-            call-bind-apply-helpers: 1.0.2
-            get-intrinsic: 1.3.0
-
-    callsites@3.1.0: {}
+  '@rcffuta/ict-lib@3.3.4':
+    dependencies:
+      '@supabase/supabase-js': 2.106.1
+      dotenv: 17.4.2
+      nodemailer: 7.0.13
+      resend: 6.12.3
+      zod: 4.4.3
+    transitivePeerDependencies:
+      - '@react-email/render'
+
+  '@rtsao/scc@1.1.0': {}
+
+  '@stablelib/base64@1.0.1': {}
+
+  '@supabase/auth-js@2.106.1':
+    dependencies:
+      tslib: 2.8.1
+
+  '@supabase/functions-js@2.106.1':
+    dependencies:
+      tslib: 2.8.1
+
+  '@supabase/phoenix@0.4.2': {}
+
+  '@supabase/postgrest-js@2.106.1':
+    dependencies:
+      tslib: 2.8.1
+
+  '@supabase/realtime-js@2.106.1':
+    dependencies:
+      '@supabase/phoenix': 0.4.2
+      tslib: 2.8.1
+
+  '@supabase/ssr@0.10.3(@supabase/supabase-js@2.106.1)':
+    dependencies:
+      '@supabase/supabase-js': 2.106.1
+      cookie: 1.1.1
+
+  '@supabase/storage-js@2.106.1':
+    dependencies:
+      iceberg-js: 0.8.1
+      tslib: 2.8.1
+
+  '@supabase/supabase-js@2.106.1':
+    dependencies:
+      '@supabase/auth-js': 2.106.1
+      '@supabase/functions-js': 2.106.1
+      '@supabase/postgrest-js': 2.106.1
+      '@supabase/realtime-js': 2.106.1
+      '@supabase/storage-js': 2.106.1
+
+  '@swc/helpers@0.5.15':
+    dependencies:
+      tslib: 2.8.1
+
+  '@tailwindcss/node@4.3.0':
+    dependencies:
+      '@jridgewell/remapping': 2.3.5
+      enhanced-resolve: 5.22.0
+      jiti: 2.7.0
+      lightningcss: 1.32.0
+      magic-string: 0.30.21
+      source-map-js: 1.2.1
+      tailwindcss: 4.3.0
+
+  '@tailwindcss/oxide-android-arm64@4.3.0':
+    optional: true
+
+  '@tailwindcss/oxide-darwin-arm64@4.3.0':
+    optional: true
+
+  '@tailwindcss/oxide-darwin-x64@4.3.0':
+    optional: true
+
+  '@tailwindcss/oxide-freebsd-x64@4.3.0':
+    optional: true
+
+  '@tailwindcss/oxide-linux-arm-gnueabihf@4.3.0':
+    optional: true
+
+  '@tailwindcss/oxide-linux-arm64-gnu@4.3.0':
+    optional: true
+
+  '@tailwindcss/oxide-linux-arm64-musl@4.3.0':
+    optional: true
+
+  '@tailwindcss/oxide-linux-x64-gnu@4.3.0':
+    optional: true
+
+  '@tailwindcss/oxide-linux-x64-musl@4.3.0':
+    optional: true
+
+  '@tailwindcss/oxide-wasm32-wasi@4.3.0':
+    optional: true
+
+  '@tailwindcss/oxide-win32-arm64-msvc@4.3.0':
+    optional: true
+
+  '@tailwindcss/oxide-win32-x64-msvc@4.3.0':
+    optional: true
+
+  '@tailwindcss/oxide@4.3.0':
+    optionalDependencies:
+      '@tailwindcss/oxide-android-arm64': 4.3.0
+      '@tailwindcss/oxide-darwin-arm64': 4.3.0
+      '@tailwindcss/oxide-darwin-x64': 4.3.0
+      '@tailwindcss/oxide-freebsd-x64': 4.3.0
+      '@tailwindcss/oxide-linux-arm-gnueabihf': 4.3.0
+      '@tailwindcss/oxide-linux-arm64-gnu': 4.3.0
+      '@tailwindcss/oxide-linux-arm64-musl': 4.3.0
+      '@tailwindcss/oxide-linux-x64-gnu': 4.3.0
+      '@tailwindcss/oxide-linux-x64-musl': 4.3.0
+      '@tailwindcss/oxide-wasm32-wasi': 4.3.0
+      '@tailwindcss/oxide-win32-arm64-msvc': 4.3.0
+      '@tailwindcss/oxide-win32-x64-msvc': 4.3.0
+
+  '@tailwindcss/postcss@4.3.0':
+    dependencies:
+      '@alloc/quick-lru': 5.2.0
+      '@tailwindcss/node': 4.3.0
+      '@tailwindcss/oxide': 4.3.0
+      postcss: 8.5.15
+      tailwindcss: 4.3.0
+
+  '@tybys/wasm-util@0.10.2':
+    dependencies:
+      tslib: 2.8.1
+    optional: true
+
+  '@types/estree@1.0.9': {}
+
+  '@types/json-schema@7.0.15': {}
+
+  '@types/json5@0.0.29': {}
+
+  '@types/node@20.19.41':
+    dependencies:
+      undici-types: 6.21.0
+
+  '@types/react-dom@19.2.3(@types/react@19.2.15)':
+    dependencies:
+      '@types/react': 19.2.15
+
+  '@types/react@19.2.15':
+    dependencies:
+      csstype: 3.2.3
+
+  '@typescript-eslint/eslint-plugin@8.59.4(@typescript-eslint/parser@8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)':
+    dependencies:
+      '@eslint-community/regexpp': 4.12.2
+      '@typescript-eslint/parser': 8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      '@typescript-eslint/scope-manager': 8.59.4
+      '@typescript-eslint/type-utils': 8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      '@typescript-eslint/utils': 8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      '@typescript-eslint/visitor-keys': 8.59.4
+      eslint: 9.39.4(jiti@2.7.0)
+      ignore: 7.0.5
+      natural-compare: 1.4.0
+      ts-api-utils: 2.5.0(typescript@5.9.3)
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/parser@8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)':
+    dependencies:
+      '@typescript-eslint/scope-manager': 8.59.4
+      '@typescript-eslint/types': 8.59.4
+      '@typescript-eslint/typescript-estree': 8.59.4(typescript@5.9.3)
+      '@typescript-eslint/visitor-keys': 8.59.4
+      debug: 4.4.3
+      eslint: 9.39.4(jiti@2.7.0)
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/project-service@8.59.4(typescript@5.9.3)':
+    dependencies:
+      '@typescript-eslint/tsconfig-utils': 8.59.4(typescript@5.9.3)
+      '@typescript-eslint/types': 8.59.4
+      debug: 4.4.3
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/scope-manager@8.59.4':
+    dependencies:
+      '@typescript-eslint/types': 8.59.4
+      '@typescript-eslint/visitor-keys': 8.59.4
+
+  '@typescript-eslint/tsconfig-utils@8.59.4(typescript@5.9.3)':
+    dependencies:
+      typescript: 5.9.3
+
+  '@typescript-eslint/type-utils@8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)':
+    dependencies:
+      '@typescript-eslint/types': 8.59.4
+      '@typescript-eslint/typescript-estree': 8.59.4(typescript@5.9.3)
+      '@typescript-eslint/utils': 8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      debug: 4.4.3
+      eslint: 9.39.4(jiti@2.7.0)
+      ts-api-utils: 2.5.0(typescript@5.9.3)
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/types@8.59.4': {}
+
+  '@typescript-eslint/typescript-estree@8.59.4(typescript@5.9.3)':
+    dependencies:
+      '@typescript-eslint/project-service': 8.59.4(typescript@5.9.3)
+      '@typescript-eslint/tsconfig-utils': 8.59.4(typescript@5.9.3)
+      '@typescript-eslint/types': 8.59.4
+      '@typescript-eslint/visitor-keys': 8.59.4
+      debug: 4.4.3
+      minimatch: 10.2.5
+      semver: 7.8.1
+      tinyglobby: 0.2.16
+      ts-api-utils: 2.5.0(typescript@5.9.3)
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/utils@8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)':
+    dependencies:
+      '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.4(jiti@2.7.0))
+      '@typescript-eslint/scope-manager': 8.59.4
+      '@typescript-eslint/types': 8.59.4
+      '@typescript-eslint/typescript-estree': 8.59.4(typescript@5.9.3)
+      eslint: 9.39.4(jiti@2.7.0)
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@typescript-eslint/visitor-keys@8.59.4':
+    dependencies:
+      '@typescript-eslint/types': 8.59.4
+      eslint-visitor-keys: 5.0.1
+
+  '@unrs/resolver-binding-android-arm-eabi@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-android-arm64@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-darwin-arm64@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-darwin-x64@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-freebsd-x64@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-linux-arm-gnueabihf@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-linux-arm-musleabihf@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-linux-arm64-gnu@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-linux-arm64-musl@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-linux-loong64-gnu@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-linux-loong64-musl@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-linux-ppc64-gnu@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-linux-riscv64-gnu@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-linux-riscv64-musl@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-linux-s390x-gnu@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-linux-x64-gnu@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-linux-x64-musl@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-openharmony-arm64@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-wasm32-wasi@1.12.2':
+    dependencies:
+      '@emnapi/core': 1.10.0
+      '@emnapi/runtime': 1.10.0
+      '@napi-rs/wasm-runtime': 1.1.4(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+    optional: true
+
+  '@unrs/resolver-binding-win32-arm64-msvc@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-win32-ia32-msvc@1.12.2':
+    optional: true
+
+  '@unrs/resolver-binding-win32-x64-msvc@1.12.2':
+    optional: true
+
+  acorn-jsx@5.3.2(acorn@8.16.0):
+    dependencies:
+      acorn: 8.16.0
+
+  acorn@8.16.0: {}
+
+  ajv@6.15.0:
+    dependencies:
+      fast-deep-equal: 3.1.3
+      fast-json-stable-stringify: 2.1.0
+      json-schema-traverse: 0.4.1
+      uri-js: 4.4.1
+
+  ansi-colors@4.1.3: {}
+
+  ansi-styles@4.3.0:
+    dependencies:
+      color-convert: 2.0.1
+
+  argparse@2.0.1: {}
+
+  aria-query@5.3.2: {}
+
+  array-buffer-byte-length@1.0.2:
+    dependencies:
+      call-bound: 1.0.4
+      is-array-buffer: 3.0.5
+
+  array-includes@3.1.9:
+    dependencies:
+      call-bind: 1.0.9
+      call-bound: 1.0.4
+      define-properties: 1.2.1
+      es-abstract: 1.24.2
+      es-object-atoms: 1.1.2
+      get-intrinsic: 1.3.0
+      is-string: 1.1.1
+      math-intrinsics: 1.1.0
+
+  array.prototype.findlast@1.2.5:
+    dependencies:
+      call-bind: 1.0.9
+      define-properties: 1.2.1
+      es-abstract: 1.24.2
+      es-errors: 1.3.0
+      es-object-atoms: 1.1.2
+      es-shim-unscopables: 1.1.0
+
+  array.prototype.findlastindex@1.2.6:
+    dependencies:
+      call-bind: 1.0.9
+      call-bound: 1.0.4
+      define-properties: 1.2.1
+      es-abstract: 1.24.2
+      es-errors: 1.3.0
+      es-object-atoms: 1.1.2
+      es-shim-unscopables: 1.1.0
+
+  array.prototype.flat@1.3.3:
+    dependencies:
+      call-bind: 1.0.9
+      define-properties: 1.2.1
+      es-abstract: 1.24.2
+      es-shim-unscopables: 1.1.0
+
+  array.prototype.flatmap@1.3.3:
+    dependencies:
+      call-bind: 1.0.9
+      define-properties: 1.2.1
+      es-abstract: 1.24.2
+      es-shim-unscopables: 1.1.0
+
+  array.prototype.tosorted@1.1.4:
+    dependencies:
+      call-bind: 1.0.9
+      define-properties: 1.2.1
+      es-abstract: 1.24.2
+      es-errors: 1.3.0
+      es-shim-unscopables: 1.1.0
+
+  arraybuffer.prototype.slice@1.0.4:
+    dependencies:
+      array-buffer-byte-length: 1.0.2
+      call-bind: 1.0.9
+      define-properties: 1.2.1
+      es-abstract: 1.24.2
+      es-errors: 1.3.0
+      get-intrinsic: 1.3.0
+      is-array-buffer: 3.0.5
+
+  ast-types-flow@0.0.8: {}
+
+  async-function@1.0.0: {}
+
+  autoprefixer@10.5.0(postcss@8.5.15):
+    dependencies:
+      browserslist: 4.28.2
+      caniuse-lite: 1.0.30001793
+      fraction.js: 5.3.4
+      picocolors: 1.1.1
+      postcss: 8.5.15
+      postcss-value-parser: 4.2.0
+
+  available-typed-arrays@1.0.7:
+    dependencies:
+      possible-typed-array-names: 1.1.0
+
+  axe-core@4.11.4: {}
+
+  axobject-query@4.1.0: {}
+
+  balanced-match@1.0.2: {}
+
+  balanced-match@4.0.4: {}
+
+  baseline-browser-mapping@2.10.32: {}
+
+  brace-expansion@1.1.14:
+    dependencies:
+      balanced-match: 1.0.2
+      concat-map: 0.0.1
+
+  brace-expansion@5.0.6:
+    dependencies:
+      balanced-match: 4.0.4
+
+  braces@3.0.3:
+    dependencies:
+      fill-range: 7.1.1
+
+  browserslist@4.28.2:
+    dependencies:
+      baseline-browser-mapping: 2.10.32
+      caniuse-lite: 1.0.30001793
+      electron-to-chromium: 1.5.361
+      node-releases: 2.0.46
+      update-browserslist-db: 1.2.3(browserslist@4.28.2)
+
+  call-bind-apply-helpers@1.0.2:
+    dependencies:
+      es-errors: 1.3.0
+      function-bind: 1.1.2
+
+  call-bind@1.0.9:
+    dependencies:
+      call-bind-apply-helpers: 1.0.2
+      es-define-property: 1.0.1
+      get-intrinsic: 1.3.0
+      set-function-length: 1.2.2
+
+  call-bound@1.0.4:
+    dependencies:
+      call-bind-apply-helpers: 1.0.2
+      get-intrinsic: 1.3.0
+
+  callsites@3.1.0: {}
 
   caniuse-lite@1.0.30001793: {}
 
@@ -3100,7 +3057,7 @@ snapshots:
       es-errors: 1.3.0
       is-data-view: 1.0.2
 
-  date-fns@4.1.0: {}
+  date-fns@4.4.0: {}
 
   debug@3.2.7:
     dependencies:
@@ -3473,1032 +3430,1032 @@ snapshots:
       merge2: 1.4.1
       micromatch: 4.0.8
 
-    fast-json-stable-stringify@2.1.0: {}
+  fast-json-stable-stringify@2.1.0: {}
 
-    fast-levenshtein@2.0.6: {}
+  fast-levenshtein@2.0.6: {}
 
-    fast-sha256@1.3.0: {}
+  fast-sha256@1.3.0: {}
 
-    fastq@1.20.1:
-        dependencies:
-            reusify: 1.1.0
+  fastq@1.20.1:
+    dependencies:
+      reusify: 1.1.0
 
-    fdir@6.5.0(picomatch@4.0.4):
-        optionalDependencies:
-            picomatch: 4.0.4
+  fdir@6.5.0(picomatch@4.0.4):
+    optionalDependencies:
+      picomatch: 4.0.4
 
-    file-entry-cache@8.0.0:
-        dependencies:
-            flat-cache: 4.0.1
+  file-entry-cache@8.0.0:
+    dependencies:
+      flat-cache: 4.0.1
 
-    fill-range@7.1.1:
-        dependencies:
-            to-regex-range: 5.0.1
+  fill-range@7.1.1:
+    dependencies:
+      to-regex-range: 5.0.1
 
-    find-up@5.0.0:
-        dependencies:
-            locate-path: 6.0.0
-            path-exists: 4.0.0
+  find-up@5.0.0:
+    dependencies:
+      locate-path: 6.0.0
+      path-exists: 4.0.0
 
-    flat-cache@4.0.1:
-        dependencies:
-            flatted: 3.4.2
-            keyv: 4.5.4
+  flat-cache@4.0.1:
+    dependencies:
+      flatted: 3.4.2
+      keyv: 4.5.4
 
-    flatted@3.4.2: {}
+  flatted@3.4.2: {}
 
-    follow-redirects@1.16.0: {}
+  follow-redirects@1.16.0: {}
 
-    for-each@0.3.5:
-        dependencies:
-            is-callable: 1.2.7
+  for-each@0.3.5:
+    dependencies:
+      is-callable: 1.2.7
 
-    fraction.js@5.3.4: {}
+  fraction.js@5.3.4: {}
 
-    function-bind@1.1.2: {}
+  function-bind@1.1.2: {}
 
-    function.prototype.name@1.1.8:
-        dependencies:
-            call-bind: 1.0.9
-            call-bound: 1.0.4
-            define-properties: 1.2.1
-            functions-have-names: 1.2.3
-            hasown: 2.0.3
-            is-callable: 1.2.7
+  function.prototype.name@1.1.8:
+    dependencies:
+      call-bind: 1.0.9
+      call-bound: 1.0.4
+      define-properties: 1.2.1
+      functions-have-names: 1.2.3
+      hasown: 2.0.3
+      is-callable: 1.2.7
 
-    functions-have-names@1.2.3: {}
+  functions-have-names@1.2.3: {}
 
-    generator-function@2.0.1: {}
+  generator-function@2.0.1: {}
 
-    gensync@1.0.0-beta.2: {}
+  gensync@1.0.0-beta.2: {}
 
-    get-intrinsic@1.3.0:
-        dependencies:
-            call-bind-apply-helpers: 1.0.2
-            es-define-property: 1.0.1
-            es-errors: 1.3.0
-            es-object-atoms: 1.1.2
-            function-bind: 1.1.2
-            get-proto: 1.0.1
-            gopd: 1.2.0
-            has-symbols: 1.1.0
-            hasown: 2.0.3
-            math-intrinsics: 1.1.0
+  get-intrinsic@1.3.0:
+    dependencies:
+      call-bind-apply-helpers: 1.0.2
+      es-define-property: 1.0.1
+      es-errors: 1.3.0
+      es-object-atoms: 1.1.2
+      function-bind: 1.1.2
+      get-proto: 1.0.1
+      gopd: 1.2.0
+      has-symbols: 1.1.0
+      hasown: 2.0.3
+      math-intrinsics: 1.1.0
 
-    get-proto@1.0.1:
-        dependencies:
-            dunder-proto: 1.0.1
-            es-object-atoms: 1.1.2
+  get-proto@1.0.1:
+    dependencies:
+      dunder-proto: 1.0.1
+      es-object-atoms: 1.1.2
 
-    get-symbol-description@1.1.0:
-        dependencies:
-            call-bound: 1.0.4
-            es-errors: 1.3.0
-            get-intrinsic: 1.3.0
+  get-symbol-description@1.1.0:
+    dependencies:
+      call-bound: 1.0.4
+      es-errors: 1.3.0
+      get-intrinsic: 1.3.0
 
-    get-tsconfig@4.14.0:
-        dependencies:
-            resolve-pkg-maps: 1.0.0
+  get-tsconfig@4.14.0:
+    dependencies:
+      resolve-pkg-maps: 1.0.0
 
-    glob-parent@5.1.2:
-        dependencies:
-            is-glob: 4.0.3
+  glob-parent@5.1.2:
+    dependencies:
+      is-glob: 4.0.3
 
-    glob-parent@6.0.2:
-        dependencies:
-            is-glob: 4.0.3
+  glob-parent@6.0.2:
+    dependencies:
+      is-glob: 4.0.3
 
-    globals@14.0.0: {}
+  globals@14.0.0: {}
 
-    globals@16.4.0: {}
+  globals@16.4.0: {}
 
-    globalthis@1.0.4:
-        dependencies:
-            define-properties: 1.2.1
-            gopd: 1.2.0
+  globalthis@1.0.4:
+    dependencies:
+      define-properties: 1.2.1
+      gopd: 1.2.0
 
-    gopd@1.2.0: {}
+  gopd@1.2.0: {}
 
-    graceful-fs@4.2.11: {}
+  graceful-fs@4.2.11: {}
 
-    groq-sdk@1.2.0: {}
+  groq-sdk@1.2.0: {}
 
-    has-bigints@1.1.0: {}
+  has-bigints@1.1.0: {}
 
-    has-flag@4.0.0: {}
+  has-flag@4.0.0: {}
 
-    has-property-descriptors@1.0.2:
-        dependencies:
-            es-define-property: 1.0.1
+  has-property-descriptors@1.0.2:
+    dependencies:
+      es-define-property: 1.0.1
 
-    has-proto@1.2.0:
-        dependencies:
-            dunder-proto: 1.0.1
+  has-proto@1.2.0:
+    dependencies:
+      dunder-proto: 1.0.1
 
-    has-symbols@1.1.0: {}
+  has-symbols@1.1.0: {}
 
-    has-tostringtag@1.0.2:
-        dependencies:
-            has-symbols: 1.1.0
+  has-tostringtag@1.0.2:
+    dependencies:
+      has-symbols: 1.1.0
 
-    hasown@2.0.3:
-        dependencies:
-            function-bind: 1.1.2
+  hasown@2.0.3:
+    dependencies:
+      function-bind: 1.1.2
 
-    hermes-estree@0.25.1: {}
+  hermes-estree@0.25.1: {}
 
-    hermes-parser@0.25.1:
-        dependencies:
-            hermes-estree: 0.25.1
+  hermes-parser@0.25.1:
+    dependencies:
+      hermes-estree: 0.25.1
 
-    http-proxy@1.18.1:
-        dependencies:
-            eventemitter3: 4.0.7
-            follow-redirects: 1.16.0
-            requires-port: 1.0.0
-        transitivePeerDependencies:
-            - debug
+  http-proxy@1.18.1:
+    dependencies:
+      eventemitter3: 4.0.7
+      follow-redirects: 1.16.0
+      requires-port: 1.0.0
+    transitivePeerDependencies:
+      - debug
 
-    iceberg-js@0.8.1: {}
+  iceberg-js@0.8.1: {}
 
-    ignore@5.3.2: {}
+  ignore@5.3.2: {}
 
-    ignore@7.0.5: {}
+  ignore@7.0.5: {}
 
-    import-fresh@3.3.1:
-        dependencies:
-            parent-module: 1.0.1
-            resolve-from: 4.0.0
+  import-fresh@3.3.1:
+    dependencies:
+      parent-module: 1.0.1
+      resolve-from: 4.0.0
 
-    imurmurhash@0.1.4: {}
+  imurmurhash@0.1.4: {}
 
-    internal-slot@1.1.0:
-        dependencies:
-            es-errors: 1.3.0
-            hasown: 2.0.3
-            side-channel: 1.1.0
+  internal-slot@1.1.0:
+    dependencies:
+      es-errors: 1.3.0
+      hasown: 2.0.3
+      side-channel: 1.1.0
 
-    is-array-buffer@3.0.5:
-        dependencies:
-            call-bind: 1.0.9
-            call-bound: 1.0.4
-            get-intrinsic: 1.3.0
+  is-array-buffer@3.0.5:
+    dependencies:
+      call-bind: 1.0.9
+      call-bound: 1.0.4
+      get-intrinsic: 1.3.0
 
-    is-async-function@2.1.1:
-        dependencies:
-            async-function: 1.0.0
-            call-bound: 1.0.4
-            get-proto: 1.0.1
-            has-tostringtag: 1.0.2
-            safe-regex-test: 1.1.0
+  is-async-function@2.1.1:
+    dependencies:
+      async-function: 1.0.0
+      call-bound: 1.0.4
+      get-proto: 1.0.1
+      has-tostringtag: 1.0.2
+      safe-regex-test: 1.1.0
 
-    is-bigint@1.1.0:
-        dependencies:
-            has-bigints: 1.1.0
+  is-bigint@1.1.0:
+    dependencies:
+      has-bigints: 1.1.0
 
-    is-boolean-object@1.2.2:
-        dependencies:
-            call-bound: 1.0.4
-            has-tostringtag: 1.0.2
+  is-boolean-object@1.2.2:
+    dependencies:
+      call-bound: 1.0.4
+      has-tostringtag: 1.0.2
 
-    is-bun-module@2.0.0:
-        dependencies:
-            semver: 7.8.1
+  is-bun-module@2.0.0:
+    dependencies:
+      semver: 7.8.1
 
-    is-callable@1.2.7: {}
+  is-callable@1.2.7: {}
 
-    is-core-module@2.16.2:
-        dependencies:
-            hasown: 2.0.3
+  is-core-module@2.16.2:
+    dependencies:
+      hasown: 2.0.3
 
-    is-data-view@1.0.2:
-        dependencies:
-            call-bound: 1.0.4
-            get-intrinsic: 1.3.0
-            is-typed-array: 1.1.15
+  is-data-view@1.0.2:
+    dependencies:
+      call-bound: 1.0.4
+      get-intrinsic: 1.3.0
+      is-typed-array: 1.1.15
 
-    is-date-object@1.1.0:
-        dependencies:
-            call-bound: 1.0.4
-            has-tostringtag: 1.0.2
+  is-date-object@1.1.0:
+    dependencies:
+      call-bound: 1.0.4
+      has-tostringtag: 1.0.2
 
-    is-extglob@2.1.1: {}
+  is-extglob@2.1.1: {}
 
-    is-finalizationregistry@1.1.1:
-        dependencies:
-            call-bound: 1.0.4
+  is-finalizationregistry@1.1.1:
+    dependencies:
+      call-bound: 1.0.4
 
-    is-generator-function@1.1.2:
-        dependencies:
-            call-bound: 1.0.4
-            generator-function: 2.0.1
-            get-proto: 1.0.1
-            has-tostringtag: 1.0.2
-            safe-regex-test: 1.1.0
+  is-generator-function@1.1.2:
+    dependencies:
+      call-bound: 1.0.4
+      generator-function: 2.0.1
+      get-proto: 1.0.1
+      has-tostringtag: 1.0.2
+      safe-regex-test: 1.1.0
 
-    is-glob@4.0.3:
-        dependencies:
-            is-extglob: 2.1.1
+  is-glob@4.0.3:
+    dependencies:
+      is-extglob: 2.1.1
 
-    is-map@2.0.3: {}
+  is-map@2.0.3: {}
 
-    is-negative-zero@2.0.3: {}
+  is-negative-zero@2.0.3: {}
 
-    is-number-object@1.1.1:
-        dependencies:
-            call-bound: 1.0.4
-            has-tostringtag: 1.0.2
+  is-number-object@1.1.1:
+    dependencies:
+      call-bound: 1.0.4
+      has-tostringtag: 1.0.2
 
-    is-number@7.0.0: {}
+  is-number@7.0.0: {}
 
-    is-regex@1.2.1:
-        dependencies:
-            call-bound: 1.0.4
-            gopd: 1.2.0
-            has-tostringtag: 1.0.2
-            hasown: 2.0.3
+  is-regex@1.2.1:
+    dependencies:
+      call-bound: 1.0.4
+      gopd: 1.2.0
+      has-tostringtag: 1.0.2
+      hasown: 2.0.3
 
-    is-set@2.0.3: {}
+  is-set@2.0.3: {}
 
-    is-shared-array-buffer@1.0.4:
-        dependencies:
-            call-bound: 1.0.4
+  is-shared-array-buffer@1.0.4:
+    dependencies:
+      call-bound: 1.0.4
 
-    is-string@1.1.1:
-        dependencies:
-            call-bound: 1.0.4
-            has-tostringtag: 1.0.2
+  is-string@1.1.1:
+    dependencies:
+      call-bound: 1.0.4
+      has-tostringtag: 1.0.2
 
-    is-symbol@1.1.1:
-        dependencies:
-            call-bound: 1.0.4
-            has-symbols: 1.1.0
-            safe-regex-test: 1.1.0
+  is-symbol@1.1.1:
+    dependencies:
+      call-bound: 1.0.4
+      has-symbols: 1.1.0
+      safe-regex-test: 1.1.0
 
-    is-typed-array@1.1.15:
-        dependencies:
-            which-typed-array: 1.1.20
+  is-typed-array@1.1.15:
+    dependencies:
+      which-typed-array: 1.1.20
 
-    is-weakmap@2.0.2: {}
+  is-weakmap@2.0.2: {}
 
-    is-weakref@1.1.1:
-        dependencies:
-            call-bound: 1.0.4
+  is-weakref@1.1.1:
+    dependencies:
+      call-bound: 1.0.4
 
-    is-weakset@2.0.4:
-        dependencies:
-            call-bound: 1.0.4
-            get-intrinsic: 1.3.0
+  is-weakset@2.0.4:
+    dependencies:
+      call-bound: 1.0.4
+      get-intrinsic: 1.3.0
 
-    isarray@2.0.5: {}
+  isarray@2.0.5: {}
 
-    isexe@2.0.0: {}
+  isexe@2.0.0: {}
 
-    iterator.prototype@1.1.5:
-        dependencies:
-            define-data-property: 1.1.4
-            es-object-atoms: 1.1.2
-            get-intrinsic: 1.3.0
-            get-proto: 1.0.1
-            has-symbols: 1.1.0
-            set-function-name: 2.0.2
+  iterator.prototype@1.1.5:
+    dependencies:
+      define-data-property: 1.1.4
+      es-object-atoms: 1.1.2
+      get-intrinsic: 1.3.0
+      get-proto: 1.0.1
+      has-symbols: 1.1.0
+      set-function-name: 2.0.2
 
-    jiti@2.7.0: {}
+  jiti@2.7.0: {}
 
-    js-tokens@4.0.0: {}
+  js-tokens@4.0.0: {}
 
-    js-yaml@4.1.1:
-        dependencies:
-            argparse: 2.0.1
+  js-yaml@4.1.1:
+    dependencies:
+      argparse: 2.0.1
 
-    jsesc@3.1.0: {}
+  jsesc@3.1.0: {}
 
-    json-buffer@3.0.1: {}
+  json-buffer@3.0.1: {}
 
-    json-schema-traverse@0.4.1: {}
+  json-schema-traverse@0.4.1: {}
 
-    json-stable-stringify-without-jsonify@1.0.1: {}
+  json-stable-stringify-without-jsonify@1.0.1: {}
 
-    json5@1.0.2:
-        dependencies:
-            minimist: 1.2.8
+  json5@1.0.2:
+    dependencies:
+      minimist: 1.2.8
 
-    json5@2.2.3: {}
+  json5@2.2.3: {}
 
-    jsx-ast-utils@3.3.5:
-        dependencies:
-            array-includes: 3.1.9
-            array.prototype.flat: 1.3.3
-            object.assign: 4.1.7
-            object.values: 1.2.1
+  jsx-ast-utils@3.3.5:
+    dependencies:
+      array-includes: 3.1.9
+      array.prototype.flat: 1.3.3
+      object.assign: 4.1.7
+      object.values: 1.2.1
 
-    keyv@4.5.4:
-        dependencies:
-            json-buffer: 3.0.1
+  keyv@4.5.4:
+    dependencies:
+      json-buffer: 3.0.1
 
-    language-subtag-registry@0.3.23: {}
+  language-subtag-registry@0.3.23: {}
 
-    language-tags@1.0.9:
-        dependencies:
-            language-subtag-registry: 0.3.23
+  language-tags@1.0.9:
+    dependencies:
+      language-subtag-registry: 0.3.23
 
-    levn@0.4.1:
-        dependencies:
-            prelude-ls: 1.2.1
-            type-check: 0.4.0
+  levn@0.4.1:
+    dependencies:
+      prelude-ls: 1.2.1
+      type-check: 0.4.0
 
-    lightningcss-android-arm64@1.32.0:
-        optional: true
+  lightningcss-android-arm64@1.32.0:
+    optional: true
 
-    lightningcss-darwin-arm64@1.32.0:
-        optional: true
+  lightningcss-darwin-arm64@1.32.0:
+    optional: true
 
-    lightningcss-darwin-x64@1.32.0:
-        optional: true
+  lightningcss-darwin-x64@1.32.0:
+    optional: true
 
-    lightningcss-freebsd-x64@1.32.0:
-        optional: true
+  lightningcss-freebsd-x64@1.32.0:
+    optional: true
 
-    lightningcss-linux-arm-gnueabihf@1.32.0:
-        optional: true
+  lightningcss-linux-arm-gnueabihf@1.32.0:
+    optional: true
 
-    lightningcss-linux-arm64-gnu@1.32.0:
-        optional: true
+  lightningcss-linux-arm64-gnu@1.32.0:
+    optional: true
 
-    lightningcss-linux-arm64-musl@1.32.0:
-        optional: true
+  lightningcss-linux-arm64-musl@1.32.0:
+    optional: true
 
-    lightningcss-linux-x64-gnu@1.32.0:
-        optional: true
+  lightningcss-linux-x64-gnu@1.32.0:
+    optional: true
 
-    lightningcss-linux-x64-musl@1.32.0:
-        optional: true
+  lightningcss-linux-x64-musl@1.32.0:
+    optional: true
 
-    lightningcss-win32-arm64-msvc@1.32.0:
-        optional: true
+  lightningcss-win32-arm64-msvc@1.32.0:
+    optional: true
 
-    lightningcss-win32-x64-msvc@1.32.0:
-        optional: true
+  lightningcss-win32-x64-msvc@1.32.0:
+    optional: true
 
-    lightningcss@1.32.0:
-        dependencies:
-            detect-libc: 2.1.2
-        optionalDependencies:
-            lightningcss-android-arm64: 1.32.0
-            lightningcss-darwin-arm64: 1.32.0
-            lightningcss-darwin-x64: 1.32.0
-            lightningcss-freebsd-x64: 1.32.0
-            lightningcss-linux-arm-gnueabihf: 1.32.0
-            lightningcss-linux-arm64-gnu: 1.32.0
-            lightningcss-linux-arm64-musl: 1.32.0
-            lightningcss-linux-x64-gnu: 1.32.0
-            lightningcss-linux-x64-musl: 1.32.0
-            lightningcss-win32-arm64-msvc: 1.32.0
-            lightningcss-win32-x64-msvc: 1.32.0
+  lightningcss@1.32.0:
+    dependencies:
+      detect-libc: 2.1.2
+    optionalDependencies:
+      lightningcss-android-arm64: 1.32.0
+      lightningcss-darwin-arm64: 1.32.0
+      lightningcss-darwin-x64: 1.32.0
+      lightningcss-freebsd-x64: 1.32.0
+      lightningcss-linux-arm-gnueabihf: 1.32.0
+      lightningcss-linux-arm64-gnu: 1.32.0
+      lightningcss-linux-arm64-musl: 1.32.0
+      lightningcss-linux-x64-gnu: 1.32.0
+      lightningcss-linux-x64-musl: 1.32.0
+      lightningcss-win32-arm64-msvc: 1.32.0
+      lightningcss-win32-x64-msvc: 1.32.0
 
-    local-ssl-proxy@2.0.5:
-        dependencies:
-            ansi-colors: 4.1.3
-            commander: 10.0.1
-            http-proxy: 1.18.1
-        transitivePeerDependencies:
-            - debug
+  local-ssl-proxy@2.0.5:
+    dependencies:
+      ansi-colors: 4.1.3
+      commander: 10.0.1
+      http-proxy: 1.18.1
+    transitivePeerDependencies:
+      - debug
 
-    locate-path@6.0.0:
-        dependencies:
-            p-locate: 5.0.0
+  locate-path@6.0.0:
+    dependencies:
+      p-locate: 5.0.0
 
-    lodash.merge@4.6.2: {}
+  lodash.merge@4.6.2: {}
 
-    loose-envify@1.4.0:
-        dependencies:
-            js-tokens: 4.0.0
+  loose-envify@1.4.0:
+    dependencies:
+      js-tokens: 4.0.0
 
-    lru-cache@5.1.1:
-        dependencies:
-            yallist: 3.1.1
+  lru-cache@5.1.1:
+    dependencies:
+      yallist: 3.1.1
 
-    magic-string@0.30.21:
-        dependencies:
-            "@jridgewell/sourcemap-codec": 1.5.5
+  magic-string@0.30.21:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.5
 
-    math-intrinsics@1.1.0: {}
-
-    merge2@1.4.1: {}
-
-    micromatch@4.0.8:
-        dependencies:
-            braces: 3.0.3
-            picomatch: 2.3.2
-
-    minimatch@10.2.5:
-        dependencies:
-            brace-expansion: 5.0.6
-
-    minimatch@3.1.5:
-        dependencies:
-            brace-expansion: 1.1.14
-
-    minimist@1.2.8: {}
-
-    ms@2.1.3: {}
-
-    nanoid@3.3.12: {}
-
-    napi-postinstall@0.3.4: {}
-
-    natural-compare@1.4.0: {}
-
-    next@16.2.4(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
-        dependencies:
-            "@next/env": 16.2.4
-            "@swc/helpers": 0.5.15
-            baseline-browser-mapping: 2.10.32
-            caniuse-lite: 1.0.30001793
-            postcss: 8.4.31
-            react: 19.2.4
-            react-dom: 19.2.4(react@19.2.4)
-            styled-jsx: 5.1.6(@babel/core@7.29.0)(react@19.2.4)
-        optionalDependencies:
-            "@next/swc-darwin-arm64": 16.2.4
-            "@next/swc-darwin-x64": 16.2.4
-            "@next/swc-linux-arm64-gnu": 16.2.4
-            "@next/swc-linux-arm64-musl": 16.2.4
-            "@next/swc-linux-x64-gnu": 16.2.4
-            "@next/swc-linux-x64-musl": 16.2.4
-            "@next/swc-win32-arm64-msvc": 16.2.4
-            "@next/swc-win32-x64-msvc": 16.2.4
-            sharp: 0.34.5
-        transitivePeerDependencies:
-            - "@babel/core"
-            - babel-plugin-macros
+  math-intrinsics@1.1.0: {}
+
+  merge2@1.4.1: {}
+
+  micromatch@4.0.8:
+    dependencies:
+      braces: 3.0.3
+      picomatch: 2.3.2
+
+  minimatch@10.2.5:
+    dependencies:
+      brace-expansion: 5.0.6
+
+  minimatch@3.1.5:
+    dependencies:
+      brace-expansion: 1.1.14
+
+  minimist@1.2.8: {}
+
+  ms@2.1.3: {}
+
+  nanoid@3.3.12: {}
+
+  napi-postinstall@0.3.4: {}
+
+  natural-compare@1.4.0: {}
+
+  next@16.2.4(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      '@next/env': 16.2.4
+      '@swc/helpers': 0.5.15
+      baseline-browser-mapping: 2.10.32
+      caniuse-lite: 1.0.30001793
+      postcss: 8.4.31
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+      styled-jsx: 5.1.6(@babel/core@7.29.0)(react@19.2.4)
+    optionalDependencies:
+      '@next/swc-darwin-arm64': 16.2.4
+      '@next/swc-darwin-x64': 16.2.4
+      '@next/swc-linux-arm64-gnu': 16.2.4
+      '@next/swc-linux-arm64-musl': 16.2.4
+      '@next/swc-linux-x64-gnu': 16.2.4
+      '@next/swc-linux-x64-musl': 16.2.4
+      '@next/swc-win32-arm64-msvc': 16.2.4
+      '@next/swc-win32-x64-msvc': 16.2.4
+      sharp: 0.34.5
+    transitivePeerDependencies:
+      - '@babel/core'
+      - babel-plugin-macros
 
-    node-exports-info@1.6.0:
-        dependencies:
-            array.prototype.flatmap: 1.3.3
-            es-errors: 1.3.0
-            object.entries: 1.1.9
-            semver: 6.3.1
+  node-exports-info@1.6.0:
+    dependencies:
+      array.prototype.flatmap: 1.3.3
+      es-errors: 1.3.0
+      object.entries: 1.1.9
+      semver: 6.3.1
 
-    node-releases@2.0.46: {}
+  node-releases@2.0.46: {}
 
-    nodemailer@7.0.13: {}
+  nodemailer@7.0.13: {}
 
-    object-assign@4.1.1: {}
+  object-assign@4.1.1: {}
 
-    object-inspect@1.13.4: {}
+  object-inspect@1.13.4: {}
 
-    object-keys@1.1.1: {}
+  object-keys@1.1.1: {}
 
-    object.assign@4.1.7:
-        dependencies:
-            call-bind: 1.0.9
-            call-bound: 1.0.4
-            define-properties: 1.2.1
-            es-object-atoms: 1.1.2
-            has-symbols: 1.1.0
-            object-keys: 1.1.1
+  object.assign@4.1.7:
+    dependencies:
+      call-bind: 1.0.9
+      call-bound: 1.0.4
+      define-properties: 1.2.1
+      es-object-atoms: 1.1.2
+      has-symbols: 1.1.0
+      object-keys: 1.1.1
 
-    object.entries@1.1.9:
-        dependencies:
-            call-bind: 1.0.9
-            call-bound: 1.0.4
-            define-properties: 1.2.1
-            es-object-atoms: 1.1.2
+  object.entries@1.1.9:
+    dependencies:
+      call-bind: 1.0.9
+      call-bound: 1.0.4
+      define-properties: 1.2.1
+      es-object-atoms: 1.1.2
 
-    object.fromentries@2.0.8:
-        dependencies:
-            call-bind: 1.0.9
-            define-properties: 1.2.1
-            es-abstract: 1.24.2
-            es-object-atoms: 1.1.2
+  object.fromentries@2.0.8:
+    dependencies:
+      call-bind: 1.0.9
+      define-properties: 1.2.1
+      es-abstract: 1.24.2
+      es-object-atoms: 1.1.2
 
-    object.groupby@1.0.3:
-        dependencies:
-            call-bind: 1.0.9
-            define-properties: 1.2.1
-            es-abstract: 1.24.2
+  object.groupby@1.0.3:
+    dependencies:
+      call-bind: 1.0.9
+      define-properties: 1.2.1
+      es-abstract: 1.24.2
 
-    object.values@1.2.1:
-        dependencies:
-            call-bind: 1.0.9
-            call-bound: 1.0.4
-            define-properties: 1.2.1
-            es-object-atoms: 1.1.2
+  object.values@1.2.1:
+    dependencies:
+      call-bind: 1.0.9
+      call-bound: 1.0.4
+      define-properties: 1.2.1
+      es-object-atoms: 1.1.2
 
-    optionator@0.9.4:
-        dependencies:
-            deep-is: 0.1.4
-            fast-levenshtein: 2.0.6
-            levn: 0.4.1
-            prelude-ls: 1.2.1
-            type-check: 0.4.0
-            word-wrap: 1.2.5
+  optionator@0.9.4:
+    dependencies:
+      deep-is: 0.1.4
+      fast-levenshtein: 2.0.6
+      levn: 0.4.1
+      prelude-ls: 1.2.1
+      type-check: 0.4.0
+      word-wrap: 1.2.5
 
-    own-keys@1.0.1:
-        dependencies:
-            get-intrinsic: 1.3.0
-            object-keys: 1.1.1
-            safe-push-apply: 1.0.0
+  own-keys@1.0.1:
+    dependencies:
+      get-intrinsic: 1.3.0
+      object-keys: 1.1.1
+      safe-push-apply: 1.0.0
 
-    p-limit@3.1.0:
-        dependencies:
-            yocto-queue: 0.1.0
+  p-limit@3.1.0:
+    dependencies:
+      yocto-queue: 0.1.0
 
-    p-locate@5.0.0:
-        dependencies:
-            p-limit: 3.1.0
+  p-locate@5.0.0:
+    dependencies:
+      p-limit: 3.1.0
 
-    parent-module@1.0.1:
-        dependencies:
-            callsites: 3.1.0
+  parent-module@1.0.1:
+    dependencies:
+      callsites: 3.1.0
 
-    path-exists@4.0.0: {}
+  path-exists@4.0.0: {}
 
-    path-key@3.1.1: {}
+  path-key@3.1.1: {}
 
-    path-parse@1.0.7: {}
+  path-parse@1.0.7: {}
 
-    picocolors@1.1.1: {}
+  picocolors@1.1.1: {}
 
-    picomatch@2.3.2: {}
-
-    picomatch@4.0.4: {}
+  picomatch@2.3.2: {}
+
+  picomatch@4.0.4: {}
 
-    possible-typed-array-names@1.1.0: {}
-
-    postal-mime@2.7.4: {}
-
-    postcss-value-parser@4.2.0: {}
-
-    postcss@8.4.31:
-        dependencies:
-            nanoid: 3.3.12
-            picocolors: 1.1.1
-            source-map-js: 1.2.1
-
-    postcss@8.5.15:
-        dependencies:
-            nanoid: 3.3.12
-            picocolors: 1.1.1
-            source-map-js: 1.2.1
+  possible-typed-array-names@1.1.0: {}
+
+  postal-mime@2.7.4: {}
+
+  postcss-value-parser@4.2.0: {}
+
+  postcss@8.4.31:
+    dependencies:
+      nanoid: 3.3.12
+      picocolors: 1.1.1
+      source-map-js: 1.2.1
+
+  postcss@8.5.15:
+    dependencies:
+      nanoid: 3.3.12
+      picocolors: 1.1.1
+      source-map-js: 1.2.1
 
-    prelude-ls@1.2.1: {}
+  prelude-ls@1.2.1: {}
 
-    prettier@3.8.3: {}
-
-    prop-types@15.8.1:
-        dependencies:
-            loose-envify: 1.4.0
-            object-assign: 4.1.1
-            react-is: 16.13.1
-
-    punycode@2.3.1: {}
-
-    queue-microtask@1.2.3: {}
-
-    react-dom@19.2.4(react@19.2.4):
-        dependencies:
-            react: 19.2.4
-            scheduler: 0.27.0
-
-    react-is@16.13.1: {}
-
-    react@19.2.4: {}
-
-    receipt-ocr-ng@1.1.0(groq-sdk@1.2.0):
-        dependencies:
-            groq-sdk: 1.2.0
-
-    reflect.getprototypeof@1.0.10:
-        dependencies:
-            call-bind: 1.0.9
-            define-properties: 1.2.1
-            es-abstract: 1.24.2
-            es-errors: 1.3.0
-            es-object-atoms: 1.1.2
-            get-intrinsic: 1.3.0
-            get-proto: 1.0.1
-            which-builtin-type: 1.2.1
-
-    regexp.prototype.flags@1.5.4:
-        dependencies:
-            call-bind: 1.0.9
-            define-properties: 1.2.1
-            es-errors: 1.3.0
-            get-proto: 1.0.1
-            gopd: 1.2.0
-            set-function-name: 2.0.2
-
-    requires-port@1.0.0: {}
-
-    resend@6.12.3:
-        dependencies:
-            postal-mime: 2.7.4
-            svix: 1.92.2
-
-    resolve-from@4.0.0: {}
-
-    resolve-pkg-maps@1.0.0: {}
-
-    resolve@2.0.0-next.7:
-        dependencies:
-            es-errors: 1.3.0
-            is-core-module: 2.16.2
-            node-exports-info: 1.6.0
-            object-keys: 1.1.1
-            path-parse: 1.0.7
-            supports-preserve-symlinks-flag: 1.0.0
-
-    reusify@1.1.0: {}
-
-    run-parallel@1.2.0:
-        dependencies:
-            queue-microtask: 1.2.3
-
-    safe-array-concat@1.1.4:
-        dependencies:
-            call-bind: 1.0.9
-            call-bound: 1.0.4
-            get-intrinsic: 1.3.0
-            has-symbols: 1.1.0
-            isarray: 2.0.5
-
-    safe-push-apply@1.0.0:
-        dependencies:
-            es-errors: 1.3.0
-            isarray: 2.0.5
-
-    safe-regex-test@1.1.0:
-        dependencies:
-            call-bound: 1.0.4
-            es-errors: 1.3.0
-            is-regex: 1.2.1
-
-    scheduler@0.27.0: {}
-
-    semver@6.3.1: {}
-
-    semver@7.8.1: {}
-
-    set-function-length@1.2.2:
-        dependencies:
-            define-data-property: 1.1.4
-            es-errors: 1.3.0
-            function-bind: 1.1.2
-            get-intrinsic: 1.3.0
-            gopd: 1.2.0
-            has-property-descriptors: 1.0.2
-
-    set-function-name@2.0.2:
-        dependencies:
-            define-data-property: 1.1.4
-            es-errors: 1.3.0
-            functions-have-names: 1.2.3
-            has-property-descriptors: 1.0.2
-
-    set-proto@1.0.0:
-        dependencies:
-            dunder-proto: 1.0.1
-            es-errors: 1.3.0
-            es-object-atoms: 1.1.2
-
-    sharp@0.34.5:
-        dependencies:
-            "@img/colour": 1.1.0
-            detect-libc: 2.1.2
-            semver: 7.8.1
-        optionalDependencies:
-            "@img/sharp-darwin-arm64": 0.34.5
-            "@img/sharp-darwin-x64": 0.34.5
-            "@img/sharp-libvips-darwin-arm64": 1.2.4
-            "@img/sharp-libvips-darwin-x64": 1.2.4
-            "@img/sharp-libvips-linux-arm": 1.2.4
-            "@img/sharp-libvips-linux-arm64": 1.2.4
-            "@img/sharp-libvips-linux-ppc64": 1.2.4
-            "@img/sharp-libvips-linux-riscv64": 1.2.4
-            "@img/sharp-libvips-linux-s390x": 1.2.4
-            "@img/sharp-libvips-linux-x64": 1.2.4
-            "@img/sharp-libvips-linuxmusl-arm64": 1.2.4
-            "@img/sharp-libvips-linuxmusl-x64": 1.2.4
-            "@img/sharp-linux-arm": 0.34.5
-            "@img/sharp-linux-arm64": 0.34.5
-            "@img/sharp-linux-ppc64": 0.34.5
-            "@img/sharp-linux-riscv64": 0.34.5
-            "@img/sharp-linux-s390x": 0.34.5
-            "@img/sharp-linux-x64": 0.34.5
-            "@img/sharp-linuxmusl-arm64": 0.34.5
-            "@img/sharp-linuxmusl-x64": 0.34.5
-            "@img/sharp-wasm32": 0.34.5
-            "@img/sharp-win32-arm64": 0.34.5
-            "@img/sharp-win32-ia32": 0.34.5
-            "@img/sharp-win32-x64": 0.34.5
-        optional: true
-
-    shebang-command@2.0.0:
-        dependencies:
-            shebang-regex: 3.0.0
-
-    shebang-regex@3.0.0: {}
-
-    side-channel-list@1.0.1:
-        dependencies:
-            es-errors: 1.3.0
-            object-inspect: 1.13.4
-
-    side-channel-map@1.0.1:
-        dependencies:
-            call-bound: 1.0.4
-            es-errors: 1.3.0
-            get-intrinsic: 1.3.0
-            object-inspect: 1.13.4
-
-    side-channel-weakmap@1.0.2:
-        dependencies:
-            call-bound: 1.0.4
-            es-errors: 1.3.0
-            get-intrinsic: 1.3.0
-            object-inspect: 1.13.4
-            side-channel-map: 1.0.1
-
-    side-channel@1.1.0:
-        dependencies:
-            es-errors: 1.3.0
-            object-inspect: 1.13.4
-            side-channel-list: 1.0.1
-            side-channel-map: 1.0.1
-            side-channel-weakmap: 1.0.2
-
-    sonner@2.0.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
-        dependencies:
-            react: 19.2.4
-            react-dom: 19.2.4(react@19.2.4)
-
-    source-map-js@1.2.1: {}
-
-    stable-hash@0.0.5: {}
-
-    standardwebhooks@1.0.0:
-        dependencies:
-            "@stablelib/base64": 1.0.1
-            fast-sha256: 1.3.0
-
-    stop-iteration-iterator@1.1.0:
-        dependencies:
-            es-errors: 1.3.0
-            internal-slot: 1.1.0
-
-    string.prototype.includes@2.0.1:
-        dependencies:
-            call-bind: 1.0.9
-            define-properties: 1.2.1
-            es-abstract: 1.24.2
-
-    string.prototype.matchall@4.0.12:
-        dependencies:
-            call-bind: 1.0.9
-            call-bound: 1.0.4
-            define-properties: 1.2.1
-            es-abstract: 1.24.2
-            es-errors: 1.3.0
-            es-object-atoms: 1.1.2
-            get-intrinsic: 1.3.0
-            gopd: 1.2.0
-            has-symbols: 1.1.0
-            internal-slot: 1.1.0
-            regexp.prototype.flags: 1.5.4
-            set-function-name: 2.0.2
-            side-channel: 1.1.0
-
-    string.prototype.repeat@1.0.0:
-        dependencies:
-            define-properties: 1.2.1
-            es-abstract: 1.24.2
-
-    string.prototype.trim@1.2.10:
-        dependencies:
-            call-bind: 1.0.9
-            call-bound: 1.0.4
-            define-data-property: 1.1.4
-            define-properties: 1.2.1
-            es-abstract: 1.24.2
-            es-object-atoms: 1.1.2
-            has-property-descriptors: 1.0.2
-
-    string.prototype.trimend@1.0.9:
-        dependencies:
-            call-bind: 1.0.9
-            call-bound: 1.0.4
-            define-properties: 1.2.1
-            es-object-atoms: 1.1.2
-
-    string.prototype.trimstart@1.0.8:
-        dependencies:
-            call-bind: 1.0.9
-            define-properties: 1.2.1
-            es-object-atoms: 1.1.2
-
-    strip-bom@3.0.0: {}
-
-    strip-json-comments@3.1.1: {}
-
-    styled-jsx@5.1.6(@babel/core@7.29.0)(react@19.2.4):
-        dependencies:
-            client-only: 0.0.1
-            react: 19.2.4
-        optionalDependencies:
-            "@babel/core": 7.29.0
-
-    supports-color@7.2.0:
-        dependencies:
-            has-flag: 4.0.0
-
-    supports-preserve-symlinks-flag@1.0.0: {}
-
-    svix@1.92.2:
-        dependencies:
-            standardwebhooks: 1.0.0
-
-    tailwindcss@4.3.0: {}
-
-    tapable@2.3.3: {}
-
-    tinyglobby@0.2.16:
-        dependencies:
-            fdir: 6.5.0(picomatch@4.0.4)
-            picomatch: 4.0.4
-
-    to-regex-range@5.0.1:
-        dependencies:
-            is-number: 7.0.0
-
-    ts-api-utils@2.5.0(typescript@5.9.3):
-        dependencies:
-            typescript: 5.9.3
-
-    tsconfig-paths@3.15.0:
-        dependencies:
-            "@types/json5": 0.0.29
-            json5: 1.0.2
-            minimist: 1.2.8
-            strip-bom: 3.0.0
-
-    tslib@2.8.1: {}
-
-    type-check@0.4.0:
-        dependencies:
-            prelude-ls: 1.2.1
-
-    typed-array-buffer@1.0.3:
-        dependencies:
-            call-bound: 1.0.4
-            es-errors: 1.3.0
-            is-typed-array: 1.1.15
-
-    typed-array-byte-length@1.0.3:
-        dependencies:
-            call-bind: 1.0.9
-            for-each: 0.3.5
-            gopd: 1.2.0
-            has-proto: 1.2.0
-            is-typed-array: 1.1.15
-
-    typed-array-byte-offset@1.0.4:
-        dependencies:
-            available-typed-arrays: 1.0.7
-            call-bind: 1.0.9
-            for-each: 0.3.5
-            gopd: 1.2.0
-            has-proto: 1.2.0
-            is-typed-array: 1.1.15
-            reflect.getprototypeof: 1.0.10
-
-    typed-array-length@1.0.7:
-        dependencies:
-            call-bind: 1.0.9
-            for-each: 0.3.5
-            gopd: 1.2.0
-            is-typed-array: 1.1.15
-            possible-typed-array-names: 1.1.0
-            reflect.getprototypeof: 1.0.10
-
-    typescript-eslint@8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3):
-        dependencies:
-            "@typescript-eslint/eslint-plugin": 8.59.4(@typescript-eslint/parser@8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
-            "@typescript-eslint/parser": 8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
-            "@typescript-eslint/typescript-estree": 8.59.4(typescript@5.9.3)
-            "@typescript-eslint/utils": 8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
-            eslint: 9.39.4(jiti@2.7.0)
-            typescript: 5.9.3
-        transitivePeerDependencies:
-            - supports-color
-
-    typescript@5.9.3: {}
-
-    unbox-primitive@1.1.0:
-        dependencies:
-            call-bound: 1.0.4
-            has-bigints: 1.1.0
-            has-symbols: 1.1.0
-            which-boxed-primitive: 1.1.1
-
-    undici-types@6.21.0: {}
-
-    unrs-resolver@1.12.2:
-        dependencies:
-            napi-postinstall: 0.3.4
-        optionalDependencies:
-            "@unrs/resolver-binding-android-arm-eabi": 1.12.2
-            "@unrs/resolver-binding-android-arm64": 1.12.2
-            "@unrs/resolver-binding-darwin-arm64": 1.12.2
-            "@unrs/resolver-binding-darwin-x64": 1.12.2
-            "@unrs/resolver-binding-freebsd-x64": 1.12.2
-            "@unrs/resolver-binding-linux-arm-gnueabihf": 1.12.2
-            "@unrs/resolver-binding-linux-arm-musleabihf": 1.12.2
-            "@unrs/resolver-binding-linux-arm64-gnu": 1.12.2
-            "@unrs/resolver-binding-linux-arm64-musl": 1.12.2
-            "@unrs/resolver-binding-linux-loong64-gnu": 1.12.2
-            "@unrs/resolver-binding-linux-loong64-musl": 1.12.2
-            "@unrs/resolver-binding-linux-ppc64-gnu": 1.12.2
-            "@unrs/resolver-binding-linux-riscv64-gnu": 1.12.2
-            "@unrs/resolver-binding-linux-riscv64-musl": 1.12.2
-            "@unrs/resolver-binding-linux-s390x-gnu": 1.12.2
-            "@unrs/resolver-binding-linux-x64-gnu": 1.12.2
-            "@unrs/resolver-binding-linux-x64-musl": 1.12.2
-            "@unrs/resolver-binding-openharmony-arm64": 1.12.2
-            "@unrs/resolver-binding-wasm32-wasi": 1.12.2
-            "@unrs/resolver-binding-win32-arm64-msvc": 1.12.2
-            "@unrs/resolver-binding-win32-ia32-msvc": 1.12.2
-            "@unrs/resolver-binding-win32-x64-msvc": 1.12.2
-
-    update-browserslist-db@1.2.3(browserslist@4.28.2):
-        dependencies:
-            browserslist: 4.28.2
-            escalade: 3.2.0
-            picocolors: 1.1.1
-
-    uri-js@4.4.1:
-        dependencies:
-            punycode: 2.3.1
-
-    which-boxed-primitive@1.1.1:
-        dependencies:
-            is-bigint: 1.1.0
-            is-boolean-object: 1.2.2
-            is-number-object: 1.1.1
-            is-string: 1.1.1
-            is-symbol: 1.1.1
-
-    which-builtin-type@1.2.1:
-        dependencies:
-            call-bound: 1.0.4
-            function.prototype.name: 1.1.8
-            has-tostringtag: 1.0.2
-            is-async-function: 2.1.1
-            is-date-object: 1.1.0
-            is-finalizationregistry: 1.1.1
-            is-generator-function: 1.1.2
-            is-regex: 1.2.1
-            is-weakref: 1.1.1
-            isarray: 2.0.5
-            which-boxed-primitive: 1.1.1
-            which-collection: 1.0.2
-            which-typed-array: 1.1.20
-
-    which-collection@1.0.2:
-        dependencies:
-            is-map: 2.0.3
-            is-set: 2.0.3
-            is-weakmap: 2.0.2
-            is-weakset: 2.0.4
-
-    which-typed-array@1.1.20:
-        dependencies:
-            available-typed-arrays: 1.0.7
-            call-bind: 1.0.9
-            call-bound: 1.0.4
-            for-each: 0.3.5
-            get-proto: 1.0.1
-            gopd: 1.2.0
-            has-tostringtag: 1.0.2
-
-    which@2.0.2:
-        dependencies:
-            isexe: 2.0.0
-
-    word-wrap@1.2.5: {}
-
-    yallist@3.1.1: {}
-
-    yocto-queue@0.1.0: {}
-
-    zod-validation-error@4.0.2(zod@4.4.3):
-        dependencies:
-            zod: 4.4.3
-
-    zod@4.4.3: {}
-
-    zustand@5.0.13(@types/react@19.2.15)(react@19.2.4):
-        optionalDependencies:
-            "@types/react": 19.2.15
-            react: 19.2.4
+  prettier@3.8.3: {}
+
+  prop-types@15.8.1:
+    dependencies:
+      loose-envify: 1.4.0
+      object-assign: 4.1.1
+      react-is: 16.13.1
+
+  punycode@2.3.1: {}
+
+  queue-microtask@1.2.3: {}
+
+  react-dom@19.2.4(react@19.2.4):
+    dependencies:
+      react: 19.2.4
+      scheduler: 0.27.0
+
+  react-is@16.13.1: {}
+
+  react@19.2.4: {}
+
+  receipt-ocr-ng@1.4.1(groq-sdk@1.2.0):
+    dependencies:
+      groq-sdk: 1.2.0
+
+  reflect.getprototypeof@1.0.10:
+    dependencies:
+      call-bind: 1.0.9
+      define-properties: 1.2.1
+      es-abstract: 1.24.2
+      es-errors: 1.3.0
+      es-object-atoms: 1.1.2
+      get-intrinsic: 1.3.0
+      get-proto: 1.0.1
+      which-builtin-type: 1.2.1
+
+  regexp.prototype.flags@1.5.4:
+    dependencies:
+      call-bind: 1.0.9
+      define-properties: 1.2.1
+      es-errors: 1.3.0
+      get-proto: 1.0.1
+      gopd: 1.2.0
+      set-function-name: 2.0.2
+
+  requires-port@1.0.0: {}
+
+  resend@6.12.3:
+    dependencies:
+      postal-mime: 2.7.4
+      svix: 1.92.2
+
+  resolve-from@4.0.0: {}
+
+  resolve-pkg-maps@1.0.0: {}
+
+  resolve@2.0.0-next.7:
+    dependencies:
+      es-errors: 1.3.0
+      is-core-module: 2.16.2
+      node-exports-info: 1.6.0
+      object-keys: 1.1.1
+      path-parse: 1.0.7
+      supports-preserve-symlinks-flag: 1.0.0
+
+  reusify@1.1.0: {}
+
+  run-parallel@1.2.0:
+    dependencies:
+      queue-microtask: 1.2.3
+
+  safe-array-concat@1.1.4:
+    dependencies:
+      call-bind: 1.0.9
+      call-bound: 1.0.4
+      get-intrinsic: 1.3.0
+      has-symbols: 1.1.0
+      isarray: 2.0.5
+
+  safe-push-apply@1.0.0:
+    dependencies:
+      es-errors: 1.3.0
+      isarray: 2.0.5
+
+  safe-regex-test@1.1.0:
+    dependencies:
+      call-bound: 1.0.4
+      es-errors: 1.3.0
+      is-regex: 1.2.1
+
+  scheduler@0.27.0: {}
+
+  semver@6.3.1: {}
+
+  semver@7.8.1: {}
+
+  set-function-length@1.2.2:
+    dependencies:
+      define-data-property: 1.1.4
+      es-errors: 1.3.0
+      function-bind: 1.1.2
+      get-intrinsic: 1.3.0
+      gopd: 1.2.0
+      has-property-descriptors: 1.0.2
+
+  set-function-name@2.0.2:
+    dependencies:
+      define-data-property: 1.1.4
+      es-errors: 1.3.0
+      functions-have-names: 1.2.3
+      has-property-descriptors: 1.0.2
+
+  set-proto@1.0.0:
+    dependencies:
+      dunder-proto: 1.0.1
+      es-errors: 1.3.0
+      es-object-atoms: 1.1.2
+
+  sharp@0.34.5:
+    dependencies:
+      '@img/colour': 1.1.0
+      detect-libc: 2.1.2
+      semver: 7.8.1
+    optionalDependencies:
+      '@img/sharp-darwin-arm64': 0.34.5
+      '@img/sharp-darwin-x64': 0.34.5
+      '@img/sharp-libvips-darwin-arm64': 1.2.4
+      '@img/sharp-libvips-darwin-x64': 1.2.4
+      '@img/sharp-libvips-linux-arm': 1.2.4
+      '@img/sharp-libvips-linux-arm64': 1.2.4
+      '@img/sharp-libvips-linux-ppc64': 1.2.4
+      '@img/sharp-libvips-linux-riscv64': 1.2.4
+      '@img/sharp-libvips-linux-s390x': 1.2.4
+      '@img/sharp-libvips-linux-x64': 1.2.4
+      '@img/sharp-libvips-linuxmusl-arm64': 1.2.4
+      '@img/sharp-libvips-linuxmusl-x64': 1.2.4
+      '@img/sharp-linux-arm': 0.34.5
+      '@img/sharp-linux-arm64': 0.34.5
+      '@img/sharp-linux-ppc64': 0.34.5
+      '@img/sharp-linux-riscv64': 0.34.5
+      '@img/sharp-linux-s390x': 0.34.5
+      '@img/sharp-linux-x64': 0.34.5
+      '@img/sharp-linuxmusl-arm64': 0.34.5
+      '@img/sharp-linuxmusl-x64': 0.34.5
+      '@img/sharp-wasm32': 0.34.5
+      '@img/sharp-win32-arm64': 0.34.5
+      '@img/sharp-win32-ia32': 0.34.5
+      '@img/sharp-win32-x64': 0.34.5
+    optional: true
+
+  shebang-command@2.0.0:
+    dependencies:
+      shebang-regex: 3.0.0
+
+  shebang-regex@3.0.0: {}
+
+  side-channel-list@1.0.1:
+    dependencies:
+      es-errors: 1.3.0
+      object-inspect: 1.13.4
+
+  side-channel-map@1.0.1:
+    dependencies:
+      call-bound: 1.0.4
+      es-errors: 1.3.0
+      get-intrinsic: 1.3.0
+      object-inspect: 1.13.4
+
+  side-channel-weakmap@1.0.2:
+    dependencies:
+      call-bound: 1.0.4
+      es-errors: 1.3.0
+      get-intrinsic: 1.3.0
+      object-inspect: 1.13.4
+      side-channel-map: 1.0.1
+
+  side-channel@1.1.0:
+    dependencies:
+      es-errors: 1.3.0
+      object-inspect: 1.13.4
+      side-channel-list: 1.0.1
+      side-channel-map: 1.0.1
+      side-channel-weakmap: 1.0.2
+
+  sonner@2.0.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+
+  source-map-js@1.2.1: {}
+
+  stable-hash@0.0.5: {}
+
+  standardwebhooks@1.0.0:
+    dependencies:
+      '@stablelib/base64': 1.0.1
+      fast-sha256: 1.3.0
+
+  stop-iteration-iterator@1.1.0:
+    dependencies:
+      es-errors: 1.3.0
+      internal-slot: 1.1.0
+
+  string.prototype.includes@2.0.1:
+    dependencies:
+      call-bind: 1.0.9
+      define-properties: 1.2.1
+      es-abstract: 1.24.2
+
+  string.prototype.matchall@4.0.12:
+    dependencies:
+      call-bind: 1.0.9
+      call-bound: 1.0.4
+      define-properties: 1.2.1
+      es-abstract: 1.24.2
+      es-errors: 1.3.0
+      es-object-atoms: 1.1.2
+      get-intrinsic: 1.3.0
+      gopd: 1.2.0
+      has-symbols: 1.1.0
+      internal-slot: 1.1.0
+      regexp.prototype.flags: 1.5.4
+      set-function-name: 2.0.2
+      side-channel: 1.1.0
+
+  string.prototype.repeat@1.0.0:
+    dependencies:
+      define-properties: 1.2.1
+      es-abstract: 1.24.2
+
+  string.prototype.trim@1.2.10:
+    dependencies:
+      call-bind: 1.0.9
+      call-bound: 1.0.4
+      define-data-property: 1.1.4
+      define-properties: 1.2.1
+      es-abstract: 1.24.2
+      es-object-atoms: 1.1.2
+      has-property-descriptors: 1.0.2
+
+  string.prototype.trimend@1.0.9:
+    dependencies:
+      call-bind: 1.0.9
+      call-bound: 1.0.4
+      define-properties: 1.2.1
+      es-object-atoms: 1.1.2
+
+  string.prototype.trimstart@1.0.8:
+    dependencies:
+      call-bind: 1.0.9
+      define-properties: 1.2.1
+      es-object-atoms: 1.1.2
+
+  strip-bom@3.0.0: {}
+
+  strip-json-comments@3.1.1: {}
+
+  styled-jsx@5.1.6(@babel/core@7.29.0)(react@19.2.4):
+    dependencies:
+      client-only: 0.0.1
+      react: 19.2.4
+    optionalDependencies:
+      '@babel/core': 7.29.0
+
+  supports-color@7.2.0:
+    dependencies:
+      has-flag: 4.0.0
+
+  supports-preserve-symlinks-flag@1.0.0: {}
+
+  svix@1.92.2:
+    dependencies:
+      standardwebhooks: 1.0.0
+
+  tailwindcss@4.3.0: {}
+
+  tapable@2.3.3: {}
+
+  tinyglobby@0.2.16:
+    dependencies:
+      fdir: 6.5.0(picomatch@4.0.4)
+      picomatch: 4.0.4
+
+  to-regex-range@5.0.1:
+    dependencies:
+      is-number: 7.0.0
+
+  ts-api-utils@2.5.0(typescript@5.9.3):
+    dependencies:
+      typescript: 5.9.3
+
+  tsconfig-paths@3.15.0:
+    dependencies:
+      '@types/json5': 0.0.29
+      json5: 1.0.2
+      minimist: 1.2.8
+      strip-bom: 3.0.0
+
+  tslib@2.8.1: {}
+
+  type-check@0.4.0:
+    dependencies:
+      prelude-ls: 1.2.1
+
+  typed-array-buffer@1.0.3:
+    dependencies:
+      call-bound: 1.0.4
+      es-errors: 1.3.0
+      is-typed-array: 1.1.15
+
+  typed-array-byte-length@1.0.3:
+    dependencies:
+      call-bind: 1.0.9
+      for-each: 0.3.5
+      gopd: 1.2.0
+      has-proto: 1.2.0
+      is-typed-array: 1.1.15
+
+  typed-array-byte-offset@1.0.4:
+    dependencies:
+      available-typed-arrays: 1.0.7
+      call-bind: 1.0.9
+      for-each: 0.3.5
+      gopd: 1.2.0
+      has-proto: 1.2.0
+      is-typed-array: 1.1.15
+      reflect.getprototypeof: 1.0.10
+
+  typed-array-length@1.0.7:
+    dependencies:
+      call-bind: 1.0.9
+      for-each: 0.3.5
+      gopd: 1.2.0
+      is-typed-array: 1.1.15
+      possible-typed-array-names: 1.1.0
+      reflect.getprototypeof: 1.0.10
+
+  typescript-eslint@8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3):
+    dependencies:
+      '@typescript-eslint/eslint-plugin': 8.59.4(@typescript-eslint/parser@8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      '@typescript-eslint/parser': 8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      '@typescript-eslint/typescript-estree': 8.59.4(typescript@5.9.3)
+      '@typescript-eslint/utils': 8.59.4(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      eslint: 9.39.4(jiti@2.7.0)
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - supports-color
+
+  typescript@5.9.3: {}
+
+  unbox-primitive@1.1.0:
+    dependencies:
+      call-bound: 1.0.4
+      has-bigints: 1.1.0
+      has-symbols: 1.1.0
+      which-boxed-primitive: 1.1.1
+
+  undici-types@6.21.0: {}
+
+  unrs-resolver@1.12.2:
+    dependencies:
+      napi-postinstall: 0.3.4
+    optionalDependencies:
+      '@unrs/resolver-binding-android-arm-eabi': 1.12.2
+      '@unrs/resolver-binding-android-arm64': 1.12.2
+      '@unrs/resolver-binding-darwin-arm64': 1.12.2
+      '@unrs/resolver-binding-darwin-x64': 1.12.2
+      '@unrs/resolver-binding-freebsd-x64': 1.12.2
+      '@unrs/resolver-binding-linux-arm-gnueabihf': 1.12.2
+      '@unrs/resolver-binding-linux-arm-musleabihf': 1.12.2
+      '@unrs/resolver-binding-linux-arm64-gnu': 1.12.2
+      '@unrs/resolver-binding-linux-arm64-musl': 1.12.2
+      '@unrs/resolver-binding-linux-loong64-gnu': 1.12.2
+      '@unrs/resolver-binding-linux-loong64-musl': 1.12.2
+      '@unrs/resolver-binding-linux-ppc64-gnu': 1.12.2
+      '@unrs/resolver-binding-linux-riscv64-gnu': 1.12.2
+      '@unrs/resolver-binding-linux-riscv64-musl': 1.12.2
+      '@unrs/resolver-binding-linux-s390x-gnu': 1.12.2
+      '@unrs/resolver-binding-linux-x64-gnu': 1.12.2
+      '@unrs/resolver-binding-linux-x64-musl': 1.12.2
+      '@unrs/resolver-binding-openharmony-arm64': 1.12.2
+      '@unrs/resolver-binding-wasm32-wasi': 1.12.2
+      '@unrs/resolver-binding-win32-arm64-msvc': 1.12.2
+      '@unrs/resolver-binding-win32-ia32-msvc': 1.12.2
+      '@unrs/resolver-binding-win32-x64-msvc': 1.12.2
+
+  update-browserslist-db@1.2.3(browserslist@4.28.2):
+    dependencies:
+      browserslist: 4.28.2
+      escalade: 3.2.0
+      picocolors: 1.1.1
+
+  uri-js@4.4.1:
+    dependencies:
+      punycode: 2.3.1
+
+  which-boxed-primitive@1.1.1:
+    dependencies:
+      is-bigint: 1.1.0
+      is-boolean-object: 1.2.2
+      is-number-object: 1.1.1
+      is-string: 1.1.1
+      is-symbol: 1.1.1
+
+  which-builtin-type@1.2.1:
+    dependencies:
+      call-bound: 1.0.4
+      function.prototype.name: 1.1.8
+      has-tostringtag: 1.0.2
+      is-async-function: 2.1.1
+      is-date-object: 1.1.0
+      is-finalizationregistry: 1.1.1
+      is-generator-function: 1.1.2
+      is-regex: 1.2.1
+      is-weakref: 1.1.1
+      isarray: 2.0.5
+      which-boxed-primitive: 1.1.1
+      which-collection: 1.0.2
+      which-typed-array: 1.1.20
+
+  which-collection@1.0.2:
+    dependencies:
+      is-map: 2.0.3
+      is-set: 2.0.3
+      is-weakmap: 2.0.2
+      is-weakset: 2.0.4
+
+  which-typed-array@1.1.20:
+    dependencies:
+      available-typed-arrays: 1.0.7
+      call-bind: 1.0.9
+      call-bound: 1.0.4
+      for-each: 0.3.5
+      get-proto: 1.0.1
+      gopd: 1.2.0
+      has-tostringtag: 1.0.2
+
+  which@2.0.2:
+    dependencies:
+      isexe: 2.0.0
+
+  word-wrap@1.2.5: {}
+
+  yallist@3.1.1: {}
+
+  yocto-queue@0.1.0: {}
+
+  zod-validation-error@4.0.2(zod@4.4.3):
+    dependencies:
+      zod: 4.4.3
+
+  zod@4.4.3: {}
+
+  zustand@5.0.13(@types/react@19.2.15)(react@19.2.4):
+    optionalDependencies:
+      '@types/react': 19.2.15
+      react: 19.2.4
