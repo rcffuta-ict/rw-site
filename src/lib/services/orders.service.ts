@@ -307,6 +307,20 @@ export async function updateOrderStatus(
 
 // ─── Payments ─────────────────────────────────────────────────────────────────
 
+/**
+ * Coerce an arbitrary date string into a Postgres-safe YYYY-MM-DD value, or
+ * null when it can't be parsed. The receipt date originates from OCR/AI
+ * extraction, so its format is never guaranteed — without this guard a value
+ * like "Jun 15th, 2026 10:45:03" reaches the DATE column and the insert fails.
+ */
+function toDateColumn(value: string | null | undefined): string | null {
+    if (!value) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return null;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export async function attachPayment(
     input: AttachPaymentInput
 ): Promise<ServiceResult<Order>> {
@@ -331,7 +345,7 @@ export async function attachPayment(
         extracted_transaction_ref: input.extractedTransactionRef ?? null,
         extracted_sender_name: input.extractedSenderName ?? null,
         extracted_bank: input.extractedBank ?? null,
-        extracted_date: input.extractedDate ?? null,
+        extracted_date: toDateColumn(input.extractedDate),
         extracted_time: input.extractedTime ?? null,
         cloudinary_receipt_public_id: input.cloudinaryReceiptPublicId ?? null,
         receipt_url: input.receiptUrl ?? null,

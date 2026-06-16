@@ -24,9 +24,11 @@ interface ExtractionResult {
     // Money
     amount: number | null;
     fee: number | null;
-    // When
+    // When — `date`/`time` are display strings; `isoDate` is the
+    // machine-readable YYYY-MM-DD value persisted to the DATE column.
     date: string | null;
     time: string | null;
+    isoDate: string | null;
     // Trace
     transactionRef: string | null;
     narration: string | null;
@@ -179,9 +181,13 @@ export function PaymentFlow({
 
                 let formattedDate = "—";
                 let formattedTime = "—";
+                let isoDate: string | null = null;
                 if (tx.transaction_date) {
                     const d = new Date(tx.transaction_date);
                     if (!isNaN(d.getTime())) {
+                        // Build YYYY-MM-DD from local parts so a near-midnight
+                        // receipt isn't shifted a day by UTC conversion.
+                        isoDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
                         formattedDate = d.toLocaleDateString("en-US", {
                             day: "2-digit",
                             month: "short",
@@ -193,6 +199,9 @@ export function PaymentFlow({
                             hour12: true,
                         });
                     } else {
+                        // The model returned an unparseable date string. Keep it
+                        // for display only; isoDate stays null so we never push a
+                        // malformed value into the DATE column.
                         formattedDate = tx.transaction_date.split("T")[0] || "—";
                         formattedTime =
                             tx.transaction_date.split("T")[1]?.slice(0, 5) || "—";
@@ -225,6 +234,7 @@ export function PaymentFlow({
                     fee: tx.fee ?? null,
                     date: formattedDate,
                     time: formattedTime,
+                    isoDate,
                     transactionRef: tx.reference || "—",
                     narration: tx.narration || null,
                     status: tx.status ?? null,
@@ -303,7 +313,7 @@ export function PaymentFlow({
                 extractedAmount: extraction.amount ?? payAmount,
                 extractedSenderName: extraction.senderName,
                 extractedBank: extraction.senderBank,
-                extractedDate: extraction.date,
+                extractedDate: extraction.isoDate,
                 extractedTime: extraction.time,
                 extractedTransactionRef:
                     extraction.transactionRef !== "—" ? extraction.transactionRef : null,
