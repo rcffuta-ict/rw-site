@@ -1,4 +1,4 @@
-import cloudinaryLoader from "@/lib/utils/cloudinaryLoader";
+import cloudinaryLoader, { getCloudinaryPublicId } from "@/lib/utils/cloudinaryLoader";
 import clsx from "clsx";
 import Image from "next/image";
 
@@ -25,6 +25,8 @@ export function ProductImageMinimal({
     const w = config?.w ?? "w-16";
     const className = config?.className ?? "";
 
+    const publicId = getCloudinaryPublicId(imageUrl);
+
     return (
         <div
             className={clsx(
@@ -35,8 +37,8 @@ export function ProductImageMinimal({
             )}
         >
             <Image
-                loader={cloudinaryLoader}
-                src={imageUrl}
+                loader={publicId ? cloudinaryLoader : undefined}
+                src={publicId ?? imageUrl}
                 alt={alt}
                 fill
                 sizes={size}
