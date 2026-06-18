@@ -11,6 +11,7 @@ import { attachPayment } from "@/lib/services/orders.service";
 import { toast } from "sonner";
 import { DEMO_MODE } from "@/lib/config";
 import { formatNaira } from "@/lib/utils/functions";
+import { parseReceiptDate } from "@/lib/utils/date";
 import { PartialPaymentSelector } from "@/components/public/PartialPaymentSelector";
 
 interface ExtractionResult {
@@ -183,8 +184,13 @@ export function PaymentFlow({
                 let formattedTime = "—";
                 let isoDate: string | null = null;
                 if (tx.transaction_date) {
-                    const d = new Date(tx.transaction_date);
-                    if (!isNaN(d.getTime())) {
+                    // The extractor returns the date as raw receipt text, whose
+                    // format varies per bank (ISO, day-first DD/MM/YYYY, or
+                    // long-form like "June 18th, 2026 | 9:38 PM"). parseReceiptDate
+                    // normalizes those quirks that the native Date constructor
+                    // can't handle on its own.
+                    const d = parseReceiptDate(tx.transaction_date);
+                    if (d) {
                         // Build YYYY-MM-DD from local parts so a near-midnight
                         // receipt isn't shifted a day by UTC conversion.
                         isoDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -757,7 +763,9 @@ export function PaymentFlow({
                                             >
                                                 Expected Bank: <b>{settings.bank_name}</b>{" "}
                                                 | Found:{" "}
-                                                <b>{rephrase(extraction.recipientBank)}</b>
+                                                <b>
+                                                    {rephrase(extraction.recipientBank)}
+                                                </b>
                                             </p>
                                         )}
                                         {isRecipientMismatch && (
@@ -768,7 +776,9 @@ export function PaymentFlow({
                                                 Expected Recipient:{" "}
                                                 <b>{settings.bank_account_name}</b> |
                                                 Found:{" "}
-                                                <b>{rephrase(extraction.recipientName)}</b>
+                                                <b>
+                                                    {rephrase(extraction.recipientName)}
+                                                </b>
                                             </p>
                                         )}
                                     </div>
