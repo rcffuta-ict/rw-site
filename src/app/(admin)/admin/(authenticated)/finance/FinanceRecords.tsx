@@ -44,6 +44,7 @@ export function FinanceRecords({ allPayments, fmt }: FinanceRecordsProps) {
 
             <AdminTable<PaymentWithOrder>
                 data={judgedPayments}
+                pageSize={10}
                 keyExtractor={(p) => p.id}
                 emptyMessage="No payments have been processed yet."
                 columns={[

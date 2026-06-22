@@ -4,6 +4,7 @@
 
 - Always organize documentation files in the docs folder
 - keep files that don't need to go to github in .temp folder, e.g PR_MESSAGE.md
+- Stick to pnpm, do not use npm, use yarn if pnpm is failing, and npm as last resort
 
 # Role and Core Philosophy
 

@@ -34,7 +34,7 @@ export async function GET() {
     const adminClient = getIctAdminClient();
     const { data: profile } = await adminClient.supabase
         .from("profiles")
-        .select("first_name, last_name")
+        .select("first_name, last_name, avatar_url")
         .eq("id", user.id)
         .maybeSingle();
 
@@ -45,5 +45,6 @@ export async function GET() {
         email: user.email,
         role,
         name: fullName,
+        avatarUrl: profile?.avatar_url ?? null,
     });
 }

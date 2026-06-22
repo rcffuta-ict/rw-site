@@ -634,6 +634,7 @@ export default function ProductDetailClient({
                                 },
                             ].filter((col) => isAdmin || col.key !== "actions")}
                             data={variants}
+                            pageSize={8}
                             keyExtractor={(v) => v.id}
                         />
                     </div>

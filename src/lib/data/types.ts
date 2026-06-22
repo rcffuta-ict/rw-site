@@ -15,8 +15,9 @@ export type OrderStatus =
     | "partially_paid" // at least one approved payment, but not full amount
     | "paid" // full amount covered by approved payments
     | "confirmed" // moderator confirms & queues for production
-    | "in_production" // being made
-    | "delivered" // handed over to customer
+    | "in_production" // bundled into an active verdict, being made
+    | "ready_for_pickup" // verdict fulfilled — awaiting collection (pickup code sent)
+    | "delivered" // collected by customer (pickup code verified at the desk)
     | "flagged" // flagged for manual review
     | "cancelled";
 
@@ -195,6 +196,11 @@ export interface Order {
     payments: Payment[];
     followUpCount: number; // how many follow-up reminders have been sent
     lastFollowUpAt: string | null; // ISO 8601 — last follow-up reminder, or null
+    // Pickup & delivery — populated once a covering verdict is fulfilled.
+    pickupToken: string | null; // personal code the customer presents to collect
+    deliveredAt: string | null; // ISO 8601 — when collected, or null
+    deliveredByName: string | null; // staff who handed the order over
+    deliveredByEmail: string | null;
     createdAt: string; // ISO 8601
     updatedAt: string; // ISO 8601
 }
@@ -255,6 +261,63 @@ export interface EmailLog {
     success: boolean;
     errorMessage: string | null;
     sentAt: string; // ISO 8601
+}
+
+// ─── Production Verdicts ──────────────────────────────────────────────────────
+//
+// A verdict is the official, admin-issued declaration of what to produce and how
+// much to debit from the fellowship bank account. It is a frozen snapshot record:
+// the manifest, financials and authorizing officer are captured at issue time.
+//
+// Rules: only fully-paid orders may be bundled; an order belongs to at most one
+// verdict (the hard "in production" lock); issuing moves orders to in_production
+// and broadcasts the in_production email to each customer.
+
+export type VerdictStatus = "active" | "fulfilled" | "voided";
+
+// One consolidated production line — quantities summed across all covered orders.
+export interface VerdictManifestItem {
+    productName: string; // e.g. "Hoodie"
+    variantLabel: string; // e.g. "Black · S"
+    quantity: number; // total units to produce across the bundle
+}
+
+// Snapshot of an order covered by a verdict.
+export interface VerdictOrderRef {
+    id: string;
+    orderId: string;
+    orderRef: string;
+    customerName: string;
+    customerEmail: string;
+    totalAmount: number;
+}
+
+export interface Verdict {
+    id: string;
+    verdictRef: string; // e.g. "RW26-V-0007"
+    status: VerdictStatus;
+    // Authorizing officer (admin) — the audit signature.
+    issuedByProfileId: string | null;
+    issuedByName: string;
+    issuedByEmail: string;
+    note: string | null;
+    // Frozen snapshots
+    manifest: VerdictManifestItem[];
+    totalAmount: number; // sum of covered order totals (Naira)
+    totalUnits: number; // sum of all manifest quantities
+    orderCount: number;
+    // Bank account the total must be debited from (snapshot from settings)
+    bankName: string | null;
+    bankAccountName: string | null;
+    bankAccountNumber: string | null;
+    // Fulfilment — set when production completes and orders become ready for pickup.
+    fulfilledAt: string | null; // ISO 8601, or null while still active
+    fulfilledByProfileId: string | null;
+    fulfilledByName: string | null;
+    fulfilledByEmail: string | null;
+    orders: VerdictOrderRef[];
+    createdAt: string; // ISO 8601
+    updatedAt: string; // ISO 8601
 }
 
 // ─── Service Input/Output Helpers ─────────────────────────────────────────────

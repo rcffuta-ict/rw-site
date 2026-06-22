@@ -9,6 +9,7 @@ interface AdminUser {
     email: string;
     role: AdminRole;
     name: string | null;
+    avatarUrl: string | null;
 }
 
 interface AdminAuthContextValue {

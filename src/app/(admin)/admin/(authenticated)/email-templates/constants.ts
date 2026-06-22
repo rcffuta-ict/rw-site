@@ -37,11 +37,19 @@ export const TEMPLATES: Template[] = [
         description: "Sent when a pre-order is set for production",
     },
     {
+        key: "ready_for_pickup",
+        label: "Ready for Pickup",
+        category: "order",
+        icon: "📦",
+        description:
+            "Sent when a verdict is fulfilled — includes the customer's personal pickup code ({{pickup_token}})",
+    },
+    {
         key: "delivered",
-        label: "Delivered",
+        label: "Collected",
         category: "order",
         icon: "🎉",
-        description: "Sent when a pre-order is set as delievered",
+        description: "Sent when an order is collected (pickup code verified)",
     },
     {
         key: "flagged",
@@ -101,6 +109,10 @@ export const VARIABLES: Variable[] = [
     { name: "amount_paid", desc: "Amount paid so far" },
     { name: "balance", desc: "Remaining balance" },
     { name: "items_html", desc: "Auto-generated items table" },
+    {
+        name: "pickup_token",
+        desc: "Personal pickup code (Ready for Pickup email only)",
+    },
 ] as const;
 
 export const DEFAULT_SUBJECTS: Record<string, string> = {
@@ -109,7 +121,8 @@ export const DEFAULT_SUBJECTS: Record<string, string> = {
     paid: "Payment Complete — Your RW'26 Order is Fully Paid 🎉",
     confirmed: "Order {{order_ref}} — Queued for Production",
     in_production: "Your RW'26 Items Are Being Made — {{order_ref}}",
-    delivered: "Your RW'26 Order is Ready for Collection — {{order_ref}}",
+    ready_for_pickup: "Your RW'26 Order is Ready for Pickup — {{order_ref}}",
+    delivered: "Order Collected — Thank You {{order_ref}}",
     flagged: "Action Required on Your Order {{order_ref}}",
     cancelled: "Your Order {{order_ref}} Has Been Cancelled",
     payment_pending: "We Received Your Payment Receipt — {{order_ref}}",
@@ -148,9 +161,17 @@ export const DEFAULT_BODIES: Record<string, string> = {
 <p>We will notify you once they are ready for collection. Watch this space!</p>
 <p>— <strong>RCF FUTA Team</strong></p>`,
 
+    ready_for_pickup: `<p>Hi {{customer_name}},</p>
+<p>Wonderful news! Your order <strong>{{order_ref}}</strong> has been produced and is now <strong>ready for collection</strong>. 🎉</p>
+<p>Please show this <strong>pickup code</strong> to our team at the pickup point — it confirms the order is really yours:</p>
+<p style="text-align:center;margin:24px 0;"><span style="display:inline-block;font-size:24px;font-weight:800;letter-spacing:3px;padding:14px 28px;border:2px dashed #FF0015;border-radius:12px;color:#1C0003;">{{pickup_token}}</span></p>
+<p>Keep this code private — only share it at the desk when collecting.</p>
+{{items_html}}
+<p>To God be the glory — <strong>RCF FUTA Team</strong></p>`,
+
     delivered: `<p>Hi {{customer_name}},</p>
-<p>Your order <strong>{{order_ref}}</strong> is <strong>ready for collection</strong>! 🎉</p>
-<p>Please come and pick up your Redemption Week '26 items. We hope you absolutely love them and that they are a blessing to you.</p>
+<p>Your order <strong>{{order_ref}}</strong> has been collected. 🎉</p>
+<p>We hope you absolutely love your Redemption Week '26 items and that they are a blessing to you. Thank you for being part of it!</p>
 <p>To God be the glory — <strong>RCF FUTA Team</strong></p>`,
 
     flagged: `<p>Hi {{customer_name}},</p>

@@ -4,13 +4,13 @@ import { useState, useMemo, useTransition } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { formatNaira, productImageUrl } from "@/lib/utils/functions";
-import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { RefreshButton } from "@/components/admin/RefreshButton";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { AdminStats, AdminStatItem } from "@/components/admin/AdminStats";
+import { ProductAnalytics } from "@/components/admin/products/ProductAnalytics";
 import CategoryDrawer from "@/components/admin/CategoryDrawer";
 import { updateProduct } from "@/lib/services/products.service";
-import type { Category, Product } from "@/lib/data/types";
+import type { Category, Order, Product } from "@/lib/data/types";
 import { ProductImage } from "@/components/common/ProductImage";
 
 // ─── Color map ────────────────────────────────────────────────────────────────
@@ -296,12 +296,14 @@ function ProductCard({
 interface ProductsClientProps {
     products: Product[];
     categories: Category[];
+    orders: Order[];
     isAdmin: boolean;
 }
 
 export default function ProductsClient({
     products: initialProducts,
     categories: initialCategories,
+    orders,
     isAdmin,
 }: ProductsClientProps) {
     const [products, setProducts] = useState(initialProducts);
@@ -456,7 +458,6 @@ export default function ProductsClient({
     return (
         <>
             <div className="flex flex-col gap-8 animate-fade-in-up">
-                <AdminBreadcrumb items={[{ label: "Products" }]} />
 
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-[var(--rw-border)] pb-8">
@@ -498,8 +499,17 @@ export default function ProductsClient({
                     </div>
                 </div>
 
-                {/* Stats */}
+                {/* Catalog stats */}
                 <AdminStats stats={stats} />
+
+                {/* Demand & performance analytics */}
+                <div className="flex items-center gap-2 mt-2 ml-1">
+                    <span className="h-1 w-4 bg-rw-crimson rounded-full" />
+                    <h2 className="text-[10px] font-bold text-rw-muted uppercase tracking-[0.2em]">
+                        Demand &amp; Performance
+                    </h2>
+                </div>
+                <ProductAnalytics products={products} orders={orders} />
 
                 {/* Toolbar */}
                 <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between">

@@ -42,12 +42,20 @@ const STATUS_CONFIG: Record<
         bg: "#f8f0ff",
         message: "Your merch is being produced — hang tight!",
     },
+    ready_for_pickup: {
+        label: "Ready for Pickup",
+        icon: "📦",
+        color: "#b84500",
+        bg: "#fff5ee",
+        message:
+            "Your order is ready! Check your email for your pickup code and bring it to collect.",
+    },
     delivered: {
-        label: "Delivered",
+        label: "Collected",
         icon: "🎉",
         color: "#015500",
         bg: "#f0fff5",
-        message: "Order delivered. Enjoy your merch!",
+        message: "Order collected. Enjoy your merch!",
     },
     flagged: {
         label: "Flagged",
@@ -71,6 +79,7 @@ const STATUS_STEPS: OrderStatus[] = [
     "paid",
     "confirmed",
     "in_production",
+    "ready_for_pickup",
     "delivered",
 ];
 
@@ -80,7 +89,8 @@ const STEP_LABELS = [
     "Paid",
     "Queued",
     "Production",
-    "Delivered",
+    "Pickup",
+    "Collected",
 ];
 
 interface StatusTimelineProps {

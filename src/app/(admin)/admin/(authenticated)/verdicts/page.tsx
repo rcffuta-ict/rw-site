@@ -1,16 +1,26 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import VerdictsClient from "./VerdictsClient";
-import { listOrders } from "@/lib/services/orders.service";
+import { listVerdicts, getVerdictsOverview } from "@/lib/services/verdicts.service";
 
-export const metadata: Metadata = { 
+export const metadata: Metadata = {
     title: "Verdicts — RW'26 Admin",
-    description: "Manage and download production manifests and fulfillment permits for Redemption Week '26."
+    description:
+        "Official production verdicts: what to produce and how much to debit, served as the single source of truth.",
 };
 
 export default async function VerdictsPage() {
-    const [orders, hdrs] = await Promise.all([listOrders(), headers()]);
+    const [verdicts, overview, hdrs] = await Promise.all([
+        listVerdicts(),
+        getVerdictsOverview(),
+        headers(),
+    ]);
     const isAdmin = hdrs.get("x-admin-role") === "ADMIN";
-    return <VerdictsClient orders={orders} isAdmin={isAdmin} />;
+    return (
+        <VerdictsClient
+            verdicts={verdicts}
+            overview={overview}
+            isAdmin={isAdmin}
+        />
+    );
 }
-

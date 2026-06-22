@@ -20,6 +20,8 @@
 --   8. admin_users         Admin/moderator users (linked to Supabase Auth)
 --   9. email_templates     Transactional email templates (editable from admin UI)
 --   10. email_logs         Email send audit log (success/failure tracking)
+--   11. verdicts           Official admin-issued production verdicts (snapshot)
+--   12. verdict_orders     Junction: which orders each verdict covers (locked)
 --
 -- Views:
 --   order_payment_summary  Derived payment state per order
@@ -40,12 +42,17 @@ DO $$ BEGIN
         'partially_paid',   -- at least one approved payment, not full amount
         'paid',             -- full amount covered by approved payments
         'confirmed',        -- moderator queues for production
-        'in_production',    -- being produced
-        'delivered',        -- handed to customer
+        'in_production',    -- in an active verdict, being produced
+        'ready_for_pickup', -- verdict fulfilled, awaiting collection (token sent)
+        'delivered',        -- collected by customer (token verified at the desk)
         'flagged',          -- flagged for manual review
         'cancelled'
     );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- For existing databases: append the pickup state if the enum predates it.
+-- (ALTER TYPE ... ADD VALUE is idempotent with IF NOT EXISTS on PG 12+.)
+ALTER TYPE order_status ADD VALUE IF NOT EXISTS 'ready_for_pickup' BEFORE 'delivered';
 
 DO $$ BEGIN
     CREATE TYPE payment_status AS ENUM (
@@ -63,6 +70,13 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN
     CREATE TYPE admin_role AS ENUM ('admin', 'moderator');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+    CREATE TYPE verdict_status AS ENUM ('active', 'fulfilled', 'voided');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- For existing databases created before fulfilment tracking:
+ALTER TYPE verdict_status ADD VALUE IF NOT EXISTS 'fulfilled' BEFORE 'voided';
 
 
 -- ─── Helper: auto-update updated_at ──────────────────────────────────────────
@@ -193,6 +207,13 @@ CREATE TABLE IF NOT EXISTS rw_orders (
     -- Follow-up reminders for stale orders (see the admin Follow-up tab).
     follow_up_count   INTEGER NOT NULL DEFAULT 0,
     last_follow_up_at TIMESTAMPTZ,
+    -- Pickup & delivery (set when a verdict covering this order is fulfilled,
+    -- then verified at the pickup desk). pickup_token is the personal code the
+    -- customer must present; delivered_* stamp who handed the order over.
+    pickup_token      TEXT,
+    delivered_at      TIMESTAMPTZ,
+    delivered_by_name  TEXT,
+    delivered_by_email TEXT,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -200,6 +221,11 @@ CREATE TABLE IF NOT EXISTS rw_orders (
 -- For existing deployments, add the follow-up tracking columns in place.
 ALTER TABLE rw_orders ADD COLUMN IF NOT EXISTS follow_up_count   INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE rw_orders ADD COLUMN IF NOT EXISTS last_follow_up_at TIMESTAMPTZ;
+-- Pickup & delivery tracking (added with the verdict-fulfilment flow).
+ALTER TABLE rw_orders ADD COLUMN IF NOT EXISTS pickup_token       TEXT;
+ALTER TABLE rw_orders ADD COLUMN IF NOT EXISTS delivered_at       TIMESTAMPTZ;
+ALTER TABLE rw_orders ADD COLUMN IF NOT EXISTS delivered_by_name  TEXT;
+ALTER TABLE rw_orders ADD COLUMN IF NOT EXISTS delivered_by_email TEXT;
 
 COMMENT ON TABLE rw_orders IS 'Customer pre-orders. Status manually updated by moderators.';
 COMMENT ON COLUMN rw_orders.amount_paid IS 'Cached sum of approved payments. Derived via order_payment_summary view.';
@@ -479,6 +505,140 @@ COMMENT ON VIEW rw_order_payment_summary IS
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
+-- 11. VERDICTS  (production directives)
+-- ═══════════════════════════════════════════════════════════════════════════
+-- A verdict is the official, admin-issued declaration of what to produce and how
+-- much money must be debited from the fellowship bank account — the single source
+-- of truth served to the whole house.
+--
+-- Rules:
+--   • Only fully-paid orders can be bundled (validated in the app layer).
+--   • An order belongs to AT MOST ONE verdict — rw_verdict_orders.order_id is
+--     UNIQUE. This is the hard "in production" lock: once an order is in a
+--     verdict it can never be enlisted in another.
+--   • Issuing a verdict moves its orders to 'in_production' and broadcasts the
+--     in_production email (both done in the app layer).
+
+-- Ref generator: RW26-V-0001, RW26-V-0002, … (sequential, zero-padded).
+CREATE SEQUENCE IF NOT EXISTS rw_verdict_seq START 1;
+
+CREATE OR REPLACE FUNCTION generate_verdict_ref()
+RETURNS TEXT AS $$
+BEGIN
+    RETURN 'RW26-V-' || LPAD(nextval('rw_verdict_seq')::TEXT, 4, '0');
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TABLE IF NOT EXISTS public.rw_verdicts (
+    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    verdict_ref         TEXT NOT NULL UNIQUE DEFAULT generate_verdict_ref(),
+    status              verdict_status NOT NULL DEFAULT 'active',
+
+    -- Actor signature — who authorized this verdict (admin only). This IS the
+    -- audit record; resolved server-side, never trusted from the client.
+    issued_by_profile_id UUID REFERENCES public.profiles(id),
+    issued_by_name       TEXT NOT NULL,
+    issued_by_email      TEXT NOT NULL,
+    note                 TEXT,
+
+    -- Snapshot of the consolidated production manifest at issue time:
+    --   [{ "productName": "Hoodie", "variantLabel": "Black · S", "quantity": 2 }]
+    manifest            JSONB NOT NULL DEFAULT '[]'::jsonb,
+
+    -- Snapshot financials (whole Naira) — the verdict is a frozen record.
+    total_amount        INTEGER NOT NULL DEFAULT 0,
+    total_units         INTEGER NOT NULL DEFAULT 0,
+    order_count         INTEGER NOT NULL DEFAULT 0,
+
+    -- Snapshot of the bank account the total must be debited from (from settings).
+    bank_name           TEXT,
+    bank_account_name   TEXT,
+    bank_account_number TEXT,
+
+    -- Fulfilment: set when production is complete and the covered orders become
+    -- ready for pickup. Records who marked it fulfilled (admin or moderator).
+    fulfilled_at         TIMESTAMPTZ,
+    fulfilled_by_profile_id UUID REFERENCES public.profiles(id),
+    fulfilled_by_name    TEXT,
+    fulfilled_by_email   TEXT,
+
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- For existing deployments, add every non-original column in place so a table
+-- created by an earlier iteration is brought fully up to date (idempotent).
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS status                  verdict_status NOT NULL DEFAULT 'active';
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS issued_by_profile_id    UUID REFERENCES public.profiles(id);
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS issued_by_name          TEXT;
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS issued_by_email         TEXT;
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS note                    TEXT;
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS manifest                JSONB NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS total_amount            INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS total_units             INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS order_count             INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS bank_name               TEXT;
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS bank_account_name       TEXT;
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS bank_account_number     TEXT;
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS fulfilled_at            TIMESTAMPTZ;
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS fulfilled_by_profile_id UUID REFERENCES public.profiles(id);
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS fulfilled_by_name       TEXT;
+ALTER TABLE public.rw_verdicts ADD COLUMN IF NOT EXISTS fulfilled_by_email      TEXT;
+
+-- Refresh the PostgREST schema cache so the new columns are visible immediately.
+NOTIFY pgrst, 'reload schema';
+
+COMMENT ON TABLE public.rw_verdicts IS
+    'Official admin-issued production verdicts. Frozen snapshot record: manifest, '
+    'financials and authorizing officer are captured at issue time.';
+
+CREATE OR REPLACE TRIGGER verdicts_set_updated_at
+    BEFORE UPDATE ON public.rw_verdicts
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+CREATE INDEX IF NOT EXISTS idx_verdicts_created_at ON public.rw_verdicts(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_verdicts_status     ON public.rw_verdicts(status);
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 12. VERDICT ORDERS  (junction — production lock)
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Which orders each verdict covers. UNIQUE(order_id) is the production lock:
+-- an order can only ever appear in one verdict.
+
+CREATE TABLE IF NOT EXISTS public.rw_verdict_orders (
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    verdict_id    UUID NOT NULL REFERENCES public.rw_verdicts(id) ON DELETE CASCADE,
+    order_id      UUID NOT NULL REFERENCES public.rw_orders(id)   ON DELETE CASCADE,
+
+    -- Snapshot fields so the verdict reads correctly even if the order changes.
+    order_ref      TEXT NOT NULL,
+    customer_name  TEXT NOT NULL,
+    customer_email TEXT NOT NULL,
+    total_amount   INTEGER NOT NULL DEFAULT 0,
+
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT rw_verdict_orders_order_unique UNIQUE (order_id)
+);
+
+COMMENT ON TABLE public.rw_verdict_orders IS
+    'Orders covered by each verdict (snapshot). UNIQUE(order_id) enforces that an '
+    'order belongs to at most one verdict — the hard in-production lock.';
+
+CREATE INDEX IF NOT EXISTS idx_verdict_orders_verdict ON public.rw_verdict_orders(verdict_id);
+
+-- For existing deployments, backfill the junction's snapshot columns + lock.
+ALTER TABLE public.rw_verdict_orders ADD COLUMN IF NOT EXISTS order_ref      TEXT;
+ALTER TABLE public.rw_verdict_orders ADD COLUMN IF NOT EXISTS customer_name  TEXT;
+ALTER TABLE public.rw_verdict_orders ADD COLUMN IF NOT EXISTS customer_email TEXT;
+ALTER TABLE public.rw_verdict_orders ADD COLUMN IF NOT EXISTS total_amount   INTEGER NOT NULL DEFAULT 0;
+DO $$ BEGIN
+    ALTER TABLE public.rw_verdict_orders ADD CONSTRAINT rw_verdict_orders_order_unique UNIQUE (order_id);
+EXCEPTION WHEN duplicate_table OR duplicate_object THEN NULL; END $$;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
 -- Done!
 -- ═══════════════════════════════════════════════════════════════════════════
 --
@@ -612,12 +772,14 @@ ALTER TABLE public.rw_email_templates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_email_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_email_queue ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rw_audit_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_verdicts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rw_verdict_orders ENABLE ROW LEVEL SECURITY;
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 11. DEFAULT EMAIL TEMPLATES (seed)
 -- ═══════════════════════════════════════════════════════════════════════════
--- 12 templates: 8 order-status + 4 payment-status. ON CONFLICT DO NOTHING means
+-- 13 templates: 9 order-status + 4 payment-status. ON CONFLICT DO NOTHING means
 -- this is safe on re-run and never overwrites templates edited in the admin UI.
 
 INSERT INTO rw_email_templates (template_key, label, subject, body_html, is_active)
@@ -672,13 +834,24 @@ VALUES
 <p>— RCF FUTA Team</p>',
    true),
 
-  ('delivered',
-   'Order Ready for Collection',
-   'Your RW''26 Order is Ready — #{{order_ref}}',
+  ('ready_for_pickup',
+   'Ready for Pickup',
+   'Your RW''26 Order is Ready for Pickup — #{{order_ref}}',
    '<p>Hi {{customer_name}},</p>
-<p>Wonderful news! Your order <strong>#{{order_ref}}</strong> is ready for collection!</p>
-<p>Please come collect your items at the designated pickup location. If you have any questions about timing or location, please contact us.</p>
-<p>We hope you love your items! Feel free to share photos or leave a review.</p>
+<p>Wonderful news! Your order <strong>#{{order_ref}}</strong> has been produced and is now <strong>ready for collection</strong>. 🎉</p>
+<p>To collect it, please show this <strong>pickup code</strong> to our team member at the pickup point — it confirms the order is really yours:</p>
+<p style="text-align:center;margin:24px 0;"><span style="display:inline-block;font-size:24px;font-weight:800;letter-spacing:3px;padding:14px 28px;border:2px dashed #FF0015;border-radius:12px;color:#1C0003;">{{pickup_token}}</span></p>
+<p>Keep this code private — only share it at the desk when collecting. If you have any questions about timing or location, please contact us.</p>
+{{items_html}}
+<p>— RCF FUTA Team</p>',
+   true),
+
+  ('delivered',
+   'Order Collected — Thank You',
+   'Order Collected — Thank You #{{order_ref}}',
+   '<p>Hi {{customer_name}},</p>
+<p>Your order <strong>#{{order_ref}}</strong> has been collected. We hope you love your items! 🎉</p>
+<p>Thank you for being part of Redemption Week ''26. Feel free to share photos or leave a review.</p>
 <p>— RCF FUTA Team</p>',
    true),
 

@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { listOrders } from "@/lib/services/orders.service";
+import { getEligibleOrdersForVerdict } from "@/lib/services/verdicts.service";
 import { NewVerdictClient } from "./NewVerdictClient";
 
 export const metadata = { title: "New Verdict — RW'26 Admin" };
@@ -10,7 +10,6 @@ export default async function NewVerdictPage() {
     if (hdrs.get("x-admin-role") !== "ADMIN") {
         redirect("/admin/verdicts");
     }
-    const orders = await listOrders();
-    return <NewVerdictClient orders={orders} />;
+    const eligibleOrders = await getEligibleOrdersForVerdict();
+    return <NewVerdictClient eligibleOrders={eligibleOrders} />;
 }
-

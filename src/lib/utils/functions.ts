@@ -65,6 +65,42 @@ export function getEffectiveStatus(o: Order) {
     return "pending";
 }
 
+// ─── Order lifecycle bucket (for the admin Orders page) ───────────────────────
+//
+// One label per order across its WHOLE journey. Explicit fulfilment states the
+// admin/verdict has set (production → pickup → delivered) take priority; before
+// that we fall back to the payment-derived status (pending → queued → partial →
+// paid). "queued" means receipts are in but not yet reviewed.
+
+export type OrderLifecycle =
+    | "pending"
+    | "queued"
+    | "partially_paid"
+    | "paid"
+    | "in_production"
+    | "ready_for_pickup"
+    | "delivered"
+    | "flagged"
+    | "cancelled";
+
+export function getOrderLifecycleStatus(o: Order): OrderLifecycle {
+    switch (o.status) {
+        case "flagged":
+            return "flagged";
+        case "cancelled":
+            return "cancelled";
+        case "in_production":
+            return "in_production";
+        case "ready_for_pickup":
+            return "ready_for_pickup";
+        case "delivered":
+            return "delivered";
+        default:
+            // pending | queued | partially_paid | paid
+            return getEffectiveStatus(o) as OrderLifecycle;
+    }
+}
+
 export function formatTime(iso: string) {
     return new Date(iso).toLocaleTimeString("en-NG", {
         hour: "2-digit",

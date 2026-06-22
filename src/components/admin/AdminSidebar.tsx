@@ -66,9 +66,18 @@ export function AdminSidebar({ isMobileOpen, onClose }: { isMobileOpen?: boolean
                 {/* Premium User Profile Card */}
                 {user && (
                     <div className="flex items-center gap-3 px-1 pb-3 border-b border-[var(--rw-border)]/60">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-rw-crimson/10 text-rw-crimson text-sm font-bold border border-rw-crimson/10 select-none">
-                            {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
-                        </div>
+                        {user.avatarUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                src={user.avatarUrl}
+                                alt={user.name || "Admin"}
+                                className="h-9 w-9 shrink-0 rounded-full object-cover border border-rw-crimson/10"
+                            />
+                        ) : (
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-rw-crimson/10 text-rw-crimson text-sm font-bold border border-rw-crimson/10 select-none">
+                                {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
+                            </div>
+                        )}
                         <div className="min-w-0 leading-tight">
                             <p className="text-xs font-bold text-rw-ink truncate" title={user.name || "Administrator"}>
                                 {user.name || "Administrator"}

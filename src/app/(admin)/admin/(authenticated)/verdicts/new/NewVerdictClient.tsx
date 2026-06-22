@@ -1,194 +1,305 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { VerdictDocument, VerdictDownloadButton } from "../component";
-import type { Order } from "@/lib/data/types";
+import { toast } from "sonner";
+import { useAdminAuth } from "@/context/AdminAuthContext";
+import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
+import { createVerdict } from "@/lib/services/verdicts.service";
+import { VerdictPdfPreview } from "@/components/admin/verdicts/VerdictPdfPreview";
+import { formatNaira } from "@/lib/utils/functions";
+import type { Order, Verdict, VerdictManifestItem } from "@/lib/data/types";
 
 interface NewVerdictClientProps {
-    orders: Order[];
+    eligibleOrders: Order[];
 }
 
-export function NewVerdictClient({ orders }: NewVerdictClientProps) {
-    const confirmedOrders = orders.filter(
-        (o) =>
-            o.status === "confirmed" ||
-            o.status === "paid" ||
-            o.status === "in_production" ||
-            o.status === "delivered"
+// Mirror of the server-side consolidation so the manifest preview is live.
+function buildManifest(orders: Order[]): VerdictManifestItem[] {
+    const map = new Map<string, VerdictManifestItem>();
+    for (const order of orders) {
+        for (const item of order.items) {
+            const key = `${item.productName}__${item.variantLabel}`;
+            const existing = map.get(key);
+            if (existing) existing.quantity += item.quantity;
+            else
+                map.set(key, {
+                    productName: item.productName,
+                    variantLabel: item.variantLabel,
+                    quantity: item.quantity,
+                });
+        }
+    }
+    return [...map.values()].sort(
+        (a, b) =>
+            a.productName.localeCompare(b.productName) ||
+            a.variantLabel.localeCompare(b.variantLabel)
     );
+}
 
+function groupByProduct(manifest: VerdictManifestItem[]) {
+    const groups = new Map<string, { product: string; total: number; lines: VerdictManifestItem[] }>();
+    for (const item of manifest) {
+        const g = groups.get(item.productName) ?? { product: item.productName, total: 0, lines: [] };
+        g.lines.push(item);
+        g.total += item.quantity;
+        groups.set(item.productName, g);
+    }
+    return [...groups.values()];
+}
+
+export function NewVerdictClient({ eligibleOrders }: NewVerdictClientProps) {
     const router = useRouter();
-    const [selected, setSelected] = useState<Set<string>>(new Set());
-    const [signature, setSignature] = useState("");
-    const [generating, setGenerating] = useState(false);
-    const [done, setDone] = useState(false);
+    const { user } = useAdminAuth();
 
-    function toggle(ref: string) {
+    // Auto-select every eligible order by default.
+    const [selected, setSelected] = useState<Set<string>>(
+        () => new Set(eligibleOrders.map((o) => o.id))
+    );
+    const [note, setNote] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [issued, setIssued] = useState<Verdict | null>(null);
+
+    const selectedOrders = useMemo(
+        () => eligibleOrders.filter((o) => selected.has(o.id)),
+        [eligibleOrders, selected]
+    );
+    const manifest = useMemo(() => buildManifest(selectedOrders), [selectedOrders]);
+    const groups = useMemo(() => groupByProduct(manifest), [manifest]);
+    const totalAmount = selectedOrders.reduce((s, o) => s + o.totalAmount, 0);
+    const totalUnits = manifest.reduce((s, m) => s + m.quantity, 0);
+
+    function toggle(id: string) {
         setSelected((prev) => {
             const next = new Set(prev);
-            if (next.has(ref)) next.delete(ref);
-            else next.add(ref);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
             return next;
         });
     }
 
-    // eslint-disable-next-line react-hooks/purity
-    const verdictId = (Math.random() * 10000).toString().padStart(4, "0");
-    const selectedOrdersData = confirmedOrders.filter((o) => selected.has(o.orderRef));
-
-    function handleGenerate() {
-        setGenerating(true);
-        setTimeout(() => {
-            setGenerating(false);
-            setDone(true);
-            alert(
-                "Administrative Verdict generated successfully. PDF download initiated."
-            );
-        }, 2500);
+    async function handleIssue() {
+        if (selected.size === 0 || submitting) return;
+        setSubmitting(true);
+        try {
+            const res = await createVerdict({
+                orderIds: [...selected],
+                note: note.trim() || null,
+            });
+            if (res.success && res.data) {
+                toast.success(`Verdict ${res.data.verdictRef} issued`, {
+                    description: `${res.data.orderCount} order(s) moved to production · customers notified.`,
+                });
+                setIssued(res.data);
+                router.refresh();
+            } else {
+                toast.error("Could not issue verdict", { description: res.error });
+            }
+        } catch (err) {
+            toast.error("Could not issue verdict", {
+                description: (err as Error).message,
+            });
+        } finally {
+            setSubmitting(false);
+        }
     }
 
-    if (done) {
+    // ─── Issued: show the official document ──────────────────────────────────
+    if (issued) {
         return (
-            <div className="flex flex-col items-center gap-10 animate-fade-in pb-20">
-                <div className="max-w-4xl w-full">
-                    <div className="flex items-center justify-between mb-8 bg-rw-ink text-white p-8 rounded-[32px] shadow-2xl shadow-rw-ink/20">
-                        <div className="flex items-center gap-6">
-                            <div className="h-14 w-14 rounded-full bg-rw-crimson text-white flex items-center justify-center shadow-lg shadow-rw-crimson/20">
-                                <svg
-                                    className="h-8 w-8"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={3}
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M5 13l4 4L19 7"
-                                    />
-                                </svg>
-                            </div>
-                            <div className="text-left">
-                                <h2 className="font-display font-black text-2xl uppercase tracking-tight">
-                                    Verdict Finalized
-                                </h2>
-                                <p className="text-[10px] text-white/50 font-black uppercase tracking-[0.3em] mt-1">
-                                    Official Document Registered & Exported
-                                </p>
-                            </div>
+            <div className="flex flex-col gap-6 animate-fade-in pb-16 max-w-4xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl bg-rw-ink text-white p-6 shadow-xl">
+                    <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                            <svg className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
                         </div>
-                        <div className="flex gap-4">
-                            <Link
-                                href="/admin/finance"
-                                className="btn-secondary !bg-white/10 !text-white !border-white/20 !h-14 px-8 text-[11px] font-black uppercase tracking-widest hover:!bg-white hover:!text-rw-ink"
-                            >
-                                Finance Dashboard
-                            </Link>
-                            <VerdictDownloadButton />
+                        <div>
+                            <h2 className="font-display font-black text-xl uppercase tracking-tight">
+                                Verdict Issued
+                            </h2>
+                            <p className="text-[11px] text-white/60 font-bold uppercase tracking-[0.2em] mt-0.5">
+                                {issued.verdictRef} · {issued.orderCount} orders in production
+                            </p>
                         </div>
                     </div>
+                    <Link
+                        href="/admin/verdicts"
+                        className="btn-secondary !bg-white/10 !text-white !border-white/20 !h-12 px-6 text-[11px] font-black uppercase tracking-widest hover:!bg-white hover:!text-rw-ink text-center"
+                    >
+                        All Verdicts
+                    </Link>
+                </div>
 
-                    <VerdictDocument
-                        id={`V-${verdictId}`}
-                        orders={selectedOrdersData}
-                        generatedBy={signature || "System Administrator"}
-                        generatedAt={new Date().toISOString()}
-                    />
+                <div className="rw-card p-5 sm:p-6">
+                    <VerdictPdfPreview verdict={issued} height={620} />
                 </div>
             </div>
         );
     }
 
+    // ─── No eligible orders ──────────────────────────────────────────────────
+    if (eligibleOrders.length === 0) {
+        return (
+            <div className="flex flex-col gap-8 animate-fade-in max-w-3xl">
+                <AdminBreadcrumb
+                    items={[
+                        { label: "Verdicts", href: "/admin/verdicts" },
+                        { label: "Issue" },
+                    ]}
+                />
+                <div>
+                    <h1 className="font-display font-black text-2xl lg:text-3xl uppercase tracking-tight text-rw-ink">
+                        Issue Verdict
+                    </h1>
+                    <p className="text-sm text-rw-muted mt-1 font-medium">
+                        Bundle fully-paid orders into an official production directive.
+                    </p>
+                </div>
+                <div className="rw-card flex flex-col items-center gap-5 py-16 text-center border-dashed bg-rw-bg-alt/30">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white border border-[var(--rw-border)]">
+                        <svg className="h-8 w-8 text-rw-muted" fill="none" stroke="currentColor" strokeWidth={1.4} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p className="font-display font-black text-xl text-rw-ink uppercase tracking-tight">
+                            No orders ready
+                        </p>
+                        <p className="text-rw-muted mt-1.5 font-medium text-sm max-w-sm">
+                            A verdict needs at least one fully-paid order that isn&apos;t
+                            already in production. Approve payments to full, then return.
+                        </p>
+                    </div>
+                    <Link href="/admin/orders" className="btn-secondary !h-11 px-7 text-[11px] font-bold uppercase tracking-widest">
+                        Go To Orders
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    // ─── Compose ─────────────────────────────────────────────────────────────
     return (
-        <div className="flex flex-col gap-10 animate-fade-in max-w-4xl pb-20">
+        <div className="flex flex-col gap-8 animate-fade-in pb-36 lg:pb-28">
+            <AdminBreadcrumb
+                items={[
+                    { label: "Verdicts", href: "/admin/verdicts" },
+                    { label: "Issue" },
+                ]}
+            />
             <div>
-                <h1 className="section-heading text-2xl lg:text-3xl font-display font-black uppercase tracking-tight">
-                    Generate Verdict
+                <h1 className="font-display font-black text-2xl lg:text-3xl uppercase tracking-tight text-rw-ink">
+                    Issue Verdict
                 </h1>
-                <p className="text-sm text-rw-muted mt-1 font-medium italic">
-                    Create official administrative documents for confirmed orders
+                <p className="text-sm text-rw-muted mt-1 font-medium">
+                    Bundle fully-paid orders into an official production &amp; debit
+                    directive. Issuing locks them into production and notifies customers.
                 </p>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-10">
-                <div className="space-y-10">
-                    <section className="space-y-4">
-                        <h4 className="text-[10px] font-black text-rw-muted uppercase tracking-[0.3em] opacity-60">
-                            1. Authorizing Signature
+            <div className="grid lg:grid-cols-[1fr_1.1fr] gap-8 items-start">
+                {/* Left: directive details + live manifest */}
+                <div className="flex flex-col gap-6">
+                    <section className="rw-card p-5 flex flex-col gap-4">
+                        <h4 className="text-[10px] font-black text-rw-muted uppercase tracking-[0.25em]">
+                            Authorizing Officer
                         </h4>
-                        <div className="relative">
-                            <input
-                                type="text"
-                                placeholder="Enter your full name..."
-                                value={signature}
-                                onChange={(e) => setSignature(e.target.value)}
-                                className="w-full h-20 bg-rw-bg-alt/40 border border-[var(--rw-border)] rounded-2xl px-8 font-display font-black text-rw-ink uppercase tracking-wider outline-none focus:bg-white focus:border-rw-crimson transition-all shadow-inner text-lg"
-                            />
-                            <div className="absolute right-8 top-1/2 -translate-y-1/2">
-                                <svg
-                                    className="h-6 w-6 text-rw-muted opacity-40"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={2}
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-                                    />
-                                </svg>
+                        <div className="flex items-center gap-3">
+                            {user?.avatarUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={user.avatarUrl}
+                                    alt={user.name || "Admin"}
+                                    className="h-11 w-11 rounded-xl object-cover"
+                                />
+                            ) : (
+                                <div className="h-11 w-11 rounded-xl bg-rw-crimson/10 text-rw-crimson flex items-center justify-center font-display font-black text-lg">
+                                    {(user?.name || user?.email || "A").charAt(0).toUpperCase()}
+                                </div>
+                            )}
+                            <div className="min-w-0">
+                                <p className="font-bold text-rw-ink truncate">
+                                    {user?.name || "Administrator"}
+                                </p>
+                                <p className="text-xs text-rw-muted truncate">{user?.email}</p>
                             </div>
                         </div>
-                        <p className="text-[10px] text-rw-muted font-bold uppercase tracking-widest italic opacity-50">
-                            This name will appear on the formal document as the
-                            authorizing officer.
+                        <p className="text-[11px] text-rw-muted leading-relaxed">
+                            Your identity is stamped on the verdict as the authorizing
+                            administrator — this is the official, auditable signature.
                         </p>
+
+                        <div className="pt-1">
+                            <label className="text-[10px] font-black text-rw-muted uppercase tracking-[0.25em]">
+                                Directive note <span className="opacity-50">(optional)</span>
+                            </label>
+                            <textarea
+                                value={note}
+                                onChange={(e) => setNote(e.target.value)}
+                                rows={3}
+                                placeholder="e.g. Priority batch — collect before Friday."
+                                className="mt-2 w-full rounded-xl border border-[var(--rw-border)] bg-rw-bg-alt/40 px-4 py-3 text-sm text-rw-ink outline-none focus:bg-white focus:border-rw-crimson transition-colors resize-none"
+                            />
+                        </div>
                     </section>
 
-                    <div className="rw-card p-6 bg-blue-50/50 border-blue-100 flex gap-4">
-                        <div className="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-                            <svg
-                                className="h-5 w-5 text-blue-600"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-9-3.75h.008v.008H12V8.25z"
-                                />
-                            </svg>
+                    {/* Live manifest */}
+                    <section className="rw-card p-5">
+                        <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-[10px] font-black text-rw-muted uppercase tracking-[0.25em]">
+                                Production Manifest
+                            </h4>
+                            <span className="text-[10px] font-black bg-rw-ink text-white px-2.5 py-1 rounded-full uppercase tracking-widest">
+                                {totalUnits} units
+                            </span>
                         </div>
-                        <div className="space-y-1">
-                            <p className="text-[10px] font-black text-blue-900 uppercase tracking-widest">
-                                Document Integrity
+                        {groups.length === 0 ? (
+                            <p className="text-sm text-rw-muted italic py-6 text-center">
+                                Select orders to build the manifest.
                             </p>
-                            <p className="text-xs text-blue-700/70 font-medium leading-relaxed">
-                                Generating a verdict will consolidate selected orders into
-                                a single production and withdrawal manifest. This process
-                                is irreversible for the selected batch.
-                            </p>
-                        </div>
-                    </div>
+                        ) : (
+                            <div className="flex flex-col gap-4">
+                                {groups.map((g) => (
+                                    <div key={g.product}>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <p className="font-display font-black text-rw-ink uppercase tracking-tight">
+                                                {g.product}
+                                            </p>
+                                            <span className="text-[10px] font-black text-rw-crimson uppercase tracking-widest">
+                                                {g.total}
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-col gap-1 border-l-2 border-[var(--rw-border)] pl-3">
+                                            {g.lines.map((line, i) => (
+                                                <div key={i} className="flex items-center gap-3 text-sm">
+                                                    <span className="font-mono font-black text-rw-ink w-8">
+                                                        {line.quantity}×
+                                                    </span>
+                                                    <span className="text-rw-ink/80">
+                                                        {line.variantLabel}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </section>
                 </div>
 
-                <section className="space-y-4">
+                {/* Right: order selection */}
+                <section className="flex flex-col gap-4">
                     <div className="flex items-center justify-between">
-                        <h4 className="text-[10px] font-black text-rw-muted uppercase tracking-[0.3em] opacity-60">
-                            2. Select Orders ({selected.size})
+                        <h4 className="text-[10px] font-black text-rw-muted uppercase tracking-[0.25em]">
+                            Eligible Orders · {selected.size}/{eligibleOrders.length}
                         </h4>
-                        <div className="flex gap-4">
+                        <div className="flex gap-3">
                             <button
-                                onClick={() =>
-                                    setSelected(
-                                        new Set(confirmedOrders.map((o) => o.orderRef))
-                                    )
-                                }
+                                onClick={() => setSelected(new Set(eligibleOrders.map((o) => o.id)))}
                                 className="text-[10px] font-black text-rw-crimson uppercase tracking-widest hover:underline"
                             >
                                 Select all
@@ -202,98 +313,84 @@ export function NewVerdictClient({ orders }: NewVerdictClientProps) {
                         </div>
                     </div>
 
-                    <div className="rw-card p-2 space-y-2 max-h-[500px] overflow-y-auto scrollbar-hide bg-rw-bg-alt/30 border-dashed">
-                        {confirmedOrders.length === 0 ? (
-                            <div className="py-20 text-center">
-                                <p className="text-sm font-bold text-rw-muted italic">
-                                    No confirmed orders available
-                                </p>
-                            </div>
-                        ) : (
-                            confirmedOrders.map((o) => (
+                    <div className="flex flex-col gap-2.5 max-h-[560px] overflow-y-auto scrollbar-hide pr-1">
+                        {eligibleOrders.map((o) => {
+                            const isSel = selected.has(o.id);
+                            const units = o.items.reduce((s, it) => s + it.quantity, 0);
+                            return (
                                 <label
                                     key={o.id}
-                                    className={`flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all border-2 ${selected.has(o.orderRef) ? "border-rw-crimson bg-white shadow-md scale-[1.01]" : "border-transparent hover:bg-white/50"}`}
+                                    className={`flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all border-2 ${
+                                        isSel
+                                            ? "border-rw-crimson bg-white shadow-sm"
+                                            : "border-[var(--rw-border)] bg-rw-bg-alt/30 hover:bg-white"
+                                    }`}
                                 >
                                     <input
                                         type="checkbox"
-                                        checked={selected.has(o.orderRef)}
-                                        onChange={() => toggle(o.orderRef)}
-                                        className="h-5 w-5 rounded-lg accent-rw-crimson"
+                                        checked={isSel}
+                                        onChange={() => toggle(o.id)}
+                                        className="h-5 w-5 rounded-md accent-rw-crimson shrink-0"
                                     />
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex items-center justify-between gap-2">
                                             <span className="font-mono font-black text-sm text-rw-crimson">
                                                 {o.orderRef}
                                             </span>
-                                            <span className="text-[10px] font-black text-rw-ink uppercase bg-rw-bg-alt px-2 py-0.5 rounded-md border border-[var(--rw-border)]">
-                                                ₦{o.totalAmount.toLocaleString()}
+                                            <span className="font-display font-black text-sm text-rw-ink">
+                                                {formatNaira(o.totalAmount)}
                                             </span>
                                         </div>
-                                        <p className="text-xs text-rw-ink font-black mt-1 truncate">
+                                        <p className="text-sm text-rw-ink font-bold mt-0.5 truncate">
                                             {o.customerName}
                                         </p>
-                                        <p className="text-[9px] text-rw-muted font-bold uppercase tracking-tighter mt-0.5">
-                                            {o.items.length} item
-                                            {o.items.length !== 1 ? "s" : ""}
+                                        <p className="text-[10px] text-rw-muted font-bold uppercase tracking-wide mt-0.5">
+                                            {o.items.length} line{o.items.length === 1 ? "" : "s"} ·{" "}
+                                            {units} unit{units === 1 ? "" : "s"}
                                         </p>
                                     </div>
                                 </label>
-                            ))
-                        )}
+                            );
+                        })}
                     </div>
                 </section>
             </div>
 
-            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 w-full max-w-4xl px-6">
-                <div className="rw-card p-6 bg-rw-ink text-white border-none shadow-2xl flex items-center justify-between gap-8 rounded-[32px]">
-                    <div className="flex items-center gap-6">
+            {/* Sticky action bar */}
+            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-3xl">
+                <div className="rw-card p-4 sm:p-5 bg-rw-ink text-white border-none shadow-2xl flex items-center justify-between gap-4 rounded-3xl">
+                    <div className="flex items-center gap-5 min-w-0">
                         <div className="flex flex-col">
-                            <span className="text-[9px] font-black uppercase tracking-[0.3em] opacity-40">
-                                Orders Selected
+                            <span className="text-[8px] font-black uppercase tracking-[0.25em] opacity-50">
+                                Orders
                             </span>
-                            <span className="text-2xl font-display font-black tracking-tighter">
-                                {selected.size}
-                            </span>
+                            <span className="font-display font-black text-xl">{selected.size}</span>
                         </div>
-                        <div className="h-8 w-[1px] bg-white/10" />
+                        <div className="h-7 w-px bg-white/15" />
                         <div className="flex flex-col">
-                            <span className="text-[9px] font-black uppercase tracking-[0.3em] opacity-40">
-                                Total Valuation
+                            <span className="text-[8px] font-black uppercase tracking-[0.25em] opacity-50">
+                                Total To Debit
                             </span>
-                            <span className="text-2xl font-display font-black tracking-tighter text-rw-gold">
-                                ₦
-                                {selectedOrdersData
-                                    .reduce((s, o) => s + o.totalAmount, 0)
-                                    .toLocaleString()}
+                            <span className="font-display font-black text-xl text-rw-gold truncate">
+                                {formatNaira(totalAmount)}
                             </span>
                         </div>
                     </div>
                     <button
-                        onClick={handleGenerate}
-                        disabled={selected.size === 0 || !signature || generating}
-                        className="h-14 px-10 rounded-2xl bg-rw-crimson text-white font-display font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-30 disabled:grayscale disabled:scale-100 flex items-center gap-3 shadow-xl shadow-rw-crimson/20"
+                        onClick={handleIssue}
+                        disabled={selected.size === 0 || submitting}
+                        className="h-12 px-6 sm:px-8 rounded-2xl bg-rw-crimson text-white font-display font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-transform disabled:opacity-40 disabled:grayscale disabled:scale-100 flex items-center gap-2 shrink-0"
                     >
-                        {generating ? (
+                        {submitting ? (
                             <>
-                                <span className="h-5 w-5 rounded-full border-3 border-white border-t-transparent animate-spin" />{" "}
-                                Processing...
+                                <span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                                Issuing…
                             </>
                         ) : (
                             <>
-                                Register & Download
-                                <svg
-                                    className="h-5 w-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={3}
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                                    />
+                                Issue Verdict
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                                 </svg>
                             </>
                         )}

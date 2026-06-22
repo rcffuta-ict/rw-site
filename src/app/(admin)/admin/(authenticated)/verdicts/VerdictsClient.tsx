@@ -1,127 +1,136 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { VerdictDownloadButton, VerdictDocument } from "./component";
+import { useRouter } from "next/navigation";
 import { useAdminModal } from "@/context/AdminModalContext";
-import { AdminStatItem } from "@/components/admin/AdminStats";
+import { AdminStats, AdminStatItem } from "@/components/admin/AdminStats";
 import { RefreshButton } from "@/components/admin/RefreshButton";
-import type { Order } from "@/lib/data/types";
+import { DeliverDialog } from "@/components/admin/verdicts/DeliverDialog";
+import { PickupOrderRow } from "@/components/admin/verdicts/PickupOrderRow";
+import { formatNaira } from "@/lib/utils/functions";
+import type { VerdictsOverview } from "@/lib/services/verdicts.service";
+import type { Order, Verdict } from "@/lib/data/types";
 
-const MOCK_VERDICTS = [
-    {
-        id: "v-8912",
-        orderRefs: ["FF3A9C", "FF7B2D"],
-        generatedAt: "2026-05-03T11:00:00Z",
-        generatedBy: "Admin Sarah",
-        customerCount: 2,
-    },
-    {
-        id: "v-4421",
-        orderRefs: ["FFCD01", "FF892E", "FFBB31"],
-        generatedAt: "2026-05-03T12:30:00Z",
-        generatedBy: "Logistics Lead",
-        customerCount: 3,
-    },
-    {
-        id: "v-1092",
-        orderRefs: ["FFAA11"],
-        generatedAt: "2026-05-04T08:15:00Z",
-        generatedBy: "System Auto",
-        customerCount: 1,
-    },
-];
+function formatIssued(iso: string) {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleDateString("en-NG", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+    });
+}
 
 export default function VerdictsClient({
-    orders,
+    verdicts,
+    overview,
     isAdmin,
 }: {
-    orders: Order[];
+    verdicts: Verdict[];
+    overview: VerdictsOverview;
     isAdmin: boolean;
 }) {
-    const { openModal } = useAdminModal();
+    const router = useRouter();
+    const { openModal, closeModal } = useAdminModal();
+    const [pickups, setPickups] = useState(overview.pickupOrders);
 
-    const handleViewVerdict = (v: (typeof MOCK_VERDICTS)[0]) => {
-        const orderMatches = orders.filter((o) => v.orderRefs.includes(o.orderRef));
+    function openDeliver(order: Order) {
         openModal(
-            <div className="pb-10">
-                <VerdictDocument
-                    id={v.id}
-                    orders={orderMatches}
-                    generatedBy={v.generatedBy}
-                    generatedAt={v.generatedAt}
-                />
-                <div className="max-w-4xl mx-auto px-4 mt-6">
-                    <VerdictDownloadButton />
-                </div>
-            </div>,
+            <DeliverDialog
+                order={order}
+                onDelivered={(updated) => {
+                    // Drop it from the desk once collected.
+                    setPickups((prev) => prev.filter((o) => o.id !== updated.id));
+                    router.refresh();
+                }}
+                onClose={closeModal}
+            />,
             {
-                title: "Production Manifest View",
-                description: `Official Directive ${v.id.toUpperCase()}`,
-                maxWidth: "5xl",
+                title: "Confirm Pickup",
+                description: "Verify the customer's code",
+                maxWidth: "md",
             }
         );
-    };
+    }
 
-    const stats = React.useMemo(() => {
-        const total = MOCK_VERDICTS.length;
-        const units = MOCK_VERDICTS.reduce((s, v) => s + v.customerCount, 0);
-
-        const items: AdminStatItem[] = [
+    const stats = React.useMemo<AdminStatItem[]>(() => {
+        const totalUnits = verdicts.reduce((s, v) => s + v.totalUnits, 0);
+        const totalDebited = verdicts.reduce((s, v) => s + v.totalAmount, 0);
+        const sIcon = (d: string) => (
+            <svg
+                className="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+            >
+                <path strokeLinecap="round" strokeLinejoin="round" d={d} />
+            </svg>
+        );
+        return [
             {
-                label: "Total Verdicts",
-                value: total,
-                icon: (
-                    <svg
-                        className="h-6 w-6"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
-                        />
-                    </svg>
+                label: "Awaiting Verdict",
+                value: overview.eligibleCount,
+                sub: "Fully-paid · ready to produce",
+                icon: sIcon(
+                    "M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                 ),
             },
             {
-                label: "Consolidated Units",
-                value: units,
-                sub: "Total items in verdicts",
-                icon: (
-                    <svg
-                        className="h-6 w-6"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0Zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0Z"
-                        />
-                    </svg>
+                label: "In Production",
+                value: overview.inProductionCount,
+                sub: "Across active verdicts",
+                icon: sIcon(
+                    "M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085"
+                ),
+            },
+            {
+                label: "Ready for Pickup",
+                value: pickups.length,
+                sub: "Awaiting collection",
+                icon: sIcon(
+                    "M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"
+                ),
+            },
+            {
+                label: "Collected",
+                value: overview.deliveredCount,
+                sub: "Handed over to customers",
+                icon: sIcon(
+                    "M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                ),
+            },
+            {
+                label: "Verdicts Issued",
+                value: verdicts.length,
+                sub: `${totalUnits} units directed`,
+                icon: sIcon(
+                    "M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25Z"
+                ),
+            },
+            {
+                label: "Total Authorized",
+                value: formatNaira(totalDebited),
+                sub: "Cumulative debit directive",
+                icon: sIcon(
+                    "M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"
                 ),
             },
         ];
-        return items;
-    }, []);
+    }, [verdicts, overview, pickups.length]);
 
     return (
-        <div className="flex flex-col gap-10 animate-fade-in">
-            {/* <AdminBreadcrumb items={[{ label: "Verdicts" }]} /> */}
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-[var(--rw-border)] pb-10">
+        <div className="flex flex-col gap-8 animate-fade-in">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[var(--rw-border)] pb-6">
                 <div className="flex flex-col gap-2">
-                    <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl text-rw-ink tracking-tight uppercase">
-                        Verdicts Archive
+                    <h1 className="font-display font-black text-3xl sm:text-4xl text-rw-ink tracking-tight uppercase">
+                        Production Verdicts
                     </h1>
-                    <p className="text-sm text-rw-muted font-medium italic">
-                        Official administrative documents for approved order bundles
+                    <p className="text-sm text-rw-muted font-medium max-w-xl">
+                        The official record of what to produce and how much to debit — the
+                        single source of truth for the house.
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -129,7 +138,7 @@ export default function VerdictsClient({
                     {isAdmin && (
                         <Link
                             href="/admin/verdicts/new"
-                            className="h-14 px-10 rounded-2xl bg-rw-crimson text-white font-display font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 shadow-xl shadow-rw-crimson/20"
+                            className="h-12 px-7 rounded-2xl bg-rw-crimson text-white font-display font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-transform flex items-center gap-2 shadow-lg shadow-rw-crimson/20"
                         >
                             <svg
                                 className="h-4 w-4"
@@ -144,7 +153,7 @@ export default function VerdictsClient({
                                     d="M12 4v16m8-8H4"
                                 />
                             </svg>
-                            New Verdict
+                            Issue Verdict
                         </Link>
                     )}
                 </div>
@@ -152,9 +161,9 @@ export default function VerdictsClient({
 
             {/* Non-admin notice */}
             {!isAdmin && (
-                <div className="flex items-center gap-4 rounded-2xl border border-amber-200 bg-amber-50 px-6 py-4">
+                <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
                     <svg
-                        className="h-5 w-5 text-amber-500 shrink-0"
+                        className="h-5 w-5 text-amber-500 shrink-0 mt-0.5"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth={2}
@@ -168,123 +177,162 @@ export default function VerdictsClient({
                     </svg>
                     <p className="text-sm font-medium text-amber-800">
                         <span className="font-bold">Admin access required.</span> Only
-                        Admins can issue new production verdicts. Contact your admin to
-                        generate one.
+                        administrators can issue verdicts. You can view and download
+                        existing ones below.
                     </p>
                 </div>
             )}
 
-            {/* <AdminStats stats={stats} /> */}
+            <AdminStats stats={stats} />
 
-            {/* Verdicts grid */}
-            {MOCK_VERDICTS.length === 0 ? (
-                <div className="rw-card flex flex-col items-center gap-6 py-24 text-center border-dashed bg-rw-bg-alt/30">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white border border-[var(--rw-border)] shadow-sm">
+            {/* Pickup desk — orders awaiting collection across all verdicts */}
+            {pickups.length > 0 && (
+                <section className="rw-card p-5 sm:p-6 flex flex-col gap-4 bg-amber-50/40 border border-amber-200">
+                    <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5">
+                            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                                <svg
+                                    className="h-5 w-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth={2}
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"
+                                    />
+                                </svg>
+                            </span>
+                            <div>
+                                <h2 className="font-display font-black text-lg text-rw-ink uppercase tracking-tight">
+                                    Pickup Desk
+                                </h2>
+                                <p className="text-[11px] text-rw-muted font-medium">
+                                    {pickups.length} order
+                                    {pickups.length === 1 ? "" : "s"} awaiting collection
+                                    · verify the pickup code to hand over
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-2.5">
+                        {pickups.map((o) => (
+                            <PickupOrderRow
+                                key={o.id}
+                                order={o}
+                                onDeliverClick={openDeliver}
+                            />
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            {/* Grid */}
+            {verdicts.length === 0 ? (
+                <div className="rw-card flex flex-col items-center gap-5 py-20 text-center border-dashed bg-rw-bg-alt/30">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white border border-[var(--rw-border)] shadow-sm">
                         <svg
-                            className="h-10 w-10 text-rw-muted"
+                            className="h-8 w-8 text-rw-muted"
                             fill="none"
                             stroke="currentColor"
-                            strokeWidth={1}
+                            strokeWidth={1.4}
                             viewBox="0 0 24 24"
                         >
                             <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
+                                d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
                             />
                         </svg>
                     </div>
                     <div>
-                        <p className="font-display font-black text-2xl text-rw-ink tracking-tight uppercase">
-                            No verdicts found
+                        <p className="font-display font-black text-xl text-rw-ink tracking-tight uppercase">
+                            No verdicts yet
                         </p>
-                        <p className="text-rw-muted mt-2 font-medium">
-                            Start by generating a document for your recent orders
+                        <p className="text-rw-muted mt-1.5 font-medium text-sm max-w-sm">
+                            Issue a verdict to lock fully-paid orders into production and
+                            generate the official directive.
                         </p>
                     </div>
                     {isAdmin && (
                         <Link
                             href="/admin/verdicts/new"
-                            className="btn-secondary !h-11 px-8 text-[11px] font-bold uppercase tracking-widest mt-4"
+                            className="btn-secondary !h-11 px-7 text-[11px] font-bold uppercase tracking-widest mt-2"
                         >
-                            Generate Verdict
+                            Issue First Verdict
                         </Link>
                     )}
                 </div>
             ) : (
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 stagger-children">
-                    {MOCK_VERDICTS.map((v) => (
-                        <div
+                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3 stagger-children">
+                    {verdicts.map((v) => (
+                        <Link
                             key={v.id}
-                            onClick={() => handleViewVerdict(v)}
-                            className="rw-card p-8 flex flex-col gap-8 bg-white border-none shadow-lg ring-1 ring-[var(--rw-border)] hover:ring-rw-crimson/50 hover:shadow-2xl transition-all duration-500 group cursor-pointer relative overflow-hidden"
+                            href={`/admin/verdicts/${encodeURIComponent(v.verdictRef)}`}
+                            className="text-left rw-card p-6 flex flex-col gap-5 bg-white shadow-sm ring-1 ring-[var(--rw-border)] hover:ring-rw-crimson/50 hover:shadow-xl transition-all duration-300 group cursor-pointer"
                         >
-                            <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-125 transition-transform duration-700">
-                                <svg
-                                    className="h-32 w-32"
-                                    fill="currentColor"
-                                    viewBox="0 0 24 24"
+                            <div className="flex items-start justify-between gap-3">
+                                <span
+                                    className={`inline-flex items-center rounded-lg px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.18em] border ${
+                                        v.status === "active"
+                                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                            : v.status === "fulfilled"
+                                              ? "bg-amber-50 text-amber-700 border-amber-200"
+                                              : "bg-rw-bg-alt text-rw-muted border-[var(--rw-border)]"
+                                    }`}
                                 >
-                                    <path d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                                </svg>
-                            </div>
-
-                            {/* Header */}
-                            <div className="flex items-start justify-between gap-4 relative z-10">
-                                <span className="inline-flex items-center rounded-lg border px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] bg-rw-crimson/10 text-rw-crimson border-rw-crimson/20">
-                                    Official Verdict
+                                    {v.status}
                                 </span>
-                                <span className="text-[10px] font-mono text-rw-muted font-black group-hover:text-rw-ink transition-colors uppercase">
-                                    {v.id}
+                                <span className="font-mono text-xs font-black text-rw-ink">
+                                    {v.verdictRef}
                                 </span>
                             </div>
 
-                            {/* Order refs */}
-                            <div className="flex-1 relative z-10">
-                                <p className="text-[9px] font-black text-rw-muted mb-4 uppercase tracking-[0.3em] opacity-60">
-                                    Consolidated Batches
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                    {v.orderRefs.map((ref) => (
-                                        <span
-                                            key={ref}
-                                            className="font-mono text-[11px] font-black text-rw-ink bg-rw-bg-alt border border-[var(--rw-border)] rounded-lg px-3 py-1.5"
-                                        >
-                                            {ref}
-                                        </span>
-                                    ))}
+                            <div className="grid grid-cols-3 gap-2">
+                                <div>
+                                    <p className="text-[8px] font-black text-rw-muted uppercase tracking-[0.15em] opacity-70">
+                                        Orders
+                                    </p>
+                                    <p className="font-display font-black text-lg text-rw-ink">
+                                        {v.orderCount}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-[8px] font-black text-rw-muted uppercase tracking-[0.15em] opacity-70">
+                                        Units
+                                    </p>
+                                    <p className="font-display font-black text-lg text-rw-ink">
+                                        {v.totalUnits}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-[8px] font-black text-rw-muted uppercase tracking-[0.15em] opacity-70">
+                                        Value
+                                    </p>
+                                    <p className="font-display font-black text-lg text-rw-crimson">
+                                        {formatNaira(v.totalAmount)}
+                                    </p>
                                 </div>
                             </div>
 
-                            {/* Meta */}
-                            <div className="space-y-6 relative z-10">
-                                <div className="flex items-center justify-between text-[10px] font-black text-rw-muted border-t border-[var(--rw-border)] border-dashed pt-6 uppercase tracking-widest">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="opacity-40 tracking-[0.2em]">
-                                            Issued On
-                                        </span>
-                                        <span className="text-rw-ink">
-                                            {new Date(v.generatedAt).toLocaleDateString(
-                                                "en-NG",
-                                                { day: "numeric", month: "short" }
-                                            )}
-                                        </span>
-                                    </div>
-                                    <div className="flex flex-col items-end gap-1">
-                                        <span className="opacity-40 tracking-[0.2em]">
-                                            Volume
-                                        </span>
-                                        <span className="text-rw-crimson">
-                                            {v.customerCount} Unit
-                                            {v.customerCount !== 1 ? "s" : ""}
-                                        </span>
-                                    </div>
+                            <div className="flex items-center justify-between border-t border-[var(--rw-border)] border-dashed pt-4">
+                                <div className="min-w-0">
+                                    <p className="text-[8px] font-black text-rw-muted uppercase tracking-[0.15em] opacity-60">
+                                        Authorized by
+                                    </p>
+                                    <p className="text-xs font-bold text-rw-ink truncate">
+                                        {v.issuedByName}
+                                    </p>
+                                    <p className="text-[10px] text-rw-muted font-medium">
+                                        {formatIssued(v.createdAt)}
+                                    </p>
                                 </div>
-
-                                <div className="flex items-center gap-2 text-rw-crimson font-black text-[10px] uppercase tracking-[0.3em] group-hover:translate-x-2 transition-transform">
-                                    View Formal Verdict
+                                <span className="flex items-center gap-1.5 text-rw-crimson font-black text-[10px] uppercase tracking-[0.18em] group-hover:translate-x-1 transition-transform shrink-0">
+                                    View
                                     <svg
-                                        className="h-4 w-4"
+                                        className="h-3.5 w-3.5"
                                         fill="none"
                                         stroke="currentColor"
                                         strokeWidth={3}
@@ -296,9 +344,9 @@ export default function VerdictsClient({
                                             d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
                                         />
                                     </svg>
-                                </div>
+                                </span>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             )}

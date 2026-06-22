@@ -21,6 +21,7 @@ const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
     paid:            "Paid",
     confirmed:       "Queued",
     in_production:   "In Production",
+    ready_for_pickup: "Ready for Pickup",
     delivered:       "Delivered",
     flagged:         "Flagged",
     cancelled:       "Cancelled",

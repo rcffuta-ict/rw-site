@@ -139,6 +139,10 @@ export const DEMO_ORDERS: Order[] = [
         updatedAt: "2026-05-02T14:35:00Z",
         followUpCount: 0,
         lastFollowUpAt: null,
+        pickupToken: null,
+        deliveredAt: null,
+        deliveredByName: null,
+        deliveredByEmail: null,
     },
     {
         id: "ord-002",
@@ -160,6 +164,10 @@ export const DEMO_ORDERS: Order[] = [
         updatedAt: "2026-05-03T09:18:00Z",
         followUpCount: 0,
         lastFollowUpAt: null,
+        pickupToken: null,
+        deliveredAt: null,
+        deliveredByName: null,
+        deliveredByEmail: null,
     },
     {
         id: "ord-003",
@@ -179,6 +187,10 @@ export const DEMO_ORDERS: Order[] = [
         updatedAt: "2026-05-03T16:30:00Z",
         followUpCount: 0,
         lastFollowUpAt: null,
+        pickupToken: null,
+        deliveredAt: null,
+        deliveredByName: null,
+        deliveredByEmail: null,
     },
     {
         id: "ord-004",
@@ -198,6 +210,10 @@ export const DEMO_ORDERS: Order[] = [
         updatedAt: "2026-04-30T18:05:00Z",
         followUpCount: 0,
         lastFollowUpAt: null,
+        pickupToken: null,
+        deliveredAt: null,
+        deliveredByName: null,
+        deliveredByEmail: null,
     },
     {
         id: "ord-005",
@@ -219,6 +235,10 @@ export const DEMO_ORDERS: Order[] = [
         updatedAt: "2026-05-01T11:47:00Z",
         followUpCount: 0,
         lastFollowUpAt: null,
+        pickupToken: null,
+        deliveredAt: null,
+        deliveredByName: null,
+        deliveredByEmail: null,
     },
     {
         id: "ord-006",
@@ -240,6 +260,10 @@ export const DEMO_ORDERS: Order[] = [
         updatedAt: "2026-04-29T15:00:00Z",
         followUpCount: 0,
         lastFollowUpAt: null,
+        pickupToken: null,
+        deliveredAt: null,
+        deliveredByName: null,
+        deliveredByEmail: null,
     },
 ];
 

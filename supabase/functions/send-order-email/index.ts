@@ -207,6 +207,9 @@ function buildVariables(order: any): Record<string, string> {
         amount_paid: naira(order.amount_paid || 0),
         balance: naira(balance),
         items_html: buildItemsHtml(order.items || []),
+        // Personal pickup code for the ready_for_pickup template. Empty for every
+        // other status (the customer only ever sees it once the order is ready).
+        pickup_token: order.pickup_token || "",
     };
 }
 

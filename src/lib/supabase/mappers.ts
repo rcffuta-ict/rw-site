@@ -22,6 +22,10 @@ import type {
     PaymentStatus,
     ExtractionConfidence,
     AdminRole,
+    Verdict,
+    VerdictOrderRef,
+    VerdictStatus,
+    VerdictManifestItem,
 } from "@/lib/data/types";
 
 function toPlain<T>(obj: T): T {
@@ -156,6 +160,55 @@ export function mapOrderFromDb(row: any): Order {
         payments: Array.isArray(row.payments) ? row.payments.map(mapPaymentFromDb) : [],
         followUpCount: row.follow_up_count ?? 0,
         lastFollowUpAt: row.last_follow_up_at ?? null,
+        pickupToken: row.pickup_token ?? null,
+        deliveredAt: row.delivered_at ?? null,
+        deliveredByName: row.delivered_by_name ?? null,
+        deliveredByEmail: row.delivered_by_email ?? null,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+    });
+}
+
+// ─── Verdict ──────────────────────────────────────────────────────────────────
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function mapVerdictOrderFromDb(row: any): VerdictOrderRef {
+    return {
+        id: row.id,
+        orderId: row.order_id,
+        orderRef: row.order_ref,
+        customerName: row.customer_name,
+        customerEmail: row.customer_email,
+        totalAmount: row.total_amount,
+    };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function mapVerdictFromDb(row: any): Verdict {
+    return toPlain({
+        id: row.id,
+        verdictRef: row.verdict_ref,
+        status: row.status as VerdictStatus,
+        issuedByProfileId: row.issued_by_profile_id ?? null,
+        issuedByName: row.issued_by_name,
+        issuedByEmail: row.issued_by_email,
+        note: row.note ?? null,
+        manifest: Array.isArray(row.manifest)
+            ? (row.manifest as VerdictManifestItem[])
+            : [],
+        totalAmount: row.total_amount ?? 0,
+        totalUnits: row.total_units ?? 0,
+        orderCount: row.order_count ?? 0,
+        bankName: row.bank_name ?? null,
+        bankAccountName: row.bank_account_name ?? null,
+        bankAccountNumber: row.bank_account_number ?? null,
+        fulfilledAt: row.fulfilled_at ?? null,
+        fulfilledByProfileId: row.fulfilled_by_profile_id ?? null,
+        fulfilledByName: row.fulfilled_by_name ?? null,
+        fulfilledByEmail: row.fulfilled_by_email ?? null,
+        orders: Array.isArray(row.orders)
+            ? row.orders.map(mapVerdictOrderFromDb)
+            : [],
         createdAt: row.created_at,
         updatedAt: row.updated_at,
     });

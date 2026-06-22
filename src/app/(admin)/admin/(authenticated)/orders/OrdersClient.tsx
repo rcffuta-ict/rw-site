@@ -1,26 +1,28 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
 
-import { OrderStatusBadge } from "@/components/ui/Badge";
-import type { OrderStatus } from "@/lib/data/types";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { OrderStats } from "@/components/admin/orders/OrderStats";
 import { OrderVerdictActions } from "@/components/admin/orders/OrderVerdictActions";
 
 import { Order } from "@/lib/data/types";
-import { getEffectiveStatus } from "@/lib/utils/functions";
+import { getOrderLifecycleStatus, type OrderLifecycle } from "@/lib/utils/functions";
 import { OrdersTable } from "@/components/admin/OrdersTable";
 import { RefreshButton } from "@/components/admin/RefreshButton";
 
-const STATUS_TABS: { key: string; label: string }[] = [
+// Tab → which lifecycle buckets it shows. "all" is everything; the rest map to
+// one bucket each, covering the full journey from payment to collection.
+const STATUS_TABS: { key: string; label: string; match?: OrderLifecycle }[] = [
     { key: "all", label: "All" },
-    { key: "pending", label: "Pending" },
-    { key: "partially_paid", label: "Partial" },
-    { key: "paid", label: "Paid" },
-    { key: "queued", label: "Queued" },
-    { key: "flagged", label: "Flagged" },
+    { key: "pending", label: "Pending", match: "pending" },
+    { key: "queued", label: "Needs Review", match: "queued" },
+    { key: "partially_paid", label: "Partial", match: "partially_paid" },
+    { key: "paid", label: "Paid", match: "paid" },
+    { key: "in_production", label: "Production", match: "in_production" },
+    { key: "ready_for_pickup", label: "Pickup", match: "ready_for_pickup" },
+    { key: "delivered", label: "Delivered", match: "delivered" },
+    { key: "flagged", label: "Flagged", match: "flagged" },
 ];
 
 export default function OrdersClient({
@@ -33,19 +35,32 @@ export default function OrdersClient({
     const [statusFilter, setStatusFilter] = useState<string>("all");
     const [searchQuery, setSearchQuery] = useState("");
 
+    // Precompute each order's lifecycle bucket once.
+    const stages = useMemo(
+        () => new Map(initialOrders.map((o) => [o.id, getOrderLifecycleStatus(o)])),
+        [initialOrders]
+    );
+
+    // Live count per tab for the count chips.
+    const tabCounts = useMemo(() => {
+        const c: Record<string, number> = { all: initialOrders.length };
+        for (const stage of stages.values()) c[stage] = (c[stage] ?? 0) + 1;
+        return c;
+    }, [initialOrders, stages]);
+
     const filteredOrders = useMemo(() => {
+        const q = searchQuery.trim().toLowerCase();
         return initialOrders.filter((o) => {
-            const effectiveStatus = getEffectiveStatus(o);
             const matchesStatus =
-                statusFilter === "all" || effectiveStatus === statusFilter;
+                statusFilter === "all" || stages.get(o.id) === statusFilter;
             const matchesSearch =
-                !searchQuery ||
-                o.orderRef.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                o.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                o.customerEmail.toLowerCase().includes(searchQuery.toLowerCase());
+                !q ||
+                o.orderRef.toLowerCase().includes(q) ||
+                o.customerName.toLowerCase().includes(q) ||
+                o.customerEmail.toLowerCase().includes(q);
             return matchesStatus && matchesSearch;
         });
-    }, [statusFilter, searchQuery]);
+    }, [statusFilter, searchQuery, initialOrders, stages]);
 
     return (
         <div className="flex flex-col gap-8 animate-fade-in-up">
@@ -79,19 +94,32 @@ export default function OrdersClient({
                         </label>
                     </div>
                     <div className="flex sm:flex-wrap gap-2 p-1.5 rounded-[18px] bg-rw-bg-alt border border-[var(--rw-border)] overflow-x-auto scrollbar-hide -mx-2 sm:mx-0">
-                        {STATUS_TABS.map((t) => (
-                            <button
-                                key={t.key}
-                                onClick={() => setStatusFilter(t.key)}
-                                className={`rounded-[14px] px-6 py-2.5 text-[11px] font-bold uppercase tracking-wider transition-all duration-200 whitespace-nowrap ${
-                                    t.key === statusFilter
-                                        ? "bg-white text-rw-crimson shadow-sm scale-[1.02] border border-[var(--rw-border)]"
-                                        : "text-rw-muted hover:text-rw-ink hover:bg-white/50"
-                                }`}
-                            >
-                                {t.label}
-                            </button>
-                        ))}
+                        {STATUS_TABS.map((t) => {
+                            const active = t.key === statusFilter;
+                            const count = tabCounts[t.key] ?? 0;
+                            return (
+                                <button
+                                    key={t.key}
+                                    onClick={() => setStatusFilter(t.key)}
+                                    className={`flex items-center gap-2 rounded-[14px] pl-4 pr-2.5 py-2.5 text-[11px] font-bold uppercase tracking-wider transition-all duration-200 whitespace-nowrap ${
+                                        active
+                                            ? "bg-white text-rw-crimson shadow-sm scale-[1.02] border border-[var(--rw-border)]"
+                                            : "text-rw-muted hover:text-rw-ink hover:bg-white/50"
+                                    }`}
+                                >
+                                    {t.label}
+                                    <span
+                                        className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-black tabular-nums ${
+                                            active
+                                                ? "bg-rw-crimson/10 text-rw-crimson"
+                                                : "bg-white/70 text-rw-muted"
+                                        }`}
+                                    >
+                                        {count}
+                                    </span>
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
 

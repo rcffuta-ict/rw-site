@@ -8,12 +8,15 @@ import { formatNaira, getEffectiveStatus, getRelativeTime } from "@/lib/utils/fu
 
 interface OrdersTableProps {
     orders: Order[];
+    /** Rows per page — keeps the table a fixed height so pagination kicks in. */
+    pageSize?: number;
 }
 
-export function OrdersTable({ orders }: OrdersTableProps) {
+export function OrdersTable({ orders, pageSize = 10 }: OrdersTableProps) {
     return (
         <AdminTable<Order>
             data={orders}
+            pageSize={pageSize}
             keyExtractor={(o: Order) => o.id}
             emptyMessage="No orders found"
             columns={[
