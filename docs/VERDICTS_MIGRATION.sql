@@ -9,6 +9,10 @@
 -- then run the rest.
 -- ───────────────────────────────────────────────────────────────────────────
 
+-- STEP 0 — heal databases created from an earlier draft of this table
+ALTER TABLE public.rw_verdicts DROP COLUMN IF EXISTS issued_by;
+
+
 -- STEP 1 — extend the enums
 ALTER TYPE order_status   ADD VALUE IF NOT EXISTS 'ready_for_pickup' BEFORE 'delivered';
 

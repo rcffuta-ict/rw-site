@@ -261,7 +261,7 @@ export function NewVerdictClient({ eligibleOrders }: NewVerdictClientProps) {
                                 Select orders to build the manifest.
                             </p>
                         ) : (
-                            <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-4 max-h-105 overflow-y-auto scrollbar-hide pr-1">
                                 {groups.map((g) => (
                                     <div key={g.product}>
                                         <div className="flex items-center justify-between mb-1.5">
