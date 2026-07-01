@@ -423,11 +423,10 @@ export function PaymentFlow({
 
     // Preview state
     if (stage === "preview") {
-        const isMissingInfo =
-            !extraction?.amount ||
-            extraction.date === "—" ||
-            !extraction?.transactionRef ||
-            extraction.transactionRef === "—";
+        const isMissingInfo = !extraction?.amount || extraction.date === "—";
+        //  ||
+        // !extraction?.transactionRef ||
+        // extraction.transactionRef === "—";
 
         // The receipt itself reports a non-successful outcome (failed / pending /
         // reversed transfer). Money never actually landed — hard block.
