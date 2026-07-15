@@ -81,6 +81,16 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en" className="scroll-smooth">
+            <head>
+                {/*
+                  Warm up the connection to the Cloudinary CDN before the first
+                  image request so it doesn't pay for DNS + TLS on the critical
+                  path. No crossOrigin — next/image loads images as non-CORS
+                  requests, so the preconnect must match to be reused.
+                */}
+                <link rel="preconnect" href="https://res.cloudinary.com" />
+                <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+            </head>
             <body
                 className={`
                     ${inter.variable}

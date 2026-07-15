@@ -7,6 +7,7 @@ import { MarqueeSection } from "@/components/public/home/MarqueeSection";
 import { AboutSection } from "@/components/public/home/AboutSection";
 import { MerchPreviewSection } from "@/components/public/home/MerchPreviewSection";
 import { GallerySection } from "@/components/public/home/GallerySection";
+import { FeaturedSponsorsSection } from "@/components/public/home/FeaturedSponsorsSection";
 import { SponsorsSection } from "@/components/public/home/SponsorsSection";
 import { CtaBannerSection } from "@/components/public/home/CtaBannerSection";
 import { VenueSection } from "@/components/public/home/VenueSection";
@@ -46,6 +47,7 @@ export default async function LandingPage() {
             </div> */}
 
             <VenueSection />
+            <FeaturedSponsorsSection />
             <SponsorsSection />
             <CtaBannerSection />
         </div>

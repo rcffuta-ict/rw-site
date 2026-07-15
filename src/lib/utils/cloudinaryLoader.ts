@@ -3,7 +3,7 @@
 export default function cloudinaryLoader({
     src,
     width,
-    quality = 80,
+    quality,
 }: {
     src: string;
     width: number;
@@ -11,20 +11,34 @@ export default function cloudinaryLoader({
 }) {
     if (!src) return "";
 
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-
-    // f_auto handles WebP/AVIF delivery perfectly!
-    const optimizationParams = `c_fill,g_auto,w_${width},q_${quality || "auto"},f_auto`;
-
-    // If it's an external non-Cloudinary HTTPS link, we can't optimize it this way
-    if (src.includes("https://") && !src.includes("res.cloudinary.com")) {
+    // External non-Cloudinary links can't be transformed this way — pass through.
+    if (src.startsWith("http") && !src.includes("res.cloudinary.com")) {
         return src;
     }
 
-    // Extract the clean public ID if it's a full Cloudinary URL
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
     const publicId = getCloudinaryPublicId(src);
+    if (!cloudName || !publicId) return src;
 
-    // Build a fresh, perfectly optimized URL every time
+    // Honour an explicit numeric quality (from next/image's `quality` prop);
+    // otherwise let Cloudinary pick the fewest bytes that preserve perceived
+    // quality. `q_auto` (content-aware) is typically 15–30% smaller than a fixed
+    // q_80 at the same visual quality.
+    const q = typeof quality === "number" ? `q_${quality}` : "q_auto";
+
+    // Delivery transformation, ordered for readability:
+    //   c_fill,g_auto   → cover-crop to the box, auto-focus the salient region
+    //   f_auto          → serve AVIF/WebP when the browser supports it
+    //   q_auto          → content-aware compression (biggest byte win)
+    //   fl_progressive  → progressive render on the JPEG fallback (faster first paint)
+    //   w_<width>       → next/image drives this via its responsive srcset
+    //
+    // Deliberately NO dpr_auto: next/image already bakes device pixel density into
+    // `width` (its srcset picks a larger width on retina screens), so dpr_auto
+    // would double-scale and inflate the payload.
+    const optimizationParams = `c_fill,g_auto,f_auto,${q},fl_progressive,w_${width}`;
+
+    // Build a fresh, optimized URL every time.
     return `https://res.cloudinary.com/${cloudName}/image/upload/${optimizationParams}/${publicId}`;
 }
 
