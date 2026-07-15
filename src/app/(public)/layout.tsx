@@ -6,8 +6,22 @@ import { CartProvider } from "@/context/CartContext";
 import { PublicHeader } from "@/components/public/PublicHeader";
 import { PublicFooter } from "@/components/public/PublicFooter";
 import { CartSidebar } from "@/components/public/CartSidebar";
+import { listSponsors } from "@/lib/services/sponsors.service";
 
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
+export default async function PublicLayout({ children }: { children: React.ReactNode }) {
+    // Active sponsors power the footer's "Our Sponsors" links.
+    let sponsors: { slug: string; name: string; logoUrl: string; brandColor: string }[] = [];
+    try {
+        sponsors = (await listSponsors(true)).map((s) => ({
+            slug: s.slug,
+            name: s.name,
+            logoUrl: s.logoUrl,
+            brandColor: s.brandColor,
+        }));
+    } catch {
+        sponsors = [];
+    }
+
     return (
         <CartProvider>
             <PublicHeader />
@@ -16,7 +30,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
                 <CartSidebar />
             </main>
-            <PublicFooter />
+            <PublicFooter sponsors={sponsors} />
         </CartProvider>
     );
 }

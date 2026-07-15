@@ -1,11 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Identity } from "../ui/Identity";
 import { BrandDisplay } from "../common/BrandDisplay";
-import { SPONSOR_LIST } from "@/lib/config";
+import { SponsorLogo } from "../common/SponsorLogo";
+
+export interface FooterSponsor {
+    slug: string;
+    name: string;
+    logoUrl: string;
+    brandColor: string;
+}
 
 const PROGRAMME = [
     { day: "Mon", label: "Opening Ceremony" },
@@ -80,7 +86,7 @@ const FELLOWSHIP_FACTS = [
     { label: "Units", value: "16" },
 ];
 
-export function PublicFooter() {
+export function PublicFooter({ sponsors = [] }: { sponsors?: FooterSponsor[] }) {
     const pathname = usePathname();
     const isOrderDetailsPage =
         pathname?.startsWith("/orders/") && pathname?.endsWith("/details");
@@ -235,13 +241,13 @@ export function PublicFooter() {
                             </Link>
 
                             {/* Our Sponsors */}
-                            {SPONSOR_LIST.length > 0 && (
+                            {sponsors.length > 0 && (
                                 <div className="mt-8 pt-6 border-t border-[#f4eced]">
                                     <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#9a8085] mb-4">
                                         Our Sponsors
                                     </p>
                                     <div className="flex flex-col gap-3">
-                                        {SPONSOR_LIST.map((sponsor) => (
+                                        {sponsors.map((sponsor) => (
                                             <Link
                                                 key={sponsor.slug}
                                                 href={`/sponsors/${sponsor.slug}`}
@@ -249,13 +255,12 @@ export function PublicFooter() {
                                             >
                                                 <span
                                                     className="shrink-0 rounded-lg p-1.5"
-                                                    style={{ backgroundColor: sponsor.blue }}
+                                                    style={{ backgroundColor: sponsor.brandColor }}
                                                 >
-                                                    <Image
-                                                        src={sponsor.logo}
+                                                    <SponsorLogo
+                                                        src={sponsor.logoUrl}
                                                         alt={`${sponsor.name} logo`}
-                                                        width={28}
-                                                        height={28}
+                                                        size={24}
                                                         className="h-6 w-6 rounded object-contain"
                                                     />
                                                 </span>
@@ -264,7 +269,7 @@ export function PublicFooter() {
                                                         {sponsor.name}
                                                     </span>
                                                     <span className="block text-xs text-[#9a8085]">
-                                                        Free courses for members →
+                                                        View sponsor →
                                                     </span>
                                                 </span>
                                             </Link>

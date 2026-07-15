@@ -1,7 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { resolveAdminRole } from "@/lib/auth/roles";
-import { getSponsor } from "@/lib/config";
-import { listSponsorLeads } from "@/lib/services/sponsors.service";
+import { getSponsorBySlug, listSponsorLeads } from "@/lib/services/sponsors.service";
 
 function csvEscape(v: string | null | undefined): string {
     const s = (v ?? "").replaceAll('"', '""');
@@ -21,7 +20,7 @@ export async function GET(
 ) {
     const { slug } = await params;
 
-    const sponsor = getSponsor(slug);
+    const sponsor = await getSponsorBySlug(slug);
     if (!sponsor) {
         return new Response("Unknown sponsor", { status: 404 });
     }
