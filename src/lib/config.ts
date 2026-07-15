@@ -2,6 +2,8 @@
 // This is the single source of truth for all tenure-specific content.
 // To reuse for the 39th, 40th, etc. anniversary — update the values here.
 
+import type { OrderStatus } from "@/lib/data/types";
+
 // ─── Demo / Live Switch ───────────────────────────────────────────────────────
 // Set to false when integrating Supabase. All services check this flag.
 export const DEMO_MODE = process.env.NEXT_PUBLIC_VERCEL_ENV
@@ -135,3 +137,83 @@ export const PAYMENT_CONFIG = {
         { name: "ICT Coord (WhatsApp)", phone: "2348122137834" },
     ],
 };
+
+// ─── Order status groups ──────────────────────────────────────────────────────
+// A "confirmed customer" is anyone whose order has progressed past pending —
+// i.e. they have committed to the fellowship. Used when auto-including customers
+// into a sponsor's lead list. Excludes pending, flagged, and cancelled orders.
+export const CONFIRMED_ORDER_STATUSES: OrderStatus[] = [
+    "partially_paid",
+    "paid",
+    "confirmed",
+    "in_production",
+    "ready_for_pickup",
+    "delivered",
+];
+
+// ─── Sponsors ─────────────────────────────────────────────────────────────────
+// Config-driven sponsor profiles (sourced from each sponsor's public info).
+// Drives the public /sponsors/<slug> page and the admin Sponsors tab.
+export interface SponsorProfile {
+    slug: string;
+    name: string;
+    tagline: string;
+    /** Short paragraph describing the sponsor and the partnership. */
+    description: string;
+    /** Public website. */
+    url: string;
+    /** Local raster asset in /public — rendered with next/image. */
+    logo: string;
+    /** Brand accent (from the logo). Used sparingly for scoped accents. */
+    blue: string;
+    /** Courses/skills offered — feeds the sign-up form dropdown and page copy. */
+    courses: string[];
+    /** Highlighted benefits shown on the public page. */
+    benefits: { title: string; body: string }[];
+}
+
+export const SPONSORS: Record<string, SponsorProfile> = {
+    skybil: {
+        slug: "skybil",
+        name: "Skybil",
+        tagline: "Elevate Your Skills in Tech and Finance",
+        description:
+            "Skybil is an EdTech academy empowering young Africans through smart, " +
+            "self-paced digital learning. As a Redemption Week '26 sponsor, Skybil is " +
+            "opening free access to its tech and finance courses for the RCF FUTA family.",
+        url: "https://skybil.com.ng/home",
+        logo: "/images/sponsors/skybil-logo.jpeg",
+        blue: "#1B4DF5",
+        courses: [
+            "Web Development",
+            "Python Programming",
+            "Graphic Design",
+            "Finance",
+            "Other",
+        ],
+        benefits: [
+            {
+                title: "Free online courses",
+                body: "Learn web development, Python, graphic design, finance and more — at no cost.",
+            },
+            {
+                title: "Learn at your own pace",
+                body: "Study anytime, anywhere. Every course is fully self-paced.",
+            },
+            {
+                title: "AI-powered support",
+                body: "Get instant answers from Skai, Skybil's AI learning assistant — no waiting.",
+            },
+            {
+                title: "Certificate of completion",
+                body: "Earn a digital certificate to showcase your new skills (optional).",
+            },
+        ],
+    },
+};
+
+export function getSponsor(slug: string): SponsorProfile | undefined {
+    return SPONSORS[slug];
+}
+
+export const SPONSOR_LIST: SponsorProfile[] = Object.values(SPONSORS);

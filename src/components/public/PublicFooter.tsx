@@ -23,6 +23,7 @@ const QUICK_LINKS = [
     { href: "/orders", label: "My Orders" },
     { href: "/docs", label: "How to Order" },
     { href: "/brand-assets", label: "Brand & Media Kit" },
+    { href: "/sponsors/skybil", label: "Skybil — Free Courses" },
     { href: "/terms", label: "Terms of Service" },
     { href: "/privacy", label: "Privacy Policy" },
     // { href: "/admin", label: "Admin Dashboard" },

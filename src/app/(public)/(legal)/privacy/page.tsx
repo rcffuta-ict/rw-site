@@ -1,5 +1,6 @@
 import { CONTACTS, FELLOWSHIP, PAYMENT_CONFIG, TENURE } from "@/lib/config";
 import { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
     title: `Privacy Policy - ${TENURE.brandLabel} Pre-Order Platform`,
@@ -277,6 +278,62 @@ export default function PrivacyPage() {
             </section>
 
             {/* 11. Third-Party Links */}
+            {/* Sponsor & Third-Party Data Sharing (Skybil) */}
+            <section>
+                <h2 className="font-display font-bold text-2xl text-rw-ink my-4">
+                    Sponsor Data Sharing (Skybil Partnership)
+                </h2>
+                <p className="text-rw-text-2 leading-relaxed mb-4">
+                    As part of {TENURE.brandLabel}, {FELLOWSHIP.shortName} partners with{" "}
+                    <strong>Skybil</strong> (
+                    <a
+                        href="https://skybil.com.ng"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-semibold text-rw-ink underline underline-offset-2 hover:text-rw-crimson"
+                    >
+                        skybil.com.ng
+                    </a>
+                    ), an independent education sponsor, to offer members free access to its
+                    online tech and finance courses. Where you sign up on our{" "}
+                    <Link
+                        href="/sponsors/skybil"
+                        className="font-semibold text-rw-ink underline underline-offset-2 hover:text-rw-crimson"
+                    >
+                        Skybil sign-up page
+                    </Link>
+                    , or where you are a confirmed customer who has not opted out, we share the
+                    following with Skybil strictly for the purpose of enrolling you in these
+                    free courses:
+                </p>
+                <ul className="space-y-2 text-rw-text-2 ml-6 list-disc mb-4">
+                    <li>Your full name;</li>
+                    <li>Your email address;</li>
+                    <li>Your WhatsApp number; and</li>
+                    <li>The skill or course you indicated interest in (if provided).</li>
+                </ul>
+                <p className="text-rw-text-2 leading-relaxed mb-4">
+                    Participation is entirely <strong>voluntary</strong>. Sharing takes place
+                    only on the basis of your consent (given at sign-up) or, for confirmed
+                    customers, unless and until you opt out. Skybil is a separate organisation
+                    with its own data-handling practices, and once your details are shared they
+                    will also be governed by Skybil&rsquo;s own policies; {FELLOWSHIP.shortName}
+                    {" "}is not responsible for how Skybil subsequently processes your data.
+                </p>
+                <p className="text-rw-text-2 leading-relaxed mb-4">
+                    You may <strong>withdraw your consent or opt out at any time</strong> using
+                    the opt-out option on the{" "}
+                    <Link
+                        href="/sponsors/skybil"
+                        className="font-semibold text-rw-ink underline underline-offset-2 hover:text-rw-crimson"
+                    >
+                        Skybil page
+                    </Link>{" "}
+                    or by contacting us through the channels in the “Contact Us” section below.
+                    Opting out removes you from any data we share with Skybil going forward.
+                </p>
+            </section>
+
             <section>
                 <h2 className="font-display font-bold text-2xl text-rw-ink my-4">
                     11. Third-Party Links and Services
