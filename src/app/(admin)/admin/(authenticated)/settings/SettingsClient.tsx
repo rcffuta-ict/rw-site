@@ -88,16 +88,32 @@ export default function SettingsClient({
     );
 }
 
-function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+function Toggle({
+    on,
+    onToggle,
+    label,
+}: {
+    on: boolean;
+    onToggle: () => void;
+    label?: string;
+}) {
     return (
-        <div
+        <button
+            type="button"
+            role="switch"
+            aria-checked={on}
+            aria-label={label}
             onClick={onToggle}
-            className={`h-8 w-14 shrink-0 rounded-full border p-1 flex items-center cursor-pointer transition-colors ${on ? "bg-rw-crimson/10 border-rw-crimson/20" : "bg-gray-100 border-gray-300"}`}
+            className={`relative h-5 w-9 shrink-0 rounded-full p-0.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rw-crimson/40 ${
+                on ? "bg-rw-crimson" : "bg-gray-300"
+            }`}
         >
-            <div
-                className={`h-6 w-6 rounded-full shadow-md transition-transform ${on ? "bg-rw-crimson translate-x-6" : "bg-gray-400 translate-x-0"}`}
+            <span
+                className={`block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
+                    on ? "translate-x-4" : "translate-x-0"
+                }`}
             />
-        </div>
+        </button>
     );
 }
 
@@ -203,7 +219,7 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
         <div className="grid lg:grid-cols-2 gap-8">
             {/* Store Availability Card */}
             <section className="rw-card overflow-hidden border-none shadow-xl ring-1 ring-rw-ink/5 ">
-                <div className="p-8 border-b border-[var(--rw-border)]">
+                <div className="p-5 sm:p-8 border-b border-[var(--rw-border)]">
                     <h3 className="font-display font-black text-xl text-rw-ink uppercase tracking-tight">
                         Store Availability
                     </h3>
@@ -211,7 +227,7 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
                         Master switches that control the public storefront and payments.
                     </p>
                 </div>
-                <div className="p-8 space-y-8">
+                <div className="p-5 sm:p-8 space-y-6 sm:space-y-8">
                     <div className="flex items-center justify-between">
                         <div className="space-y-1 pr-6">
                             <p className="text-sm font-black text-rw-ink uppercase tracking-tight">
@@ -223,6 +239,7 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
                             </p>
                         </div>
                         <Toggle
+                            label="Ordering open"
                             on={formState.preorders_enabled}
                             onToggle={() =>
                                 setFormState((s) => ({
@@ -244,6 +261,7 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
                             </p>
                         </div>
                         <Toggle
+                            label="Payments open"
                             on={formState.payments_enabled}
                             onToggle={() =>
                                 setFormState((s) => ({
@@ -299,7 +317,7 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
                     <button
                         onClick={handleSave}
                         disabled={isPending || !availabilityDirty}
-                        className="btn-primary !h-10 !px-5 text-[11px] font-black uppercase tracking-widest shadow-lg shadow-rw-crimson/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none mt-auto"
+                        className="btn-primary w-full sm:w-auto !h-10 !px-5 text-[11px] font-black uppercase tracking-widest shadow-lg shadow-rw-crimson/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none mt-auto"
                     >
                         {isPending ? "Saving..." : "Save Availability"}
                     </button>
@@ -308,7 +326,7 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
 
             {/* Bank Config Card */}
             <section className="rw-card overflow-hidden border-none shadow-xl ring-1 ring-rw-ink/5">
-                <div className="p-8 border-b border-[var(--rw-border)]">
+                <div className="p-5 sm:p-8 border-b border-[var(--rw-border)]">
                     <h3 className="font-display font-black text-xl text-rw-ink uppercase tracking-tight">
                         Financial Configuration
                     </h3>
@@ -316,7 +334,7 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
                         These details are shown to customers on the checkout page.
                     </p>
                 </div>
-                <div className="p-8 space-y-8">
+                <div className="p-5 sm:p-8 space-y-6 sm:space-y-8">
                     <div className="grid sm:grid-cols-2 gap-8">
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-rw-muted uppercase tracking-widest">
@@ -340,13 +358,21 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
                             </label>
                             <input
                                 type="text"
+                                inputMode="numeric"
+                                pattern="\d{10}"
+                                maxLength={10}
                                 value={formState.bank_account_number}
                                 onChange={(e) =>
                                     setFormState((s) => ({
                                         ...s,
-                                        bank_account_number: e.target.value,
+                                        // NUBAN account numbers are exactly 10 digits —
+                                        // strip non-digits and cap at 10.
+                                        bank_account_number: e.target.value
+                                            .replace(/\D/g, "")
+                                            .slice(0, 10),
                                     }))
                                 }
+                                placeholder="10-digit account number"
                                 className="rw-input"
                             />
                         </div>
@@ -378,20 +404,17 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
                                     Enable partial payments with a minimum deposit amount
                                 </p>
                             </div>
-                            <div
-                                onClick={() =>
+                            <Toggle
+                                label="Allow installments"
+                                on={formState.payment_installment_allowed}
+                                onToggle={() =>
                                     setFormState((s) => ({
                                         ...s,
                                         payment_installment_allowed:
                                             !s.payment_installment_allowed,
                                     }))
                                 }
-                                className={`h-8 w-14 rounded-full border p-1 flex items-center cursor-pointer transition-colors ${formState.payment_installment_allowed ? "bg-rw-crimson/10 border-rw-crimson/20" : "bg-gray-100 border-gray-300"}`}
-                            >
-                                <div
-                                    className={`h-6 w-6 rounded-full shadow-md transition-transform ${formState.payment_installment_allowed ? "bg-rw-crimson translate-x-6" : "bg-gray-400 translate-x-0"}`}
-                                />
-                            </div>
+                            />
                         </div>
                         <div
                             className={`space-y-2 max-w-[200px] transition-opacity ${formState.payment_installment_allowed ? "opacity-100" : "opacity-50 pointer-events-none"}`}
@@ -418,7 +441,7 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
                     <button
                         onClick={handleSave}
                         disabled={isPending || !configDirty}
-                        className="btn-primary !h-10 !px-5 text-[11px] font-black uppercase tracking-widest shadow-lg shadow-rw-crimson/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+                        className="btn-primary w-full sm:w-auto !h-10 !px-5 text-[11px] font-black uppercase tracking-widest shadow-lg shadow-rw-crimson/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
                     >
                         {isPending ? "Saving..." : "Save Configuration"}
                     </button>
@@ -465,7 +488,7 @@ function ModeratorsSection({
                 </div>
                 <button
                     onClick={onInvite}
-                    className="h-12 px-8 rounded-2xl bg-rw-ink text-white font-display font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 shadow-xl shadow-rw-ink/20"
+                    className="w-full sm:w-auto h-11 sm:h-12 px-6 sm:px-8 rounded-2xl bg-rw-ink text-white font-display font-black uppercase tracking-widest text-[11px] sm:text-xs hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-xl shadow-rw-ink/20"
                 >
                     <svg
                         className="h-4 w-4"
