@@ -6,7 +6,10 @@ import { CartProvider } from "@/context/CartContext";
 import { PublicHeader } from "@/components/public/PublicHeader";
 import { PublicFooter } from "@/components/public/PublicFooter";
 import { CartSidebar } from "@/components/public/CartSidebar";
+import { PostOrderBanner } from "@/components/public/PostOrderBanner";
 import { listSponsors } from "@/lib/services/sponsors.service";
+import { getSettings } from "@/lib/services/settings.service";
+import type { OrderPhase } from "@/lib/data/types";
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
     // Active sponsors power the footer's "Our Sponsors" links.
@@ -22,9 +25,18 @@ export default async function PublicLayout({ children }: { children: React.React
         sponsors = [];
     }
 
+    // Active ordering phase drives which prices/terms the storefront shows.
+    let orderPhase: OrderPhase = "preorder";
+    try {
+        orderPhase = (await getSettings()).order_phase;
+    } catch {
+        orderPhase = "preorder";
+    }
+
     return (
-        <CartProvider>
+        <CartProvider orderPhase={orderPhase}>
             <PublicHeader />
+            <PostOrderBanner phase={orderPhase} />
             <main>
                 {children}
 

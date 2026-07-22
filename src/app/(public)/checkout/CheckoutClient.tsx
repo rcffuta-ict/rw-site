@@ -143,7 +143,8 @@ function OrderSummaryPanel({
 }
 
 export function CheckoutClient() {
-    const { items, total, submitOrder, submitError, clearCart } = useCart();
+    const { items, total, submitOrder, submitError, clearCart, orderPhase } = useCart();
+    const isPostOrder = orderPhase === "postorder";
     const [step, setStep] = useState<Step>(1);
     const [orderRef, setOrderRef] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
@@ -155,6 +156,9 @@ export function CheckoutClient() {
         total: number;
     } | null>(null);
     const [agreedToTerms, setAgreedToTerms] = useState(false);
+    // Post-order phase requires an explicit re-review acknowledgement of the
+    // updated Terms & Conditions before proceeding.
+    const [reviewedUpdatedTerms, setReviewedUpdatedTerms] = useState(false);
     const [consentError, setConsentError] = useState("");
 
     function validate() {
@@ -313,6 +317,48 @@ export function CheckoutClient() {
                                     rows={3}
                                 />
 
+                                {/* ── Post-order terms re-review ── */}
+                                {isPostOrder && (
+                                    <div className="flex flex-col gap-3 p-5 rounded-2xl bg-rw-crimson/5 border border-rw-crimson/20">
+                                        <p className="text-sm text-rw-text-2 leading-relaxed">
+                                            <strong className="text-rw-ink">
+                                                We&apos;re now in the post-order phase.
+                                            </strong>{" "}
+                                            Prices and some terms have changed since
+                                            pre-orders. Please re-read the{" "}
+                                            <Link
+                                                href="/terms"
+                                                target="_blank"
+                                                className="font-bold text-rw-crimson hover:underline underline-offset-2"
+                                            >
+                                                updated Terms &amp; Conditions
+                                            </Link>{" "}
+                                            before you continue.
+                                        </p>
+                                        <div className="flex gap-3.5 items-start">
+                                            <input
+                                                type="checkbox"
+                                                id="post-order-review"
+                                                checked={reviewedUpdatedTerms}
+                                                onChange={(e) =>
+                                                    setReviewedUpdatedTerms(
+                                                        e.target.checked
+                                                    )
+                                                }
+                                                className="mt-0.5 h-4 w-4 shrink-0 rounded border-[var(--rw-border-strong)] text-rw-crimson accent-rw-crimson cursor-pointer"
+                                            />
+                                            <label
+                                                htmlFor="post-order-review"
+                                                className="text-sm text-rw-text-2 leading-relaxed cursor-pointer select-none"
+                                            >
+                                                I confirm I have re-reviewed the updated
+                                                Terms &amp; Conditions for the post-order
+                                                phase.
+                                            </label>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* ── Legal consent ── */}
                                 <div className="flex gap-3.5 items-start p-5 rounded-2xl bg-rw-bg-warm/60 border border-[var(--rw-border-mid)]">
                                     <div className="mt-0.5 shrink-0">
@@ -369,6 +415,12 @@ export function CheckoutClient() {
                                         if (!agreedToTerms) {
                                             setConsentError(
                                                 "Please read and accept the Terms of Service and Privacy Policy to continue."
+                                            );
+                                            return;
+                                        }
+                                        if (isPostOrder && !reviewedUpdatedTerms) {
+                                            setConsentError(
+                                                "Please confirm you have re-reviewed the updated Terms & Conditions for the post-order phase."
                                             );
                                             return;
                                         }

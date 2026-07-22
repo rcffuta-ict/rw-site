@@ -27,6 +27,10 @@ export type ExtractionConfidence = "high" | "medium" | "low";
 
 export type AdminRole = "admin" | "moderator";
 
+// Active ordering phase. Pre-order runs first (original prices & terms); once it
+// closes, admins flip to the post-order phase (post-order prices & updated terms).
+export type OrderPhase = "preorder" | "postorder";
+
 // ─── Categories (DB-managed) ──────────────────────────────────────────────────
 //
 // Categories live in the `categories` table and are managed from the admin panel.
@@ -76,6 +80,8 @@ export interface ProductVariant {
     design: string | null;
     sku: string | null; // optional SKU code for internal tracking
     priceOverride: number | null; // null = inherit basePrice from product
+    // Post-order phase price. null = inherit product.postOrderPrice / pre-order price.
+    postOrderPriceOverride: number | null;
     isAvailable: boolean; // pre-order toggle per variant
     images: ProductImage[]; // Cloudinary images for this variant
 }
@@ -88,6 +94,8 @@ export interface Product {
     name: string;
     description: string;
     basePrice: number; // Naira — used when variant has no priceOverride
+    // Post-order phase price. null = inherit basePrice during the post-order phase.
+    postOrderPrice: number | null;
     tags: string[]; // optional freeform tags e.g. ["new", "bestseller"]
     isAvailable: boolean; // master toggle — false hides entire product
     variants: ProductVariant[];
@@ -101,6 +109,7 @@ export interface ProductInput {
     name: string;
     description: string;
     basePrice: number;
+    postOrderPrice?: number | null;
     tags?: string[];
     isAvailable?: boolean;
 }
@@ -112,6 +121,7 @@ export interface ProductVariantInput {
     design?: string | null;
     sku?: string | null;
     priceOverride?: number | null;
+    postOrderPriceOverride?: number | null;
     isAvailable?: boolean;
 }
 

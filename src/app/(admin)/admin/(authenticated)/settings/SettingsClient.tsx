@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useMemo, useState, useTransition } from "react";
 import { useAdminModal } from "@/context/AdminModalContext";
 import type { GlobalSettings, AdminModerator } from "@/lib/services/settings.service";
 import {
@@ -41,7 +41,7 @@ export default function SettingsClient({
     };
 
     return (
-        <div className="flex flex-col gap-10 animate-fade-in max-w-5xl">
+        <div className="flex flex-col gap-10 animate-fade-in">
             {/* Header */}
             <div className="flex flex-col gap-2">
                 <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl text-rw-ink tracking-tight uppercase">
@@ -74,14 +74,16 @@ export default function SettingsClient({
                 </button>
             </div>
 
-            {activeTab === "account" ? (
-                <AccountSection settings={initialSettings} />
-            ) : (
-                <ModeratorsSection
-                    moderators={initialModerators}
-                    onInvite={handleInviteModerator}
-                />
-            )}
+            <div>
+                {activeTab === "account" ? (
+                    <AccountSection settings={initialSettings} />
+                ) : (
+                    <ModeratorsSection
+                        moderators={initialModerators}
+                        onInvite={handleInviteModerator}
+                    />
+                )}
+            </div>
         </div>
     );
 }
@@ -116,7 +118,6 @@ function AddModeratorForm({ onSuccess }: { onSuccess: () => void }) {
             }
         });
     };
-
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8 pb-6">
@@ -165,6 +166,26 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
 
+    // Each card enables its own save button only when its own fields change.
+    const availabilityDirty = useMemo(
+        () =>
+            formState.preorders_enabled !== settings.preorders_enabled ||
+            formState.payments_enabled !== settings.payments_enabled ||
+            formState.order_phase !== settings.order_phase,
+        [formState, settings]
+    );
+
+    const configDirty = useMemo(
+        () =>
+            formState.bank_name !== settings.bank_name ||
+            formState.bank_account_number !== settings.bank_account_number ||
+            formState.bank_account_name !== settings.bank_account_name ||
+            formState.payment_installment_allowed !==
+                settings.payment_installment_allowed ||
+            formState.payment_min_amount !== settings.payment_min_amount,
+        [formState, settings]
+    );
+
     const handleSave = () => {
         startTransition(async () => {
             const toastId = toast.loading("Saving settings...");
@@ -179,9 +200,9 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
     };
 
     return (
-        <div className="max-w-3xl space-y-10">
+        <div className="grid lg:grid-cols-2 gap-8">
             {/* Store Availability Card */}
-            <section className="rw-card overflow-hidden border-none shadow-xl ring-1 ring-rw-ink/5">
+            <section className="rw-card overflow-hidden border-none shadow-xl ring-1 ring-rw-ink/5 ">
                 <div className="p-8 border-b border-[var(--rw-border)]">
                     <h3 className="font-display font-black text-xl text-rw-ink uppercase tracking-tight">
                         Store Availability
@@ -194,7 +215,7 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
                     <div className="flex items-center justify-between">
                         <div className="space-y-1 pr-6">
                             <p className="text-sm font-black text-rw-ink uppercase tracking-tight">
-                                Pre-orders Open
+                                Ordering Open
                             </p>
                             <p className="text-[10px] text-rw-muted font-bold uppercase tracking-widest leading-relaxed">
                                 When off, products are hidden and no one can checkout or
@@ -211,6 +232,7 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
                             }
                         />
                     </div>
+
                     <div className="flex items-center justify-between pt-6 border-t border-[var(--rw-border)] border-dashed">
                         <div className="space-y-1 pr-6">
                             <p className="text-sm font-black text-rw-ink uppercase tracking-tight">
@@ -232,10 +254,52 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
                         />
                     </div>
 
+                    {/* Ordering phase — controls which prices & terms customers see */}
+                    <div className="pt-6 border-t border-[var(--rw-border)] border-dashed space-y-4">
+                        <div className="space-y-1">
+                            <p className="text-sm font-black text-rw-ink uppercase tracking-tight">
+                                Ordering Phase
+                            </p>
+                            <p className="text-[10px] text-rw-muted font-bold uppercase tracking-widest leading-relaxed">
+                                Post-order shows the new prices and prompts customers to
+                                re-read the updated terms
+                            </p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 max-w-md">
+                            {(
+                                [
+                                    { value: "preorder", label: "Pre-order" },
+                                    { value: "postorder", label: "Post-order" },
+                                ] as const
+                            ).map((opt) => {
+                                const active = formState.order_phase === opt.value;
+                                return (
+                                    <button
+                                        key={opt.value}
+                                        type="button"
+                                        onClick={() =>
+                                            setFormState((s) => ({
+                                                ...s,
+                                                order_phase: opt.value,
+                                            }))
+                                        }
+                                        className={`h-12 rounded-2xl border text-xs font-black uppercase tracking-widest transition-all ${
+                                            active
+                                                ? "bg-rw-crimson text-white border-rw-crimson shadow-lg shadow-rw-crimson/20"
+                                                : "bg-white text-rw-muted border-[var(--rw-border)] hover:text-rw-ink"
+                                        }`}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
                     <button
                         onClick={handleSave}
-                        disabled={isPending}
-                        className="btn-primary !h-12 !px-8 text-xs font-black uppercase tracking-widest shadow-lg shadow-rw-crimson/20 disabled:opacity-50"
+                        disabled={isPending || !availabilityDirty}
+                        className="btn-primary !h-10 !px-5 text-[11px] font-black uppercase tracking-widest shadow-lg shadow-rw-crimson/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none mt-auto"
                     >
                         {isPending ? "Saving..." : "Save Availability"}
                     </button>
@@ -353,8 +417,8 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
 
                     <button
                         onClick={handleSave}
-                        disabled={isPending}
-                        className="btn-primary !h-12 !px-8 text-xs font-black uppercase tracking-widest shadow-lg shadow-rw-crimson/20 disabled:opacity-50"
+                        disabled={isPending || !configDirty}
+                        className="btn-primary !h-10 !px-5 text-[11px] font-black uppercase tracking-widest shadow-lg shadow-rw-crimson/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
                     >
                         {isPending ? "Saving..." : "Save Configuration"}
                     </button>

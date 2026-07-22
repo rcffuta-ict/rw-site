@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { TENURE } from "@/lib/config";
+import { TENURE, orderTerms } from "@/lib/config";
 import { SiteImage } from "@/components/ui/SiteImage";
+import type { OrderPhase } from "@/lib/data/types";
 
-export function CtaBannerSection() {
+export function CtaBannerSection({ phase = "preorder" }: { phase?: OrderPhase }) {
+    const terms = orderTerms(phase);
     return (
         <section className="relative overflow-hidden bg-[#1C0003] py-24 md:py-32">
             {/* Deep maroon-to-dark background */}
@@ -66,7 +68,7 @@ export function CtaBannerSection() {
                                    shadow-[0_4px_24px_rgba(255,0,21,0.4)] hover:shadow-[0_8px_32px_rgba(255,0,21,0.6)]
                                    hover:-translate-y-0.5 active:translate-y-0"
                     >
-                        Pre-order Merch
+                        {terms.verb} Merch
                     </Link>
                     <Link
                         href="/fulfil"

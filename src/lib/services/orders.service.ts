@@ -156,10 +156,16 @@ export async function createOrder(
         };
     }
 
-    // Query database for existence
+    // Query database for existence AND authoritative pricing. We never trust the
+    // client-supplied unitPrice: the price is re-resolved server-side from the
+    // variant/product rows and the current order_phase, so a stale cart (e.g. one
+    // built before the phase flipped to post-order) or a tampered request cannot
+    // submit an incorrect amount.
     const { data: dbVariants, error: checkError } = await supabase
         .from("rw_product_variants")
-        .select("id")
+        .select(
+            "id, price_override, post_order_price_override, product:rw_products ( base_price, post_order_price )"
+        )
         .in("id", variantIds);
 
     if (checkError) {
@@ -179,6 +185,31 @@ export async function createOrder(
         };
     }
 
+    // Build an authoritative unit-price map keyed by variant id.
+    const isPostOrder = settings.order_phase === "postorder";
+    type PriceRow = {
+        id: string;
+        price_override: number | null;
+        post_order_price_override: number | null;
+        product:
+            | { base_price: number; post_order_price: number | null }
+            | { base_price: number; post_order_price: number | null }[]
+            | null;
+    };
+    const priceByVariant = new Map<string, number>(
+        ((dbVariants ?? []) as PriceRow[]).map((v) => {
+            const product = Array.isArray(v.product) ? v.product[0] : v.product;
+            const basePrice = product?.base_price ?? 0;
+            const resolved = isPostOrder
+                ? v.post_order_price_override ??
+                  product?.post_order_price ??
+                  v.price_override ??
+                  basePrice
+                : v.price_override ?? basePrice;
+            return [v.id, resolved];
+        })
+    );
+
     // 1. Generate a unique order ref
     const { data: refData, error: refError } = await supabase.rpc("generate_order_ref");
 
@@ -186,7 +217,10 @@ export async function createOrder(
         return { success: false, error: "Failed to generate order reference." };
     }
 
-    const totalAmount = input.lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
+    const totalAmount = input.lines.reduce(
+        (sum, l) => sum + (priceByVariant.get(l.variantId) ?? l.unitPrice) * l.quantity,
+        0
+    );
 
     // 2. Insert the order
     const { data: order, error: orderError } = await supabase
@@ -219,7 +253,7 @@ export async function createOrder(
             product_name: l.productName,
             variant_label: l.variantLabel,
             quantity: l.quantity,
-            unit_price: l.unitPrice,
+            unit_price: priceByVariant.get(l.variantId) ?? l.unitPrice,
             image_url: l.imageUrl || null,
         }))
     );

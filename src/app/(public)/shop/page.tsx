@@ -1,7 +1,7 @@
 import { getProducts } from "@/lib/services/products.service";
 import { getSettings } from "@/lib/services/settings.service";
 import { ShopClient } from "./ShopClient";
-import { FELLOWSHIP, TENURE } from "@/lib/config";
+import { FELLOWSHIP, TENURE, orderTerms } from "@/lib/config";
 import { HeaderBanner } from "@/components/common/HeaderBanner";
 import { PreordersClosed } from "@/components/public/PreordersClosed";
 import { Metadata } from "next";
@@ -31,13 +31,14 @@ export default async function ShopPage() {
     }
 
     const products = await getProducts();
+    const terms = orderTerms(settings.order_phase);
 
     return (
         <div className="min-h-screen bg-white">
             <HeaderBanner
                 bannerDescription="Official Merch Banner Background"
                 title={`${TENURE.brandLabelShort} Merch Sales`}
-                description={`Pre-order your official ${TENURE.brandLabelShort} anniversary merch. Merchandise is collected exclusively at ${TENURE.venue}.`}
+                description={`${terms.verb} your official ${TENURE.brandLabelShort} anniversary merch. Merchandise is collected exclusively at ${TENURE.venue}.`}
                 header="Official Merchandise"
             />
 
@@ -74,7 +75,7 @@ export default async function ShopPage() {
                                 </p>
                             </div>
                             <h3 className="font-display font-bold text-2xl text-rw-ink leading-tight">
-                                New to pre-ordering?
+                                New to {terms.gerund}?
                             </h3>
                             <p className="text-sm text-rw-text-2 leading-relaxed">
                                 From browsing to pickup at {TENURE.venue} — our complete

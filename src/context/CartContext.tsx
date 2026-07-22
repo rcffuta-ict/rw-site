@@ -7,7 +7,7 @@ import React, {
     useEffect,
     useState,
 } from "react";
-import type { CartItem } from "@/lib/data/types";
+import type { CartItem, OrderPhase } from "@/lib/data/types";
 import { createOrder } from "@/lib/services/orders.service";
 import type { ServiceResult, Order } from "@/lib/data/types";
 
@@ -23,6 +23,8 @@ export interface CustomerInfo {
 }
 
 interface CartContextValue {
+    /** Active ordering phase — drives which prices the storefront shows. */
+    orderPhase: OrderPhase;
     items: CartItem[];
     addItem: (item: CartItem) => void;
     removeItem: (variantId: string) => void;
@@ -42,7 +44,13 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export function CartProvider({
+    children,
+    orderPhase = "preorder",
+}: {
+    children: React.ReactNode;
+    orderPhase?: OrderPhase;
+}) {
     const [items, setItems] = useState<CartItem[]>([]);
     const [hydrated, setHydrated] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -151,6 +159,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return (
         <CartContext.Provider
             value={{
+                orderPhase,
                 items,
                 addItem,
                 removeItem,

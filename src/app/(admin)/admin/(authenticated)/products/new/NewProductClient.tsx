@@ -33,6 +33,7 @@ type LocalVariant = {
     design: string;
     sku: string;
     priceOverride: number | null;
+    postOrderPriceOverride: number | null;
     isAvailable: boolean;
     imageFile?: File;
     imagePreviewUrl?: string;
@@ -55,6 +56,7 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [basePrice, setBasePrice] = useState<number>(0);
+    const [postOrderPrice, setPostOrderPrice] = useState<number>(0);
     const [categoryId, setCategoryId] = useState<string>(categories[0]?.id || "");
     const [tags, setTags] = useState<string[]>([]);
     const [isAvailable, setIsAvailable] = useState(true);
@@ -70,6 +72,7 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
     const [nvDesign, setNvDesign] = useState("");
     const [nvSku, setNvSku] = useState("");
     const [nvPriceOverride, setNvPriceOverride] = useState<string>("");
+    const [nvPostOrderPriceOverride, setNvPostOrderPriceOverride] = useState<string>("");
     const [nvImageFile, setNvImageFile] = useState<File | undefined>(undefined);
     const [nvImagePreview, setNvImagePreview] = useState<string | undefined>(undefined);
     const [isSkuAuto, setIsSkuAuto] = useState(true);
@@ -123,6 +126,9 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
             design: nvDesign.trim(),
             sku: nvSku.trim(),
             priceOverride: nvPriceOverride ? Number(nvPriceOverride) : null,
+            postOrderPriceOverride: nvPostOrderPriceOverride
+                ? Number(nvPostOrderPriceOverride)
+                : null,
             isAvailable: true,
             imageFile: nvImageFile,
             imagePreviewUrl: nvImagePreview,
@@ -138,6 +144,7 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
         setNvSku("");
         setIsSkuAuto(true);
         setNvPriceOverride("");
+        setNvPostOrderPriceOverride("");
         setNvImageFile(undefined);
         setNvImagePreview(undefined);
         if (fileInputRef.current) fileInputRef.current.value = "";
@@ -186,6 +193,7 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                 name: name.trim(),
                 description: description.trim(),
                 basePrice: Number(basePrice) || 0,
+                postOrderPrice: Number(postOrderPrice) || null,
                 tags,
                 isAvailable: publish,
             });
@@ -273,6 +281,7 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                         design: v.design || null,
                         sku: finalSku,
                         priceOverride: v.priceOverride,
+                        postOrderPriceOverride: v.postOrderPriceOverride,
                         isAvailable: v.isAvailable,
                     });
 
@@ -346,11 +355,19 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <PriceInput
-                                label="Base Price"
+                                label="Base Price (Pre-order)"
                                 required
                                 value={basePrice}
                                 onChange={(val) => setBasePrice(val === "" ? 0 : val)}
                                 placeholder="0"
+                            />
+                            <PriceInput
+                                label="Post-order Price"
+                                value={postOrderPrice}
+                                onChange={(val) =>
+                                    setPostOrderPrice(val === "" ? 0 : val)
+                                }
+                                placeholder="Defaults to base price"
                             />
                             <Select
                                 label="Category"
@@ -608,6 +625,21 @@ export default function NewProductClient({ categories }: NewProductClientProps) 
                                             )
                                         }
                                         placeholder="Base"
+                                        className="!bg-white"
+                                    />
+                                    <PriceInput
+                                        label="Post-order Override"
+                                        value={
+                                            nvPostOrderPriceOverride === ""
+                                                ? ""
+                                                : Number(nvPostOrderPriceOverride)
+                                        }
+                                        onChange={(val) =>
+                                            setNvPostOrderPriceOverride(
+                                                val === "" ? "" : val.toString()
+                                            )
+                                        }
+                                        placeholder="Post-order price"
                                         className="!bg-white"
                                     />
                                     <Input

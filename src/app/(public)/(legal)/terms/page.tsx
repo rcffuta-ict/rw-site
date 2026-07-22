@@ -1,13 +1,38 @@
 import { CONTACTS, FELLOWSHIP, PAYMENT_CONFIG, TENURE } from "@/lib/config";
+import { getSettings } from "@/lib/services/settings.service";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: `Terms of Service - ${TENURE.brandLabel} Pre-Order Platform`,
     description: `Please read these terms carefully before using the ${TENURE.brandLabel} Pre-Order Platform.`,
 };
-export default function TermsPage() {
+export default async function TermsPage() {
+    let isPostOrder = false;
+    try {
+        isPostOrder = (await getSettings()).order_phase === "postorder";
+    } catch {
+        isPostOrder = false;
+    }
+
     return (
         <div className=" max-w-4xl">
+            {/* Post-order phase notice */}
+            {isPostOrder && (
+                <div className="mb-8 rounded-2xl border border-rw-crimson/20 bg-rw-crimson/5 p-6">
+                    <h2 className="font-display font-bold text-lg text-rw-crimson mb-2">
+                        Post-Order Phase — Updated Terms
+                    </h2>
+                    <p className="text-rw-text-2 leading-relaxed">
+                        Pre-orders for {TENURE.brandLabel} have closed and the Platform is
+                        now in its <strong>post-order phase</strong>. Pricing has been
+                        revised and post-order purchases may be subject to updated
+                        production and delivery timelines. By placing an order now, you
+                        acknowledge these updated terms and the current post-order prices
+                        shown at checkout. All other terms below continue to apply.
+                    </p>
+                </div>
+            )}
+
             {/* 1. Acceptance */}
             <section>
                 <h2 className="font-display font-bold text-2xl text-rw-ink my-4">

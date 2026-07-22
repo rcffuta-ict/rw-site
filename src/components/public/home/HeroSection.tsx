@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { env } from "@/lib/env";
-import { TENURE, LOGOS } from "@/lib/config";
+import { TENURE, LOGOS, orderTerms } from "@/lib/config";
+import type { OrderPhase } from "@/lib/data/types";
 import { CountdownTimer } from "@/components/public/CountdownTimer";
 import { SiteImage } from "@/components/ui/SiteImage";
 import { useEffect, useRef, useState } from "react";
@@ -17,9 +18,12 @@ const NIGHT_ITEMS = [
     { label: "Handing Over", day: "SUN", n: "07", color: "#FF0015" },
 ];
 
-export function HeroSection() {
+export function HeroSection({ phase = "preorder" }: { phase?: OrderPhase }) {
+    const terms = orderTerms(phase);
     const sectionRef = useRef<HTMLElement>(null);
     const [mounted, setMounted] = useState(false);
+    // Client-only so SSR/CSR markup matches; the event end date lives in config.
+    const eventEnded = mounted && Date.now() > new Date(TENURE.endDate).getTime();
 
     // setMounted deferred to avoid synchronous setState inside effect
     useEffect(() => {
@@ -672,7 +676,7 @@ export function HeroSection() {
                             }}
                         >
                             <Link href="/shop" id="hero-shop-cta" className="cta-fire">
-                                Pre-order Merch
+                                {terms.verb} Merch
                                 <svg
                                     style={{ width: "15px", height: "15px" }}
                                     fill="none"
@@ -701,9 +705,14 @@ export function HeroSection() {
                                 className="eyebrow-dark"
                                 style={{ marginBottom: "0.875rem" }}
                             >
-                                Counting down to RW&apos;{TENURE.year.slice(2)}
+                                {eventEnded
+                                    ? `RW'${TENURE.year.slice(2)} has wrapped`
+                                    : `Counting down to RW'${TENURE.year.slice(2)}`}
                             </p>
-                            <CountdownTimer targetDate={env.eventStartDate} />
+                            <CountdownTimer
+                                targetDate={env.eventStartDate}
+                                endDate={TENURE.endDate}
+                            />
                         </div>
 
                         {/* Mobile programme scroll */}

@@ -255,7 +255,10 @@ export function PublicFooter({ sponsors = [] }: { sponsors?: FooterSponsor[] }) 
                                             >
                                                 <span
                                                     className="shrink-0 rounded-lg p-1.5"
-                                                    style={{ backgroundColor: sponsor.brandColor }}
+                                                    style={{
+                                                        backgroundColor:
+                                                            sponsor.brandColor,
+                                                    }}
                                                 >
                                                     <SponsorLogo
                                                         src={sponsor.logoUrl}
@@ -291,7 +294,7 @@ export function PublicFooter({ sponsors = [] }: { sponsors?: FooterSponsor[] }) 
                     </span>
                     <div className="flex items-center gap-4">
                         <span className="text-xs text-[#9a8085]">
-                            Powered by the RCF FUTA ICT Unit
+                            Powered by the RCF FUTA ICT Team
                         </span>
                         <span className="h-3 w-px bg-[#e8d0d4]" />
                         <a

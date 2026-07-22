@@ -127,6 +127,12 @@ CREATE TABLE IF NOT EXISTS rw_products (
 COMMENT ON TABLE rw_products IS 'Core product records. Pre-order model: no stock tracking.';
 COMMENT ON COLUMN rw_products.base_price IS 'Price in Naira. Variants may override via price_override.';
 
+-- Post-order phase pricing: the price used when settings.order_phase = 'postorder'.
+-- NULL = fall back to base_price (i.e. no separate post-order price set yet).
+ALTER TABLE rw_products
+  ADD COLUMN IF NOT EXISTS post_order_price INTEGER CHECK (post_order_price >= 0);
+COMMENT ON COLUMN rw_products.post_order_price IS 'Naira price used during the post-order phase. NULL = inherit base_price.';
+
 CREATE OR REPLACE TRIGGER products_set_updated_at
     BEFORE UPDATE ON rw_products
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
@@ -155,6 +161,12 @@ CREATE TABLE IF NOT EXISTS rw_product_variants (
 
 COMMENT ON TABLE rw_product_variants IS 'Size × color × design combinations. No stock tracking (pre-order model).';
 COMMENT ON COLUMN rw_product_variants.price_override IS 'When NULL, the parent product.base_price applies.';
+
+-- Post-order phase per-variant override. Resolution during the post-order phase:
+--   post_order_price_override → product.post_order_price → price_override → base_price
+ALTER TABLE rw_product_variants
+  ADD COLUMN IF NOT EXISTS post_order_price_override INTEGER;
+COMMENT ON COLUMN rw_product_variants.post_order_price_override IS 'Per-variant post-order price. NULL = inherit product.post_order_price / base price.';
 
 CREATE INDEX IF NOT EXISTS idx_variants_product ON rw_product_variants(product_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_variants_sku ON rw_product_variants(sku) WHERE sku IS NOT NULL;
@@ -685,6 +697,9 @@ CREATE TABLE IF NOT EXISTS public.rw_settings (
   -- Master switch for payment submission on /fulfil. When false, orders can be
   -- looked up but no part/full payment can be submitted.
   payments_enabled boolean NOT NULL DEFAULT true,
+  -- Active ordering phase. 'preorder' = original pre-order prices & terms.
+  -- 'postorder' = post-order prices (post_order_price) & updated terms are shown.
+  order_phase text NOT NULL DEFAULT 'preorder' CHECK (order_phase IN ('preorder','postorder')),
   updated_by uuid REFERENCES public.profiles(id),
   updated_at timestamptz DEFAULT now()
 );
@@ -694,6 +709,13 @@ ALTER TABLE public.rw_settings
   ADD COLUMN IF NOT EXISTS preorders_enabled boolean NOT NULL DEFAULT true;
 ALTER TABLE public.rw_settings
   ADD COLUMN IF NOT EXISTS payments_enabled boolean NOT NULL DEFAULT true;
+ALTER TABLE public.rw_settings
+  ADD COLUMN IF NOT EXISTS order_phase text NOT NULL DEFAULT 'preorder';
+-- Add the CHECK separately so re-running is safe on pre-existing columns.
+DO $$ BEGIN
+  ALTER TABLE public.rw_settings
+    ADD CONSTRAINT rw_settings_order_phase_check CHECK (order_phase IN ('preorder','postorder'));
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 COMMENT ON TABLE public.rw_settings IS 'Global application settings (singleton row).';
 
@@ -729,6 +751,9 @@ CREATE TABLE IF NOT EXISTS public.rw_settings (
   -- Master switch for payment submission on /fulfil. When false, orders can be
   -- looked up but no part/full payment can be submitted.
   payments_enabled boolean NOT NULL DEFAULT true,
+  -- Active ordering phase. 'preorder' = original pre-order prices & terms.
+  -- 'postorder' = post-order prices (post_order_price) & updated terms are shown.
+  order_phase text NOT NULL DEFAULT 'preorder' CHECK (order_phase IN ('preorder','postorder')),
   updated_by uuid REFERENCES public.profiles(id),
   updated_at timestamptz DEFAULT now()
 );
@@ -738,6 +763,13 @@ ALTER TABLE public.rw_settings
   ADD COLUMN IF NOT EXISTS preorders_enabled boolean NOT NULL DEFAULT true;
 ALTER TABLE public.rw_settings
   ADD COLUMN IF NOT EXISTS payments_enabled boolean NOT NULL DEFAULT true;
+ALTER TABLE public.rw_settings
+  ADD COLUMN IF NOT EXISTS order_phase text NOT NULL DEFAULT 'preorder';
+-- Add the CHECK separately so re-running is safe on pre-existing columns.
+DO $$ BEGIN
+  ALTER TABLE public.rw_settings
+    ADD CONSTRAINT rw_settings_order_phase_check CHECK (order_phase IN ('preorder','postorder'));
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 COMMENT ON TABLE public.rw_settings IS 'Global application settings (singleton row).';
 

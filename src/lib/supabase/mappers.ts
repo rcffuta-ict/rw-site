@@ -74,6 +74,7 @@ export function mapVariantFromDb(row: any): ProductVariant {
         design: row.design ?? null,
         sku: row.sku ?? null,
         priceOverride: row.price_override ?? null,
+        postOrderPriceOverride: row.post_order_price_override ?? null,
         isAvailable: row.is_available,
         images: Array.isArray(row.images) ? row.images.map(mapProductImageFromDb) : [],
     });
@@ -92,6 +93,7 @@ export function mapProductFromDb(row: any): Product {
         name: row.name,
         description: row.description ?? "",
         basePrice: row.base_price,
+        postOrderPrice: row.post_order_price ?? null,
         tags: Array.isArray(row.tags) ? row.tags : [],
         isAvailable: row.is_available,
         variants: Array.isArray(row.variants) ? row.variants.map(mapVariantFromDb) : [],

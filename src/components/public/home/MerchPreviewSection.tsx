@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ProductDrawer } from "@/components/public/ProductDrawer";
 import { TENURE } from "@/lib/config";
-import type { Product } from "@/lib/data/types";
+import type { OrderPhase, Product } from "@/lib/data/types";
 import { ShimmerCard, ShopProductCard } from "../ShopProductCard";
 
 function MerchComingSoon() {
@@ -73,7 +73,13 @@ function MerchComingSoon() {
 
 // ─── MerchPreviewSection ──────────────────────────────────────────────────────
 
-export function MerchPreviewSection({ products }: { products: Product[] }) {
+export function MerchPreviewSection({
+    products,
+    phase = "preorder",
+}: {
+    products: Product[];
+    phase?: OrderPhase;
+}) {
     const [selected, setSelected] = useState<Product | null>(null);
 
     // Show first 4 products on home page
@@ -87,7 +93,7 @@ export function MerchPreviewSection({ products }: { products: Product[] }) {
                     <div>
                         <p className="eyebrow mb-4">Official Merchandise</p>
                         <h2 className="section-heading text-3xl sm:text-4xl lg:text-5xl">
-                            Pre-order now
+                            {phase === "postorder" ? "Order now" : "Pre-order now"}
                         </h2>
                         <p className="mt-3 text-rw-text-2 text-lg max-w-[44ch]">
                             Ready for pickup during the Handing Over ceremony. Secure

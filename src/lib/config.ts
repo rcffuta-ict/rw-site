@@ -2,7 +2,31 @@
 // This is the single source of truth for all tenure-specific content.
 // To reuse for the 39th, 40th, etc. anniversary — update the values here.
 
-import type { OrderStatus } from "@/lib/data/types";
+import type { OrderStatus, OrderPhase } from "@/lib/data/types";
+
+// ─── Ordering-phase labels ────────────────────────────────────────────────────
+// Centralised wording so storefront copy switches between the pre-order and
+// post-order phases from a single place.
+export interface OrderTerms {
+    /** Call-to-action verb, e.g. "Pre-order" / "Order". */
+    verb: string;
+    /** Lowercase noun, e.g. "pre-order" / "post-order". */
+    noun: string;
+    /** Capitalised noun, e.g. "Pre-order" / "Post-order". */
+    Noun: string;
+    /** Gerund, e.g. "pre-ordering" / "ordering". */
+    gerund: string;
+}
+
+export function orderTerms(phase: OrderPhase = "preorder"): OrderTerms {
+    const isPost = phase === "postorder";
+    return {
+        verb: isPost ? "Order" : "Pre-order",
+        noun: isPost ? "post-order" : "pre-order",
+        Noun: isPost ? "Post-order" : "Pre-order",
+        gerund: isPost ? "ordering" : "pre-ordering",
+    };
+}
 
 // ─── Demo / Live Switch ───────────────────────────────────────────────────────
 // Set to false when integrating Supabase. All services check this flag.

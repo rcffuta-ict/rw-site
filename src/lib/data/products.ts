@@ -1,4 +1,4 @@
-import type { Product, ProductImage, ProductVariant } from "./types";
+import type { OrderPhase, Product, ProductImage, ProductVariant } from "./types";
 
 // ─── Demo product catalog ─────────────────────────────────────────────────────
 // Used when DEMO_MODE = true (see src/lib/config.ts).
@@ -16,6 +16,7 @@ export const DEMO_PRODUCTS: Product[] = [
         description:
             "Premium 100% cotton comfort-fit tee. Celebrating 38 years of God's faithfulness — wear the witness.",
         basePrice: 4500,
+        postOrderPrice: 5500,
         tags: ["bestseller"],
         isAvailable: true,
         createdAt: "2026-04-01T00:00:00Z",
@@ -29,6 +30,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "Holy Spirit",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -41,6 +43,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "Holy Spirit",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -53,6 +56,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "Holy Spirit",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -65,6 +69,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "Holy Spirit",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -77,6 +82,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "Holy Spirit",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -89,6 +95,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "Holy Spirit",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -101,6 +108,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "Holy Spirit",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -113,6 +121,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "Holy Spirit",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -125,6 +134,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "Holy Spirit",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -137,6 +147,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "Holy Spirit",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: false,
                 images: [],
                 colorHex: "",
@@ -149,6 +160,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "Holy Spirit",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -161,6 +173,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "Holy Spirit",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -173,6 +186,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "Holy Spirit",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -185,6 +199,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "Holy Spirit",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: false,
                 images: [],
                 colorHex: "",
@@ -200,6 +215,7 @@ export const DEMO_PRODUCTS: Product[] = [
         description:
             "Heavyweight fleece pullover. Structured hood, kangaroo pocket, ribbed cuffs. Built for the cold nights of faith.",
         basePrice: 12000,
+        postOrderPrice: 14000,
         tags: [],
         isAvailable: true,
         createdAt: "2026-04-01T00:00:00Z",
@@ -213,6 +229,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "RW'26",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -225,6 +242,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "RW'26",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -237,6 +255,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "RW'26",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -249,6 +268,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "RW'26",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -261,6 +281,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "RW'26",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -273,6 +294,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "RW'26",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -285,6 +307,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "RW'26",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: false,
                 images: [],
                 colorHex: "",
@@ -297,6 +320,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "RW'26",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -309,6 +333,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "RW'26",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -321,6 +346,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "RW'26",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -336,6 +362,7 @@ export const DEMO_PRODUCTS: Product[] = [
         description:
             "Structured 6-panel snapback. Embroidered RW'26 logo on front. One size fits all — just like God's grace.",
         basePrice: 3500,
+        postOrderPrice: 4000,
         tags: [],
         isAvailable: true,
         createdAt: "2026-04-01T00:00:00Z",
@@ -349,6 +376,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "RW'26",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -361,6 +389,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "RW'26",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -373,6 +402,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "RW'26",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -388,6 +418,7 @@ export const DEMO_PRODUCTS: Product[] = [
         description:
             "5-piece premium vinyl sticker pack. RW'26 flame motif, RCF FUTA crest, scripture tags. Laptop-ready.",
         basePrice: 800,
+        postOrderPrice: 1000,
         tags: ["new"],
         isAvailable: true,
         createdAt: "2026-04-01T00:00:00Z",
@@ -401,6 +432,7 @@ export const DEMO_PRODUCTS: Product[] = [
                 design: "Standard Pack",
                 sku: null,
                 priceOverride: null,
+                postOrderPriceOverride: null,
                 isAvailable: true,
                 images: [],
                 colorHex: "",
@@ -462,10 +494,49 @@ export function getVariantPrimaryImage(
     return variant.images.find((img) => img.isPrimary) ?? variant.images[0];
 }
 
-/** Effective price for a variant — variant priceOverride takes precedence over product basePrice. */
-export function getEffectivePrice(product: Product, variantId: string): number {
+/**
+ * Effective price for a variant.
+ *
+ * Pre-order phase:  variant.priceOverride  → product.basePrice
+ * Post-order phase: variant.postOrderPriceOverride → product.postOrderPrice
+ *                   → variant.priceOverride → product.basePrice
+ *
+ * The post-order resolution falls back to the pre-order price so products/variants
+ * without a post-order price set never render as ₦0.
+ */
+export function getEffectivePrice(
+    product: Product,
+    variantId: string,
+    phase: OrderPhase = "preorder"
+): number {
     const variant = product.variants.find((v) => v.id === variantId);
+    if (phase === "postorder") {
+        return (
+            variant?.postOrderPriceOverride ??
+            product.postOrderPrice ??
+            variant?.priceOverride ??
+            product.basePrice
+        );
+    }
     return variant?.priceOverride ?? product.basePrice;
+}
+
+/**
+ * Lowest effective price across a product's variants for the given phase — used
+ * for the "from ₦X" label on shop cards. Falls back to the phase base price when
+ * a product has no variants.
+ */
+export function getDisplayFromPrice(
+    product: Product,
+    phase: OrderPhase = "preorder"
+): number {
+    if (product.variants.length === 0) {
+        if (phase === "postorder") return product.postOrderPrice ?? product.basePrice;
+        return product.basePrice;
+    }
+    return Math.min(
+        ...product.variants.map((v) => getEffectivePrice(product, v.id, phase))
+    );
 }
 
 /** Build a human-readable variant label e.g. "Black · L · Holy Spirit". */

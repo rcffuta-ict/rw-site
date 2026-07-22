@@ -35,7 +35,7 @@ export function ProductDrawer({
     product: Product;
     onClose: () => void;
 }) {
-    const { addItem } = useCart();
+    const { addItem, orderPhase } = useCart();
 
     const colors = [
         ...new Set(product.variants.filter((v) => v.color).map((v) => v.color!)),
@@ -57,7 +57,11 @@ export function ProductDrawer({
     );
 
     const available = variant?.isAvailable ?? false;
-    const price = variant ? getEffectivePrice(product, variant.id) : product.basePrice;
+    const price = variant
+        ? getEffectivePrice(product, variant.id, orderPhase)
+        : orderPhase === "postorder"
+          ? product.postOrderPrice ?? product.basePrice
+          : product.basePrice;
 
     // Use the explicitly selected variant if available, otherwise fallback to the first variant matching the color
     const activeImageVariant = variant || product.variants.find((v) => v.color === selectedColor) || product.variants[0];

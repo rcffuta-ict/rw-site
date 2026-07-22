@@ -476,6 +476,14 @@ export default function ProductsClient({
                         <RefreshButton />
                         {isAdmin && (
                             <Link
+                                href="/admin/products/post-order-pricing"
+                                className="btn-secondary !h-11 !px-6 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 border border-[var(--rw-border)]"
+                            >
+                                Post-order Pricing
+                            </Link>
+                        )}
+                        {isAdmin && (
+                            <Link
                                 href="/admin/products/new"
                                 id="btn-add-product"
                                 className="btn-primary !h-11 !px-6 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2"

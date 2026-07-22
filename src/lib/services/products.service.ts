@@ -89,6 +89,7 @@ export async function createProduct(
             name: input.name,
             description: input.description,
             base_price: input.basePrice,
+            post_order_price: input.postOrderPrice ?? null,
             tags: input.tags ?? [],
             is_available: input.isAvailable ?? true,
         })
@@ -111,6 +112,8 @@ export async function updateProduct(
     if (input.name !== undefined) patch.name = input.name;
     if (input.description !== undefined) patch.description = input.description;
     if (input.basePrice !== undefined) patch.base_price = input.basePrice;
+    if (input.postOrderPrice !== undefined)
+        patch.post_order_price = input.postOrderPrice;
     if (input.tags !== undefined) patch.tags = input.tags;
     if (input.isAvailable !== undefined) patch.is_available = input.isAvailable;
 
@@ -124,6 +127,51 @@ export async function updateProduct(
     if (error) return { success: false, error: error.message };
     revalidateTag("products", "max");
     return { success: true, data: mapProductFromDb(data) };
+}
+
+// ─── Bulk post-order pricing ──────────────────────────────────────────────────
+
+export interface BulkPostOrderPriceEntry {
+    /** Product id — sets rw_products.post_order_price. */
+    productId: string;
+    /** New post-order base price in Naira, or null to clear (inherit base_price). */
+    postOrderPrice: number | null;
+    /** Optional per-variant post-order overrides for this product. */
+    variants?: Array<{ variantId: string; postOrderPriceOverride: number | null }>;
+}
+
+/**
+ * Set post-order prices across many products/variants in one call — powers the
+ * admin "set new prices on all products" screen for the post-order phase.
+ * Applies each entry independently; the first failure aborts and is reported.
+ */
+export async function bulkSetPostOrderPrices(
+    entries: BulkPostOrderPriceEntry[]
+): Promise<ServiceResult<{ productsUpdated: number; variantsUpdated: number }>> {
+    const supabase = await createSupabaseAdminClient();
+    let productsUpdated = 0;
+    let variantsUpdated = 0;
+
+    for (const entry of entries) {
+        const { error: pErr } = await supabase
+            .from("rw_products")
+            .update({ post_order_price: entry.postOrderPrice })
+            .eq("id", entry.productId);
+        if (pErr) return { success: false, error: pErr.message };
+        productsUpdated += 1;
+
+        for (const v of entry.variants ?? []) {
+            const { error: vErr } = await supabase
+                .from("rw_product_variants")
+                .update({ post_order_price_override: v.postOrderPriceOverride })
+                .eq("id", v.variantId);
+            if (vErr) return { success: false, error: vErr.message };
+            variantsUpdated += 1;
+        }
+    }
+
+    revalidateTag("products", "max");
+    return { success: true, data: { productsUpdated, variantsUpdated } };
 }
 
 export async function deleteProduct(id: string): Promise<ServiceResult> {
@@ -177,6 +225,7 @@ export async function addVariant(
             design: input.design ?? null,
             sku: input.sku ?? null,
             price_override: input.priceOverride ?? null,
+            post_order_price_override: input.postOrderPriceOverride ?? null,
             is_available: input.isAvailable ?? true,
         })
         .select("*, images:rw_product_images(*)")
@@ -200,6 +249,8 @@ export async function updateVariant(
     if ("design" in input) patch.design = input.design ?? null;
     if ("sku" in input) patch.sku = input.sku ?? null;
     if ("priceOverride" in input) patch.price_override = input.priceOverride ?? null;
+    if ("postOrderPriceOverride" in input)
+        patch.post_order_price_override = input.postOrderPriceOverride ?? null;
     if ("isAvailable" in input) patch.is_available = input.isAvailable;
 
     const { data, error } = await supabase

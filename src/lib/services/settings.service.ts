@@ -3,7 +3,7 @@
 
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { revalidateTag, revalidatePath } from "next/cache";
-import type { ServiceResult } from "@/lib/data/types";
+import type { ServiceResult, OrderPhase } from "@/lib/data/types";
 
 export interface GlobalSettings {
     bank_name: string;
@@ -17,6 +17,9 @@ export interface GlobalSettings {
     /** Master switch for payment submission on /fulfil. When false, orders can
      * still be looked up but no part/full payment can be submitted. */
     payments_enabled: boolean;
+    /** Active ordering phase. 'preorder' shows original prices & terms;
+     * 'postorder' shows post-order prices and the updated terms notice. */
+    order_phase: OrderPhase;
 }
 
 export interface AdminModerator {
@@ -50,6 +53,7 @@ export async function getSettings(): Promise<GlobalSettings> {
             payment_installment_allowed: false,
             preorders_enabled: true,
             payments_enabled: true,
+            order_phase: "preorder",
         };
     }
     return data;
@@ -85,6 +89,7 @@ export async function updateSettings(
     revalidatePath("/shop");
     revalidatePath("/checkout");
     revalidatePath("/fulfil");
+    revalidatePath("/terms");
     return { success: true, data };
 }
 

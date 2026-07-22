@@ -1,7 +1,8 @@
 "use client";
 
-import { COLOR_HEX } from "@/lib/data/products";
+import { COLOR_HEX, getDisplayFromPrice } from "@/lib/data/products";
 import type { Product } from "@/lib/data/types";
+import { useCart } from "@/context/CartContext";
 import { formatNaira, productImageUrl } from "@/lib/utils/functions";
 import { useMemo, useState } from "react";
 import { ProductImage } from "../common/ProductImage";
@@ -12,6 +13,8 @@ interface Props {
 }
 
 export function ShopProductCard({ product, onOpen }: Props) {
+    const { orderPhase } = useCart();
+    const displayPrice = getDisplayFromPrice(product, orderPhase);
     const colors = useMemo(() => {
         return [...new Set(product.variants.filter((v) => v.color).map((v) => v.color!))];
     }, [product.variants]);
@@ -110,7 +113,7 @@ export function ShopProductCard({ product, onOpen }: Props) {
 
                 <div className="flex items-center justify-between pt-3 border-t border-[var(--rw-border)]">
                     <span className="font-bold text-rw-crimson text-lg">
-                        {formatNaira(product.basePrice)}
+                        {formatNaira(displayPrice)}
                     </span>
                     <button
                         onClick={onOpen}

@@ -9,6 +9,7 @@ import { AdminBreadcrumb } from "@/components/admin/AdminBreadcrumb";
 import { AdminTable } from "@/components/admin/AdminTable";
 import {
     updateVariant,
+    updateProduct,
     deleteVariant,
     deleteProduct,
     upsertVariantImage,
@@ -108,6 +109,16 @@ export default function ProductDetailClient({
     const [editSkuVal, setEditSkuVal] = useState("");
     const [editPriceId, setEditPriceId] = useState<string | null>(null);
     const [editPriceVal, setEditPriceVal] = useState("");
+    const [editPostPriceId, setEditPostPriceId] = useState<string | null>(null);
+    const [editPostPriceVal, setEditPostPriceVal] = useState("");
+    // Product-level post-order price (editable inline in the header).
+    const [postOrderPrice, setPostOrderPrice] = useState<number | null>(
+        product.postOrderPrice
+    );
+    const [editingPostOrderPrice, setEditingPostOrderPrice] = useState(false);
+    const [postOrderPriceVal, setPostOrderPriceVal] = useState(
+        product.postOrderPrice ? String(product.postOrderPrice) : ""
+    );
 
     const uniqueColors = [
         ...new Set(variants.map((v) => v.color).filter(Boolean)),
@@ -238,6 +249,66 @@ export default function ProductDetailClient({
                     )
                 );
                 toast.error("Failed to save price", { id: toastId });
+            }
+        });
+    }
+
+    // Edit per-variant Post-order Price Override
+    function startPostPriceEdit(v: ProductVariant) {
+        setEditPostPriceId(v.id);
+        setEditPostPriceVal(
+            v.postOrderPriceOverride ? String(v.postOrderPriceOverride) : ""
+        );
+    }
+
+    function savePostPriceEdit(id: string) {
+        const val = editPostPriceVal.trim() ? Number(editPostPriceVal) : null;
+        setEditPostPriceId(null);
+
+        const original = variants.find((v) => v.id === id)?.postOrderPriceOverride;
+        if (original === val) return;
+
+        const toastId = `post-price-${id}`;
+        toast.loading("Saving post-order price...", { id: toastId });
+
+        setVariants((prev) =>
+            prev.map((v) => (v.id === id ? { ...v, postOrderPriceOverride: val } : v))
+        );
+
+        startTransition(async () => {
+            const res = await updateVariant(id, { postOrderPriceOverride: val });
+            if (res.success) toast.success("Post-order price updated", { id: toastId });
+            else {
+                setVariants((prev) =>
+                    prev.map((v) =>
+                        v.id === id
+                            ? { ...v, postOrderPriceOverride: original ?? null }
+                            : v
+                    )
+                );
+                toast.error("Failed to save post-order price", { id: toastId });
+            }
+        });
+    }
+
+    // Edit product-level Post-order Price
+    function saveProductPostOrderPrice() {
+        const val = postOrderPriceVal.trim() ? Number(postOrderPriceVal) : null;
+        setEditingPostOrderPrice(false);
+        if (val === postOrderPrice) return;
+
+        const original = postOrderPrice;
+        const toastId = "product-post-price";
+        toast.loading("Saving post-order price...", { id: toastId });
+        setPostOrderPrice(val);
+
+        startTransition(async () => {
+            const res = await updateProduct(product.id, { postOrderPrice: val });
+            if (res.success) toast.success("Post-order price updated", { id: toastId });
+            else {
+                setPostOrderPrice(original);
+                setPostOrderPriceVal(original ? String(original) : "");
+                toast.error("Failed to save post-order price", { id: toastId });
             }
         });
     }
@@ -426,6 +497,58 @@ export default function ProductDetailClient({
                         <span className="text-sm text-rw-muted">base price</span>
                     </div>
 
+                    {/* Post-order price — used when the store is in the post-order phase */}
+                    <div className="flex items-center gap-2 group">
+                        <span className="text-xs font-bold text-rw-muted uppercase tracking-widest">
+                            Post-order:
+                        </span>
+                        {editingPostOrderPrice ? (
+                            <input
+                                autoFocus
+                                type="number"
+                                value={postOrderPriceVal}
+                                onChange={(e) => setPostOrderPriceVal(e.target.value)}
+                                onBlur={saveProductPostOrderPrice}
+                                onKeyDown={(e) =>
+                                    e.key === "Enter" && saveProductPostOrderPrice()
+                                }
+                                placeholder={`₦${product.basePrice.toLocaleString()}`}
+                                className="w-28 rounded border border-[var(--rw-border)] px-2 py-1 text-sm font-mono text-rw-ink focus:outline-none focus:ring-1 focus:ring-rw-crimson"
+                            />
+                        ) : (
+                            <>
+                                <span
+                                    className={`text-sm font-bold ${postOrderPrice ? "text-rw-ink" : "text-rw-muted italic"}`}
+                                >
+                                    {postOrderPrice
+                                        ? `₦${postOrderPrice.toLocaleString()}`
+                                        : "inherits base price"}
+                                </span>
+                                {isAdmin && (
+                                    <button
+                                        onClick={() => setEditingPostOrderPrice(true)}
+                                        className="opacity-0 group-hover:opacity-100 p-1 text-rw-muted hover:text-rw-ink transition-opacity"
+                                        aria-label="Edit post-order price"
+                                    >
+                                        <svg
+                                            className="h-3.5 w-3.5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487z"
+                                            />
+                                        </svg>
+                                    </button>
+                                )}
+                            </>
+                        )}
+                    </div>
+
                     <div className="rounded-xl bg-white border border-[var(--rw-border)] shadow-sm overflow-hidden mt-4">
                         <div className="border-b border-[var(--rw-border)] px-5 py-4 flex items-center justify-between bg-rw-bg-alt/30">
                             <div>
@@ -566,6 +689,73 @@ export default function ProductDetailClient({
                                                                     startPriceEdit(v)
                                                                 }
                                                                 className="opacity-0 group-hover:opacity-100 p-1 text-rw-muted hover:text-rw-ink transition-opacity"
+                                                            >
+                                                                <svg
+                                                                    className="h-3 w-3"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    strokeWidth={2}
+                                                                    viewBox="0 0 24 24"
+                                                                >
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487z"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </div>
+                                        );
+                                    },
+                                },
+                                {
+                                    key: "postPrice",
+                                    label: "Post-order",
+                                    render: (v: ProductVariant) => {
+                                        const effPost =
+                                            v.postOrderPriceOverride ??
+                                            postOrderPrice ??
+                                            v.priceOverride ??
+                                            product.basePrice;
+                                        return (
+                                            <div className="group flex items-center gap-2">
+                                                {editPostPriceId === v.id ? (
+                                                    <input
+                                                        autoFocus
+                                                        type="number"
+                                                        value={editPostPriceVal}
+                                                        onChange={(e) =>
+                                                            setEditPostPriceVal(
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                        onBlur={() =>
+                                                            savePostPriceEdit(v.id)
+                                                        }
+                                                        onKeyDown={(e) =>
+                                                            e.key === "Enter" &&
+                                                            savePostPriceEdit(v.id)
+                                                        }
+                                                        placeholder={`₦${effPost.toLocaleString()}`}
+                                                        className="w-24 rounded border border-[var(--rw-border)] px-2 py-1 text-xs font-mono text-rw-ink focus:outline-none focus:ring-1 focus:ring-rw-crimson"
+                                                    />
+                                                ) : (
+                                                    <>
+                                                        <span
+                                                            className={`text-xs font-bold ${v.postOrderPriceOverride ? "text-rw-crimson" : "text-rw-muted"}`}
+                                                        >
+                                                            ₦{effPost.toLocaleString()}
+                                                        </span>
+                                                        {isAdmin && (
+                                                            <button
+                                                                onClick={() =>
+                                                                    startPostPriceEdit(v)
+                                                                }
+                                                                className="opacity-0 group-hover:opacity-100 p-1 text-rw-muted hover:text-rw-ink transition-opacity"
+                                                                aria-label="Edit post-order override"
                                                             >
                                                                 <svg
                                                                     className="h-3 w-3"

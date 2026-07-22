@@ -83,10 +83,18 @@ function Separator() {
     );
 }
 
-export function CountdownTimer({ targetDate }: { targetDate: string }) {
+export function CountdownTimer({
+    targetDate,
+    endDate,
+}: {
+    targetDate: string;
+    /** Optional event end date. Once passed, the timer shows an "ended" state. */
+    endDate?: string;
+}) {
     const [t, setT] = useState<TimeLeft>(calc(targetDate));
     const [mounted, setMounted] = useState(false);
     const [flipping, setFlipping] = useState(false);
+    const [hasEnded, setHasEnded] = useState(false);
     const prevSec = useRef(t.seconds);
 
     useEffect(() => {
@@ -94,6 +102,15 @@ export function CountdownTimer({ targetDate }: { targetDate: string }) {
             setMounted(true);
         })();
     }, []);
+
+    // Evaluated client-side to avoid an SSR/CSR mismatch on the "ended" branch.
+    useEffect(() => {
+        if (!endDate) return;
+        const check = () => setHasEnded(Date.now() > new Date(endDate).getTime());
+        check();
+        const id = setInterval(check, 1000);
+        return () => clearInterval(id);
+    }, [endDate]);
 
     useEffect(() => {
         if (!mounted) return;
@@ -123,6 +140,17 @@ export function CountdownTimer({ targetDate }: { targetDate: string }) {
                 <DigitBlock value={0} label="Mins" flipping={false} />
                 <Separator />
                 <DigitBlock value={0} label="Secs" flipping={false} />
+            </div>
+        );
+    }
+
+    if (hasEnded) {
+        return (
+            <div className="inline-flex items-center gap-3 rounded-2xl border border-rw-crimson/20 bg-rw-crimson/5 px-7 py-4">
+                <span className="h-2.5 w-2.5 rounded-full bg-rw-crimson" />
+                <span className="font-display font-bold text-rw-crimson text-xl">
+                    Redemption Week has ended
+                </span>
             </div>
         );
     }

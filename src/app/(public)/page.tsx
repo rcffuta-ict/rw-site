@@ -21,7 +21,7 @@ export default async function LandingPage() {
 
     return (
         <div className="bg-white overflow-x-hidden">
-            <HeroSection />
+            <HeroSection phase={settings.order_phase} />
             <StatsSection />
             <MarqueeSection />
 
@@ -33,7 +33,10 @@ export default async function LandingPage() {
 
             <AboutSection />
             {settings.preorders_enabled && (
-                <MerchPreviewSection products={products} />
+                <MerchPreviewSection
+                    products={products}
+                    phase={settings.order_phase}
+                />
             )}
 
             {/* <div className="section-container">
@@ -49,7 +52,7 @@ export default async function LandingPage() {
             <VenueSection />
             <FeaturedSponsorsSection />
             <SponsorsSection />
-            <CtaBannerSection />
+            <CtaBannerSection phase={settings.order_phase} />
         </div>
     );
 }
