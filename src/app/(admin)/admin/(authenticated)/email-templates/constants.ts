@@ -42,7 +42,7 @@ export const TEMPLATES: Template[] = [
         category: "order",
         icon: "📦",
         description:
-            "Sent when a verdict is fulfilled — includes the customer's personal pickup code ({{pickup_token}})",
+            "Sent when a verdict is fulfilled — includes the pickup instructions ({{pickup_code_html}}), with a personal code if Settings requires one",
     },
     {
         key: "delivered",
@@ -110,8 +110,8 @@ export const VARIABLES: Variable[] = [
     { name: "balance", desc: "Remaining balance" },
     { name: "items_html", desc: "Auto-generated items table" },
     {
-        name: "pickup_token",
-        desc: "Personal pickup code (Ready for Pickup email only)",
+        name: "pickup_code_html",
+        desc: "Pickup instructions — a code box, or a plain note if Settings has pickup codes turned off (Ready for Pickup email only)",
     },
 ] as const;
 
@@ -163,9 +163,7 @@ export const DEFAULT_BODIES: Record<string, string> = {
 
     ready_for_pickup: `<p>Hi {{customer_name}},</p>
 <p>Wonderful news! Your order <strong>{{order_ref}}</strong> has been produced and is now <strong>ready for collection</strong>. 🎉</p>
-<p>Please show this <strong>pickup code</strong> to our team at the pickup point — it confirms the order is really yours:</p>
-<p style="text-align:center;margin:24px 0;"><span style="display:inline-block;font-size:24px;font-weight:800;letter-spacing:3px;padding:14px 28px;border:2px dashed #FF0015;border-radius:12px;color:#1C0003;">{{pickup_token}}</span></p>
-<p>Keep this code private — only share it at the desk when collecting.</p>
+{{pickup_code_html}}
 {{items_html}}
 <p>To God be the glory — <strong>RCF FUTA Team</strong></p>`,
 

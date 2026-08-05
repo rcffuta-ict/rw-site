@@ -362,10 +362,13 @@ export async function fulfilVerdict(
 
     if (jErr) return { success: false, error: jErr.message };
     const rows = junctions ?? [];
+    const settings = await getSettings();
 
-    // Give each order a fresh pickup code and advance it to ready_for_pickup.
+    // Give each order a fresh pickup code (if required) and advance it to
+    // ready_for_pickup. Explicitly nulling the token when not required also
+    // clears any stale code left over from before the setting was toggled off.
     for (const row of rows) {
-        const token = generatePickupToken();
+        const token = settings.pickup_token_required ? generatePickupToken() : null;
         await supabase
             .from("rw_orders")
             .update({ status: "ready_for_pickup", pickup_token: token })
@@ -447,13 +450,17 @@ export async function getVerdictsOverview(): Promise<VerdictsOverview> {
 
 export interface MarkDeliveredInput {
     orderId: string;
-    token: string; // pickup code the customer presented at the desk
+    /** Pickup code the customer presented at the desk. Only required when the
+     * pickup_token_required setting is on. */
+    token?: string;
 }
 
 /**
- * Hand an order over to its customer. Admin/moderator only. The presented pickup
- * code must match the one emailed to the customer — this is the accountability
- * gate that confirms both a legitimate staff member and the rightful collector.
+ * Hand an order over to its customer. Admin/moderator only. When the
+ * pickup_token_required setting is on (default), the presented pickup code
+ * must match the one emailed to the customer — the accountability gate that
+ * confirms both a legitimate staff member and the rightful collector. When
+ * that setting is off, a staff confirmation alone is enough.
  */
 export async function markOrderDelivered(
     input: MarkDeliveredInput
@@ -463,9 +470,15 @@ export async function markOrderDelivered(
         return { success: false, error: "You don't have permission to do this." };
     }
 
-    const presented = normalizeToken(input.token ?? "");
-    if (!presented) {
-        return { success: false, error: "Enter the customer's pickup code." };
+    const settings = await getSettings();
+    const tokenRequired = settings.pickup_token_required;
+
+    let presented = "";
+    if (tokenRequired) {
+        presented = normalizeToken(input.token ?? "");
+        if (!presented) {
+            return { success: false, error: "Enter the customer's pickup code." };
+        }
     }
 
     const supabase = await createSupabaseAdminClient();
@@ -483,11 +496,13 @@ export async function markOrderDelivered(
     if (order.status !== "ready_for_pickup") {
         return { success: false, error: "This order is not ready for pickup yet." };
     }
-    if (!order.pickup_token || normalizeToken(order.pickup_token) !== presented) {
-        return {
-            success: false,
-            error: "That pickup code doesn't match. Ask the customer to check their email.",
-        };
+    if (tokenRequired) {
+        if (!order.pickup_token || normalizeToken(order.pickup_token) !== presented) {
+            return {
+                success: false,
+                error: "That pickup code doesn't match. Ask the customer to check their email.",
+            };
+        }
     }
 
     const { error: updErr } = await supabase

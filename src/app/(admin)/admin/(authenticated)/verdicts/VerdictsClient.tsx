@@ -26,10 +26,12 @@ export default function VerdictsClient({
     verdicts,
     overview,
     isAdmin,
+    pickupTokenRequired,
 }: {
     verdicts: Verdict[];
     overview: VerdictsOverview;
     isAdmin: boolean;
+    pickupTokenRequired: boolean;
 }) {
     const router = useRouter();
     const { openModal, closeModal } = useAdminModal();
@@ -45,6 +47,7 @@ export default function VerdictsClient({
                     router.refresh();
                 }}
                 onClose={closeModal}
+                pickupTokenRequired={pickupTokenRequired}
             />,
             {
                 title: "Confirm Pickup",

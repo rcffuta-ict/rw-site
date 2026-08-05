@@ -207,9 +207,15 @@ function buildVariables(order: any): Record<string, string> {
         amount_paid: naira(order.amount_paid || 0),
         balance: naira(balance),
         items_html: buildItemsHtml(order.items || []),
-        // Personal pickup code for the ready_for_pickup template. Empty for every
-        // other status (the customer only ever sees it once the order is ready).
-        pickup_token: order.pickup_token || "",
+        // Pickup instructions for the ready_for_pickup template — a code box
+        // when the fellowship requires one, otherwise a plain collection note.
+        // Admins can turn code generation off in Settings, so this can't just
+        // assume a token exists the way the other fields do.
+        pickup_code_html: order.pickup_token
+            ? `<p>Please show this <strong>pickup code</strong> to our team at the pickup point — it confirms the order is really yours:</p>
+<p style="text-align:center;margin:24px 0;"><span style="display:inline-block;font-size:24px;font-weight:800;letter-spacing:3px;padding:14px 28px;border:2px dashed #FF0015;border-radius:12px;color:#1C0003;">${order.pickup_token}</span></p>
+<p>Keep this code private — only share it at the desk when collecting.</p>`
+            : `<p>Please collect your order at the pickup point — just let our team know your order reference.</p>`,
     };
 }
 

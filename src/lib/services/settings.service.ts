@@ -20,6 +20,11 @@ export interface GlobalSettings {
     /** Active ordering phase. 'preorder' shows original prices & terms;
      * 'postorder' shows post-order prices and the updated terms notice. */
     order_phase: OrderPhase;
+    /** When true (default), fulfilling a verdict generates a personal pickup
+     * code that must be entered to mark an order delivered. When false, no
+     * code is generated/emailed and admins confirm delivery with a plain
+     * confirm. */
+    pickup_token_required: boolean;
 }
 
 export interface AdminModerator {
@@ -54,6 +59,7 @@ export async function getSettings(): Promise<GlobalSettings> {
             preorders_enabled: true,
             payments_enabled: true,
             order_phase: "preorder",
+            pickup_token_required: true,
         };
     }
     return data;

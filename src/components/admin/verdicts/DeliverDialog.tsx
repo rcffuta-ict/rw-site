@@ -1,8 +1,8 @@
 "use client";
 
-// Token-gated delivery confirmation. The customer presents the pickup code from
-// their email; the moderator types it here to hand the order over. This is the
-// accountability gate — a mismatch is rejected.
+// Delivery confirmation. When pickupTokenRequired is on, the customer presents
+// the pickup code from their email and the moderator types it here — a
+// mismatch is rejected. When off, a plain staff confirmation is enough.
 
 import { useState } from "react";
 import { toast } from "sonner";
@@ -14,21 +14,27 @@ export function DeliverDialog({
     order,
     onDelivered,
     onClose,
+    pickupTokenRequired,
 }: {
     order: Order;
     onDelivered: (delivered: Order) => void;
     onClose: () => void;
+    pickupTokenRequired: boolean;
 }) {
     const [code, setCode] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     async function submit() {
-        if (!code.trim() || submitting) return;
+        if ((pickupTokenRequired && !code.trim()) || submitting) return;
         setSubmitting(true);
         setError(null);
         try {
-            const res = await markOrderDelivered({ orderId: order.id, token: code });
+            const res = await markOrderDelivered(
+                pickupTokenRequired
+                    ? { orderId: order.id, token: code }
+                    : { orderId: order.id }
+            );
             if (res.success && res.data) {
                 toast.success(`Order ${order.orderRef} collected`, {
                     description: `Handed over to ${order.customerName}.`,
@@ -60,31 +66,42 @@ export function DeliverDialog({
                 <p className="text-xs text-rw-muted">{order.customerEmail}</p>
             </div>
 
-            <div>
-                <label className="text-[10px] font-black text-rw-muted uppercase tracking-[0.25em]">
-                    Pickup code
-                </label>
-                <input
-                    autoFocus
-                    value={code}
-                    onChange={(e) => {
-                        setCode(e.target.value);
-                        setError(null);
-                    }}
-                    onKeyDown={(e) => e.key === "Enter" && submit()}
-                    placeholder="e.g. GRACE-7K2"
-                    className={`mt-2 w-full h-14 rounded-xl border-2 bg-white px-4 font-mono font-black text-lg uppercase tracking-widest text-rw-ink outline-none transition-colors ${
-                        error ? "border-rw-crimson" : "border-[var(--rw-border)] focus:border-rw-crimson"
-                    }`}
-                />
-                <p className="mt-2 text-[11px] text-rw-muted">
-                    Ask the customer to read out the code from their pickup email. Spacing
-                    and case don&apos;t matter.
-                </p>
-                {error && (
-                    <p className="mt-2 text-xs font-bold text-rw-crimson">{error}</p>
-                )}
-            </div>
+            {pickupTokenRequired ? (
+                <div>
+                    <label className="text-[10px] font-black text-rw-muted uppercase tracking-[0.25em]">
+                        Pickup code
+                    </label>
+                    <input
+                        autoFocus
+                        value={code}
+                        onChange={(e) => {
+                            setCode(e.target.value);
+                            setError(null);
+                        }}
+                        onKeyDown={(e) => e.key === "Enter" && submit()}
+                        placeholder="e.g. GRACE-7K2"
+                        className={`mt-2 w-full h-14 rounded-xl border-2 bg-white px-4 font-mono font-black text-lg uppercase tracking-widest text-rw-ink outline-none transition-colors ${
+                            error ? "border-rw-crimson" : "border-[var(--rw-border)] focus:border-rw-crimson"
+                        }`}
+                    />
+                    <p className="mt-2 text-[11px] text-rw-muted">
+                        Ask the customer to read out the code from their pickup email. Spacing
+                        and case don&apos;t matter.
+                    </p>
+                    {error && (
+                        <p className="mt-2 text-xs font-bold text-rw-crimson">{error}</p>
+                    )}
+                </div>
+            ) : (
+                <div>
+                    <p className="text-sm text-rw-ink leading-relaxed">
+                        Confirm this order has been handed to the customer.
+                    </p>
+                    {error && (
+                        <p className="mt-2 text-xs font-bold text-rw-crimson">{error}</p>
+                    )}
+                </div>
+            )}
 
             <div className="flex items-center gap-3">
                 <button
@@ -95,7 +112,7 @@ export function DeliverDialog({
                 </button>
                 <button
                     onClick={submit}
-                    disabled={!code.trim() || submitting}
+                    disabled={(pickupTokenRequired && !code.trim()) || submitting}
                     className="h-12 flex-1 rounded-xl bg-rw-ink text-white font-display font-black uppercase tracking-widest text-xs hover:bg-rw-crimson transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
                 >
                     {submitting ? (

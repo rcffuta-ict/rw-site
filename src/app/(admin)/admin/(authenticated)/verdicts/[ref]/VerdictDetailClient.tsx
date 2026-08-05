@@ -87,9 +87,11 @@ function formatWhen(iso: string | null) {
 export function VerdictDetailClient({
     verdict: initialVerdict,
     orders: initialOrders,
+    pickupTokenRequired,
 }: {
     verdict: Verdict;
     orders: Order[];
+    pickupTokenRequired: boolean;
 }) {
     const router = useRouter();
     const { openModal, closeModal } = useAdminModal();
@@ -116,6 +118,7 @@ export function VerdictDetailClient({
                 order={order}
                 onDelivered={applyDelivered}
                 onClose={closeModal}
+                pickupTokenRequired={pickupTokenRequired}
             />,
             { title: "Confirm Pickup", description: "Verify the customer's code", maxWidth: "md" }
         );

@@ -187,7 +187,8 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
         () =>
             formState.preorders_enabled !== settings.preorders_enabled ||
             formState.payments_enabled !== settings.payments_enabled ||
-            formState.order_phase !== settings.order_phase,
+            formState.order_phase !== settings.order_phase ||
+            formState.pickup_token_required !== settings.pickup_token_required,
         [formState, settings]
     );
 
@@ -312,6 +313,28 @@ function AccountSection({ settings }: { settings: GlobalSettings }) {
                                 );
                             })}
                         </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-6 border-t border-[var(--rw-border)] border-dashed">
+                        <div className="space-y-1 pr-6">
+                            <p className="text-sm font-black text-rw-ink uppercase tracking-tight">
+                                Require Pickup Code
+                            </p>
+                            <p className="text-[10px] text-rw-muted font-bold uppercase tracking-widest leading-relaxed">
+                                When off, verdicts don&apos;t generate pickup codes and
+                                admins confirm handover with a plain confirmation
+                            </p>
+                        </div>
+                        <Toggle
+                            label="Require pickup code"
+                            on={formState.pickup_token_required}
+                            onToggle={() =>
+                                setFormState((s) => ({
+                                    ...s,
+                                    pickup_token_required: !s.pickup_token_required,
+                                }))
+                            }
+                        />
                     </div>
 
                     <button

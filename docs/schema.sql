@@ -700,6 +700,10 @@ CREATE TABLE IF NOT EXISTS public.rw_settings (
   -- Active ordering phase. 'preorder' = original pre-order prices & terms.
   -- 'postorder' = post-order prices (post_order_price) & updated terms are shown.
   order_phase text NOT NULL DEFAULT 'preorder' CHECK (order_phase IN ('preorder','postorder')),
+  -- When true (default), fulfilling a verdict generates a personal pickup code
+  -- that must be entered to mark an order delivered. When false, no code is
+  -- generated/emailed and admins confirm delivery with a plain confirm.
+  pickup_token_required boolean NOT NULL DEFAULT true,
   updated_by uuid REFERENCES public.profiles(id),
   updated_at timestamptz DEFAULT now()
 );
@@ -711,6 +715,8 @@ ALTER TABLE public.rw_settings
   ADD COLUMN IF NOT EXISTS payments_enabled boolean NOT NULL DEFAULT true;
 ALTER TABLE public.rw_settings
   ADD COLUMN IF NOT EXISTS order_phase text NOT NULL DEFAULT 'preorder';
+ALTER TABLE public.rw_settings
+  ADD COLUMN IF NOT EXISTS pickup_token_required boolean NOT NULL DEFAULT true;
 -- Add the CHECK separately so re-running is safe on pre-existing columns.
 DO $$ BEGIN
   ALTER TABLE public.rw_settings
@@ -754,6 +760,10 @@ CREATE TABLE IF NOT EXISTS public.rw_settings (
   -- Active ordering phase. 'preorder' = original pre-order prices & terms.
   -- 'postorder' = post-order prices (post_order_price) & updated terms are shown.
   order_phase text NOT NULL DEFAULT 'preorder' CHECK (order_phase IN ('preorder','postorder')),
+  -- When true (default), fulfilling a verdict generates a personal pickup code
+  -- that must be entered to mark an order delivered. When false, no code is
+  -- generated/emailed and admins confirm delivery with a plain confirm.
+  pickup_token_required boolean NOT NULL DEFAULT true,
   updated_by uuid REFERENCES public.profiles(id),
   updated_at timestamptz DEFAULT now()
 );
@@ -765,6 +775,8 @@ ALTER TABLE public.rw_settings
   ADD COLUMN IF NOT EXISTS payments_enabled boolean NOT NULL DEFAULT true;
 ALTER TABLE public.rw_settings
   ADD COLUMN IF NOT EXISTS order_phase text NOT NULL DEFAULT 'preorder';
+ALTER TABLE public.rw_settings
+  ADD COLUMN IF NOT EXISTS pickup_token_required boolean NOT NULL DEFAULT true;
 -- Add the CHECK separately so re-running is safe on pre-existing columns.
 DO $$ BEGIN
   ALTER TABLE public.rw_settings
@@ -871,9 +883,8 @@ VALUES
    'Your RW''26 Order is Ready for Pickup — #{{order_ref}}',
    '<p>Hi {{customer_name}},</p>
 <p>Wonderful news! Your order <strong>#{{order_ref}}</strong> has been produced and is now <strong>ready for collection</strong>. 🎉</p>
-<p>To collect it, please show this <strong>pickup code</strong> to our team member at the pickup point — it confirms the order is really yours:</p>
-<p style="text-align:center;margin:24px 0;"><span style="display:inline-block;font-size:24px;font-weight:800;letter-spacing:3px;padding:14px 28px;border:2px dashed #FF0015;border-radius:12px;color:#1C0003;">{{pickup_token}}</span></p>
-<p>Keep this code private — only share it at the desk when collecting. If you have any questions about timing or location, please contact us.</p>
+{{pickup_code_html}}
+<p>If you have any questions about timing or location, please contact us.</p>
 {{items_html}}
 <p>— RCF FUTA Team</p>',
    true),
